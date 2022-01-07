@@ -1,0 +1,27 @@
+[package]
+name = "integra8"
+version = "0.1.0"
+edition = "2018"
+
+[dependencies]
+integra8_impl = {path = "../integra8_impl"}
+
+structopt = "0.3"
+term = "0.5"
+linkme = "0.2"
+indexmap = "1.7.0"
+
+
+async-process = "1.2.0"
+futures = "0.3.17"
+
+async-std = { version = "1.10.0",  optional = true}
+tokio = { version = "1.12.0",  optional = true}
+
+[features]
+sync = []
+async = []
+
+async-std-runtime = ["async", "async-std", "integra8_impl/async-std-runtime"]
+tokio-runtime = ["async", "tokio", "integra8_impl/tokio-runtime"]
+

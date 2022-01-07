@@ -1,0 +1,7 @@
+[workspace]
+members = [
+  "core/integra8",
+  "core/integra8_impl",
+  "formatters/tree_formatter",
+  "examples/basic_sample",
+]
