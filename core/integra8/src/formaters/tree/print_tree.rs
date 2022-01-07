@@ -1,4 +1,4 @@
-use crate::formaters::OutputLocation;
+use crate::formatters::OutputLocation;
 use crate::results::report::ComponentRunReport;
 
 use crate::results::artifacts::stdio::TestResultStdio;

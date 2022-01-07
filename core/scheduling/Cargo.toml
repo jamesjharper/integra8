@@ -1,0 +1,31 @@
+[package]
+name = "integra8_scheduling"
+version = "1.0.0"
+edition = "2018"
+
+[dependencies]
+futures = "0.3.17"
+
+integra8_components = {path = "../components"}
+integra8_context = {path = "../context"}
+integra8_async_runtime = {path = "../async_runtime"}
+
+[features]
+# non async scheduling not yet implemented
+# TODO: Refactor out 
+sync = [
+    "integra8_components/sync",
+]
+async = [
+    "integra8_components/async"
+]
+
+async-std-runtime = [
+    "async",
+    "integra8_async_runtime/async-std-runtime"
+]
+tokio-runtime = [
+    "async",
+    "integra8_async_runtime/tokio-runtime"
+]
+

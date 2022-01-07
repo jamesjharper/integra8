@@ -1,8 +1,8 @@
 use std::io::prelude::Write;
 
 use crate::components::ComponentDescription;
-use crate::formaters::OutputLocation;
-use crate::formaters::{OutputFormatter, OutputFormatterFactory};
+use crate::formatters::OutputLocation;
+use crate::formatters::{OutputFormatter, OutputFormatterFactory};
 use crate::parameters::TestParameters;
 use crate::results::summary::{RunSummary, SuiteSummary};
 

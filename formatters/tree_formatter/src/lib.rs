@@ -2,10 +2,9 @@ mod print_tree;
 use print_tree::ComponentResultsTreeNode;
 use print_tree::TreeNodePrinter;
 
-use integra8::components::ComponentDescription;
-use integra8::formaters::OutputLocation;
-use integra8::formaters::{OutputFormatter, OutputFormatterFactory};
-use integra8::parameters::TestParameters;
+use integra8::context::meta::ComponentDescription;
+use integra8::formatters::OutputLocation;
+use integra8::formatters::{OutputFormatter, OutputFormatterFactory};
 use integra8::results::summary::{RunSummary, SuiteSummary};
 use integra8::results::report::ComponentRunReport;
 use integra8::structopt::StructOpt;
@@ -153,7 +152,7 @@ impl TreeFormatter {
 
 impl OutputFormatterFactory for TreeFormatter {
     type FormatterParameters = TreeFormatterParameters;
-    fn create<T: TestParameters>(
+    fn create<T>(
         _formatter_parameters: &Self::FormatterParameters,
         _test_parameters: &T,
     ) -> Box<dyn OutputFormatter> {

@@ -7,9 +7,9 @@ pub use source::ResultsSource;
 pub mod observers;
 pub use observers::ComponentProgressNotify;
 
-use crate::async_runtime::channel;
+use integra8_async_runtime::channel;
 
-use crate::components::ComponentDescription;
+use crate::context::meta::ComponentDescription;
 use crate::results::ComponentTimeResult;
 use crate::results::report::ComponentRunReport;
 

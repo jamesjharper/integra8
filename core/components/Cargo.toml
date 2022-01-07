@@ -1,0 +1,12 @@
+[package]
+name = "integra8_components"
+version = "1.0.0"
+edition = "2018"
+
+[dependencies]
+integra8_context = {path = "../context"}
+integra8_decorations = {path = "../decorations"}
+
+[features]
+sync = ["integra8_decorations/sync",]
+async = ["integra8_decorations/async"]

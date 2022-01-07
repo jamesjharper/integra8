@@ -1,4 +1,4 @@
-use crate::formaters::{OutputFormatter, OutputFormatterFactory};
+use crate::formatters::{OutputFormatter, OutputFormatterFactory};
 
 use crate::parameters::TestParameters;
 use crate::structopt::StructOpt;

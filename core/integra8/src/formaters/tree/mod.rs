@@ -1,10 +1,10 @@
 mod print_tree;
-use crate::formaters::tree::print_tree::ComponentResultsTreeNode;
-use crate::formaters::tree::print_tree::TreeNodePrinter;
+use crate::formatters::tree::print_tree::ComponentResultsTreeNode;
+use crate::formatters::tree::print_tree::TreeNodePrinter;
 
 use crate::components::ComponentDescription;
-use crate::formaters::OutputLocation;
-use crate::formaters::{OutputFormatter, OutputFormatterFactory};
+use crate::formatters::OutputLocation;
+use crate::formatters::{OutputFormatter, OutputFormatterFactory};
 use crate::parameters::TestParameters;
 use crate::results::summary::{RunSummary, SuiteSummary};
 use crate::results::report::ComponentRunReport;

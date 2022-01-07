@@ -1,12 +1,12 @@
-use integra8::formaters::OutputLocation;
+use integra8::formatters::OutputLocation;
 use integra8::results::report::ComponentRunReport;
 
 use integra8::results::artifacts::stdio::TestResultStdio;
 use integra8::results::{ComponentResult, ComponentTimeResult};
 use integra8::results::{DidNotRunReason, FailureReason, PassReason};
 
-use integra8::components::ComponentType;
-use integra8::decorations::SourceLocation;
+use integra8::context::meta::ComponentType;
+use integra8::context::meta::SourceLocation;
 
 use std::error::Error;
 

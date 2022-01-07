@@ -1,12 +1,12 @@
-use crate::components::{ComponentDescription, ComponentType};
-use crate::formaters::OutputFormatter;
+use crate::context::meta::{ComponentDescription, ComponentType};
+use crate::formatters::OutputFormatter;
 use crate::results::summary::RunSummary;
 
 use crate::results::ComponentTimeResult;
 use crate::results::report::ComponentRunReport;
 use std::error::Error;
 
-use crate::async_runtime::Receiver;
+use integra8_async_runtime::Receiver;
 
 use crate::channel::TestEvent;
 
@@ -16,9 +16,6 @@ pub struct ResultsSink {
 }
 
 impl ResultsSink {
-    pub fn new(rx: Receiver<TestEvent>, sink: ResultsOutputWriterSink) -> Self {
-        Self { sink: sink, rx: rx }
-    }
 
     #[cfg(any(feature = "tokio-runtime", feature = "async-std-runtime"))]
     pub async fn start_listening(mut self) -> RunSummary {

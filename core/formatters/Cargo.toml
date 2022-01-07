@@ -1,0 +1,25 @@
+[package]
+name = "integra8_formatters"
+version = "1.0.0"
+edition = "2018"
+
+
+[dependencies]
+
+structopt = "0.3"
+term = "0.5"
+integra8_context = {path = "../context"}
+integra8_components = {path = "../components"}
+integra8_results = {path = "../results"}
+
+[features]
+# TODO: Refactor out 
+sync = [
+    "integra8_components/sync",
+    "integra8_results/sync",
+    
+]
+async = [
+    "integra8_components/async",
+    "integra8_results/async",
+]

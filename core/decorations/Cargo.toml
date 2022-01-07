@@ -1,0 +1,12 @@
+[package]
+name = "integra8_decorations"
+version = "0.1.0"
+edition = "2018"
+
+[dependencies]
+integra8_context = {path = "../context"}
+indexmap = "1.7.0"
+
+[features]
+sync = []
+async = []

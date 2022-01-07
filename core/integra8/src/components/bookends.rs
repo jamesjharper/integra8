@@ -1,6 +1,6 @@
 use crate::components::{ComponentDescription, ComponentIdentity, ComponentType, SuiteAttributes};
 use crate::decorations::{BookEndAttributesDecoration, BookEndDecoration, BookEndDecorationPair};
-use crate::runner::context::ExecutionContext;
+use integra8_context::ExecutionContext;
 use std::time::Duration;
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]

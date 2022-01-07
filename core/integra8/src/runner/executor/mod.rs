@@ -1,7 +1,7 @@
 use std::panic::UnwindSafe;
 
 use crate::channel::ComponentProgressNotify;
-use crate::parameters::TestParameters;
+use crate::context::parameters::TestParameters;
 use crate::results::report::ComponentReportBuilder;
 use crate::runner::ComponentFixture;
 

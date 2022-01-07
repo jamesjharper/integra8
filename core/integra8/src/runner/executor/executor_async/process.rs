@@ -6,15 +6,13 @@ use std::time::Instant;
 use async_process::{Command, Stdio};
 
 use super::Executor;
-use crate::async_runtime;
-
 
 use crate::results::report::ComponentReportBuilder;
 use crate::results::artifacts::ComponentRunArtifacts;
 use crate::results::artifacts::stdio::TestResultStdio;
 use crate::channel::ComponentProgressNotify;
 
-use crate::parameters::TestParameters;
+use crate::context::parameters::TestParameters;
 use crate::runner::ComponentFixture;
 
 pub struct AsyncProcessExecutor;
@@ -49,7 +47,7 @@ impl<TParameters: TestParameters + Send + Sync + UnwindSafe +'static> Executor<T
     
             let maybe_time_out = report_builder.time_until_deadline(start_time.elapsed());
             let result = match maybe_time_out {
-                Some(time_out) => async_runtime::timeout(time_out, child_process.status()).await,
+                Some(time_out) => integra8_async_runtime::timeout(time_out, child_process.status()).await,
                 None => Ok(child_process.status().await)
             }; 
     

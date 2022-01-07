@@ -1,5 +1,5 @@
 use crate::channel::ResultsSource;
-use crate::components::ComponentDescription;
+use crate::context::meta::ComponentDescription;
 
 pub struct ComponentProgressNotify {
     result_publisher: ResultsSource,

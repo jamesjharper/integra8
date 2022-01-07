@@ -82,7 +82,7 @@ pub trait TestParameters {
     }
 }
 
-use crate::formaters::OutputFormatter;
+use crate::formatters::OutputFormatter;
 
 pub trait FormatterParameters {
     fn create_formatter(&self) -> Option<Box<dyn OutputFormatter>>;

@@ -6,22 +6,20 @@ pub use state::{ComponentState, ComponentStateToken, RunStateModel};
 mod fixture;
 pub use fixture::ComponentFixture;
 
-pub mod context;
-
 use std::panic::UnwindSafe;
 use std::sync::Arc;
 
 use crate::channel::ComponentProgressNotify;
 use crate::results::report::{ComponentReportBuilder, ComponentRunReport};
 
-use crate::components::Component;
+
 
 use crate::channel::ResultsSource;
-use crate::parameters::{ExecutionStrategy, TestParameters};
-
+use crate::context::parameters::TestParameters;
+use crate::context::ExecutionStrategy;
 use crate::scheduling::iter::TaskStreamMap;
 use crate::scheduling::state_machine::TaskStateMachineNode;
-use crate::scheduling::TaskScheduler;
+use crate::scheduling::{TaskScheduler, Component};
 
 use crate::runner::executor::{process_external_executor, process_internal_executor, Executor};
 
@@ -94,7 +92,7 @@ impl DefaultScheduleRunner {
             Component::Setup(c) | Component::TearDown(c) => {
                 ComponentFixture::for_bookend(c, parameters)
             }
-            Component::Suite(description, attributes, _) => {
+            Component::Suite(description, attributes) => {
                 ComponentFixture::for_suite(description, attributes, parameters)
             }
         };

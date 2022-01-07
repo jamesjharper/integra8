@@ -1,7 +1,9 @@
-use crate::components::{AcceptanceCriteria, BookEnd, ComponentDescription, SuiteAttributes, Test};
-use crate::parameters::{ExecutionStrategy, TestParameters};
+use crate::components::{AcceptanceCriteria, BookEnd, SuiteAttributes, Test};
+use crate::context::parameters::TestParameters;
+use crate::context::meta::ComponentDescription;
+use crate::context::ExecutionStrategy;
 
-use crate::runner::context::ExecutionContext;
+use integra8_context::ExecutionContext;
 
 use std::sync::Arc;
 

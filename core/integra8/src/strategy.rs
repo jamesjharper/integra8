@@ -1,12 +1,12 @@
 use std::panic::UnwindSafe;
 
 use crate::channel::ResultsSource;
-use crate::components::{Component, IntoTaskStateMachine, RootSuite};
+use crate::components::RootSuite;
 use crate::decorations::ComponentDecoration;
-use crate::formaters::OutputFormatter;
-use crate::parameters::{FormatterParameters, TestParameters};
+use crate::formatters::{OutputFormatter, FormatterParameters};
+use crate::context::parameters::TestParameters;
 use crate::runner::{DefaultScheduleRunner, ScheduleRunner};
-use crate::scheduling::TaskStateMachineNode;
+use crate::scheduling::{TaskStateMachineNode, IntoTaskStateMachine, Component};
 
 /// IOC code seem for internal test and customization extensions to the framework
 pub trait ResolveComponentsStrategy<Parameters> {

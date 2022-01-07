@@ -7,10 +7,9 @@ use futures::FutureExt;
 
 
 use super::Executor;
-use crate::async_runtime;
 
 use crate::channel::ComponentProgressNotify;
-use crate::parameters::TestParameters;
+use crate::context::parameters::TestParameters;
 use crate::runner::ComponentFixture;
 use crate::results::artifacts::ComponentRunArtifacts;
 
@@ -36,7 +35,7 @@ impl<TParameters: TestParameters + Send + Sync + UnwindSafe + 'static> Executor<
             progress_notify.notify_started().await;
             let start_time = Instant::now();   
 
-            let may_panic = async_runtime::spawn(async move {
+            let may_panic = integra8_async_runtime::spawn(async move {
                 std::panic::AssertUnwindSafe(
                     fixture.run()
                 ).catch_unwind().await
@@ -45,7 +44,7 @@ impl<TParameters: TestParameters + Send + Sync + UnwindSafe + 'static> Executor<
             let maybe_time_out = report_builder.time_until_deadline(start_time.elapsed());
     
             let result = match maybe_time_out {
-                Some(time_out) => async_runtime::timeout(time_out, may_panic).await,
+                Some(time_out) => integra8_async_runtime::timeout(time_out, may_panic).await,
                 None => Ok(may_panic.await)
             }; 
 
