@@ -8,9 +8,10 @@ use async_process::{Command, Stdio};
 use super::Executor;
 use crate::async_runtime;
 
-use crate::results::stdio::TestResultStdio;
+
 use crate::results::ComponentReportBuilder;
-use crate::results::ComponentRunArtifacts;
+use crate::results::artifacts::ComponentRunArtifacts;
+use crate::results::artifacts::stdio::TestResultStdio;
 use crate::channel::ComponentProgressNotify;
 
 use crate::parameters::TestParameters;

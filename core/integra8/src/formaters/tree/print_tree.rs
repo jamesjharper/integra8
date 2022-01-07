@@ -1,7 +1,7 @@
 use crate::formaters::OutputLocation;
 use crate::results::ComponentRunReport;
 
-use crate::results::stdio::TestResultStdio;
+use crate::results::artifacts::stdio::TestResultStdio;
 use crate::results::{ComponentResult, ComponentTimeResult};
 use crate::results::{DidNotRunReason, FailureReason, PassReason};
 

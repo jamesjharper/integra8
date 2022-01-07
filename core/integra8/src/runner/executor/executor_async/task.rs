@@ -12,9 +12,9 @@ use crate::async_runtime;
 use crate::channel::ComponentProgressNotify;
 use crate::parameters::TestParameters;
 use crate::runner::ComponentFixture;
-use crate::results::ComponentRunArtifacts;
+use crate::results::artifacts::ComponentRunArtifacts;
 
-use crate::results::{ComponentReportBuilder, stdio::TestResultStdio};
+use crate::results::{ComponentReportBuilder, artifacts::stdio::TestResultStdio};
 
 pub struct AsyncTaskExecutor;
 

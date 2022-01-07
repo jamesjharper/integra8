@@ -1,15 +1,10 @@
-pub mod stdio;
+pub mod artifacts;
+use artifacts::ComponentRunArtifacts;
 
 pub mod summary;
-
 use crate::components::{AcceptanceCriteria, ComponentDescription};
-use crate::results::stdio::TestResultStdio;
-use std::time::Duration;
 
-#[derive(Clone, PartialEq, Debug)]
-pub struct ComponentRunArtifacts {
-    pub stdio: stdio::TestResultStdio,
-}
+use std::time::Duration;
 
 #[derive(Clone, PartialEq, Debug)]
 pub struct ComponentRunReport {
@@ -91,7 +86,7 @@ impl ComponentReportBuilder {
             timing: self.timing.unwrap_or_else(|| ComponentTimeResult::zero()),
             description: self.description,
             artifacts: self.artifacts.unwrap_or_else(|| ComponentRunArtifacts {
-                stdio: TestResultStdio::no_output(),
+                stdio: artifacts::stdio::TestResultStdio::no_output(),
             }),
         }
     }

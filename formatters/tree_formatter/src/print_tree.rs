@@ -1,7 +1,7 @@
 use integra8::formaters::OutputLocation;
 use integra8::results::ComponentRunReport;
 
-use integra8::results::stdio::TestResultStdio;
+use integra8::results::artifacts::stdio::TestResultStdio;
 use integra8::results::{ComponentResult, ComponentTimeResult};
 use integra8::results::{DidNotRunReason, FailureReason, PassReason};
 
