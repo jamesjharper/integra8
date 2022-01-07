@@ -83,7 +83,7 @@ use crate::formatters::{FormatterParameters};
 
 use crate::decorations::ComponentDecoration;
 
-use crate::scheduling::Component;
+use crate::scheduling::ScheduledComponent;
 use crate::scheduling::state_machine::{TaskStateMachineNode, TaskStream};
 use crate::strategy::TestApplicationLocator;
 
@@ -195,7 +195,7 @@ pub fn resolve_component_schedule<
 >(
     parameters: &TParameters,
     components: Vec<ComponentDecoration<TParameters>>,
-) -> TaskStateMachineNode<Component<TParameters>> {
+) -> TaskStateMachineNode<ScheduledComponent<TParameters>> {
     Locator::resolve_component_schedule_strategy(&parameters)
         .resolve_schedule(&parameters, components)
 }

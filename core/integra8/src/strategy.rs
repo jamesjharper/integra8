@@ -6,7 +6,7 @@ use crate::decorations::ComponentDecoration;
 use crate::formatters::{OutputFormatter, FormatterParameters};
 use crate::context::parameters::TestParameters;
 use crate::runner::{DefaultScheduleRunner, ScheduleRunner};
-use crate::scheduling::{TaskStateMachineNode, IntoTaskStateMachine, Component};
+use crate::scheduling::{TaskStateMachineNode, IntoTaskStateMachine, ScheduledComponent};
 
 /// IOC code seem for internal test and customization extensions to the framework
 pub trait ResolveComponentsStrategy<Parameters> {
@@ -49,7 +49,7 @@ pub trait ResolveComponentScheduleStrategy<Parameters> {
         &mut self,
         parameters: &Parameters,
         components: Vec<ComponentDecoration<Parameters>>,
-    ) -> TaskStateMachineNode<Component<Parameters>>;
+    ) -> TaskStateMachineNode<ScheduledComponent<Parameters>>;
 }
 
 /// IOC code seem for internal test and customization extensions to the framework
@@ -144,7 +144,7 @@ impl<Parameters: TestParameters> ResolveComponentScheduleStrategy<Parameters>
         &mut self,
         parameters: &Parameters,
         components: Vec<ComponentDecoration<Parameters>>,
-    ) -> TaskStateMachineNode<Component<Parameters>> {
+    ) -> TaskStateMachineNode<ScheduledComponent<Parameters>> {
         RootSuite::from_decorated_components(components, parameters).into_task_state_machine()
     }
 }

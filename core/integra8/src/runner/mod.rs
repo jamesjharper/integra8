@@ -19,7 +19,7 @@ use crate::context::parameters::TestParameters;
 use crate::context::ExecutionStrategy;
 use crate::scheduling::iter::TaskStreamMap;
 use crate::scheduling::state_machine::TaskStateMachineNode;
-use crate::scheduling::{TaskScheduler, Component};
+use crate::scheduling::{TaskScheduler, ScheduledComponent};
 
 use crate::runner::executor::{process_external_executor, process_internal_executor, Executor};
 
@@ -30,7 +30,7 @@ pub trait ScheduleRunner<TParameters> {
     fn run(
         self,
         parameters: TParameters,
-        schedule: TaskStateMachineNode<Component<TParameters>>,
+        schedule: TaskStateMachineNode<ScheduledComponent<TParameters>>,
     ) -> Pin<Box<dyn Future<Output = ()> + Send + 'static>>;
 }
 
@@ -45,12 +45,12 @@ impl<TParameters: TestParameters + Sync + Send + UnwindSafe + 'static> ScheduleR
     fn run(
         self,
         parameters: TParameters,
-        schedule: TaskStateMachineNode<Component<TParameters>>,
+        schedule: TaskStateMachineNode<ScheduledComponent<TParameters>>,
     ) -> Pin<Box<dyn Future<Output = ()> + Send + 'static>> {
         async fn run<TInnerParameters: TestParameters + Sync + Send + UnwindSafe + 'static>(
             mut runner: DefaultScheduleRunner,
             parameters: TInnerParameters,
-            schedule: TaskStateMachineNode<Component<TInnerParameters>>,
+            schedule: TaskStateMachineNode<ScheduledComponent<TInnerParameters>>,
         ) {
             let sender = runner.sender.clone();
 
@@ -85,14 +85,14 @@ impl DefaultScheduleRunner {
     fn prepare_component_run<TParameters: TestParameters + Sync + Send + UnwindSafe + 'static>(
         &mut self,
         parameters: Arc<TParameters>,
-        component: Component<TParameters>,
+        component: ScheduledComponent<TParameters>,
     ) -> ComponentRunner<TParameters> {
         let fixture = match component {
-            Component::Test(c) => ComponentFixture::for_test(c, parameters),
-            Component::Setup(c) | Component::TearDown(c) => {
+            ScheduledComponent::Test(c) => ComponentFixture::for_test(c, parameters),
+            ScheduledComponent::Setup(c) | ScheduledComponent::TearDown(c) => {
                 ComponentFixture::for_bookend(c, parameters)
             }
-            Component::Suite(description, attributes) => {
+            ScheduledComponent::Suite(description, attributes) => {
                 ComponentFixture::for_suite(description, attributes, parameters)
             }
         };

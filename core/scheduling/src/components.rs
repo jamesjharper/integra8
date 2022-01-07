@@ -9,10 +9,8 @@ use integra8_context::ConcurrencyMode;
 use integra8_context::meta::ComponentDescription;
 use integra8_context::parameters::TestParameters;
 
-
-// TODO: Renamed to Scheduled Component
 #[derive(Clone, Debug, PartialEq, Eq)]
-pub enum Component<TParameters> {
+pub enum ScheduledComponent<TParameters> {
     Suite(ComponentDescription, SuiteAttributes),
     Test(Test<TParameters>),
     Setup(BookEnd<TParameters>),
@@ -23,13 +21,13 @@ pub trait IntoTaskStateMachine<Payload> {
     fn into_task_state_machine(self) -> TaskStateMachineNode<Payload>;
 }
 
-impl<TParameters: TestParameters> IntoTaskStateMachine<Component<TParameters>>
+impl<TParameters: TestParameters> IntoTaskStateMachine<ScheduledComponent<TParameters>>
     for Suite<TParameters>
 {
-    fn into_task_state_machine(mut self) -> TaskStateMachineNode<Component<TParameters>> {
+    fn into_task_state_machine(mut self) -> TaskStateMachineNode<ScheduledComponent<TParameters>> {
         let mut root_node = SerialTaskNode::new();
 
-        root_node.enqueue(Component::Suite(
+        root_node.enqueue(ScheduledComponent::Suite(
             self.description.clone(),
             self.attributes.clone(),
         ));
@@ -39,7 +37,7 @@ impl<TParameters: TestParameters> IntoTaskStateMachine<Component<TParameters>>
             self.bookends
                 .iter_mut()
                 .filter_map(|b| std::mem::take(&mut b.setup))
-                .map(|setup| Component::Setup(setup)),
+                .map(|setup| ScheduledComponent::Setup(setup)),
         );
 
         // 2: Run all test belonging to this suite
@@ -75,10 +73,10 @@ impl<TParameters: TestParameters> IntoTaskStateMachine<Component<TParameters>>
                 .iter_mut()
                 .rev()
                 .filter_map(|b| std::mem::take(&mut b.tear_down))
-                .map(|tear_down| Component::TearDown(tear_down)),
+                .map(|tear_down| ScheduledComponent::TearDown(tear_down)),
         );
 
-        root_node.enqueue(Component::Suite(
+        root_node.enqueue(ScheduledComponent::Suite(
             self.description,
             self.attributes,
         ));
@@ -87,10 +85,10 @@ impl<TParameters: TestParameters> IntoTaskStateMachine<Component<TParameters>>
     }
 }
 
-impl<TParameters: TestParameters> IntoTaskStateMachine<Component<TParameters>>
+impl<TParameters: TestParameters> IntoTaskStateMachine<ScheduledComponent<TParameters>>
     for Vec<Test<TParameters>>
 {
-    fn into_task_state_machine(self) -> TaskStateMachineNode<Component<TParameters>> {
+    fn into_task_state_machine(self) -> TaskStateMachineNode<ScheduledComponent<TParameters>> {
         TestIntoComponentTaskStepIterator::new(self)
             .fold(SerialTaskNode::new(), |mut seq, node| {
                 seq.enqueue(node);
@@ -113,7 +111,7 @@ impl<TParameters: TestParameters> TestIntoComponentTaskStepIterator<TParameters>
 }
 
 impl<TParameters: TestParameters> Iterator for TestIntoComponentTaskStepIterator<TParameters> {
-    type Item = TaskStateMachineNode<Component<TParameters>>;
+    type Item = TaskStateMachineNode<ScheduledComponent<TParameters>>;
 
     fn next(&mut self) -> Option<Self::Item> {
         let next = self.test_iter.next()?;
@@ -121,18 +119,18 @@ impl<TParameters: TestParameters> Iterator for TestIntoComponentTaskStepIterator
         // If this test isn't parallelizable then,
         // yield an array of a single test
         if next.attributes.concurrency_mode == ConcurrencyMode::Serial {
-            return Some(Component::Test(next).into());
+            return Some(ScheduledComponent::Test(next).into());
         }
 
         // Yield sequences of tests which can be executed in parallel
         let mut parallelizable_group = ParallelTaskNode::new();
-        parallelizable_group.append(Component::Test(next));
+        parallelizable_group.append(ScheduledComponent::Test(next));
 
         while let Some(next) = self
             .test_iter
             .next_if(|x| x.attributes.concurrency_mode == ConcurrencyMode::Parallel)
         {
-            parallelizable_group.append(Component::Test(next));
+            parallelizable_group.append(ScheduledComponent::Test(next));
         }
         Some(parallelizable_group.into())
     }
