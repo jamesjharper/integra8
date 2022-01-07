@@ -7,26 +7,34 @@ use async_process::{Command, Stdio};
 
 use super::Executor;
 
-use crate::results::report::ComponentReportBuilder;
-use crate::results::artifacts::ComponentRunArtifacts;
-use crate::results::artifacts::stdio::TestResultStdio;
-use crate::channel::ComponentProgressNotify;
+use integra8_results::report::ComponentReportBuilder;
+use integra8_results::artifacts::ComponentRunArtifacts;
+use integra8_results::artifacts::stdio::TestResultStdio;
 
-use crate::context::parameters::TestParameters;
-use crate::runner::ComponentFixture;
+
+use crate::notify::ComponentProgressNotify;
+
+use integra8_context::parameters::TestParameters;
+use crate::ComponentFixture;
 
 pub struct AsyncProcessExecutor;
 
-impl<TParameters: TestParameters + Send + Sync + UnwindSafe +'static> Executor<TParameters> for AsyncProcessExecutor {
+impl<
+    TParameters: TestParameters + Send + Sync + UnwindSafe +'static,
+    ProgressNotify: ComponentProgressNotify + Send + Sync + 'static,
+> Executor<TParameters, ProgressNotify> for AsyncProcessExecutor {
     fn execute<'async_trait>(
         &'async_trait self, 
-        progress_notify: ComponentProgressNotify,
+        progress_notify: ProgressNotify,
         fixture: ComponentFixture<TParameters>,
         report_builder: ComponentReportBuilder
-    ) -> Pin<Box<dyn Future<Output = ComponentReportBuilder>  + Send + 'async_trait>> {
+    ) -> Pin<Box<dyn Future<Output = ComponentReportBuilder> + Send + 'async_trait>> {
 
-        async fn run_with_new_process<T: TestParameters>(
-            progress_notify: ComponentProgressNotify,
+        async fn run_with_new_process<
+            T: TestParameters,
+            N: ComponentProgressNotify
+        >(
+            progress_notify: N,
             fixture: ComponentFixture<T>,
             mut report_builder: ComponentReportBuilder
         ) -> ComponentReportBuilder {
@@ -82,6 +90,6 @@ impl<TParameters: TestParameters + Send + Sync + UnwindSafe +'static> Executor<T
             report_builder
         }
 
-        Box::pin(run_with_new_process::<TParameters>(progress_notify, fixture, report_builder))      
+        Box::pin(run_with_new_process::<TParameters, ProgressNotify>(progress_notify, fixture, report_builder))      
     }
 }

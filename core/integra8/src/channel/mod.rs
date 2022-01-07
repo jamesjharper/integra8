@@ -4,8 +4,8 @@ pub use sink::{ResultsOutputWriterSink, ResultsSink};
 pub mod source;
 pub use source::ResultsSource;
 
-pub mod observers;
-pub use observers::ComponentProgressNotify;
+pub mod notify;
+pub use notify::{RunProgressChannelNotify, ComponentProgressChannelNotify};
 
 use integra8_async_runtime::channel;
 

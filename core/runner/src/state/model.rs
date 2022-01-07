@@ -1,4 +1,4 @@
-use crate::results::ComponentResult;
+use integra8_results::ComponentResult;
 use std::time::Duration;
 
 #[derive(Clone, Debug, Eq, PartialEq)]

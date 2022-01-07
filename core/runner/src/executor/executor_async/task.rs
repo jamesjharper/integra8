@@ -8,26 +8,32 @@ use futures::FutureExt;
 
 use super::Executor;
 
-use crate::channel::ComponentProgressNotify;
-use crate::context::parameters::TestParameters;
-use crate::runner::ComponentFixture;
-use crate::results::artifacts::ComponentRunArtifacts;
+use crate::notify::ComponentProgressNotify;
+use integra8_context::parameters::TestParameters;
+use crate::ComponentFixture;
 
-use crate::results::report::ComponentReportBuilder;
-use crate::results::artifacts::stdio::TestResultStdio;
+use integra8_results::artifacts::ComponentRunArtifacts;
+use integra8_results::report::ComponentReportBuilder;
+use integra8_results::artifacts::stdio::TestResultStdio;
 
 pub struct AsyncTaskExecutor;
 
-impl<TParameters: TestParameters + Send + Sync + UnwindSafe + 'static> Executor<TParameters> for AsyncTaskExecutor {
+impl<
+    TParameters: TestParameters + Send + Sync + UnwindSafe + 'static,
+    ProgressNotify: ComponentProgressNotify + Send + Sync + 'static,
+> Executor<TParameters, ProgressNotify> for AsyncTaskExecutor {
     fn execute<'async_trait>(
         &'async_trait self, 
-        progress_notify: ComponentProgressNotify,
+        progress_notify: ProgressNotify,
         fixture: ComponentFixture<TParameters>,
         report_builder: ComponentReportBuilder
     ) -> Pin<Box<dyn Future<Output = ComponentReportBuilder>  + Send + 'async_trait>> {
 
-        async fn run_with_new_task<T: TestParameters + Send + Sync + UnwindSafe +'static>(
-            progress_notify: ComponentProgressNotify,
+        async fn run_with_new_task<
+            T: TestParameters + Send + Sync + UnwindSafe +'static,
+            N: ComponentProgressNotify
+        >(
+            progress_notify: N,
             fixture: ComponentFixture<T>,
             mut report_builder: ComponentReportBuilder
         ) -> ComponentReportBuilder {
@@ -75,6 +81,6 @@ impl<TParameters: TestParameters + Send + Sync + UnwindSafe + 'static> Executor<
             report_builder
         }
 
-        Box::pin(run_with_new_task::<TParameters>(progress_notify, fixture, report_builder))      
+        Box::pin(run_with_new_task::<TParameters, ProgressNotify>(progress_notify, fixture, report_builder))      
     }
 }

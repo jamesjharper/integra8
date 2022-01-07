@@ -1,12 +1,14 @@
 use std::panic::UnwindSafe;
 
-use crate::channel::ResultsSource;
 use crate::components::RootSuite;
 use crate::decorations::ComponentDecoration;
 use crate::formatters::{OutputFormatter, FormatterParameters};
 use crate::context::parameters::TestParameters;
 use crate::runner::{DefaultScheduleRunner, ScheduleRunner};
 use crate::scheduling::{TaskStateMachineNode, IntoTaskStateMachine, ScheduledComponent};
+
+
+use crate::channel::RunProgressChannelNotify;
 
 /// IOC code seem for internal test and customization extensions to the framework
 pub trait ResolveComponentsStrategy<Parameters> {
@@ -84,7 +86,7 @@ pub trait ResolveRunnerStrategy<Parameters> {
     fn resolve_runner(
         &mut self,
         parameters: &Parameters,
-        sender: ResultsSource,
+        notify: RunProgressChannelNotify,
     ) -> Box<dyn ScheduleRunner<Parameters>>;
 }
 
@@ -183,9 +185,9 @@ impl<Parameters: TestParameters + Sync + Send + UnwindSafe + 'static>
     fn resolve_runner(
         &mut self,
         _parameters: &Parameters,
-        sender: ResultsSource,
+        notify: RunProgressChannelNotify,
     ) -> Box<dyn ScheduleRunner<Parameters>> {
-        Box::new(DefaultScheduleRunner::new(sender))
+        Box::new(DefaultScheduleRunner::new(notify))
     }
 }
 

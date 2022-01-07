@@ -1,7 +1,7 @@
-use crate::components::{AcceptanceCriteria, BookEnd, SuiteAttributes, Test};
-use crate::context::parameters::TestParameters;
-use crate::context::meta::ComponentDescription;
-use crate::context::ExecutionStrategy;
+use integra8_components::{AcceptanceCriteria, BookEnd, SuiteAttributes, Test};
+use integra8_context::parameters::TestParameters;
+use integra8_context::meta::ComponentDescription;
+use integra8_context::ExecutionStrategy;
 
 use integra8_context::ExecutionContext;
 

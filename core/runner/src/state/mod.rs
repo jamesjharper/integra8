@@ -3,8 +3,8 @@ use std::sync::{Arc, RwLock};
 mod model;
 pub use model::{ComponentResultsModel, ComponentState};
 
-use crate::context::meta::{ComponentDescription, ComponentIdentity, ComponentType};
-use crate::results::ComponentResult;
+use integra8_context::meta::{ComponentDescription, ComponentIdentity, ComponentType};
+use integra8_results::ComponentResult;
 use std::collections::HashMap;
 use std::time::Duration;
 

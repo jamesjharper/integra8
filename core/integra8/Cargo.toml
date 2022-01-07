@@ -11,6 +11,7 @@ integra8_components = {path = "../components"}
 integra8_scheduling = {path = "../scheduling"}
 integra8_results = { path = "../results"}
 integra8_formatters = {path = "../formatters"}
+integra8_runner = {path = "../runner"}
 integra8_async_runtime = {path = "../async_runtime"}
 
 structopt = "0.3"
@@ -40,6 +41,7 @@ async-std-runtime = [
     "integra8_async_runtime/async-std-runtime",
     "integra8_scheduling/async-std-runtime",
     "integra8_decorations_impl/async-std-runtime",
+    "integra8_runner/async-std-runtime",
 ]
 
 tokio-runtime = [
@@ -47,5 +49,6 @@ tokio-runtime = [
     "integra8_async_runtime/tokio-runtime",
     "integra8_scheduling/tokio-runtime",
     "integra8_decorations_impl/tokio-runtime",
+    "integra8_runner/tokio-runtime",
 ]
 

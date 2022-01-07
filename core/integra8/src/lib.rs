@@ -1,15 +1,6 @@
-//pub mod async_runtime;
-//pub mod parameters;
 
 mod channel;
 
-//pub mod results;
-
-//pub mod components;
-//pub mod decorations;
-//pub mod formatters;
-pub mod runner;
-//pub mod scheduling;
 pub mod strategy;
 
 
@@ -44,6 +35,9 @@ pub mod components {
     pub use integra8_components::*;
 }
 
+pub mod runner {
+    pub use integra8_runner::*;
+}
 
 
 #[doc(hidden)]
@@ -80,6 +74,7 @@ use crate::formatters::{FormatterParameters};
 
 
 
+pub use crate::channel:: notify::RunProgressChannelNotify;
 
 use crate::decorations::ComponentDecoration;
 
@@ -142,7 +137,9 @@ pub async fn run<
     let (sender, receiver) = ResultsChannel::new(sink, max_concurrency);
 
     let runner_task = integra8_async_runtime::spawn(async move {
-        DefaultScheduleRunner::new(sender)
+        DefaultScheduleRunner::new(
+                RunProgressChannelNotify::new(sender),
+            )
             .run(parameters, schedule)
             .await;
     });
