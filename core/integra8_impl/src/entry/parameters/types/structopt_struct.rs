@@ -1,48 +1,41 @@
+use proc_macro2::TokenStream;
 use syn::parse_quote;
 use syn::punctuated::Punctuated;
-use syn::{Expr, Token, Field, Path};
-use proc_macro2::TokenStream;
+use syn::{Expr, Field, Path, Token};
 
-pub struct StructoptStruct  {
+pub struct StructoptStruct {
     pub structopt_type: Option<Box<Expr>>,
     pub definition: Option<TokenStream>,
 }
 
-pub enum StructoptStructValue  {
+pub enum StructoptStructValue {
     External {
-        type_name: Box<Expr>
+        type_name: Box<Expr>,
     },
     Inline {
-        type_name: Box<Expr>, 
-        fields: Punctuated<Field, Token![,]>
+        type_name: Box<Expr>,
+        fields: Punctuated<Field, Token![,]>,
     },
     Unit {
-        type_name: Box<Expr>, 
+        type_name: Box<Expr>,
     },
 }
-
 
 impl StructoptStructValue {
     pub fn render_tokens(self) -> StructoptStruct {
         // TODO: Move to common location?
-        let structopt_path : Path = parse_quote!(::integra8::structopt);
-                
+        let structopt_path: Path = parse_quote!(::integra8::structopt);
 
         match self {
-            Self::External {
-                type_name
-             } => {
+            Self::External { type_name } => {
                 // Detect user define external types
                 // settings: <USER_DEFINED_TYPE>
                 StructoptStruct {
                     structopt_type: Some(type_name),
-                    definition: None
+                    definition: None,
                 }
             }
-            Self::Inline {
-                type_name,
-                fields
-             } => {
+            Self::Inline { type_name, fields } => {
                 StructoptStruct {
                     // user has defined an inline type
                     definition: Some(parse_quote!(
@@ -55,16 +48,14 @@ impl StructoptStructValue {
                     structopt_type: Some(type_name),
                 }
             }
-            Self::Unit {
-                type_name
-             } => {
+            Self::Unit { type_name } => {
                 StructoptStruct {
                     // user has defined an inline type
                     definition: Some(parse_quote!(
 
                         #[derive(Clone, Debug)]
                         pub struct #type_name;
-                    
+
                         impl #structopt_path ::StructOptInternal for #type_name {
                             fn augment_clap<'a, 'b>(
                                 app: #structopt_path ::clap::App<'a, 'b>,
@@ -87,9 +78,7 @@ impl StructoptStructValue {
                             }
                         }
                     )),
-                    structopt_type: Some(
-                        type_name
-                    ),
+                    structopt_type: Some(type_name),
                 }
             }
         }

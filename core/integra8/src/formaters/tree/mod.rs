@@ -1,26 +1,20 @@
-
-
 mod print_tree;
 use crate::formaters::tree::print_tree::ComponentResultsTreeNode;
 use crate::formaters::tree::print_tree::TreeNodePrinter;
 
-use crate::formaters::{OutputFormatter, OutputFormatterFactory};
-use crate::formaters::OutputLocation;
 use crate::components::ComponentDescription;
-use crate::results::summary::{SuiteSummary, RunSummary};
-use crate::results::ComponentRunReport;
+use crate::formaters::OutputLocation;
+use crate::formaters::{OutputFormatter, OutputFormatterFactory};
 use crate::parameters::TestParameters;
-
-
+use crate::results::summary::{RunSummary, SuiteSummary};
+use crate::results::ComponentRunReport;
 
 use std::error::Error;
 
 use crate::structopt::StructOpt;
 
-#[derive(StructOpt, Clone, Debug)] // TODO: Remove the need for clone here 
-pub struct TreeFormatterParameters {
-
-}
+#[derive(StructOpt, Clone, Debug)] // TODO: Remove the need for clone here
+pub struct TreeFormatterParameters {}
 
 pub struct TreeFormatter {
     out: OutputLocation,
@@ -35,12 +29,11 @@ impl TreeFormatter {
         }
     }
 
-
     fn write_results<'a>(
         &mut self,
         inputs: impl Iterator<Item = &'a ComponentRunReport>,
         results_type: &str,
-    ) -> Result<(), Box<dyn Error>> { 
+    ) -> Result<(), Box<dyn Error>> {
         let results_out_str = format!("\n{}:\n", results_type);
 
         let mut results = Vec::new();
@@ -50,14 +43,20 @@ impl TreeFormatter {
             results.push(report.description.identity.name.to_string());
 
             if !report.artifacts.stdio.stdout.is_empty() {
-                stdouts.push_str(&format!("---- {} stdout ----\n", report.description.identity.name));
+                stdouts.push_str(&format!(
+                    "---- {} stdout ----\n",
+                    report.description.identity.name
+                ));
                 let output = String::from_utf8_lossy(&report.artifacts.stdio.stdout);
                 stdouts.push_str(&output);
                 stdouts.push('\n');
             }
 
             if !report.artifacts.stdio.stderr.is_empty() {
-                stdouts.push_str(&format!("---- {} stderr ----\n", report.description.identity.name));
+                stdouts.push_str(&format!(
+                    "---- {} stderr ----\n",
+                    report.description.identity.name
+                ));
                 let output = String::from_utf8_lossy(&report.artifacts.stdio.stderr);
                 stdouts.push_str(&output);
                 stdouts.push('\n');
@@ -68,8 +67,8 @@ impl TreeFormatter {
             self.out.write_plain(&results_out_str)?;
             self.out.write_plain("\n")?;
             self.out.write_plain(&stdouts)?;
-        } 
-        
+        }
+
         self.out.write_plain(&results_out_str)?;
         results.sort();
         for name in &results {
@@ -77,7 +76,6 @@ impl TreeFormatter {
         }
         Ok(())
     }
-
 
     pub fn write_run_failures(&mut self, state: &RunSummary) -> Result<(), Box<dyn Error>> {
         for suite in state.suites() {
@@ -93,7 +91,10 @@ impl TreeFormatter {
         Ok(())
     }
 
-    pub fn write_suite_time_failures(&mut self, summary: &SuiteSummary) -> Result<(), Box<dyn Error>> {
+    pub fn write_suite_time_failures(
+        &mut self,
+        summary: &SuiteSummary,
+    ) -> Result<(), Box<dyn Error>> {
         let failures = summary.tests.failed().due_to_timing_out();
         if failures.has_some() {
             self.write_results(failures, "failures (time limit exceeded)")?;
@@ -117,18 +118,18 @@ impl TreeFormatter {
         Ok(())
     }
 
-
-
-    fn get_tree(&self, state: &RunSummary ) -> ComponentResultsTreeNode {
+    fn get_tree(&self, state: &RunSummary) -> ComponentResultsTreeNode {
         let suite = state.get_root_suite().unwrap();
         self.get_node(state, suite)
     }
 
-    fn get_node(&self, state: &RunSummary, suite_summary : &SuiteSummary) -> ComponentResultsTreeNode {
-
-
-        let mut suite_node = ComponentResultsTreeNode::from_report(suite_summary.suite_report.as_ref().unwrap());
-
+    fn get_node(
+        &self,
+        state: &RunSummary,
+        suite_summary: &SuiteSummary,
+    ) -> ComponentResultsTreeNode {
+        let mut suite_node =
+            ComponentResultsTreeNode::from_report(suite_summary.suite_report.as_ref().unwrap());
 
         for setup_report in &suite_summary.setups.reports {
             suite_node.add_child_report(&setup_report);
@@ -143,71 +144,58 @@ impl TreeFormatter {
         }
 
         for suite_report in &suite_summary.suites.reports {
-
             let suite_summary = state.get_suite(&suite_report.description.identity).unwrap();
-            suite_node.add_child_node(
-                self.get_node(state, suite_summary)
-            );
+            suite_node.add_child_node(self.get_node(state, suite_summary));
         }
-        
+
         suite_node
     }
 }
 
 impl OutputFormatterFactory for TreeFormatter {
-
     type FormatterParameters = TreeFormatterParameters;
-    fn create<T : TestParameters>(
-        _formatter_parameters: &Self::FormatterParameters, 
-        _test_parameters:  &T
-    )  -> Box<dyn OutputFormatter> {
-
+    fn create<T: TestParameters>(
+        _formatter_parameters: &Self::FormatterParameters,
+        _test_parameters: &T,
+    ) -> Box<dyn OutputFormatter> {
         let use_color = true;
-    
+
         let formatter = TreeFormatter::new(
             match (term::stdout(), use_color) {
                 (Some(t), true) => OutputLocation::Pretty(t),
                 _ => OutputLocation::Raw(Box::new(std::io::stdout())),
-            }, 
+            },
             /*is_multithreaded*/ true,
         );
 
         Box::new(formatter)
     }
-
-
-    
- 
 }
 
-
 impl OutputFormatter for TreeFormatter {
-
     fn write_run_start(&mut self, test_count: usize) -> Result<(), Box<dyn Error>> {
         let noun = if test_count != 1 { "tests" } else { "test" };
-        self.out.write_plain(&format!("\nrunning {} {}\n", test_count, noun))?;   
+        self.out
+            .write_plain(&format!("\nrunning {} {}\n", test_count, noun))?;
         Ok(())
     }
 
-    fn write_component_start(&mut self, _desc: &ComponentDescription) -> Result<(), Box<dyn Error>> {
+    fn write_component_start(
+        &mut self,
+        _desc: &ComponentDescription,
+    ) -> Result<(), Box<dyn Error>> {
         self.out.write_plain(".")?;
         Ok(())
     }
 
-
     fn write_run_complete(&mut self, state: &RunSummary) -> Result<(), Box<dyn Error>> {
-
-
         self.write_run_failures(state)?;
         self.write_run_time_failures(state)?;
 
         let tree = self.get_tree(state);
 
-        TreeNodePrinter::new(&mut self.out)
-            .print_tree(&tree);
+        TreeNodePrinter::new(&mut self.out).print_tree(&tree);
 
-
-       
         self.out.write_plain("\n\n")?;
         Ok(())
     }
@@ -219,7 +207,7 @@ impl OutputFormatter for TreeFormatter {
             self.write_successes(state)?;
         }*/
 
-        
+
         let success = state.is_success();
 
         self.write_run_failures(state)?;
@@ -233,7 +221,7 @@ impl OutputFormatter for TreeFormatter {
         } else {
             self.write_pretty("FAILED", term::color::RED)?;
         }
-       
+
          if state.tests_passed().due_to_allowed_failure().has_some() {
             format!(
                 ". {} passed; {} failed ({} allowed); {} skipped",
@@ -260,6 +248,4 @@ impl OutputFormatter for TreeFormatter {
         self.write_plain("\n\n")?;
         Ok(())
     }*/
-
-
 }

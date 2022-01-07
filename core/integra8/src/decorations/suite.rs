@@ -3,10 +3,10 @@ use std::time::Duration;
 use super::{ConcurrencyMode, SourceLocation};
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
-pub struct SuiteAttributesDecoration { 
+pub struct SuiteAttributesDecoration {
     // The name of the suite (Default: the suite namespace)
-    pub name: &'static str,  
-    
+    pub name: &'static str,
+
     /// The test path used to calculate the suite's test group
     pub path: &'static str,
 
@@ -16,7 +16,7 @@ pub struct SuiteAttributesDecoration {
     /// Indicates that this entire suite should not be run.
     pub ignore: Option<bool>,
 
-    /// Indicates that this suite should be run, but failures should be ignored and do not cascade. 
+    /// Indicates that this suite should be run, but failures should be ignored and do not cascade.
     pub allow_suite_fail: Option<bool>,
 
     /// A Cascading failure will result in automatic failure of all other yet to be run test outside of this suite
@@ -41,8 +41,8 @@ pub struct SuiteAttributesDecoration {
     pub test_concurrency_mode: Option<ConcurrencyMode>,
 }
 
-impl SuiteAttributesDecoration { 
-    pub fn root(namespace : &'static str) -> Self {
+impl SuiteAttributesDecoration {
+    pub fn root(namespace: &'static str) -> Self {
         Self {
             name: namespace,
             path: namespace,
@@ -57,7 +57,7 @@ impl SuiteAttributesDecoration {
             test_warn_threshold: None,
             test_critical_threshold: None,
             suite_concurrency_mode: None,
-            test_concurrency_mode: None
+            test_concurrency_mode: None,
         }
     }
 }

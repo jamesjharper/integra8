@@ -1,19 +1,21 @@
 use std::time::Duration;
 
-use crate::components::{Test, BookEnds, ComponentIdentity, ComponentDescription, ComponentType};
-use crate::decorations::{ConcurrencyMode, ComponentDecoration, SuiteAttributesDecoration, ComponentGroup, ComponentHierarchy};
+use crate::components::{BookEnds, ComponentDescription, ComponentIdentity, ComponentType, Test};
+use crate::decorations::{
+    ComponentDecoration, ComponentGroup, ComponentHierarchy, ConcurrencyMode,
+    SuiteAttributesDecoration,
+};
 use crate::parameters::TestParameters;
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct SuiteAttributes {
-
     /// The identity of the suite. Used for uniquely identify the suite and displaying the suite name to the end user.
     pub identity: ComponentIdentity,
 
     /// Indicates that this entire suite should not be run.
     pub ignore: bool,
 
-    /// Indicates that this suite should be run, but failures should be ignored and do not cascade. 
+    /// Indicates that this suite should be run, but failures should be ignored and do not cascade.
     pub allow_suite_fail: bool,
 
     /// The owning parent of this test suite, or None if root
@@ -39,57 +41,61 @@ pub struct SuiteAttributes {
 }
 
 impl SuiteAttributes {
-    fn new<TParameters: TestParameters>(   
+    fn new<TParameters: TestParameters>(
         parent_desc: Option<&SuiteAttributes>,
         desc: SuiteAttributesDecoration,
-        parameters : &TParameters
+        parameters: &TParameters,
     ) -> Self {
-       
-
-        Self { 
-            identity: ComponentIdentity::new( desc.name, desc.path ),
-            ignore: desc.ignore
+        Self {
+            identity: ComponentIdentity::new(desc.name, desc.path),
+            ignore: desc
+                .ignore
                 .unwrap_or_else(|| parent_desc.map_or(false, |p| p.ignore)),
 
-            allow_suite_fail: desc.allow_suite_fail
+            allow_suite_fail: desc
+                .allow_suite_fail
                 .unwrap_or_else(|| parent_desc.map_or(false, |p| p.allow_suite_fail)),
 
             parent_suite_identity: parent_desc.map(|p| p.identity.clone()),
-            test_warn_threshold: desc.test_warn_threshold
-                .map_or_else(
-                    || parent_desc.map_or_else(
+            test_warn_threshold: desc.test_warn_threshold.map_or_else(
+                || {
+                    parent_desc.map_or_else(
                         || parameters.warn_threshold_duration(), // root value
-                        |p| p.test_warn_threshold
-                    ),
-                    |val| val.clone()
-                ),
+                        |p| p.test_warn_threshold,
+                    )
+                },
+                |val| val.clone(),
+            ),
 
-            test_critical_threshold: desc.test_critical_threshold
-                .map_or_else(
-                    || parent_desc.map_or_else(
+            test_critical_threshold: desc.test_critical_threshold.map_or_else(
+                || {
+                    parent_desc.map_or_else(
                         || parameters.critical_threshold_duration(), // root value
-                        |p| p.test_critical_threshold
-                    ),
-                    |val| val.clone()
-                ),
+                        |p| p.test_critical_threshold,
+                    )
+                },
+                |val| val.clone(),
+            ),
 
-            suite_concurrency_mode: desc.suite_concurrency_mode
-                .map_or_else(
-                    || parent_desc.map_or_else(
-                        || parameters.suite_concurrency_mode(), // root value, 
-                        |p| p.suite_concurrency_mode.clone()
-                    ),
-                    |val| val.clone()
-                ),
+            suite_concurrency_mode: desc.suite_concurrency_mode.map_or_else(
+                || {
+                    parent_desc.map_or_else(
+                        || parameters.suite_concurrency_mode(), // root value,
+                        |p| p.suite_concurrency_mode.clone(),
+                    )
+                },
+                |val| val.clone(),
+            ),
 
-            test_concurrency_mode: desc.test_concurrency_mode
-                .map_or_else(
-                    || parent_desc.map_or_else(
-                        || parameters.test_concurrency_mode(), // root value, 
-                        |p| p.test_concurrency_mode.clone()
-                    ),
-                    |val| val.clone()
-                ),
+            test_concurrency_mode: desc.test_concurrency_mode.map_or_else(
+                || {
+                    parent_desc.map_or_else(
+                        || parameters.test_concurrency_mode(), // root value,
+                        |p| p.test_concurrency_mode.clone(),
+                    )
+                },
+                |val| val.clone(),
+            ),
         }
     }
 }
@@ -103,19 +109,29 @@ pub struct Suite<TParameters> {
     pub suites: Vec<Suite<TParameters>>,
 }
 
-
-impl<TParameters: TestParameters> Suite<TParameters> { 
-
-    pub fn from_decorated_components<ComponentsIterator>(components: ComponentsIterator, parameters : &TParameters) -> Self
+impl<TParameters: TestParameters> Suite<TParameters> {
+    pub fn from_decorated_components<ComponentsIterator>(
+        components: ComponentsIterator,
+        parameters: &TParameters,
+    ) -> Self
     where
         ComponentsIterator: IntoIterator<Item = ComponentDecoration<TParameters>>,
-    {        
-       Self::from_component_groups(None, ComponentHierarchy::from_decorated_components(components).into_component_groups(), parameters)
+    {
+        Self::from_component_groups(
+            None,
+            ComponentHierarchy::from_decorated_components(components).into_component_groups(),
+            parameters,
+        )
     }
 
-    fn from_component_groups(parent_desc: Option<&SuiteAttributes>, group: ComponentGroup<TParameters>, parameters : &TParameters) -> Self {  
-        
-        let parent_suite_attributes = group.suite.unwrap_or_else(|| SuiteAttributesDecoration::root(parameters.root_namespace()));
+    fn from_component_groups(
+        parent_desc: Option<&SuiteAttributes>,
+        group: ComponentGroup<TParameters>,
+        parameters: &TParameters,
+    ) -> Self {
+        let parent_suite_attributes = group
+            .suite
+            .unwrap_or_else(|| SuiteAttributesDecoration::root(parameters.root_namespace()));
 
         let mut suite = Self::new(parent_desc, parent_suite_attributes, parameters);
 
@@ -124,7 +140,7 @@ impl<TParameters: TestParameters> Suite<TParameters> {
             .into_iter()
             .map(|x| Test::new(&suite.description, &suite.attributes, x, parameters))
             .collect();
-       
+
         suite.bookends = group
             .bookends
             .into_iter()
@@ -138,23 +154,22 @@ impl<TParameters: TestParameters> Suite<TParameters> {
             .map(|x| Self::from_component_groups(Some(&suite.attributes), x, parameters))
             .collect();
 
-       
         suite
     }
 
-    fn new(   
+    fn new(
         parent_desc: Option<&SuiteAttributes>,
-        decorations: SuiteAttributesDecoration, 
-        parameters : &TParameters
+        decorations: SuiteAttributesDecoration,
+        parameters: &TParameters,
     ) -> Self {
         Self {
             description: ComponentDescription {
-                identity: ComponentIdentity::new( decorations.name, decorations.path ),
+                identity: ComponentIdentity::new(decorations.name, decorations.path),
                 parent_identity: parent_desc
                     .map(|p| p.identity.clone())
-                    .unwrap_or_else(|| ComponentIdentity::new( decorations.name, decorations.path )),
+                    .unwrap_or_else(|| ComponentIdentity::new(decorations.name, decorations.path)),
                 component_type: ComponentType::Suite,
-                location: decorations.location.clone()
+                location: decorations.location.clone(),
             },
             attributes: SuiteAttributes::new(parent_desc, decorations, parameters),
             tests: Vec::new(),

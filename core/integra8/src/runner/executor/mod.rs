@@ -1,21 +1,24 @@
 use std::panic::UnwindSafe;
 
-use crate::runner::ComponentFixture;
-use crate::parameters::TestParameters;
 use crate::channel::ComponentProgressNotify;
+use crate::parameters::TestParameters;
 use crate::results::ComponentReportBuilder;
-
+use crate::runner::ComponentFixture;
 
 #[cfg(feature = "async")]
 pub use executor_async::Executor;
 
 #[cfg(feature = "async")]
-pub fn process_external_executor<TParameters: TestParameters + Send + Sync + UnwindSafe + 'static>() -> impl Executor<TParameters> {
+pub fn process_external_executor<
+    TParameters: TestParameters + Send + Sync + UnwindSafe + 'static,
+>() -> impl Executor<TParameters> {
     executor_async::process::AsyncProcessExecutor {}
 }
 
 #[cfg(feature = "async")]
-pub fn process_internal_executor<TParameters: TestParameters + Send + Sync + UnwindSafe + 'static>() -> impl Executor<TParameters>  {
+pub fn process_internal_executor<
+    TParameters: TestParameters + Send + Sync + UnwindSafe + 'static,
+>() -> impl Executor<TParameters> {
     executor_async::task::AsyncTaskExecutor {}
 }
 
@@ -26,16 +29,16 @@ mod executor_async {
     pub mod process;
     pub mod task;
 
-    use std::pin::Pin;
     use std::future::Future;
+    use std::pin::Pin;
 
-    pub trait Executor<TParameters: TestParameters + Send + Sync + UnwindSafe +'static> {
+    pub trait Executor<TParameters: TestParameters + Send + Sync + UnwindSafe + 'static> {
         fn execute<'async_trait>(
-            &'async_trait self, 
+            &'async_trait self,
             progress_notify: ComponentProgressNotify,
             fixture: ComponentFixture<TParameters>,
-            report_builder: ComponentReportBuilder
-        ) -> Pin<Box<dyn Future<Output = ComponentReportBuilder>  + Send + 'async_trait>>;
+            report_builder: ComponentReportBuilder,
+        ) -> Pin<Box<dyn Future<Output = ComponentReportBuilder> + Send + 'async_trait>>;
     }
 }
 
@@ -46,12 +49,12 @@ pub type Executor<TParameters> = executor_sync_impl::Executor<TParameters>;
 mod test_sync_impl {
     use super::*;
 
-    pub trait Executor<TParameters: TestParameters + Send + Sync + UnwindSafe +'static> {
+    pub trait Executor<TParameters: TestParameters + Send + Sync + UnwindSafe + 'static> {
         fn execute(
-            &self, 
+            &self,
             progress_notify: ComponentProgressNotify,
             fixture: ComponentFixture<TParameters>,
-            report_builder: ComponentReportBuilder
+            report_builder: ComponentReportBuilder,
         ) -> ComponentReportBuilder;
     }
 }

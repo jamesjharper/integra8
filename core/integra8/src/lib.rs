@@ -1,13 +1,13 @@
-pub mod parameters;
 pub mod async_runtime;
+pub mod parameters;
 
 mod channel;
 
 pub mod results;
 
-pub mod formaters;
-pub mod decorations;
 pub mod components;
+pub mod decorations;
+pub mod formaters;
 pub mod runner;
 pub mod scheduling;
 pub mod strategy;
@@ -28,22 +28,22 @@ pub mod structopt {
 macro_rules! run_tests {
     ($parameters:expr) => {
         $crate::run_test(
-            $parameters, 
-            REGISTERED_COMPONENTS.into_iter().map(|f|(f)()).collect()
-        ).await
-    }
+            $parameters,
+            REGISTERED_COMPONENTS.into_iter().map(|f| (f)()).collect(),
+        )
+        .await
+    };
 }
 
-
-use std::panic::UnwindSafe;
 use futures::join;
+use std::panic::UnwindSafe;
 
 use crate::results::ComponentResult;
-use crate::runner::{ScheduleRunner, DefaultScheduleRunner};
+use crate::runner::{DefaultScheduleRunner, ScheduleRunner};
 
 use crate::channel::{ResultsChannel, ResultsOutputWriterSink};
 
-use crate::parameters::{TestParameters, FormatterParameters};
+use crate::parameters::{FormatterParameters, TestParameters};
 
 use crate::formaters::none::NoOutputFormatter;
 
@@ -51,34 +51,39 @@ use crate::components::Component;
 
 use crate::decorations::ComponentDecoration;
 
-use crate::scheduling::state_machine::{TaskStateMachineNode,TaskStream};
+use crate::scheduling::state_machine::{TaskStateMachineNode, TaskStream};
 use crate::strategy::TestApplicationLocator;
 
 use crate::strategy::{
-    DefaultTestApplicationLocator,
-    DefaultResolveComponentsStrategy,
-    DefaultResolveComponentScheduleStrategy,
-    DefaultResolveFormatterStrategy,
-    DefaultResolveRunnerStrategy
+    DefaultResolveComponentScheduleStrategy, DefaultResolveComponentsStrategy,
+    DefaultResolveFormatterStrategy, DefaultResolveRunnerStrategy, DefaultTestApplicationLocator,
 };
 
-pub async fn run_test<TParameters: TestParameters + FormatterParameters + Clone + Sync + Send + UnwindSafe + 'static + std::fmt::Debug>(
-    parameters: TParameters ,
-    components: Vec<ComponentDecoration<TParameters>>
+pub async fn run_test<
+    TParameters: TestParameters
+        + FormatterParameters
+        + Clone
+        + Sync
+        + Send
+        + UnwindSafe
+        + 'static
+        + std::fmt::Debug,
+>(
+    parameters: TParameters,
+    components: Vec<ComponentDecoration<TParameters>>,
 ) -> i32 {
     match run::<
-    TParameters,
-    DefaultTestApplicationLocator<
         TParameters,
-        DefaultResolveComponentsStrategy,
-        DefaultResolveComponentScheduleStrategy,
-        DefaultResolveFormatterStrategy,
-        DefaultResolveRunnerStrategy
-        >
-    >(
-        components,
-        parameters
-    ).await {
+        DefaultTestApplicationLocator<
+            TParameters,
+            DefaultResolveComponentsStrategy,
+            DefaultResolveComponentScheduleStrategy,
+            DefaultResolveFormatterStrategy,
+            DefaultResolveRunnerStrategy,
+        >,
+    >(components, parameters)
+    .await
+    {
         ComponentResult::Pass(_) => 0,
         ComponentResult::Fail(_) => 1,
         ComponentResult::DidNotRun(_) => 3,
@@ -86,13 +91,14 @@ pub async fn run_test<TParameters: TestParameters + FormatterParameters + Clone 
 }
 
 pub async fn run<
-    TParameters:  TestParameters + Clone + Sync + Send + UnwindSafe + 'static + std::fmt::Debug, 
+    TParameters: TestParameters + Clone + Sync + Send + UnwindSafe + 'static + std::fmt::Debug,
     Locator: TestApplicationLocator<TParameters> + Sync + Send + 'static,
 >(
     auto_detect_components: Vec<ComponentDecoration<TParameters>>,
     parameters: TParameters,
 ) -> ComponentResult {
-    let components = resolve_components::<TParameters, Locator>(&parameters, auto_detect_components);    
+    let components =
+        resolve_components::<TParameters, Locator>(&parameters, auto_detect_components);
     let schedule = resolve_component_schedule::<TParameters, Locator>(&parameters, components);
 
     let max_concurrency = std::cmp::min(parameters.max_concurrency(), schedule.max_concurrency());
@@ -100,9 +106,7 @@ pub async fn run<
     let sink = resolve_results_sink::<TParameters, Locator>(&parameters);
     let (sender, receiver) = ResultsChannel::new(sink, max_concurrency);
 
-
     let runner_task = async_runtime::spawn(async move {
-
         DefaultScheduleRunner::new(sender)
             .run(parameters, schedule)
             .await;
@@ -113,33 +117,29 @@ pub async fn run<
     run_summary.run_result()
 }
 
-
 pub fn resolve_results_sink<
-    TParameters: TestParameters, 
+    TParameters: TestParameters,
     Locator: TestApplicationLocator<TParameters>,
 >(
     parameters: &TParameters,
 ) -> ResultsOutputWriterSink {
-
     let formatter = match parameters.is_child_process() {
         false => Locator::resolve_formatter_strategy(&parameters).resolve_formatter(&parameters),
-        true => Box::new(NoOutputFormatter::new())
+        true => Box::new(NoOutputFormatter::new()),
     };
 
-    ResultsOutputWriterSink::new(
-        formatter
-    )
+    ResultsOutputWriterSink::new(formatter)
 }
 
 pub fn resolve_components<
-    TParameters: TestParameters, 
+    TParameters: TestParameters,
     Locator: TestApplicationLocator<TParameters>,
 >(
     parameters: &TParameters,
     auto_detect_components: Vec<ComponentDecoration<TParameters>>,
 ) -> Vec<ComponentDecoration<TParameters>> {
-
-    let components = Locator::resolve_components_strategy(&parameters).resolve_components(parameters, auto_detect_components);
+    let components = Locator::resolve_components_strategy(&parameters)
+        .resolve_components(parameters, auto_detect_components);
 
     match parameters.is_child_process() {
         true => {
@@ -150,34 +150,31 @@ pub fn resolve_components<
                 .into_iter()
                 .collect()
         }
-        false => components
+        false => components,
     }
 }
 
-
 pub fn resolve_component_schedule<
-    TParameters: TestParameters, 
+    TParameters: TestParameters,
     Locator: TestApplicationLocator<TParameters>,
 >(
     parameters: &TParameters,
     components: Vec<ComponentDecoration<TParameters>>,
 ) -> TaskStateMachineNode<Component<TParameters>> {
-    Locator::resolve_component_schedule_strategy(&parameters).resolve_schedule(&parameters, components)
+    Locator::resolve_component_schedule_strategy(&parameters)
+        .resolve_schedule(&parameters, components)
 }
-
 
 #[cfg(test)]
 //type ExecutionContext  = crate::runner::context::ExecutionContext<MockParameters>;
-
 #[cfg(test)]
 #[derive(Clone, Debug, crate::structopt::StructOpt)]
 #[structopt()]
-pub struct MockParameters { }
+pub struct MockParameters {}
 
 #[cfg(test)]
 type Parameters = MockParameters;
 
 #[cfg(test)]
 #[linkme::distributed_slice]
-pub static REGISTERED_COMPONENTS : [fn() -> ComponentDecoration<Parameters>] = [..];
-
+pub static REGISTERED_COMPONENTS: [fn() -> ComponentDecoration<Parameters>] = [..];

@@ -3,10 +3,10 @@ use std::sync::{Arc, RwLock};
 mod model;
 pub use model::{ComponentResultsModel, ComponentState};
 
-use std::time::Duration;
-use std::collections::HashMap;
-use crate::components::{ComponentIdentity, ComponentDescription, ComponentType};
+use crate::components::{ComponentDescription, ComponentIdentity, ComponentType};
 use crate::results::ComponentResult;
+use std::collections::HashMap;
+use std::time::Duration;
 
 pub struct RunStateModel {
     component_result_states: HashMap<&'static str, Arc<RwLock<ComponentResultsModel>>>,
@@ -15,7 +15,7 @@ pub struct RunStateModel {
 impl RunStateModel {
     pub fn new() -> Self {
         Self {
-            component_result_states: HashMap::new()
+            component_result_states: HashMap::new(),
         }
     }
 
@@ -25,23 +25,23 @@ impl RunStateModel {
     ///
     /// * `description` - The description of the component for which the returned token will represent
     ///
-    pub fn get_status_token(&mut self, description : &ComponentDescription) -> ComponentStateToken {
-        ComponentStateToken  {
+    pub fn get_status_token(&mut self, description: &ComponentDescription) -> ComponentStateToken {
+        ComponentStateToken {
             component_type: description.component_type.clone(),
             self_token: self.get_token(&description.identity),
             parent_token: self.get_token(&description.parent_identity),
         }
     }
 
-    fn get_token(&mut self, identity : &ComponentIdentity) -> Arc<RwLock<ComponentResultsModel>> {
+    fn get_token(&mut self, identity: &ComponentIdentity) -> Arc<RwLock<ComponentResultsModel>> {
         self.component_result_states
             .entry(identity.path)
-            .or_insert(Arc::new(RwLock::new(ComponentResultsModel::undetermined_state())))
+            .or_insert(Arc::new(RwLock::new(
+                ComponentResultsModel::undetermined_state(),
+            )))
             .clone()
     }
 }
-
-
 
 #[derive(Clone)]
 pub struct ComponentStateToken {
@@ -51,7 +51,6 @@ pub struct ComponentStateToken {
 }
 
 impl ComponentStateToken {
-
     /// Returns the total execution time of this component
     pub fn time_taken(&self) -> Duration {
         self.self_token.read().unwrap().time_taken.clone()
@@ -64,7 +63,7 @@ impl ComponentStateToken {
 
     /// Returns the current global state of this component
     /// If the state has yet to be be determined, then, it my be inherited from its parent component as per the table bellow
-    /// 
+    ///
     /// | State                 | Parent State       | Inferred State                                             |
     /// |-----------------------|--------------------|------------------------------------------------------------|
     /// | Pass, Fail or Skipped | Any                | Pass, Fail or Skipped respectively                         |
@@ -78,40 +77,39 @@ impl ComponentStateToken {
         match self.self_token.read().unwrap().state.clone() {
             ComponentState::Undetermined => {
                 let state_parent = &self.parent_token.read().unwrap().state;
-    
-                if state_parent.is_skipped()  {
+
+                if state_parent.is_skipped() {
                     return ComponentState::Tentative(state_parent.result().unwrap());
                 }
-    
+
                 if state_parent.is_failed() && !self.component_type.is_tear_down() {
-                    return ComponentState::Tentative(ComponentResult::parent_failure())
+                    return ComponentState::Tentative(ComponentResult::parent_failure());
                 }
 
                 return ComponentState::Undetermined;
             }
-            other => other
+            other => other,
         }
     }
 
     /// Finalizes the global published status for this component and propagates the status value to this components parent.
-    /// 
+    ///
     /// Parents state is determined by the following rules:
-    /// - If a child has pass result, the parents own status is also passed. 
+    /// - If a child has pass result, the parents own status is also passed.
     /// - If **any** children are failed, the parents own status is also failed with the reason `child_failure`
     /// - If **all** children are skipped, the parents status is also skipped.   
-    /// 
+    ///
     /// # Arguments
     ///
     /// * `result` - The result of this components execution
-    /// 
+    ///
     /// * `time_taken` - The execution time of this component. Can be zero if the component was skipped.
-    /// 
+    ///
     pub fn finalize_result(&self, result: ComponentResult, time_taken: Duration) {
         self.set_result(ComponentState::Finalized(result), time_taken)
     }
 
     fn set_result(&self, result: ComponentState, time_taken: Duration) {
-
         // Set child result
         let mut child_model = self.self_token.write().unwrap();
 
@@ -119,12 +117,8 @@ impl ComponentStateToken {
         child_model.time_taken = match self.component_type {
             // tear down and setup does not contribute
             // to their parents suites test time
-            ComponentType::Setup | ComponentType::TearDown => {
-                Duration::new(0, 0)
-            }
-            _ => {
-                time_taken
-            }, 
+            ComponentType::Setup | ComponentType::TearDown => Duration::new(0, 0),
+            _ => time_taken,
         };
 
         if self.is_root() {
@@ -146,9 +140,8 @@ impl ComponentStateToken {
             parent_model.state = ComponentState::Tentative(ComponentResult::passed());
             return;
         }
-        
+
         if child_model.state.is_skipped() && parent_model.state.is_undetermined() {
-   
             // if all our children are skipped, then we are implicitly skipped
             parent_model.state = child_model.state.clone();
         }

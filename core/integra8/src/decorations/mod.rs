@@ -3,28 +3,28 @@ pub use test::{TestAttributesDecoration, TestDecoration};
 
 mod location;
 pub use location::SourceLocation;
- 
+
 mod bookends;
-pub use bookends::{BookEndDecoration, BookEndAttributesDecoration, BookEndDecorationPair};
+pub use bookends::{BookEndAttributesDecoration, BookEndDecoration, BookEndDecorationPair};
 
 mod suite;
 pub use suite::SuiteAttributesDecoration;
 
 mod hierarchy;
-pub use hierarchy::{ComponentHierarchy, ComponentGroup};
+pub use hierarchy::{ComponentGroup, ComponentHierarchy};
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub enum ConcurrencyMode {
     Parallel,
-    Serial
+    Serial,
 }
 
 #[derive(Debug)]
 pub enum ComponentDecoration<TParameters> {
     IntegrationTest(TestDecoration<TParameters>),
-    Suite(SuiteAttributesDecoration), 
+    Suite(SuiteAttributesDecoration),
     TearDown(BookEndDecoration<TParameters>),
-    Setup(BookEndDecoration<TParameters>)
+    Setup(BookEndDecoration<TParameters>),
 }
 
 impl<TParameters> ComponentDecoration<TParameters> {

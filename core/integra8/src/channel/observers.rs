@@ -1,6 +1,5 @@
-
-use crate::components::ComponentDescription;
 use crate::channel::ResultsSource;
+use crate::components::ComponentDescription;
 
 pub struct ComponentProgressNotify {
     result_publisher: ResultsSource,
@@ -8,11 +7,7 @@ pub struct ComponentProgressNotify {
 }
 
 impl ComponentProgressNotify {
-    pub fn new(
-        result_publisher: ResultsSource,
-        description: ComponentDescription,
-    ) -> Self {
-
+    pub fn new(result_publisher: ResultsSource, description: ComponentDescription) -> Self {
         Self {
             result_publisher: result_publisher,
             description: description,
@@ -20,12 +15,12 @@ impl ComponentProgressNotify {
     }
 
     pub async fn notify_started(&self) {
-        self.result_publisher.notify_component_start(
-            self.description.clone()
-        ).await
+        self.result_publisher
+            .notify_component_start(self.description.clone())
+            .await
     }
 
-    pub async fn notify_timed_out(&self)  {
+    pub async fn notify_timed_out(&self) {
         /*if timing_results.is_critical() {
             self.result_publisher.notify_component_timed_out(
                 self.description.clone(),
@@ -34,7 +29,7 @@ impl ComponentProgressNotify {
         }*/
     }
 
-    pub async fn notify_complete(&self)  {
+    pub async fn notify_complete(&self) {
         /*if timing_results.is_critical() {
             self.result_publisher.notify_component_timed_out(
                 self.description.clone(),

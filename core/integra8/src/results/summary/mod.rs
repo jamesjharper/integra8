@@ -1,15 +1,22 @@
-
+#[doc(inline)]
 mod counts;
-pub use counts::{ResultsCountSummary, PassResultsCountSummary, FailResultsCountSummary, DidNotRunResultsCountSummary};
+pub use counts::{
+    DidNotRunResultsCountSummary, FailResultsCountSummary, PassResultsCountSummary,
+    ResultsCountSummary,
+};
 
+#[doc(inline)]
 mod results_iter;
-pub use results_iter::{PassedResults, PassReasonResults, FailedResults, FailedReasonResults, NotRunResults, NotRunReasonResults};
+pub use results_iter::{
+    FailedReasonResults, FailedResults, NotRunReasonResults, NotRunResults, PassReasonResults,
+    PassedResults,
+};
 
+use crate::components::{ComponentIdentity, ComponentType};
 use crate::results::{ComponentResult, ComponentRunReport};
-use crate::components::{ComponentType, ComponentIdentity};
 
-use std::collections::HashMap;
 use std::collections::hash_map::Values;
+use std::collections::HashMap;
 
 #[derive(Clone, Debug)]
 pub struct ComponentResultSummary {
@@ -41,7 +48,7 @@ impl ComponentResultSummary {
     pub fn passed<'a>(&'a self) -> PassedResults<'a> {
         PassedResults::from(self.reports.iter(), &self.passed)
     }
-    
+
     pub fn failed<'a>(&'a self) -> FailedResults<'a> {
         FailedResults::from(self.reports.iter(), &self.failed)
     }
@@ -53,8 +60,7 @@ impl ComponentResultSummary {
 
 #[derive(Clone, Debug)]
 pub struct SuiteSummary {
-
-    pub suite_report : Option<ComponentRunReport>, //TODO: make this non option
+    pub suite_report: Option<ComponentRunReport>, //TODO: make this non option
 
     pub suites: ComponentResultSummary,
     pub setups: ComponentResultSummary,
@@ -76,17 +82,17 @@ impl SuiteSummary {
     pub fn result(&self) -> ComponentResult {
         match &self.suite_report {
             Some(report) => report.result.clone(),
-            None => ComponentResult::undetermined()
+            None => ComponentResult::undetermined(),
         }
     }
 
     pub fn is_root(&self) -> bool {
         match &self.suite_report {
             Some(report) => report.description.is_root(),
-            None => false
+            None => false,
         }
     }
-   
+
     pub fn push_suite_report(&mut self, report: ComponentRunReport) {
         self.suite_report = Some(report)
     }
@@ -101,16 +107,15 @@ impl SuiteSummary {
     }
 }
 
-
 #[derive(Clone, Debug)]
 pub struct RunSummary {
-    suite_summaries:  HashMap<&'static str, SuiteSummary>,
+    suite_summaries: HashMap<&'static str, SuiteSummary>,
 }
 
 impl RunSummary {
     pub fn new() -> Self {
         Self {
-            suite_summaries: HashMap::new()
+            suite_summaries: HashMap::new(),
         }
     }
 
@@ -122,37 +127,38 @@ impl RunSummary {
         self.run_result().has_passed()
     }
 
-
     pub fn run_result(&self) -> ComponentResult {
         self.get_root_suite()
             .map(|root| root.result())
             .unwrap_or(ComponentResult::undetermined())
     }
 
-
     // Tests
 
     pub fn tests_passed<'a>(&'a self) -> PassedResults<'a> {
         PassedResults::from_many(
-            self.suite_summaries.values().map(|suite| {
-                (suite.tests.reports.iter(), &suite.tests.passed)
-            }).collect()
+            self.suite_summaries
+                .values()
+                .map(|suite| (suite.tests.reports.iter(), &suite.tests.passed))
+                .collect(),
         )
     }
 
     pub fn tests_failed<'a>(&'a self) -> FailedResults<'a> {
         FailedResults::from_many(
-            self.suite_summaries.values().map(|suite| {
-                (suite.tests.reports.iter(), &suite.tests.failed)
-            }).collect()
+            self.suite_summaries
+                .values()
+                .map(|suite| (suite.tests.reports.iter(), &suite.tests.failed))
+                .collect(),
         )
     }
 
     pub fn tests_not_run<'a>(&'a self) -> NotRunResults<'a> {
         NotRunResults::from_many(
-            self.suite_summaries.values().map(|suite| {
-                (suite.tests.reports.iter(), &suite.tests.did_not_run)
-            }).collect()
+            self.suite_summaries
+                .values()
+                .map(|suite| (suite.tests.reports.iter(), &suite.tests.did_not_run))
+                .collect(),
         )
     }
 
@@ -160,25 +166,28 @@ impl RunSummary {
 
     pub fn setup_passed<'a>(&'a self) -> PassedResults<'a> {
         PassedResults::from_many(
-            self.suite_summaries.values().map(|suite| {
-                (suite.setups.reports.iter(), &suite.setups.passed)
-            }).collect()
+            self.suite_summaries
+                .values()
+                .map(|suite| (suite.setups.reports.iter(), &suite.setups.passed))
+                .collect(),
         )
     }
 
     pub fn setup_failed<'a>(&'a self) -> FailedResults<'a> {
         FailedResults::from_many(
-            self.suite_summaries.values().map(|suite| {
-                (suite.setups.reports.iter(), &suite.setups.failed)
-            }).collect()
+            self.suite_summaries
+                .values()
+                .map(|suite| (suite.setups.reports.iter(), &suite.setups.failed))
+                .collect(),
         )
     }
 
     pub fn setup_not_run<'a>(&'a self) -> NotRunResults<'a> {
         NotRunResults::from_many(
-            self.suite_summaries.values().map(|suite| {
-                (suite.setups.reports.iter(), &suite.setups.did_not_run)
-            }).collect()
+            self.suite_summaries
+                .values()
+                .map(|suite| (suite.setups.reports.iter(), &suite.setups.did_not_run))
+                .collect(),
         )
     }
 
@@ -186,34 +195,40 @@ impl RunSummary {
 
     pub fn tear_down_passed<'a>(&'a self) -> PassedResults<'a> {
         PassedResults::from_many(
-            self.suite_summaries.values().map(|suite| {
-                (suite.tear_downs.reports.iter(), &suite.tear_downs.passed)
-            }).collect()
+            self.suite_summaries
+                .values()
+                .map(|suite| (suite.tear_downs.reports.iter(), &suite.tear_downs.passed))
+                .collect(),
         )
     }
 
     pub fn tear_down_failed<'a>(&'a self) -> FailedResults<'a> {
         FailedResults::from_many(
-            self.suite_summaries.values().map(|suite| {
-                (suite.tear_downs.reports.iter(), &suite.tear_downs.failed)
-            }).collect()
+            self.suite_summaries
+                .values()
+                .map(|suite| (suite.tear_downs.reports.iter(), &suite.tear_downs.failed))
+                .collect(),
         )
     }
 
     pub fn tear_down_not_run<'a>(&'a self) -> NotRunResults<'a> {
         NotRunResults::from_many(
-            self.suite_summaries.values().map(|suite| {
-                (suite.tear_downs.reports.iter(), &suite.tear_downs.did_not_run)
-            }).collect()
+            self.suite_summaries
+                .values()
+                .map(|suite| {
+                    (
+                        suite.tear_downs.reports.iter(),
+                        &suite.tear_downs.did_not_run,
+                    )
+                })
+                .collect(),
         )
     }
-    
 
     pub fn push_report(&mut self, report: ComponentRunReport) {
         if let ComponentType::Suite = report.description.component_type {
             self.get_suite_mut(&report.description.identity)
                 .push_suite_report(report.clone());
-            
         }
 
         if !report.description.is_root() {
@@ -226,11 +241,13 @@ impl RunSummary {
         self.suite_summaries.values().find(|x| x.is_root())
     }
 
-    pub fn get_suite<'a>(&'a self, identity : &ComponentIdentity) -> Option<&'a SuiteSummary> {
+    pub fn get_suite<'a>(&'a self, identity: &ComponentIdentity) -> Option<&'a SuiteSummary> {
         self.suite_summaries.get(identity.path)
     }
 
-    fn get_suite_mut<'a>(&'a mut self, identity : &ComponentIdentity) -> &'a mut SuiteSummary {
-        self.suite_summaries.entry(identity.path).or_insert(SuiteSummary::new())
+    fn get_suite_mut<'a>(&'a mut self, identity: &ComponentIdentity) -> &'a mut SuiteSummary {
+        self.suite_summaries
+            .entry(identity.path)
+            .or_insert(SuiteSummary::new())
     }
 }

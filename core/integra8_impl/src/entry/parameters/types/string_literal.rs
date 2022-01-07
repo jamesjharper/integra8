@@ -1,16 +1,16 @@
-use syn::{parse_quote, Result};
+use proc_macro2::TokenStream;
 use syn::parse::{Parse, ParseStream};
 use syn::Expr;
-use proc_macro2::TokenStream;
+use syn::{parse_quote, Result};
 
-pub struct StringParameterValue  {
-    expr: Box<Expr>
+pub struct StringParameterValue {
+    expr: Box<Expr>,
 }
 
 impl Parse for StringParameterValue {
     fn parse(input: ParseStream) -> Result<Self> {
         Ok(Self {
-            expr: input.parse::<Box<Expr>>()?
+            expr: input.parse::<Box<Expr>>()?,
         })
     }
 }

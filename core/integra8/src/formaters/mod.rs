@@ -2,8 +2,8 @@ pub mod none;
 pub mod pretty;
 pub mod tree;
 
-use std::io::Write;
 use std::error::Error;
+use std::io::Write;
 
 pub use none::NoOutputFormatter;
 pub use pretty::PrettyFormatter;
@@ -11,43 +11,38 @@ pub use tree::TreeFormatter;
 
 use crate::components::ComponentDescription;
 
-use crate::results::ComponentTimeResult;
 use crate::results::summary::RunSummary;
+use crate::results::ComponentTimeResult;
 
 use crate::parameters::TestParameters;
 
 use crate::results::ComponentRunReport;
 
-
 pub trait OutputFormatterFactory {
     type FormatterParameters;
-    fn create<T : TestParameters>(formatter_parameters: &Self::FormatterParameters, test_parameters:  &T) -> Box<dyn OutputFormatter>;
+    fn create<T: TestParameters>(
+        formatter_parameters: &Self::FormatterParameters,
+        test_parameters: &T,
+    ) -> Box<dyn OutputFormatter>;
 }
 
 pub trait OutputFormatter {
+    // run
 
-
-    // run 
-
-    fn write_run_start(
-        &mut self, 
-        _test_count: usize
-    ) -> Result<(), Box<dyn Error>> {
+    fn write_run_start(&mut self, _test_count: usize) -> Result<(), Box<dyn Error>> {
         Ok(())
     }
 
-    fn write_run_complete(
-        &mut self, _summary: &RunSummary
-    ) -> Result<(), Box<dyn Error>> {
+    fn write_run_complete(&mut self, _summary: &RunSummary) -> Result<(), Box<dyn Error>> {
         Ok(())
     }
 
-    // Component 
+    // Component
 
     fn write_component_start(
-        &mut self, 
-        _desc: &ComponentDescription
-    )  -> Result<(), Box<dyn Error>> {
+        &mut self,
+        _desc: &ComponentDescription,
+    ) -> Result<(), Box<dyn Error>> {
         Ok(())
     }
 
@@ -58,7 +53,7 @@ pub trait OutputFormatter {
     ) -> Result<(), Box<dyn Error>> {
         Ok(())
     }
-    
+
     fn write_component_report(
         &mut self,
         _report: &ComponentRunReport,
@@ -66,13 +61,9 @@ pub trait OutputFormatter {
         Ok(())
     }
 
+    // Suite
 
-    // Suite 
-
-    fn write_suite_start(
-        &mut self, 
-        _desc: &ComponentDescription
-    )  -> Result<(), Box<dyn Error>> {
+    fn write_suite_start(&mut self, _desc: &ComponentDescription) -> Result<(), Box<dyn Error>> {
         Ok(())
     }
 
@@ -83,20 +74,14 @@ pub trait OutputFormatter {
     ) -> Result<(), Box<dyn Error>> {
         Ok(())
     }
-    
-    fn write_suite_report(
-        &mut self,
-        _report: &ComponentRunReport,
-    ) -> Result<(), Box<dyn Error>> {
+
+    fn write_suite_report(&mut self, _report: &ComponentRunReport) -> Result<(), Box<dyn Error>> {
         Ok(())
     }
 
-    // Setup 
-    
-    fn write_setup_start(
-        &mut self, 
-        _desc: &ComponentDescription
-    )  -> Result<(), Box<dyn Error>> {
+    // Setup
+
+    fn write_setup_start(&mut self, _desc: &ComponentDescription) -> Result<(), Box<dyn Error>> {
         Ok(())
     }
 
@@ -107,20 +92,17 @@ pub trait OutputFormatter {
     ) -> Result<(), Box<dyn Error>> {
         Ok(())
     }
-    
-    fn write_setup_report(
-        &mut self,
-        _report: &ComponentRunReport,
-    ) -> Result<(), Box<dyn Error>> {
+
+    fn write_setup_report(&mut self, _report: &ComponentRunReport) -> Result<(), Box<dyn Error>> {
         Ok(())
     }
 
-    // Tear Down 
+    // Tear Down
 
     fn write_tear_down_start(
-        &mut self, 
-        _desc: &ComponentDescription
-    )  -> Result<(), Box<dyn Error>> {
+        &mut self,
+        _desc: &ComponentDescription,
+    ) -> Result<(), Box<dyn Error>> {
         Ok(())
     }
 
@@ -131,7 +113,7 @@ pub trait OutputFormatter {
     ) -> Result<(), Box<dyn Error>> {
         Ok(())
     }
-    
+
     fn write_tear_down_report(
         &mut self,
         _report: &ComponentRunReport,
@@ -139,12 +121,9 @@ pub trait OutputFormatter {
         Ok(())
     }
 
-    // Test 
-    
-    fn write_test_start(
-        &mut self, 
-        _desc: &ComponentDescription
-    )  -> Result<(), Box<dyn Error>> {
+    // Test
+
+    fn write_test_start(&mut self, _desc: &ComponentDescription) -> Result<(), Box<dyn Error>> {
         Ok(())
     }
 
@@ -155,22 +134,23 @@ pub trait OutputFormatter {
     ) -> Result<(), Box<dyn Error>> {
         Ok(())
     }
-    
-    fn write_test_report(
-        &mut self,
-        _report: &ComponentRunReport,
-    ) -> Result<(), Box<dyn Error>> {
+
+    fn write_test_report(&mut self, _report: &ComponentRunReport) -> Result<(), Box<dyn Error>> {
         Ok(())
     }
 }
 
-pub enum OutputLocation  {
+pub enum OutputLocation {
     Pretty(Box<term::StdoutTerminal>),
     Raw(Box<dyn Write>),
 }
 
 impl OutputLocation {
-    pub fn write_pretty<S: AsRef<str>>(&mut self, s: S, color: term::color::Color) -> Result<(), Box<dyn Error>> {
+    pub fn write_pretty<S: AsRef<str>>(
+        &mut self,
+        s: S,
+        color: term::color::Color,
+    ) -> Result<(), Box<dyn Error>> {
         match self {
             OutputLocation::Pretty(ref mut term) => {
                 term.fg(color)?;

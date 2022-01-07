@@ -1,8 +1,7 @@
-use std::time::Duration;
+use crate::components::{ComponentDescription, ComponentIdentity, ComponentType, SuiteAttributes};
+use crate::decorations::{BookEndAttributesDecoration, BookEndDecoration, BookEndDecorationPair};
 use crate::runner::context::ExecutionContext;
-use crate::decorations::{BookEndDecoration, BookEndAttributesDecoration, BookEndDecorationPair};
-use crate::components::{SuiteAttributes, ComponentIdentity, ComponentDescription, ComponentType};
-
+use std::time::Duration;
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct BookEnds<TParameters> {
@@ -11,13 +10,11 @@ pub struct BookEnds<TParameters> {
 }
 
 impl<TParameters> BookEnds<TParameters> {
-
     pub fn new(
         parent_suite_description: &ComponentDescription,
         parent_suite_attributes: &SuiteAttributes,
         decoration_pair: BookEndDecorationPair<TParameters>,
     ) -> Self {
-
         Self {
             setup: decoration_pair.setup.map(|deco| {
                 BookEnd::setup(parent_suite_description, parent_suite_attributes, deco)
@@ -26,7 +23,6 @@ impl<TParameters> BookEnds<TParameters> {
                 BookEnd::tear_down(parent_suite_description, parent_suite_attributes, deco)
             }),
         }
-        
     }
 }
 
@@ -38,23 +34,18 @@ pub struct BookEndAttributes {
     /// Indicates that bookend should not be run.
     pub ignore: bool,
 
-    /// The owning suite of this bookend 
+    /// The owning suite of this bookend
     pub parent_suite_identity: ComponentIdentity,
 
-    /// Describes the maximum duration a bookend can take before it is forcibly aborted 
+    /// Describes the maximum duration a bookend can take before it is forcibly aborted
     pub critical_threshold: Option<Duration>,
-
 }
 
 impl BookEndAttributes {
-    pub fn new(
-        parent_desc: &SuiteAttributes,
-        deco: BookEndAttributesDecoration, 
-    ) -> Self {
+    pub fn new(parent_desc: &SuiteAttributes, deco: BookEndAttributesDecoration) -> Self {
         Self {
-            identity: ComponentIdentity::new(deco.path,deco.path), // TODO: make it name-able?
-            ignore: deco.ignore
-                .unwrap_or_else(|| parent_desc.ignore),
+            identity: ComponentIdentity::new(deco.path, deco.path), // TODO: make it name-able?
+            ignore: deco.ignore.unwrap_or_else(|| parent_desc.ignore),
 
             parent_suite_identity: parent_desc.identity.clone(),
             critical_threshold: deco.critical_threshold,
@@ -62,16 +53,14 @@ impl BookEndAttributes {
     }
 }
 
-
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct BookEnd<TParameters> {
     pub attributes: BookEndAttributes,
     pub description: ComponentDescription,
-    pub bookend_fn: BookEndFn<TParameters>
+    pub bookend_fn: BookEndFn<TParameters>,
 }
 
-
-impl<TParameters> BookEnd<TParameters>  {
+impl<TParameters> BookEnd<TParameters> {
     pub fn setup(
         parent_suite_description: &ComponentDescription,
         parent_suite_attributes: &SuiteAttributes,
@@ -82,12 +71,12 @@ impl<TParameters> BookEnd<TParameters>  {
                 identity: ComponentIdentity::new(decorations.desc.path, decorations.desc.path),
                 parent_identity: parent_suite_description.identity.clone(),
                 component_type: ComponentType::Setup,
-                location: decorations.desc.location.clone()
+                location: decorations.desc.location.clone(),
             },
             attributes: BookEndAttributes::new(parent_suite_attributes, decorations.desc),
             bookend_fn: BookEndFn {
-                bookend_fn: decorations.bookend_fn
-            }
+                bookend_fn: decorations.bookend_fn,
+            },
         }
     }
 
@@ -101,16 +90,15 @@ impl<TParameters> BookEnd<TParameters>  {
                 identity: ComponentIdentity::new(decorations.desc.path, decorations.desc.path),
                 parent_identity: parent_suite_description.identity.clone(),
                 component_type: ComponentType::TearDown,
-                location: decorations.desc.location.clone()
+                location: decorations.desc.location.clone(),
             },
             attributes: BookEndAttributes::new(parent_suite_attributes, decorations.desc),
             bookend_fn: BookEndFn {
-                bookend_fn: decorations.bookend_fn
-            }
+                bookend_fn: decorations.bookend_fn,
+            },
         }
     }
 }
-
 
 #[cfg(feature = "async")]
 pub type BookEndFn<TParameters> = bookend_async_impl::BookEndFnAsync<TParameters>;
@@ -119,14 +107,15 @@ pub type BookEndFn<TParameters> = bookend_async_impl::BookEndFnAsync<TParameters
 mod bookend_async_impl {
     use super::*;
 
-    use std::pin::Pin;
     use std::future::Future;
+    use std::pin::Pin;
 
     #[derive(Clone, Debug, PartialEq, Eq, Hash)]
     pub struct BookEndFnAsync<TParameters> {
-        pub bookend_fn: fn(ExecutionContext<TParameters>) -> Pin<Box<dyn Future<Output = ()> + Send + 'static>>
+        pub bookend_fn:
+            fn(ExecutionContext<TParameters>) -> Pin<Box<dyn Future<Output = ()> + Send + 'static>>,
     }
-    
+
     impl<TParameters> BookEndFnAsync<TParameters> {
         pub async fn run(&self, params: ExecutionContext<TParameters>) {
             (self.bookend_fn)(params).await
@@ -143,9 +132,9 @@ mod bookend_sync_impl {
     use super::*;
     #[derive(Clone, Debug, PartialEq, Eq, Hash)]
     pub struct BookEndFnSync<TParameters> {
-        pub bookend_fn: fn(ExecutionContext<TParameters>)
+        pub bookend_fn: fn(ExecutionContext<TParameters>),
     }
-    
+
     impl<TParameters> BookEndFnSync<TParameters> {
         pub fn run(&self, params: ExecutionContext<TParameters>) {
             (self.bookend_fn)(params)

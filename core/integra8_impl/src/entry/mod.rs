@@ -8,8 +8,8 @@ use parameters::ApplicationParameters;
 pub fn main_test(input_tokens: TokenStream) -> TokenStream {
     let mut global_attr = parse_macro_input!(input_tokens as ApplicationParameters);
 
-    let integra8_path : Path = parse_quote!(::integra8);
-    let structopt_path : Path = parse_quote!(::integra8::structopt);
+    let integra8_path: Path = parse_quote!(::integra8);
+    let structopt_path: Path = parse_quote!(::integra8::structopt);
 
     let main_expr = global_attr.take_main();
 
@@ -40,8 +40,8 @@ pub fn main_test(input_tokens: TokenStream) -> TokenStream {
         pub static REGISTERED_COMPONENTS : [fn() -> ComponentDecoration<Parameters>] = [..];
 
         pub  static __ROOT_NAMESPACE: &'static str = module_path!();
-        
-        type Parameters = command_line::BaseParameters< 
+
+        type Parameters = command_line::BaseParameters<
             command_line:: #settings_extensions_type,
             #formatter_settings_type
         >;
@@ -67,7 +67,7 @@ pub fn main_test(input_tokens: TokenStream) -> TokenStream {
             }
 
             impl <
-                TParametersExtend, 
+                TParametersExtend,
                 TParametersFormatter
             >  #structopt_path ::StructOpt for BaseParameters<TParametersExtend, TParametersFormatter>
             where
@@ -87,9 +87,9 @@ pub fn main_test(input_tokens: TokenStream) -> TokenStream {
                     }
                 }
             }
-    
+
             impl <
-                TParametersExtend, 
+                TParametersExtend,
                 TParametersFormatter
             >  #structopt_path ::StructOptInternal for BaseParameters<TParametersExtend, TParametersFormatter>
             where
@@ -114,7 +114,7 @@ pub fn main_test(input_tokens: TokenStream) -> TokenStream {
 
 
             impl <
-                TParametersExtend, 
+                TParametersExtend,
                 TParametersFormatter
             >  BaseParameters<TParametersExtend, TParametersFormatter>
             where
@@ -152,7 +152,7 @@ pub fn main_test(input_tokens: TokenStream) -> TokenStream {
                 ) -> #structopt_path ::clap::App<'a, 'b> {
                     {
                         use #structopt_path ::clap::Arg;
-                        let app = 
+                        let app =
                         app.arg(Arg::with_name("child-process")
                             .takes_value(false)
                             .multiple(false)
@@ -271,13 +271,13 @@ pub fn main_test(input_tokens: TokenStream) -> TokenStream {
                 }
             }
 
-    
-            impl #integra8_path ::parameters::TestParameters 
-            for BaseParameters< 
-                #settings_extensions_type, 
+
+            impl #integra8_path ::parameters::TestParameters
+            for BaseParameters<
+                #settings_extensions_type,
                 #formatter_settings_type
             > {
-    
+
                 fn is_child_process(&self) -> bool {
                     self.test_parameters.is_child_process
                 }
@@ -285,23 +285,23 @@ pub fn main_test(input_tokens: TokenStream) -> TokenStream {
                 fn use_child_processes(&self) -> bool {
                     self.test_parameters.use_child_processes
                 }
-    
+
                 fn filter(&self) -> Option<String> {
                     self.test_parameters.filter.clone()
                 }
-    
+
                 fn max_concurrency(&self) -> usize {
                     self.test_parameters.max_concurrency
                 }
-    
+
                 fn output_formatter(&self) -> String {
                     self.test_parameters.output_formatter.clone()
                 }
-    
+
                 fn critical_threshold_seconds(&self) -> u64 {
                     self.test_parameters.critical_threshold_seconds
                 }
-    
+
                 fn warn_threshold_seconds(&self) -> u64 {
                     self.test_parameters.warn_threshold_seconds
                 }
@@ -311,9 +311,9 @@ pub fn main_test(input_tokens: TokenStream) -> TokenStream {
                 }
             }
 
-            impl #integra8_path ::parameters::FormatterParameters 
-            for BaseParameters< 
-                #settings_extensions_type, 
+            impl #integra8_path ::parameters::FormatterParameters
+            for BaseParameters<
+                #settings_extensions_type,
                 #formatter_settings_type
             > {
                 fn create_formatter(&self) -> Option<Box<dyn #integra8_path ::formaters::OutputFormatter>> {

@@ -1,5 +1,5 @@
-use std::time::Duration;
 use crate::results::ComponentResult;
+use std::time::Duration;
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub enum ComponentState {
@@ -12,7 +12,7 @@ impl ComponentState {
     pub fn is_undetermined(&self) -> bool {
         match self {
             Self::Undetermined => true,
-            _ => false
+            _ => false,
         }
     }
 
@@ -27,25 +27,25 @@ impl ComponentState {
     pub fn is_skipped(&self) -> bool {
         self.result().map(|r| r.has_not_run()).unwrap_or(false)
     }
-    
+
     pub fn result(&self) -> Option<ComponentResult> {
         match self {
             Self::Tentative(r) | Self::Finalized(r) => Some(r.clone()),
-            _ => None
+            _ => None,
         }
     }
 }
 
 pub struct ComponentResultsModel {
     pub state: ComponentState,
-    pub time_taken: Duration
+    pub time_taken: Duration,
 }
 
 impl ComponentResultsModel {
     pub fn undetermined_state() -> Self {
         ComponentResultsModel {
             state: ComponentState::Undetermined,
-            time_taken: Duration::new(0,0)
+            time_taken: Duration::new(0, 0),
         }
     }
 }

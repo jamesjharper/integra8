@@ -1,8 +1,8 @@
 mod test;
 pub use test::{Test, TestAttributes};
- 
+
 mod bookends;
-pub use bookends::{BookEnds, BookEnd, BookEndAttributes};
+pub use bookends::{BookEnd, BookEndAttributes, BookEnds};
 
 mod suite;
 pub use suite::{Suite, SuiteAttributes};
@@ -11,7 +11,7 @@ mod acceptance_criteria;
 pub use acceptance_criteria::{AcceptanceCriteria, TimingAcceptanceCriteria};
 
 pub mod scheduling;
-pub use  scheduling::IntoTaskStateMachine;
+pub use scheduling::IntoTaskStateMachine;
 
 use crate::decorations::{ComponentDecoration, SourceLocation};
 use crate::parameters::TestParameters;
@@ -38,22 +38,17 @@ pub enum ComponentType {
     TearDown,
 }
 
-
 impl ComponentType {
     pub fn is_tear_down(&self) -> bool {
         match self {
             Self::TearDown => true,
-            _ => false
+            _ => false,
         }
     }
 }
 
-
-
-
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct ComponentDescription {
-
     /// The identity of the bookend. Used for uniquely identify the bookend and displaying the test name to the end user.
     pub identity: ComponentIdentity,
 
@@ -64,8 +59,7 @@ pub struct ComponentDescription {
     pub location: SourceLocation,
 }
 
-
-impl ComponentDescription { 
+impl ComponentDescription {
     pub fn is_root(&self) -> bool {
         self.identity == self.parent_identity
     }
@@ -75,7 +69,8 @@ impl ComponentDescription {
             return self.identity.path.to_string();
         }
 
-        self.identity.path
+        self.identity
+            .path
             .strip_prefix(self.parent_identity.path)
             .map(|relative| {
                 // Remove the :: prefix left over from the path
@@ -85,36 +80,34 @@ impl ComponentDescription {
     }
 }
 
-
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct ComponentIdentity {
-
     // The friendly name of the component (Default: the namespace + ident)
-    pub name: &'static str,  
-    
+    pub name: &'static str,
+
     /// The namespace + ident of the component
     pub path: &'static str,
 }
 
 impl ComponentIdentity {
     pub fn new(name: &'static str, path: &'static str) -> Self {
-        Self {
-            name, path
-        }
+        Self { name, path }
     }
 }
 
 pub struct RootSuite();
 
 impl RootSuite {
-    pub fn from_decorated_components<ComponentsIterator, TParameters: TestParameters>(components: ComponentsIterator, parameters : &TParameters) -> Suite<TParameters>
+    pub fn from_decorated_components<ComponentsIterator, TParameters: TestParameters>(
+        components: ComponentsIterator,
+        parameters: &TParameters,
+    ) -> Suite<TParameters>
     where
         ComponentsIterator: IntoIterator<Item = ComponentDecoration<TParameters>>,
-    {        
+    {
         Suite::<TParameters>::from_decorated_components(components, parameters)
     }
 }
-
 
 /*
 #[cfg(test)]
@@ -128,21 +121,21 @@ mod tests {
         use integra8_impl::teardown;
         use integra8_impl::setup;
 
-        #[integration_test] 
+        #[integration_test]
         #[integra8(crate = crate)]
         pub fn test_c() { }
 
-        #[integration_test] 
+        #[integration_test]
         #[integra8(crate = crate)]
         pub fn test_b() { }
 
-        #[integration_test] 
+        #[integration_test]
         #[integra8(crate = crate)]
         pub fn test_a() { }
 
         #[integration_suite]
         #[integra8(crate = crate)]
-        pub mod suite1 {        
+        pub mod suite1 {
             pub use super::*;
 
             #[teardown]
@@ -153,15 +146,15 @@ mod tests {
             #[integra8(crate = crate)]
             fn setup() { }
 
-            #[integration_test] 
+            #[integration_test]
             #[integra8(crate = crate)]
             pub fn suite1_test_c() { }
-    
-            #[integration_test] 
+
+            #[integration_test]
             #[integra8(crate = crate)]
             pub fn suite1_test_b() { }
-    
-            #[integration_test] 
+
+            #[integration_test]
             #[integra8(crate = crate)]
             pub fn suite1_test_a() { }
 
@@ -171,12 +164,12 @@ mod tests {
                 #[teardown]
                 #[integra8(crate = crate)]
                 fn teardown() { }
-    
+
                 #[setup]
                 #[integra8(crate = crate)]
                 fn setup() { }
 
-                #[integration_test] 
+                #[integration_test]
                 #[integra8(crate = crate)]
                 pub fn suite1_nested_mod_test_d() { }
             }
@@ -186,7 +179,7 @@ mod tests {
             pub mod nested_suite_1a {
                 pub use super::*;
 
-                #[integration_test] 
+                #[integration_test]
                 #[integra8(crate = crate)]
                 pub fn nested_suite_1a_test_d() { }
             }
@@ -197,38 +190,38 @@ mod tests {
         pub mod suite2 {
             pub use super::*;
 
-            #[integration_test] 
+            #[integration_test]
             #[integra8(crate = crate)]
             pub fn suite2_test_c() { }
-    
-            #[integration_test] 
+
+            #[integration_test]
             #[integra8(crate = crate)]
             pub fn suite2_test_b() { }
-    
-            #[integration_test] 
+
+            #[integration_test]
             #[integra8(crate = crate)]
             pub fn suite2_test_a() { }
         }
     }
-   
+
     /*
     #[macro_export]
     macro_rules! assert_has_tests {
-        ( 
-            $tests:expr, $($test_name:expr), +, 
+        (
+            $tests:expr, $($test_name:expr), +,
         ) => {
             let mut _i = 0;
             $(
                 assert_eq!($tests[_i].desc.name, $test_name);
                 _i = _i + 1;
             )+
-            assert_eq!($tests.len(), _i); 
+            assert_eq!($tests.len(), _i);
         }
     }
 
     #[macro_export]
     macro_rules! assert_has_suite {
-        ( 
+        (
             $opt_suite:expr, $suite_name:expr
         ) => {
 
@@ -242,26 +235,26 @@ mod tests {
 
     #[macro_export]
     macro_rules! assert_has_suite {
-        ( 
+        (
             $suite:expr,
             suite => $expected_suite_name:expr,
-            tests => [ $($test_name:expr), + ], 
+            tests => [ $($test_name:expr), + ],
         ) => {
             let mut _i = 0;
             $(
                 assert_eq!($suite.tests[_i].desc.name, $test_name);
                 _i = _i + 1;
             )+
-            assert_eq!($suite.tests.len(), _i); 
+            assert_eq!($suite.tests.len(), _i);
             assert_eq!($expected_suite_name, $suite.desc.name);
         };
 
-        ( 
+        (
             $suite:expr,
             suite => $expected_suite_name:expr,
-            tests => [ ], 
+            tests => [ ],
         ) => {
-            assert_eq!($suite.tests.len(), 0); 
+            assert_eq!($suite.tests.len(), 0);
             assert_eq!($expected_suite_name, $suite.desc.name);
         };
     }
@@ -270,11 +263,11 @@ mod tests {
     #[test]
     fn can_build_test_groups_from_empty_tree() {
 
-        // Act 
+        // Act
         let suites = RootSuite::from_decorated_components(
             Vec::<ComponentDecoration<crate::MockParameters>>::new()
         );
-        
+
         // Act
         assert_has_suite!(
             suites[0],
@@ -306,10 +299,10 @@ mod tests {
         );
     }
 
-    
+
     #[test]
     fn should_return_test_in_the_order_they_are_defined() {
-          // Arrange 
+          // Arrange
         let suites = RootSuite::from_decorated_components(
             vec![
                 // Tests
@@ -435,7 +428,7 @@ mod tests {
                 // nested_suite_1a
                 mock_test_app::suite1::nested_suite_1a::nested_suite_1a_test_d::test_def(),
 
-                // Suites 
+                // Suites
                 mock_test_app::suite1::__suite_def(),
                 mock_test_app::suite1::nested_suite_1a::__suite_def(),
             ]
@@ -446,7 +439,7 @@ mod tests {
         // should have a single test group
         assert_eq!(2, root_suite.nested_suite.len());
 
-        // nested suite 1a 
+        // nested suite 1a
         assert_has_tests!(
             root_suite.nested_suite[0].tests,
             "integra8::components::tests::mock_test_app::suite1::nested_suite_1a::nested_suite_1a_test_d",
@@ -457,7 +450,7 @@ mod tests {
         );
         assert_eq!(root_suite.nested_suite[0].bookends.is_empty(), true);
 
-        // Suite 1 
+        // Suite 1
         assert_has_tests!(
             groups[1].tests,
             "integra8::components::tests::mock_test_app::suite1::suite1_test_c",
@@ -490,14 +483,14 @@ mod tests {
             ]
         );
 
-        // Arrange 
+        // Arrange
         let mut groups = sut.into_iter().collect::<Vec<TestExecutionGroup<crate::MockParameters>>>();
 
         // Act
         // should have a single test group
         assert_eq!(1, groups.len());
 
-        // Suite 1 
+        // Suite 1
         assert_has_tests!(
             groups[0].tests,
             "integra8::components::tests::mock_test_app::suite1::suite1_test_c",

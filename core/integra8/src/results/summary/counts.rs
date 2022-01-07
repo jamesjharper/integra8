@@ -1,5 +1,4 @@
-use crate::results::{ComponentResult, PassReason, FailureReason, DidNotRunReason};
-
+use crate::results::{ComponentResult, DidNotRunReason, FailureReason, PassReason};
 
 pub trait ResultReasonCounter {
     type ReasonType;
@@ -22,7 +21,7 @@ impl ResultsCountSummary {
             did_not_run: DidNotRunResultsCountSummary::new(),
         }
     }
-    
+
     pub fn increment(&mut self, result: &ComponentResult) {
         match result {
             ComponentResult::Pass(result) => self.passed.increment(result),
@@ -115,7 +114,6 @@ impl FailResultsCountSummary {
 }
 
 impl ResultReasonCounter for FailResultsCountSummary {
-
     type ReasonType = FailureReason;
 
     fn total(&self) -> usize {
@@ -128,7 +126,7 @@ impl ResultReasonCounter for FailResultsCountSummary {
         match reason {
             FailureReason::Rejected => self.rejected,
             FailureReason::Overtime => self.timed_out,
-            FailureReason::ChildFailure => self.child_failure
+            FailureReason::ChildFailure => self.child_failure,
         }
     }
 }
@@ -138,7 +136,7 @@ pub struct DidNotRunResultsCountSummary {
     ignored: usize,
     undetermined: usize,
     filtered: usize,
-    parent_failure: usize
+    parent_failure: usize,
 }
 
 impl DidNotRunResultsCountSummary {

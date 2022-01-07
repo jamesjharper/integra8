@@ -1,6 +1,5 @@
-
-use crate::parameters::{TestParameters, ExecutionStrategy};
-use crate::components::{Test, BookEnd, ComponentDescription, AcceptanceCriteria, SuiteAttributes};
+use crate::components::{AcceptanceCriteria, BookEnd, ComponentDescription, SuiteAttributes, Test};
+use crate::parameters::{ExecutionStrategy, TestParameters};
 
 use crate::runner::context::ExecutionContext;
 
@@ -11,13 +10,11 @@ pub enum ComponentFixture<TParameters> {
         test: Test<TParameters>,
         parameters: Arc<TParameters>,
     },
-    BookEnd
-    {
+    BookEnd {
         bookend: BookEnd<TParameters>,
         parameters: Arc<TParameters>,
     },
-    Suite
-    {
+    Suite {
         description: ComponentDescription,
         attributes: SuiteAttributes,
         parameters: Arc<TParameters>,
@@ -25,27 +22,20 @@ pub enum ComponentFixture<TParameters> {
 }
 
 impl<TParameters: TestParameters> ComponentFixture<TParameters> {
-
-    pub fn for_test(
-        test: Test<TParameters>,
-        parameters: Arc<TParameters>,
-    ) -> Self {
+    pub fn for_test(test: Test<TParameters>, parameters: Arc<TParameters>) -> Self {
         Self::Test {
             test: test,
             parameters: parameters,
         }
     }
 
-    pub fn for_bookend(
-        bookend: BookEnd<TParameters>,
-        parameters: Arc<TParameters>,
-    ) -> Self {
+    pub fn for_bookend(bookend: BookEnd<TParameters>, parameters: Arc<TParameters>) -> Self {
         Self::BookEnd {
             bookend: bookend,
             parameters: parameters,
         }
     }
-    
+
     pub fn for_suite(
         description: ComponentDescription,
         attributes: SuiteAttributes,
@@ -60,15 +50,21 @@ impl<TParameters: TestParameters> ComponentFixture<TParameters> {
 
     pub async fn run(&self) {
         match self {
-            Self::Test { test, parameters, .. } => {
+            Self::Test {
+                test, parameters, ..
+            } => {
                 let ctx = ExecutionContext {
-                    parameters: parameters.clone()
+                    parameters: parameters.clone(),
                 };
                 test.test_fn.run(ctx).await
             }
-            Self::BookEnd { bookend, parameters, .. } => {
+            Self::BookEnd {
+                bookend,
+                parameters,
+                ..
+            } => {
                 let ctx = ExecutionContext {
-                    parameters: parameters.clone()
+                    parameters: parameters.clone(),
                 };
                 bookend.bookend_fn.run(ctx).await
             }
@@ -78,18 +74,11 @@ impl<TParameters: TestParameters> ComponentFixture<TParameters> {
         }
     }
 
-
     pub fn acceptance_criteria(&self) -> AcceptanceCriteria {
         match self {
-            Self::Test { test, .. } => {
-                AcceptanceCriteria::for_test(&test.attributes)
-            },
-            Self::BookEnd { bookend, .. } => {
-                AcceptanceCriteria::for_bookend(&bookend.attributes)
-            },
-            Self::Suite { attributes, .. } => {
-                AcceptanceCriteria::for_suite(&attributes)
-            },
+            Self::Test { test, .. } => AcceptanceCriteria::for_test(&test.attributes),
+            Self::BookEnd { bookend, .. } => AcceptanceCriteria::for_bookend(&bookend.attributes),
+            Self::Suite { attributes, .. } => AcceptanceCriteria::for_suite(&attributes),
         }
     }
 
@@ -97,27 +86,21 @@ impl<TParameters: TestParameters> ComponentFixture<TParameters> {
         match self {
             Self::Test { test, .. } => {
                 return &test.description;
-            },
+            }
             Self::BookEnd { bookend, .. } => {
                 return &bookend.description;
-            },
+            }
             Self::Suite { description, .. } => {
                 return &description;
-            },
+            }
         }
     }
 
     pub fn execution_strategy(&self) -> ExecutionStrategy {
         match self {
-            Self::Test { parameters, .. } => {
-                parameters.execution_strategy()
-            },
-            Self::BookEnd { parameters, .. } => {
-                parameters.execution_strategy()
-            },
-            Self::Suite { parameters, .. } => {
-                parameters.execution_strategy()
-            },
+            Self::Test { parameters, .. } => parameters.execution_strategy(),
+            Self::BookEnd { parameters, .. } => parameters.execution_strategy(),
+            Self::Suite { parameters, .. } => parameters.execution_strategy(),
         }
     }
 
@@ -125,13 +108,13 @@ impl<TParameters: TestParameters> ComponentFixture<TParameters> {
         match self {
             Self::Test { test, .. } => {
                 return test.description.identity.path;
-            },
+            }
             Self::BookEnd { bookend, .. } => {
                 return bookend.description.identity.path;
-            },
+            }
             Self::Suite { description, .. } => {
                 return description.identity.path;
-            },
+            }
         }
     }
 
@@ -139,21 +122,20 @@ impl<TParameters: TestParameters> ComponentFixture<TParameters> {
         match self {
             Self::Test { test, .. } => {
                 return test.attributes.ignore;
-            },
+            }
             Self::BookEnd { bookend, .. } => {
                 return bookend.attributes.ignore;
-            },
+            }
             Self::Suite { attributes, .. } => {
                 return attributes.ignore;
-            },
+            }
         }
     }
 
     pub fn is_suite(&self) -> bool {
         match self {
             Self::Suite { .. } => true,
-            _ => false
+            _ => false,
         }
     }
 }
-

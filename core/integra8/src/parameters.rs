@@ -9,8 +9,7 @@ pub enum ExecutionStrategy {
 }
 
 pub trait TestParameters {
-
-    // Parameter Projections 
+    // Parameter Projections
     fn is_multi_threaded(&self) -> bool {
         if self.max_concurrency() == 1 {
             return false;
@@ -21,7 +20,7 @@ pub trait TestParameters {
     fn critical_threshold_duration(&self) -> Duration {
         std::time::Duration::from_secs(self.critical_threshold_seconds())
     }
-    
+
     fn warn_threshold_duration(&self) -> Duration {
         std::time::Duration::from_secs(self.warn_threshold_seconds())
     }
@@ -42,9 +41,7 @@ pub trait TestParameters {
         }
     }
 
-
     // User defined
-
 
     fn run_suites_in_parallel(&self) -> bool {
         true
@@ -58,14 +55,12 @@ pub trait TestParameters {
     fn warn_threshold_seconds(&self) -> u64;
     fn max_concurrency(&self) -> usize;
 
-
     fn is_child_process(&self) -> bool;
     fn filter(&self) -> Option<String>;
 
     fn root_namespace(&self) -> &'static str;
-   
+
     fn output_formatter(&self) -> String;
-    
 
     fn use_child_processes(&self) -> bool;
 
@@ -79,12 +74,10 @@ pub trait TestParameters {
         ExecutionStrategy::ProcessExternal
     }
 
-
-
-    fn exclude_component_predicate(&self, component_path : &str) -> bool {
+    fn exclude_component_predicate(&self, component_path: &str) -> bool {
         match &self.filter() {
             Some(name) => name != component_path,
-            None => false
+            None => false,
         }
     }
 }
@@ -92,5 +85,5 @@ pub trait TestParameters {
 use crate::formaters::OutputFormatter;
 
 pub trait FormatterParameters {
-    fn create_formatter(&self) -> Option<Box<dyn OutputFormatter>> ;
+    fn create_formatter(&self) -> Option<Box<dyn OutputFormatter>>;
 }

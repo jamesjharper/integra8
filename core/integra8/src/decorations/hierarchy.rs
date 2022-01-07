@@ -1,6 +1,9 @@
 use indexmap::IndexMap;
 
-use crate::decorations::{SuiteAttributesDecoration, TestDecoration, BookEndDecorationPair, BookEndDecoration, ComponentDecoration};
+use crate::decorations::{
+    BookEndDecoration, BookEndDecorationPair, ComponentDecoration, SuiteAttributesDecoration,
+    TestDecoration,
+};
 
 #[derive(Debug)]
 pub struct ComponentGroup<TParameters> {
@@ -12,29 +15,27 @@ pub struct ComponentGroup<TParameters> {
 
 #[derive(Debug)]
 pub struct ComponentHierarchy<TParameters> {
-    root: HierarchyNode<TParameters>
+    root: HierarchyNode<TParameters>,
 }
 
 impl<TParameters> ComponentHierarchy<TParameters> {
     pub fn new() -> Self {
         Self {
-            root: HierarchyNode::new_node()
+            root: HierarchyNode::new_node(),
         }
     }
 
-    pub fn from_decorated_components<ComponentsIterator>(components: ComponentsIterator) -> Self   
+    pub fn from_decorated_components<ComponentsIterator>(components: ComponentsIterator) -> Self
     where
         ComponentsIterator: IntoIterator<Item = ComponentDecoration<TParameters>>,
-    {        
+    {
         Self {
             root: components
                 .into_iter()
-                .fold(HierarchyNode::new_node(), 
-                    |mut root, c| {
-                        root.insert_component(c);
-                        root
-                    }
-            )
+                .fold(HierarchyNode::new_node(), |mut root, c| {
+                    root.insert_component(c);
+                    root
+                }),
         }
     }
 
@@ -43,24 +44,21 @@ impl<TParameters> ComponentHierarchy<TParameters> {
     }
 }
 
-
-
 #[derive(Debug)]
 pub struct HierarchyNode<TParameters> {
     suite: Option<SuiteAttributesDecoration>,
     tests: Vec<TestDecoration<TParameters>>,
     bookends: BookEndDecorationPair<TParameters>,
-    nodes: IndexMap<String, HierarchyNode<TParameters>>
+    nodes: IndexMap<String, HierarchyNode<TParameters>>,
 }
 
 impl<TParameters> HierarchyNode<TParameters> {
-
     pub fn new_node() -> Self {
         Self {
             suite: None,
             tests: Vec::new(),
             bookends: BookEndDecorationPair::new(),
-            nodes:IndexMap::new() 
+            nodes: IndexMap::new(),
         }
     }
 
@@ -68,17 +66,17 @@ impl<TParameters> HierarchyNode<TParameters> {
         match component {
             ComponentDecoration::IntegrationTest(integration_tst) => {
                 self.insert_test(integration_tst);
-            },
+            }
             ComponentDecoration::Suite(suite_description) => {
                 self.insert_suite(suite_description);
-            },
+            }
             ComponentDecoration::TearDown(bookend) => {
                 self.insert_teardown(bookend);
-            },
+            }
             ComponentDecoration::Setup(bookend) => {
                 self.insert_setup(bookend);
-            },
-        }        
+            }
+        }
     }
 
     pub fn insert_suite(&mut self, suite: SuiteAttributesDecoration) {
@@ -92,7 +90,7 @@ impl<TParameters> HierarchyNode<TParameters> {
     }
 
     pub fn insert_setup(&mut self, setup: BookEndDecoration<TParameters>) {
-        let mut node = self.find_method_entry(&setup.desc.path); 
+        let mut node = self.find_method_entry(&setup.desc.path);
         // Should raise error when there is already a setup
         node.bookends.setup = Some(setup);
     }
@@ -103,27 +101,28 @@ impl<TParameters> HierarchyNode<TParameters> {
         node.bookends.tear_down = Some(teardown);
     }
 
-    fn find_namespace_entry<'a>(&'a mut self, path : &str) ->  &'a mut Self {
+    fn find_namespace_entry<'a>(&'a mut self, path: &str) -> &'a mut Self {
         let v: Vec<&str> = path.split("::").collect();
         self.find_entry_from_path_elements(&v)
     }
 
-    fn find_method_entry<'a>(&'a mut self, path : &str) ->  &'a mut Self {
+    fn find_method_entry<'a>(&'a mut self, path: &str) -> &'a mut Self {
         let v: Vec<&str> = path.split("::").collect();
         // discard the last element, as the last element is the name of the method
         match v.split_last() {
             None => self,
-            Some((_, path)) => {
-                self.find_entry_from_path_elements(path)
-            }
+            Some((_, path)) => self.find_entry_from_path_elements(path),
         }
     }
 
-    fn find_entry_from_path_elements<'a>(&'a mut self, path : &[&str]) ->  &'a mut Self {
+    fn find_entry_from_path_elements<'a>(&'a mut self, path: &[&str]) -> &'a mut Self {
         match path.split_first() {
             None => self,
             Some((cur, rest)) => {
-                let next = self.nodes.entry(cur.to_string()).or_insert(Self::new_node());
+                let next = self
+                    .nodes
+                    .entry(cur.to_string())
+                    .or_insert(Self::new_node());
                 next.find_entry_from_path_elements(rest)
             }
         }
@@ -136,7 +135,7 @@ impl<TParameters> HierarchyNode<TParameters> {
 
         let mut bookends = match self.bookends.has_any() {
             false => vec![],
-            true => vec![std::mem::take(&mut self.bookends)]
+            true => vec![std::mem::take(&mut self.bookends)],
         };
 
         for (_, node) in self.nodes {
@@ -155,7 +154,7 @@ impl<TParameters> HierarchyNode<TParameters> {
             suite: suite,
             tests: tests,
             bookends: bookends,
-            sub_groups: sub_groups
+            sub_groups: sub_groups,
         };
     }
 }

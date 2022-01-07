@@ -1,21 +1,21 @@
-use std::{io::prelude::Write};
+use std::io::prelude::Write;
 
-use crate::formaters::{OutputFormatter, OutputFormatterFactory};
-use crate::formaters::OutputLocation;
 use crate::components::ComponentDescription;
-use crate::results::{ComponentTimeResult, ComponentResult, DidNotRunReason, FailureReason, PassReason, ComponentRunReport};
-use crate::results::summary::{SuiteSummary, RunSummary};
+use crate::formaters::OutputLocation;
+use crate::formaters::{OutputFormatter, OutputFormatterFactory};
 use crate::parameters::TestParameters;
+use crate::results::summary::{RunSummary, SuiteSummary};
+use crate::results::{
+    ComponentResult, ComponentRunReport, ComponentTimeResult, DidNotRunReason, FailureReason,
+    PassReason,
+};
 
 use std::error::Error;
 
 use crate::structopt::StructOpt;
 
-#[derive(StructOpt, Clone, Debug)] // TODO: Remove the need for clone here 
-pub struct PrettyFormatterParameters {
-
-}
-
+#[derive(StructOpt, Clone, Debug)] // TODO: Remove the need for clone here
+pub struct PrettyFormatterParameters {}
 
 pub struct PrettyFormatter {
     out: OutputLocation,
@@ -64,7 +64,11 @@ impl PrettyFormatter {
         self.write_pretty(result, color)
     }
 
-    pub fn write_pretty(&mut self, word: &str, color: term::color::Color) -> Result<(), Box<dyn Error>> {
+    pub fn write_pretty(
+        &mut self,
+        word: &str,
+        color: term::color::Color,
+    ) -> Result<(), Box<dyn Error>> {
         match self.out {
             OutputLocation::Pretty(ref mut term) => {
                 if self.use_color {
@@ -72,7 +76,6 @@ impl PrettyFormatter {
                 }
 
                 term.write_all(word.as_bytes())?;
-
 
                 if self.use_color {
                     term.reset()?;
@@ -118,7 +121,7 @@ impl PrettyFormatter {
         &mut self,
         inputs: impl Iterator<Item = &'a ComponentRunReport>,
         results_type: &str,
-    ) -> Result<(), Box<dyn Error>> { 
+    ) -> Result<(), Box<dyn Error>> {
         let results_out_str = format!("\n{}:\n", results_type);
 
         let mut results = Vec::new();
@@ -128,14 +131,20 @@ impl PrettyFormatter {
             results.push(report.description.identity.name.to_string());
 
             if !report.artifacts.stdio.stdout.is_empty() {
-                stdouts.push_str(&format!("---- {} stdout ----\n", report.description.identity.name));
+                stdouts.push_str(&format!(
+                    "---- {} stdout ----\n",
+                    report.description.identity.name
+                ));
                 let output = String::from_utf8_lossy(&report.artifacts.stdio.stdout);
                 stdouts.push_str(&output);
                 stdouts.push('\n');
             }
 
             if !report.artifacts.stdio.stderr.is_empty() {
-                stdouts.push_str(&format!("---- {} stderr ----\n", report.description.identity.name));
+                stdouts.push_str(&format!(
+                    "---- {} stderr ----\n",
+                    report.description.identity.name
+                ));
                 let output = String::from_utf8_lossy(&report.artifacts.stdio.stderr);
                 stdouts.push_str(&output);
                 stdouts.push('\n');
@@ -146,8 +155,8 @@ impl PrettyFormatter {
             self.write_plain(&results_out_str)?;
             self.write_plain("\n")?;
             self.write_plain(&stdouts)?;
-        } 
-        
+        }
+
         self.write_plain(&results_out_str)?;
         results.sort();
         for name in &results {
@@ -177,7 +186,10 @@ impl PrettyFormatter {
         Ok(())
     }
 
-    pub fn write_suite_time_failures(&mut self, summary: &SuiteSummary) -> Result<(), Box<dyn Error>> {
+    pub fn write_suite_time_failures(
+        &mut self,
+        summary: &SuiteSummary,
+    ) -> Result<(), Box<dyn Error>> {
         let failures = summary.tests.failed().due_to_timing_out();
         if failures.has_some() {
             self.write_results(failures, "failures (time limit exceeded)")?;
@@ -202,7 +214,6 @@ impl PrettyFormatter {
     }
 
     fn write_test_name(&mut self, desc: &ComponentDescription) -> Result<(), Box<dyn Error>> {
-   
         self.write_plain(&format!("test {} ... ", desc.identity.name))?;
         /*if let Some(test_mode) = desc.test_mode() {
             self.write_plain(&format!("test {} - {} ... ", name, test_mode))?;
@@ -215,19 +226,17 @@ impl PrettyFormatter {
 }
 
 impl OutputFormatterFactory for PrettyFormatter {
-
     type FormatterParameters = PrettyFormatterParameters;
-    fn create<T : TestParameters>(
-        _formatter_parameters: &Self::FormatterParameters, 
-        _test_parameters:  &T
-    )  -> Box<dyn OutputFormatter> {
-    
+    fn create<T: TestParameters>(
+        _formatter_parameters: &Self::FormatterParameters,
+        _test_parameters: &T,
+    ) -> Box<dyn OutputFormatter> {
         let formatter = PrettyFormatter::new(
             match term::stdout() {
                 None => OutputLocation::Raw(Box::new(std::io::stdout())),
                 Some(t) => OutputLocation::Pretty(t),
-            }, 
-            /*use_color*/ true, 
+            },
+            /*use_color*/ true,
             /*is_multithreaded*/ true,
         );
 
@@ -235,9 +244,7 @@ impl OutputFormatterFactory for PrettyFormatter {
     }
 }
 
-
 impl OutputFormatter for PrettyFormatter {
-
     fn write_run_start(&mut self, test_count: usize) -> Result<(), Box<dyn Error>> {
         let noun = if test_count != 1 { "tests" } else { "test" };
         self.write_plain(&format!("\nrunning {} {}\n", test_count, noun))
@@ -255,12 +262,7 @@ impl OutputFormatter for PrettyFormatter {
         Ok(())
     }
 
-
-    fn write_test_report(
-        &mut self,
-        report: &ComponentRunReport,
-    ) -> Result<(), Box<dyn Error>> {
-
+    fn write_test_report(&mut self, report: &ComponentRunReport) -> Result<(), Box<dyn Error>> {
         if self.is_multithreaded {
             self.write_test_name(&report.description)?;
         }
@@ -297,13 +299,10 @@ impl OutputFormatter for PrettyFormatter {
     }
 
     fn write_run_complete(&mut self, state: &RunSummary) -> Result<(), Box<dyn Error>> {
-
-
         /*if state.options.display_output {
             self.write_successes(state)?;
         }*/
 
-        
         let success = state.is_success();
 
         self.write_run_failures(state)?;
@@ -317,19 +316,22 @@ impl OutputFormatter for PrettyFormatter {
         } else {
             self.write_pretty("FAILED", term::color::RED)?;
         }
-       
-         if state.tests_passed().due_to_allowed_failure().has_some() {
+
+        if state.tests_passed().due_to_allowed_failure().has_some() {
             format!(
                 ". {} passed; {} failed ({} allowed); {} skipped",
                 state.tests_passed().count(),
-                state.tests_failed().count() + state.tests_passed().due_to_allowed_failure().count(),
+                state.tests_failed().count()
+                    + state.tests_passed().due_to_allowed_failure().count(),
                 state.tests_passed().due_to_allowed_failure().count(),
                 state.tests_not_run().count(),
             )
         } else {
             format!(
                 ". {} passed; {} failed; {} skipped",
-                state.tests_passed().count(), state.tests_failed().count(), state.tests_not_run().count()
+                state.tests_passed().count(),
+                state.tests_failed().count(),
+                state.tests_not_run().count()
             )
         };
 
@@ -339,7 +341,6 @@ impl OutputFormatter for PrettyFormatter {
             let time_str = format!("; finished in {:.2} seconds",  result_timings.duration().as_secs_f64());
             self.write_plain(&time_str)?;
         }*/
-
 
         self.write_plain("\n\n")?;
         Ok(())

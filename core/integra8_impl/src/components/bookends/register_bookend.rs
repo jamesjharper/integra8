@@ -6,7 +6,6 @@ use quote::quote;
 use syn::{parse_macro_input, ItemFn};
 
 pub fn register_teardown(input_tokens: TokenStream) -> TokenStream {
-
     let mut decorated_fn = parse_macro_input!(input_tokens as ItemFn);
 
     let mut test_attr = match BookendAttributes::take_from(&mut decorated_fn.attrs) {
@@ -29,14 +28,14 @@ pub fn register_teardown(input_tokens: TokenStream) -> TokenStream {
         // Prevent more then one tear down being defined with in the same mod
         static __ONE_TEAR_DOWN_PER_NAMESPACE: &'static str = "Teardown method can only be defined once per namespace";
 
-        pub(crate) mod #teardown_name_ident { 
+        pub(crate) mod #teardown_name_ident {
 
             use crate::REGISTERED_COMPONENTS;
 
             #[#integra8_path ::linkme::distributed_slice(REGISTERED_COMPONENTS)]
             #[linkme(crate = #integra8_path ::linkme)]
             static REGISTERER_COMPONENTS: fn() -> #integra8_path ::decorations::ComponentDecoration<crate::Parameters> = teardown_def;
-            
+
             pub(crate) fn teardown_def() -> #integra8_path ::decorations::ComponentDecoration<crate::Parameters> {
                 #integra8_path ::decorations::ComponentDecoration::TearDown(
                     #integra8_path ::decorations::BookEndDecoration {
@@ -57,9 +56,7 @@ pub fn register_teardown(input_tokens: TokenStream) -> TokenStream {
     TokenStream::from(tokens)
 }
 
-
 pub fn register_setup(input_tokens: TokenStream) -> TokenStream {
-
     let mut decorated_fn = parse_macro_input!(input_tokens as ItemFn);
 
     let mut test_attr = match BookendAttributes::take_from(&mut decorated_fn.attrs) {
@@ -82,14 +79,14 @@ pub fn register_setup(input_tokens: TokenStream) -> TokenStream {
         // Prevent more then one setup down being defined with in the same mod
         static __ONE_SETUP_PER_NAMESPACE: &'static str = "Setup method can only be defined once per namespace";
 
-        pub(crate) mod #setup_name_ident { 
+        pub(crate) mod #setup_name_ident {
 
             use crate::REGISTERED_COMPONENTS;
 
             #[#integra8_path ::linkme::distributed_slice(REGISTERED_COMPONENTS)]
             #[linkme(crate = #integra8_path ::linkme)]
             static REGISTERER_COMPONENTS: fn() -> #integra8_path ::decorations::ComponentDecoration<crate::Parameters> = setup_def;
-            
+
             pub(crate) fn setup_def() -> #integra8_path ::decorations::ComponentDecoration<crate::Parameters> {
                 #integra8_path ::decorations::ComponentDecoration::Setup(
                     #integra8_path ::decorations::BookEndDecoration {

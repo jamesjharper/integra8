@@ -1,7 +1,7 @@
-use std::time::Duration;
-use std::pin::Pin;
-use std::future::Future;
 use crate::runner::context::ExecutionContext;
+use std::future::Future;
+use std::pin::Pin;
+use std::time::Duration;
 
 use super::SourceLocation;
 
@@ -13,9 +13,9 @@ pub struct BookEndDecorationPair<TParameters> {
 
 impl<TParameters> BookEndDecorationPair<TParameters> {
     pub fn new() -> Self {
-        Self{
-            setup: None, 
-            tear_down: None
+        Self {
+            setup: None,
+            tear_down: None,
         }
     }
 
@@ -26,9 +26,9 @@ impl<TParameters> BookEndDecorationPair<TParameters> {
 
 impl<TParameters> Default for BookEndDecorationPair<TParameters> {
     fn default() -> Self {
-        Self{
-            setup: None, 
-            tear_down: None
+        Self {
+            setup: None,
+            tear_down: None,
         }
     }
 }
@@ -40,14 +40,14 @@ pub struct BookEndAttributesDecoration {
 
     /// The source code location of this bookend
     pub location: SourceLocation,
-    
+
     /// Indicates that bookend should not be run.
     pub ignore: Option<bool>,
 
     /// A Cascading failure will result in automatic failure of all other yet to be run test in this test group.
     pub cascade_failure: Option<bool>,
 
-    /// Describes the maximum duration a bookend can take before it is forcibly aborted 
+    /// Describes the maximum duration a bookend can take before it is forcibly aborted
     pub critical_threshold: Option<Duration>,
 }
 
@@ -61,9 +61,10 @@ mod bookend_async_impl {
     #[derive(Clone, Debug, PartialEq, Eq, Hash)]
     pub struct BookendDecorationAsync<TParameters> {
         pub desc: BookEndAttributesDecoration,
-        pub bookend_fn: fn(ExecutionContext<TParameters>) -> Pin<Box<dyn Future<Output = ()> + Send + 'static>>
+        pub bookend_fn:
+            fn(ExecutionContext<TParameters>) -> Pin<Box<dyn Future<Output = ()> + Send + 'static>>,
     }
-    
+
     impl<TParameters> BookendDecorationAsync<TParameters> {
         pub async fn run(&self, params: ExecutionContext<TParameters>) {
             (self.bookend_fn)(params).await
@@ -81,9 +82,9 @@ mod bookend_sync_impl {
     #[derive(Clone, Debug, PartialEq, Eq, Hash)]
     pub struct BookendDecorationSync<TParameters> {
         pub desc: BookEndAttributesDecoration,
-        pub bookend_fn: fn(ExecutionContext<TParameters>)
+        pub bookend_fn: fn(ExecutionContext<TParameters>),
     }
-    
+
     impl<TParameters> BookendDecorationSync<TParameters> {
         pub fn run(&self, params: ExecutionContext<TParameters>) {
             (self.bookend_fn)(params)

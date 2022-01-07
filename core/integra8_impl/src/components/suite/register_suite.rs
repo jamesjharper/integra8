@@ -4,9 +4,7 @@ use proc_macro::TokenStream;
 use quote::quote;
 use syn::{parse_macro_input, ItemMod};
 
-
 pub fn register_suite(input_tokens: TokenStream) -> TokenStream {
-
     let mut decorated_mod = parse_macro_input!(input_tokens as ItemMod);
 
     let mut test_attr = match SuiteAttributes::take_from(&mut decorated_mod.attrs) {
@@ -23,7 +21,8 @@ pub fn register_suite(input_tokens: TokenStream) -> TokenStream {
 
     let suite_name_ident = decorated_mod.ident;
     let suite_vis = decorated_mod.vis;
-    let mod_content = decorated_mod.content
+    let mod_content = decorated_mod
+        .content
         .map(|(_brace, mod_content)| mod_content)
         .unwrap_or_else(|| vec![]);
 

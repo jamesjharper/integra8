@@ -1,13 +1,11 @@
-use crate::components::test::test_attributes::TestAttributes;
 use crate::components::exec_fn::ExecFn;
+use crate::components::test::test_attributes::TestAttributes;
 
 use proc_macro::TokenStream;
 use quote::quote;
 use syn::{parse_macro_input, ItemFn};
 
-
-pub fn register_test(input_tokens: TokenStream, ) -> TokenStream {
-
+pub fn register_test(input_tokens: TokenStream) -> TokenStream {
     let mut decorated_fn = parse_macro_input!(input_tokens as ItemFn);
 
     let mut test_attr = match TestAttributes::take_from(&mut decorated_fn.attrs) {
@@ -29,7 +27,7 @@ pub fn register_test(input_tokens: TokenStream, ) -> TokenStream {
     let tokens = quote! {
         #test_method
 
-        pub mod #test_name_ident { 
+        pub mod #test_name_ident {
             use crate::REGISTERED_COMPONENTS;
 
             #[#integra8_path ::linkme::distributed_slice(REGISTERED_COMPONENTS)]

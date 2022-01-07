@@ -1,24 +1,24 @@
-use syn::{ItemFn, parse_quote};
 use std::mem;
+use syn::{parse_quote, ItemFn};
 
 pub struct ExecFn {
-    exec_fn: Option<ItemFn>
+    exec_fn: Option<ItemFn>,
 }
 
 impl ExecFn {
     pub fn from(exec_fn: syn::ItemFn) -> Self {
         enum Asyncness {
             Async,
-            Synchronous
-        }
-        
-        enum Signature {
-            HasParameters,
-            NoParameters
+            Synchronous,
         }
 
-        use Signature::{HasParameters, NoParameters};
+        enum Signature {
+            HasParameters,
+            NoParameters,
+        }
+
         use Asyncness::{Async, Synchronous};
+        use Signature::{HasParameters, NoParameters};
 
         let asyncness = match exec_fn.sig.asyncness.is_some() {
             true => Async,
@@ -28,7 +28,7 @@ impl ExecFn {
         let parameters = match exec_fn.sig.inputs.is_empty() {
             true => NoParameters,
             false => HasParameters,
-        };   
+        };
 
         let test_name_ident = &exec_fn.sig.ident;
         let fn_item = match (asyncness, parameters) {
@@ -39,7 +39,7 @@ impl ExecFn {
                         Box::pin(#test_name_ident(p))
                     }
                 )
-            },
+            }
             (Async, NoParameters) => {
                 parse_quote!(
                     pub fn #test_name_ident (_: crate::ExecutionContext) -> std::pin::Pin<Box<dyn std::future::Future<Output = ()> + Send>> {
@@ -57,7 +57,7 @@ impl ExecFn {
                         })
                     }
                 )
-            },
+            }
             (Synchronous, NoParameters) => {
                 parse_quote!(
                     pub fn #test_name_ident (_: crate::ExecutionContext) -> std::pin::Pin<Box<dyn std::future::Future<Output = ()> + Send>> {
@@ -71,7 +71,7 @@ impl ExecFn {
         };
 
         Self {
-            exec_fn: Some(fn_item)
+            exec_fn: Some(fn_item),
         }
     }
 
@@ -79,6 +79,3 @@ impl ExecFn {
         mem::take(&mut self.exec_fn).unwrap()
     }
 }
-
-
-

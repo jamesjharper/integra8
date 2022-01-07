@@ -5,24 +5,24 @@ pub trait TaskStream {
     fn try_poll(&mut self) -> PollTaskResult<Self::Payload>;
     fn max_concurrency(&self) -> usize;
     fn complete_task(&mut self, path: TaskNodePath) -> bool;
-    fn len(&self) -> usize;  
+    fn len(&self) -> usize;
 }
 
 pub enum PollTaskResult<Payload> {
     Next(Payload, TaskNodePath),
     None,
-    Busy, 
+    Busy,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct TaskNodePath {
-    elements: Vec<usize>
+    elements: Vec<usize>,
 }
 
 impl TaskNodePath {
     pub fn new() -> Self {
         Self {
-            elements : Vec::new()
+            elements: Vec::new(),
         }
     }
 
@@ -46,7 +46,6 @@ pub enum TaskStateMachineNode<Payload> {
     Serial(SerialTaskNode<Payload>),
     Parallel(ParallelTaskNode<Payload>),
 }
-
 
 impl<Payload> From<TaskNode<Payload>> for TaskStateMachineNode<Payload> {
     fn from(n: TaskNode<Payload>) -> TaskStateMachineNode<Payload> {
@@ -73,7 +72,6 @@ impl<Payload> From<ParallelTaskNode<Payload>> for TaskStateMachineNode<Payload> 
 }
 
 impl<Payload> TaskStream for TaskStateMachineNode<Payload> {
-    
     type Payload = Payload;
     fn try_poll(&mut self) -> PollTaskResult<Self::Payload> {
         match self {
@@ -82,7 +80,7 @@ impl<Payload> TaskStream for TaskStateMachineNode<Payload> {
             Self::Parallel(node) => node.try_poll(),
         }
     }
-    
+
     fn max_concurrency(&self) -> usize {
         match self {
             Self::Single(node) => node.max_concurrency(),
@@ -105,7 +103,7 @@ impl<Payload> TaskStream for TaskStateMachineNode<Payload> {
             Self::Serial(node) => node.len(),
             Self::Parallel(node) => node.len(),
         }
-    }  
+    }
 }
 
 // TaskNode
@@ -114,7 +112,7 @@ impl<Payload> TaskStream for TaskStateMachineNode<Payload> {
 pub enum TaskNode<Payload> {
     NotStarted(Option<Payload>),
     InProgress,
-    IsDone, 
+    IsDone,
 }
 
 impl<Payload> TaskNode<Payload> {
@@ -125,7 +123,7 @@ impl<Payload> TaskNode<Payload> {
     pub fn start(&mut self) -> Payload {
         let payload = match self {
             Self::NotStarted(ref mut p) => std::mem::take(p),
-            _ => None
+            _ => None,
         };
 
         *self = Self::InProgress;
@@ -138,10 +136,10 @@ impl<Payload> TaskStream for TaskNode<Payload> {
 
     fn try_poll(&mut self) -> PollTaskResult<Self::Payload> {
         match self {
-            Self::NotStarted(_) => { },
+            Self::NotStarted(_) => {}
             Self::InProgress => {
                 return PollTaskResult::Busy;
-            },
+            }
             Self::IsDone => {
                 return PollTaskResult::None;
             }
@@ -155,12 +153,12 @@ impl<Payload> TaskStream for TaskNode<Payload> {
             Self::IsDone => {
                 // Already done,
                 false
-            },
+            }
             _ => {
                 *self = Self::IsDone;
                 // The path should be empty at this point, otherwise
                 // this path didn't resolve to a node correctly.
-                // should probably raise some kind of error here 
+                // should probably raise some kind of error here
                 path.is_empty()
             }
         }
@@ -188,7 +186,7 @@ impl<Payload> ParallelTaskNode<Payload> {
         Self {
             nodes: Vec::new(),
             done: 0,
-            total: 0
+            total: 0,
         }
     }
 
@@ -200,10 +198,10 @@ impl<Payload> ParallelTaskNode<Payload> {
         }
     }
 
-    pub fn append_all<I, IntoNode>(&mut self, iter : I)
+    pub fn append_all<I, IntoNode>(&mut self, iter: I)
     where
         I: IntoIterator<Item = IntoNode>,
-        IntoNode: Into<TaskStateMachineNode<Payload>>
+        IntoNode: Into<TaskStateMachineNode<Payload>>,
     {
         for node in iter.into_iter() {
             self.append(node)
@@ -234,7 +232,6 @@ impl<Payload> ParallelTaskNode<Payload> {
     }
 }
 
-
 impl<Payload> TaskStream for ParallelTaskNode<Payload> {
     type Payload = Payload;
 
@@ -247,7 +244,7 @@ impl<Payload> TaskStream for ParallelTaskNode<Payload> {
 
         self.nodes
             .iter_mut()
-            .enumerate() 
+            .enumerate()
             .find_map(|(idx, node)| {
                 match node.try_poll() {
                     PollTaskResult::None => None,
@@ -255,18 +252,16 @@ impl<Payload> TaskStream for ParallelTaskNode<Payload> {
                         is_busy = true;
                         // keep looking
                         None
-                    },
+                    }
                     PollTaskResult::Next(payload, path) => {
                         // Break on first ready
                         Some(PollTaskResult::Next(payload, path.append(idx)))
                     }
                 }
             })
-            .unwrap_or_else(|| {
-                match is_busy {
-                    true => PollTaskResult::Busy, 
-                    false => PollTaskResult::None
-                }
+            .unwrap_or_else(|| match is_busy {
+                true => PollTaskResult::Busy,
+                false => PollTaskResult::None,
             })
     }
 
@@ -275,7 +270,7 @@ impl<Payload> TaskStream for ParallelTaskNode<Payload> {
             None => {
                 // This should be some kind of error
                 false
-            },
+            }
             Some(idx) => {
                 if let Some(n) = self.nodes.get_mut(idx) {
                     if n.complete_task(path) {
@@ -291,10 +286,7 @@ impl<Payload> TaskStream for ParallelTaskNode<Payload> {
     fn max_concurrency(&self) -> usize {
         self.nodes
             .iter()
-            .fold(0, |total , x| {
-                    x.max_concurrency() + total
-                }
-            )
+            .fold(0, |total, x| x.max_concurrency() + total)
     }
 
     fn len(&self) -> usize {
@@ -330,10 +322,10 @@ impl<Payload> SerialTaskNode<Payload> {
         }
     }
 
-    pub fn enqueue_all<I, IntoNode>(&mut self, iter : I)
+    pub fn enqueue_all<I, IntoNode>(&mut self, iter: I)
     where
         I: IntoIterator<Item = IntoNode>,
-        IntoNode: Into<TaskStateMachineNode<Payload>>
+        IntoNode: Into<TaskStateMachineNode<Payload>>,
     {
         for node in iter.into_iter() {
             self.enqueue(node)
@@ -369,20 +361,24 @@ impl<Payload> TaskStream for SerialTaskNode<Payload> {
 
     fn try_poll(&mut self) -> PollTaskResult<Self::Payload> {
         loop {
-            match self.nodes.get_mut(self.current_idx).map(|node| node.try_poll()) {
+            match self
+                .nodes
+                .get_mut(self.current_idx)
+                .map(|node| node.try_poll())
+            {
                 Some(PollTaskResult::Next(payload, path)) => {
                     return PollTaskResult::Next(payload, path.append(self.current_idx))
-                },
+                }
                 Some(PollTaskResult::None) => {
                     // Move to the next node, and get the next task
                     self.current_idx += 1;
-                },
+                }
                 Some(PollTaskResult::Busy) => {
                     return PollTaskResult::Busy;
-                },
+                }
                 None => {
                     return PollTaskResult::None;
-                },
+                }
             }
         }
     }
@@ -392,7 +388,7 @@ impl<Payload> TaskStream for SerialTaskNode<Payload> {
             None => {
                 // This should be some kind of error
                 false
-            },
+            }
             Some(idx) => {
                 if let Some(n) = self.nodes.get_mut(idx) {
                     if n.complete_task(path) {
@@ -406,18 +402,13 @@ impl<Payload> TaskStream for SerialTaskNode<Payload> {
     }
 
     fn max_concurrency(&self) -> usize {
-        self.nodes
-            .iter()
-            .fold(1 /*min value */, 
-                |max, x| {
-                    cmp::max(max, x.max_concurrency())
-                }
-            )
+        self.nodes.iter().fold(
+            1, /*min value */
+            |max, x| cmp::max(max, x.max_concurrency()),
+        )
     }
 
     fn len(&self) -> usize {
         self.total.saturating_sub(self.done)
     }
 }
-
-

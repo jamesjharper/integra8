@@ -6,19 +6,18 @@ pub struct SourceLocation {
 }
 
 impl SourceLocation {
-   pub fn hotlink_text(&self) -> String {
-      format!("{}:{}:{}", self.file_name,self.line,self.column)
-   }
+    pub fn hotlink_text(&self) -> String {
+        format!("{}:{}:{}", self.file_name, self.line, self.column)
+    }
 }
-
 
 #[macro_export]
 macro_rules! current_source_location {
     () => {
-      $crate::decorations::SourceLocation {
-         file_name: file!(),
-         column: column!(),
-         line: line!(),
-      }
-    }
+        $crate::decorations::SourceLocation {
+            file_name: file!(),
+            column: column!(),
+            line: line!(),
+        }
+    };
 }
