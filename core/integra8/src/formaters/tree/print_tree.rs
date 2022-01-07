@@ -1,5 +1,5 @@
 use crate::formaters::OutputLocation;
-use crate::results::ComponentRunReport;
+use crate::results::report::ComponentRunReport;
 
 use crate::results::artifacts::stdio::TestResultStdio;
 use crate::results::{ComponentResult, ComponentTimeResult};

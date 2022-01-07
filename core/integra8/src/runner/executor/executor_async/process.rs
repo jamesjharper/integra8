@@ -9,7 +9,7 @@ use super::Executor;
 use crate::async_runtime;
 
 
-use crate::results::ComponentReportBuilder;
+use crate::results::report::ComponentReportBuilder;
 use crate::results::artifacts::ComponentRunArtifacts;
 use crate::results::artifacts::stdio::TestResultStdio;
 use crate::channel::ComponentProgressNotify;

@@ -2,7 +2,7 @@ use std::panic::UnwindSafe;
 
 use crate::channel::ComponentProgressNotify;
 use crate::parameters::TestParameters;
-use crate::results::ComponentReportBuilder;
+use crate::results::report::ComponentReportBuilder;
 use crate::runner::ComponentFixture;
 
 #[cfg(feature = "async")]

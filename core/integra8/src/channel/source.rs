@@ -1,7 +1,7 @@
 use crate::async_runtime::Sender;
 use crate::channel::TestEvent;
 use crate::components::ComponentDescription;
-use crate::results::ComponentRunReport;
+use crate::results::report::ComponentRunReport;
 use crate::results::ComponentTimeResult;
 
 #[derive(Clone)]

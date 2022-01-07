@@ -7,7 +7,7 @@ use crate::formaters::OutputLocation;
 use crate::formaters::{OutputFormatter, OutputFormatterFactory};
 use crate::parameters::TestParameters;
 use crate::results::summary::{RunSummary, SuiteSummary};
-use crate::results::ComponentRunReport;
+use crate::results::report::ComponentRunReport;
 
 use std::error::Error;
 

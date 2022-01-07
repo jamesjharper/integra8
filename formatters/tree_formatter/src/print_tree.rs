@@ -1,5 +1,5 @@
 use integra8::formaters::OutputLocation;
-use integra8::results::ComponentRunReport;
+use integra8::results::report::ComponentRunReport;
 
 use integra8::results::artifacts::stdio::TestResultStdio;
 use integra8::results::{ComponentResult, ComponentTimeResult};

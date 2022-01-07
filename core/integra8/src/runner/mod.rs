@@ -12,7 +12,7 @@ use std::panic::UnwindSafe;
 use std::sync::Arc;
 
 use crate::channel::ComponentProgressNotify;
-use crate::results::{ComponentReportBuilder, ComponentRunReport};
+use crate::results::report::{ComponentReportBuilder, ComponentRunReport};
 
 use crate::components::Component;
 

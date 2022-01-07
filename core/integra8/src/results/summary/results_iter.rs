@@ -4,11 +4,10 @@ use crate::results::summary::{
 };
 
 use crate::results::ComponentResult;
-use crate::results::{ComponentRunReport, DidNotRunReason, FailureReason, PassReason};
+use crate::results::report::ComponentRunReport;
+use crate::results::{DidNotRunReason, FailureReason, PassReason};
 
 pub use std::slice::Iter;
-
-
 
 /// A struct for interrogating *pass* results.
 /// Implements `Iterator` and can be reduced to a filtered results set using its accompanying  `due_to...` methods

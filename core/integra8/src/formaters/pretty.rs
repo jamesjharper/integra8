@@ -5,8 +5,11 @@ use crate::formaters::OutputLocation;
 use crate::formaters::{OutputFormatter, OutputFormatterFactory};
 use crate::parameters::TestParameters;
 use crate::results::summary::{RunSummary, SuiteSummary};
+
+use crate::results::report::ComponentRunReport;
+
 use crate::results::{
-    ComponentResult, ComponentRunReport, ComponentTimeResult, DidNotRunReason, FailureReason,
+    ComponentResult, ComponentTimeResult, DidNotRunReason, FailureReason,
     PassReason,
 };
 

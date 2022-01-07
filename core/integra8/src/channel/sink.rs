@@ -1,7 +1,9 @@
 use crate::components::{ComponentDescription, ComponentType};
 use crate::formaters::OutputFormatter;
 use crate::results::summary::RunSummary;
-use crate::results::{ComponentRunReport, ComponentTimeResult};
+
+use crate::results::ComponentTimeResult;
+use crate::results::report::ComponentRunReport;
 use std::error::Error;
 
 use crate::async_runtime::Receiver;

@@ -10,7 +10,8 @@ pub use observers::ComponentProgressNotify;
 use crate::async_runtime::channel;
 
 use crate::components::ComponentDescription;
-use crate::results::{ComponentRunReport, ComponentTimeResult};
+use crate::results::ComponentTimeResult;
+use crate::results::report::ComponentRunReport;
 
 #[derive(Debug)]
 pub enum TestEvent {

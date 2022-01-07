@@ -14,7 +14,8 @@ use crate::parameters::TestParameters;
 use crate::runner::ComponentFixture;
 use crate::results::artifacts::ComponentRunArtifacts;
 
-use crate::results::{ComponentReportBuilder, artifacts::stdio::TestResultStdio};
+use crate::results::report::ComponentReportBuilder;
+use crate::results::artifacts::stdio::TestResultStdio;
 
 pub struct AsyncTaskExecutor;
 

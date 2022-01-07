@@ -5,7 +5,10 @@ use crate::results::summary::{
 use crate::results::summary::{FailedResults, PassedResults, NotRunResults};
 
 use crate::components::{ComponentIdentity, ComponentType};
-use crate::results::{ComponentResult, ComponentRunReport};
+
+
+use crate::results::ComponentResult;
+use crate::results::report::ComponentRunReport;
 
 use std::collections::hash_map::Values;
 use std::collections::HashMap;

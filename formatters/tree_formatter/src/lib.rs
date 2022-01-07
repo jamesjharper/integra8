@@ -7,7 +7,7 @@ use integra8::formaters::OutputLocation;
 use integra8::formaters::{OutputFormatter, OutputFormatterFactory};
 use integra8::parameters::TestParameters;
 use integra8::results::summary::{RunSummary, SuiteSummary};
-use integra8::results::ComponentRunReport;
+use integra8::results::report::ComponentRunReport;
 use integra8::structopt::StructOpt;
 
 use std::error::Error;

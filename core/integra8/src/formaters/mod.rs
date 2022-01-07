@@ -16,7 +16,7 @@ use crate::results::ComponentTimeResult;
 
 use crate::parameters::TestParameters;
 
-use crate::results::ComponentRunReport;
+use crate::results::report::ComponentRunReport;
 
 pub trait OutputFormatterFactory {
     type FormatterParameters;
