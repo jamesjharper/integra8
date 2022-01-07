@@ -7,8 +7,8 @@ use integra8_decorations::{
     ComponentDecoration, ComponentGroup, ComponentHierarchy, SuiteAttributesDecoration,
 };
 
-use integra8_context::ConcurrencyMode;
 use integra8_context::parameters::TestParameters;
+use integra8_context::ConcurrencyMode;
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct SuiteAttributes {

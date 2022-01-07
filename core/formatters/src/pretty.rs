@@ -1,16 +1,15 @@
 use std::io::prelude::Write;
 
-use integra8_context::meta::ComponentDescription;
 use crate::OutputLocation;
 use crate::{OutputFormatter, OutputFormatterFactory};
+use integra8_context::meta::ComponentDescription;
 
 use integra8_results::summary::{RunSummary, SuiteSummary};
 
 use integra8_results::report::ComponentRunReport;
 
 use integra8_results::{
-    ComponentResult, ComponentTimeResult, DidNotRunReason, FailureReason,
-    PassReason,
+    ComponentResult, ComponentTimeResult, DidNotRunReason, FailureReason, PassReason,
 };
 
 use std::error::Error;

@@ -13,7 +13,6 @@ impl ComponentIdentity {
     }
 }
 
-
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct SourceLocation {
     pub file_name: &'static str,
@@ -37,7 +36,6 @@ macro_rules! src {
         }
     };
 }
-
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub enum ComponentType {

@@ -1,8 +1,8 @@
-use integra8_async_runtime::Sender;
 use crate::channel::TestEvent;
 use crate::context::meta::ComponentDescription;
 use crate::results::report::ComponentRunReport;
 use crate::results::ComponentTimeResult;
+use integra8_async_runtime::Sender;
 
 #[derive(Clone)]
 pub struct ResultsSource {

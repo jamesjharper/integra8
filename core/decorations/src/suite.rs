@@ -1,6 +1,6 @@
 use std::time::Duration;
 
-use integra8_context::{ConcurrencyMode, meta::SourceLocation};
+use integra8_context::{meta::SourceLocation, ConcurrencyMode};
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct SuiteAttributesDecoration {

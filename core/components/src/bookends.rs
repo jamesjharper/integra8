@@ -1,9 +1,8 @@
-
 use std::time::Duration;
 
 use crate::SuiteAttributes;
-use integra8_decorations::{BookEndAttributesDecoration, BookEndDecoration, BookEndDecorationPair};
 use integra8_context::ExecutionContext;
+use integra8_decorations::{BookEndAttributesDecoration, BookEndDecoration, BookEndDecorationPair};
 
 use integra8_context::meta::{ComponentDescription, ComponentIdentity, ComponentType};
 

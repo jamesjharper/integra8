@@ -5,8 +5,8 @@ use print_tree::TreeNodePrinter;
 use integra8::context::meta::ComponentDescription;
 use integra8::formatters::OutputLocation;
 use integra8::formatters::{OutputFormatter, OutputFormatterFactory};
-use integra8::results::summary::{RunSummary, SuiteSummary};
 use integra8::results::report::ComponentRunReport;
+use integra8::results::summary::{RunSummary, SuiteSummary};
 use integra8::structopt::StructOpt;
 
 use std::error::Error;

@@ -5,13 +5,13 @@ pub mod source;
 pub use source::ResultsSource;
 
 pub mod notify;
-pub use notify::{RunProgressChannelNotify, ComponentProgressChannelNotify};
+pub use notify::{ComponentProgressChannelNotify, RunProgressChannelNotify};
 
 use integra8_async_runtime::channel;
 
 use crate::context::meta::ComponentDescription;
-use crate::results::ComponentTimeResult;
 use crate::results::report::ComponentRunReport;
+use crate::results::ComponentTimeResult;
 
 #[derive(Debug)]
 pub enum TestEvent {

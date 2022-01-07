@@ -38,7 +38,8 @@ mod executor_async {
     pub trait Executor<
         TParameters: TestParameters + Send + Sync + UnwindSafe + 'static,
         ProgressNotify: ComponentProgressNotify + Send + Sync + 'static,
-    > {
+    >
+    {
         fn execute<'async_trait>(
             &'async_trait self,
             progress_notify: ProgressNotify,
@@ -49,7 +50,8 @@ mod executor_async {
 }
 
 #[cfg(feature = "sync")]
-pub type Executor<TParameters, ProgressNotify> = executor_sync_impl::Executor<TParameters, ProgressNotify>;
+pub type Executor<TParameters, ProgressNotify> =
+    executor_sync_impl::Executor<TParameters, ProgressNotify>;
 
 #[cfg(feature = "sync")]
 mod test_sync_impl {
@@ -57,8 +59,9 @@ mod test_sync_impl {
 
     pub trait Executor<
         TParameters: TestParameters + Send + Sync + UnwindSafe + 'static,
-        ProgressNotify: ComponentProgressNotify + Send + Sync
-    > {
+        ProgressNotify: ComponentProgressNotify + Send + Sync,
+    >
+    {
         fn execute(
             &self,
             progress_notify: ProgressNotify,

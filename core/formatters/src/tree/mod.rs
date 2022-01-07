@@ -7,9 +7,8 @@ use integra8_context::meta::ComponentDescription;
 use crate::OutputLocation;
 use crate::{OutputFormatter, OutputFormatterFactory};
 
-
-use integra8_results::summary::{RunSummary, SuiteSummary};
 use integra8_results::report::ComponentRunReport;
+use integra8_results::summary::{RunSummary, SuiteSummary};
 
 use std::error::Error;
 

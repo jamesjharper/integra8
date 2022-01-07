@@ -4,7 +4,7 @@ mod state;
 pub use state::{ComponentState, ComponentStateToken, RunStateModel};
 
 pub mod notify;
-pub use notify::{RunProgressNotify, ComponentProgressNotify};
+pub use notify::{ComponentProgressNotify, RunProgressNotify};
 
 mod fixture;
 pub use fixture::ComponentFixture;
@@ -16,10 +16,10 @@ use integra8_context::parameters::TestParameters;
 use integra8_context::ExecutionStrategy;
 use integra8_scheduling::iter::TaskStreamMap;
 use integra8_scheduling::state_machine::TaskStateMachineNode;
-use integra8_scheduling::{TaskScheduler, ScheduledComponent};
+use integra8_scheduling::{ScheduledComponent, TaskScheduler};
 
-use integra8_results::report::{ComponentReportBuilder, ComponentRunReport};
 use crate::executor::{process_external_executor, process_internal_executor, Executor};
+use integra8_results::report::{ComponentReportBuilder, ComponentRunReport};
 
 use std::future::Future;
 use std::pin::Pin;
@@ -38,10 +38,9 @@ pub struct DefaultScheduleRunner<RunProgressNotify> {
 }
 
 impl<
-    TParameters: TestParameters + Sync + Send + UnwindSafe + 'static,
-    ProgressNotify: RunProgressNotify + Sync + Send + Clone + 'static,
-    > ScheduleRunner<TParameters>
-    for DefaultScheduleRunner<ProgressNotify>
+        TParameters: TestParameters + Sync + Send + UnwindSafe + 'static,
+        ProgressNotify: RunProgressNotify + Sync + Send + Clone + 'static,
+    > ScheduleRunner<TParameters> for DefaultScheduleRunner<ProgressNotify>
 {
     fn run(
         self,
@@ -78,9 +77,9 @@ impl<
     }
 }
 
-impl<
-    ProgressNotify: RunProgressNotify + Sync + Send + Clone + 'static,
-> DefaultScheduleRunner<ProgressNotify> {
+impl<ProgressNotify: RunProgressNotify + Sync + Send + Clone + 'static>
+    DefaultScheduleRunner<ProgressNotify>
+{
     pub fn new(sender: ProgressNotify) -> Self {
         Self {
             sender: sender,
@@ -92,7 +91,8 @@ impl<
         &mut self,
         parameters: Arc<TParameters>,
         component: ScheduledComponent<TParameters>,
-    ) -> ComponentRunner<TParameters, <ProgressNotify as RunProgressNotify>::ComponentProgressNotify> {
+    ) -> ComponentRunner<TParameters, <ProgressNotify as RunProgressNotify>::ComponentProgressNotify>
+    {
         let fixture = match component {
             ScheduledComponent::Test(c) => ComponentFixture::for_test(c, parameters),
             ScheduledComponent::Setup(c) | ScheduledComponent::TearDown(c) => {
@@ -105,7 +105,9 @@ impl<
 
         ComponentRunner {
             component_state: self.status.get_status_token(fixture.description()),
-            progress_notify: self.sender.component_process_notify(fixture.description().clone()),
+            progress_notify: self
+                .sender
+                .component_process_notify(fixture.description().clone()),
             report: ComponentReportBuilder::new(
                 fixture.description().clone(),
                 fixture.acceptance_criteria(),
@@ -132,10 +134,9 @@ pub struct ComponentRunner<
 }
 
 impl<
-    TParameters: TestParameters + Send + Sync + UnwindSafe + 'static,
-    ProgressNotify: ComponentProgressNotify + Send + Sync + 'static,
->
-    ComponentRunner<TParameters, ProgressNotify>
+        TParameters: TestParameters + Send + Sync + UnwindSafe + 'static,
+        ProgressNotify: ComponentProgressNotify + Send + Sync + 'static,
+    > ComponentRunner<TParameters, ProgressNotify>
 {
     pub async fn run(self) -> ComponentRunResult<ComponentRunReport> {
         let component_state = self.component_state.clone();

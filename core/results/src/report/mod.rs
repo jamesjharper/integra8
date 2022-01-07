@@ -1,10 +1,9 @@
-
-use crate::artifacts::ComponentRunArtifacts;
 use crate::artifacts::stdio::TestResultStdio;
+use crate::artifacts::ComponentRunArtifacts;
 use crate::{ComponentResult, ComponentTimeResult};
 
-use integra8_context::meta::ComponentDescription;
 use integra8_components::AcceptanceCriteria;
+use integra8_context::meta::ComponentDescription;
 
 use std::time::Duration;
 

@@ -1,11 +1,10 @@
 use crate::channel::ResultsSource;
 use crate::context::meta::ComponentDescription;
 
+use crate::runner::notify::{ComponentProgressNotify, RunProgressNotify};
 
-use crate::runner::notify::{RunProgressNotify, ComponentProgressNotify};
-
-use std::pin::Pin;
 use std::future::Future;
+use std::pin::Pin;
 
 use integra8_results::report::ComponentRunReport;
 use integra8_results::ComponentTimeResult;
@@ -24,7 +23,6 @@ impl RunProgressChannelNotify {
 }
 
 impl RunProgressNotify for RunProgressChannelNotify {
-
     type ComponentProgressNotify = ComponentProgressChannelNotify;
 
     fn notify_run_start(
@@ -34,25 +32,28 @@ impl RunProgressNotify for RunProgressChannelNotify {
         _tear_down_count: usize,
         _setup_count: usize,
     ) -> Pin<Box<dyn Future<Output = ()> + Send + '_>> {
-        let fut = async {
-
-        };
+        let fut = async {};
         Box::pin(fut)
     }
 
     fn notify_run_complete(&self) -> Pin<Box<dyn Future<Output = ()> + Send + '_>> {
         async fn notify_run_complete(inner_self: &RunProgressChannelNotify) {
-            inner_self.result_publisher
-                .notify_run_complete()
-                .await
+            inner_self.result_publisher.notify_run_complete().await
         }
 
         Box::pin(notify_run_complete(self))
     }
 
-    fn notify_component_start(&self, description: ComponentDescription) -> Pin<Box<dyn Future<Output = ()> + Send + '_>> {
-        async fn notify_component_start<'a>(inner_self: &'a RunProgressChannelNotify, description: ComponentDescription) {
-            inner_self.result_publisher
+    fn notify_component_start(
+        &self,
+        description: ComponentDescription,
+    ) -> Pin<Box<dyn Future<Output = ()> + Send + '_>> {
+        async fn notify_component_start(
+            inner_self: &RunProgressChannelNotify,
+            description: ComponentDescription,
+        ) {
+            inner_self
+                .result_publisher
                 .notify_component_start(description)
                 .await
         }
@@ -70,7 +71,8 @@ impl RunProgressNotify for RunProgressChannelNotify {
             description: ComponentDescription,
             timing_result: ComponentTimeResult,
         ) {
-            inner_self.result_publisher
+            inner_self
+                .result_publisher
                 .notify_component_timed_out(description, timing_result)
                 .await
         }
@@ -78,9 +80,16 @@ impl RunProgressNotify for RunProgressChannelNotify {
         Box::pin(notify_component_timed_out(self, description, timing_result))
     }
 
-    fn notify_component_complete(&self, report: ComponentRunReport) -> Pin<Box<dyn Future<Output = ()> + Send + '_>> {
-        async fn notify_component_complete(inner_self: &RunProgressChannelNotify, report: ComponentRunReport) {
-            inner_self.result_publisher
+    fn notify_component_complete(
+        &self,
+        report: ComponentRunReport,
+    ) -> Pin<Box<dyn Future<Output = ()> + Send + '_>> {
+        async fn notify_component_complete(
+            inner_self: &RunProgressChannelNotify,
+            report: ComponentRunReport,
+        ) {
+            inner_self
+                .result_publisher
                 .notify_component_complete(report)
                 .await
         }
@@ -88,7 +97,10 @@ impl RunProgressNotify for RunProgressChannelNotify {
         Box::pin(notify_component_complete(self, report))
     }
 
-    fn component_process_notify(&self, description: ComponentDescription) -> Self::ComponentProgressNotify {
+    fn component_process_notify(
+        &self,
+        description: ComponentDescription,
+    ) -> Self::ComponentProgressNotify {
         ComponentProgressChannelNotify::new(self.result_publisher.clone(), description)
     }
 }
@@ -109,10 +121,10 @@ impl ComponentProgressChannelNotify {
 }
 
 impl ComponentProgressNotify for ComponentProgressChannelNotify {
-    
     fn notify_started(&self) -> Pin<Box<dyn Future<Output = ()> + Send + '_>> {
         async fn notify_started(inner_self: &ComponentProgressChannelNotify) {
-            inner_self.result_publisher
+            inner_self
+                .result_publisher
                 .notify_component_start(inner_self.description.clone())
                 .await
         }
@@ -130,8 +142,6 @@ impl ComponentProgressNotify for ComponentProgressChannelNotify {
             }*/
         };
         Box::pin(fut)
-
-      
     }
 
     fn notify_complete(&self) -> Pin<Box<dyn Future<Output = ()> + Send + '_>> {
@@ -141,6 +151,3 @@ impl ComponentProgressNotify for ComponentProgressChannelNotify {
         Box::pin(fut)
     }
 }
-
-
-

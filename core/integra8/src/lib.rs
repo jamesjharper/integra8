@@ -1,12 +1,6 @@
-
 mod channel;
 
 pub mod strategy;
-
-
-//formatters
-
-
 
 pub mod formatters {
     pub use integra8_formatters::*;
@@ -30,7 +24,6 @@ pub mod decorations {
 
 pub use integra8_decorations_impl::*;
 
-
 pub mod components {
     pub use integra8_components::*;
 }
@@ -38,7 +31,6 @@ pub mod components {
 pub mod runner {
     pub use integra8_runner::*;
 }
-
 
 #[doc(hidden)]
 pub mod linkme {
@@ -64,30 +56,25 @@ macro_rules! run_tests {
 use futures::join;
 use std::panic::UnwindSafe;
 
-use crate::results::ComponentResult;
-use crate::runner::{DefaultScheduleRunner, ScheduleRunner};
-
-use crate::channel::{ResultsChannel, ResultsOutputWriterSink};
-
-use crate::context::parameters::{TestParameters};
-use crate::formatters::{FormatterParameters};
-
-
-
-pub use crate::channel:: notify::RunProgressChannelNotify;
-
-use crate::decorations::ComponentDecoration;
-
-use crate::scheduling::ScheduledComponent;
-use crate::scheduling::state_machine::{TaskStateMachineNode, TaskStream};
-use crate::strategy::TestApplicationLocator;
-
-use integra8_formatters::none::NoOutputFormatter;
-
-use crate::strategy::{
+use channel::notify::RunProgressChannelNotify;
+use channel::{ResultsChannel, ResultsOutputWriterSink};
+use strategy::{
     DefaultResolveComponentScheduleStrategy, DefaultResolveComponentsStrategy,
     DefaultResolveFormatterStrategy, DefaultResolveRunnerStrategy, DefaultTestApplicationLocator,
+    TestApplicationLocator,
 };
+
+use integra8_results::ComponentResult;
+use integra8_runner::{DefaultScheduleRunner, ScheduleRunner};
+
+use integra8_context::parameters::TestParameters;
+use integra8_formatters::none::NoOutputFormatter;
+use integra8_formatters::FormatterParameters;
+
+use integra8_decorations::ComponentDecoration;
+
+use integra8_scheduling::state_machine::{TaskStateMachineNode, TaskStream};
+use integra8_scheduling::ScheduledComponent;
 
 pub async fn run_test<
     TParameters: TestParameters
@@ -137,9 +124,7 @@ pub async fn run<
     let (sender, receiver) = ResultsChannel::new(sink, max_concurrency);
 
     let runner_task = integra8_async_runtime::spawn(async move {
-        DefaultScheduleRunner::new(
-                RunProgressChannelNotify::new(sender),
-            )
+        DefaultScheduleRunner::new(RunProgressChannelNotify::new(sender))
             .run(parameters, schedule)
             .await;
     });

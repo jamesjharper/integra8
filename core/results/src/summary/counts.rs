@@ -1,6 +1,5 @@
 use crate::{ComponentResult, DidNotRunReason, FailureReason, PassReason};
 
-
 /// A struct for interrogating *pass* results.
 /// Implements `Iterator` and can be reduced to a filtered results set using its accompanying  `due_to...` methods
 pub trait ResultReasonCounter {

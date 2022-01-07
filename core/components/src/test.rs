@@ -1,12 +1,12 @@
 use std::time::Duration;
 
-use crate::{SuiteAttributes};
+use crate::SuiteAttributes;
 use integra8_decorations::{TestAttributesDecoration, TestDecoration};
 
-use integra8_context::ConcurrencyMode;
 use integra8_context::meta::{ComponentDescription, ComponentIdentity, ComponentType};
-use integra8_context::ExecutionContext;
 use integra8_context::parameters::TestParameters;
+use integra8_context::ConcurrencyMode;
+use integra8_context::ExecutionContext;
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct TestAttributes {

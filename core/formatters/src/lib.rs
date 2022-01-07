@@ -7,9 +7,9 @@ use std::io::Write;
 
 use integra8_context::meta::ComponentDescription;
 
-use integra8_results::ComponentTimeResult;
-use integra8_results::summary::RunSummary;
 use integra8_results::report::ComponentRunReport;
+use integra8_results::summary::RunSummary;
+use integra8_results::ComponentTimeResult;
 
 pub trait FormatterParameters {
     fn create_formatter(&self) -> Option<Box<dyn OutputFormatter>>;

@@ -1,6 +1,6 @@
 pub mod artifacts;
-pub mod summary;
 pub mod report;
+pub mod summary;
 
 use std::time::Duration;
 

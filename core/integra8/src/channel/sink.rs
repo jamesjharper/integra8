@@ -2,8 +2,8 @@ use crate::context::meta::{ComponentDescription, ComponentType};
 use crate::formatters::OutputFormatter;
 use crate::results::summary::RunSummary;
 
-use crate::results::ComponentTimeResult;
 use crate::results::report::ComponentRunReport;
+use crate::results::ComponentTimeResult;
 use std::error::Error;
 
 use integra8_async_runtime::Receiver;
@@ -16,7 +16,6 @@ pub struct ResultsSink {
 }
 
 impl ResultsSink {
-
     #[cfg(any(feature = "tokio-runtime", feature = "async-std-runtime"))]
     pub async fn start_listening(mut self) -> RunSummary {
         loop {

@@ -1,10 +1,10 @@
 use crate::summary::counts::ResultReasonCounter;
 use crate::summary::{
-    DidNotRunResultsCountSummary, FailResultsCountSummary, PassResultsCountSummary
+    DidNotRunResultsCountSummary, FailResultsCountSummary, PassResultsCountSummary,
 };
 
-use crate::ComponentResult;
 use crate::report::ComponentRunReport;
+use crate::ComponentResult;
 use crate::{DidNotRunReason, FailureReason, PassReason};
 
 pub use std::slice::Iter;

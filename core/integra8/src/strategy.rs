@@ -1,12 +1,11 @@
 use std::panic::UnwindSafe;
 
 use crate::components::RootSuite;
-use crate::decorations::ComponentDecoration;
-use crate::formatters::{OutputFormatter, FormatterParameters};
 use crate::context::parameters::TestParameters;
+use crate::decorations::ComponentDecoration;
+use crate::formatters::{FormatterParameters, OutputFormatter};
 use crate::runner::{DefaultScheduleRunner, ScheduleRunner};
-use crate::scheduling::{TaskStateMachineNode, IntoTaskStateMachine, ScheduledComponent};
-
+use crate::scheduling::{IntoTaskStateMachine, ScheduledComponent, TaskStateMachineNode};
 
 use crate::channel::RunProgressChannelNotify;
 

@@ -24,4 +24,3 @@ pub use counts::{
     DidNotRunResultsCountSummary, FailResultsCountSummary, PassResultsCountSummary,
     ResultsCountSummary,
 };
-

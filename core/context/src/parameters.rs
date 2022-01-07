@@ -75,4 +75,3 @@ pub trait TestParameters {
         }
     }
 }
-
