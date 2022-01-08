@@ -4,7 +4,7 @@ use crate::summary::{
 
 use crate::summary::{FailedResults, NotRunResults, PassedResults};
 
-use integra8_context::meta::{ComponentIdentity, ComponentType};
+use integra8_components::{ComponentIdentity, ComponentType};
 
 use crate::report::ComponentRunReport;
 use crate::ComponentResult;

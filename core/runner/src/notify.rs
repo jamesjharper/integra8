@@ -1,7 +1,7 @@
 use std::future::Future;
 use std::pin::Pin;
 
-use integra8_context::meta::ComponentDescription;
+use integra8_components::ComponentDescription;
 use integra8_results::report::ComponentRunReport;
 use integra8_results::ComponentTimeResult;
 

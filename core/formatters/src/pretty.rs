@@ -2,7 +2,7 @@ use std::io::prelude::Write;
 
 use crate::OutputLocation;
 use crate::{OutputFormatter, OutputFormatterFactory};
-use integra8_context::meta::ComponentDescription;
+use integra8_components::ComponentDescription;
 
 use integra8_results::summary::{RunSummary, SuiteSummary};
 
@@ -130,12 +130,12 @@ impl PrettyFormatter {
         let mut stdouts = String::new();
 
         for report in inputs {
-            results.push(report.description.identity.name.to_string());
+            results.push(report.description.full_name());
 
             if !report.artifacts.stdio.stdout.is_empty() {
                 stdouts.push_str(&format!(
                     "---- {} stdout ----\n",
-                    report.description.identity.name
+                    report.description.full_name()
                 ));
                 let output = String::from_utf8_lossy(&report.artifacts.stdio.stdout);
                 stdouts.push_str(&output);
@@ -145,7 +145,7 @@ impl PrettyFormatter {
             if !report.artifacts.stdio.stderr.is_empty() {
                 stdouts.push_str(&format!(
                     "---- {} stderr ----\n",
-                    report.description.identity.name
+                    report.description.full_name()
                 ));
                 let output = String::from_utf8_lossy(&report.artifacts.stdio.stderr);
                 stdouts.push_str(&output);
@@ -216,7 +216,7 @@ impl PrettyFormatter {
     }
 
     fn write_test_name(&mut self, desc: &ComponentDescription) -> Result<(), Box<dyn Error>> {
-        self.write_plain(&format!("test {} ... ", desc.identity.name))?;
+        self.write_plain(&format!("test {} ... ", desc.full_name()))?;
         /*if let Some(test_mode) = desc.test_mode() {
             self.write_plain(&format!("test {} - {} ... ", name, test_mode))?;
         } else {
@@ -295,7 +295,7 @@ impl OutputFormatter for PrettyFormatter {
     ) -> Result<(), Box<dyn Error>> {
         self.write_plain(&format!(
             "test {} has been running for over {:.2} seconds\n",
-            desc.identity.name,
+            desc.full_name(),
             result_timings.duration().as_secs_f64()
         ))
     }

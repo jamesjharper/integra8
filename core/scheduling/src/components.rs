@@ -3,11 +3,9 @@ use std::vec::IntoIter;
 
 use crate::state_machine::{ParallelTaskNode, SerialTaskNode, TaskStateMachineNode};
 
-use integra8_components::{BookEnd, Suite, SuiteAttributes, Test};
-
-use integra8_context::meta::ComponentDescription;
+use integra8_components::{BookEnd, Suite, SuiteAttributes, Test, ComponentDescription, ConcurrencyMode};
 use integra8_context::parameters::TestParameters;
-use integra8_context::ConcurrencyMode;
+
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum ScheduledComponent<TParameters> {

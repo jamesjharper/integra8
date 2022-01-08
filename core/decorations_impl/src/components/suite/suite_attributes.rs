@@ -10,7 +10,8 @@ pub struct SuiteAttributes {
     pub allow_fail: Option<Expr>,
     pub warn_threshold: Option<Expr>,
     pub critical_threshold: Option<Expr>,
-    pub cascade_failure: Option<Expr>,
+    pub concurrency_mode: Option<Expr>,
+    pub test_concurrency_mode: Option<Expr>,
     pub errors: Option<Error>,
 }
 
@@ -22,7 +23,8 @@ impl SuiteAttributes {
             allow_fail: None,
             warn_threshold: None,
             critical_threshold: None,
-            cascade_failure: None,
+            concurrency_mode: None,
+            test_concurrency_mode: None,
             errors: None,
         };
 
@@ -31,10 +33,11 @@ impl SuiteAttributes {
                 // Keep looking until we find a match
                 builder.try_parse_integra8_path(attr)
                     || builder.try_parse_allow_fail_expr(attr)
+                    || builder.try_parse_concurrency_mode_expr(attr)
+                    || builder.try_parse_test_concurrency_mode_expr(attr)
                     || builder.try_parse_ignore_expr(attr)
                     || builder.try_parse_warn_threshold_expr(attr)
                     || builder.try_parse_critical_threshold_expr(attr)
-                    || builder.try_parse_cascade_failure_expr(attr)
             )
         });
 
@@ -92,22 +95,6 @@ impl SuiteAttributes {
         return false;
     }
 
-    // cascade failure
-    // looking for #[cascade_failure]
-    // looking for #[do_not_cascade_failure]
-    fn try_parse_cascade_failure_expr(&mut self, attr: &Attribute) -> bool {
-        if attr.path.is_ident("cascade_failure") {
-            self.cascade_failure = Some(parse_quote!(Some(true)));
-            return true;
-        }
-
-        if attr.path.is_ident("do_not_cascade_failure") {
-            self.cascade_failure = Some(parse_quote!(Some(false)));
-            return true;
-        }
-
-        return false;
-    }
 
     // looking for #[ignore()]
     fn try_parse_ignore_expr(&mut self, attr: &Attribute) -> bool {
@@ -127,6 +114,40 @@ impl SuiteAttributes {
 
         self.allow_fail = Some(parse_quote!(Some(true)));
         true
+    }
+
+    // Suite concurrency mode
+    // looking for #[parallelizable]
+    // looking for #[sequential]
+    fn try_parse_concurrency_mode_expr(&mut self, attr: &Attribute) -> bool {
+        if attr.path.is_ident("parallelizable") {
+            self.concurrency_mode = Some(parse_quote!(Some(ConcurrencyMode::Parallel)));
+            return true;
+        }
+
+        if attr.path.is_ident("sequential") {
+            self.concurrency_mode = Some(parse_quote!(Some(ConcurrencyMode::Serial)));
+            return true;
+        }
+
+        return false;
+    }
+
+    // Suite test concurrency mode
+    // looking for #[parallelize_test]
+    // looking for #[sequence_tests]
+    fn try_parse_test_concurrency_mode_expr(&mut self, attr: &Attribute) -> bool {
+        if attr.path.is_ident("parallelize_tests") {
+            self.test_concurrency_mode = Some(parse_quote!(Some(ConcurrencyMode::Parallel)));
+            return true;
+        }
+
+        if attr.path.is_ident("sequence_tests") {
+            self.test_concurrency_mode = Some(parse_quote!(Some(ConcurrencyMode::Serial)));
+            return true;
+        }
+
+        return false;
     }
 
     fn parse_duration_from_sec(&mut self, attr: &Attribute) -> Option<Expr> {
@@ -166,9 +187,13 @@ impl SuiteAttributes {
     pub fn take_critical_threshold(&mut self) -> Expr {
         mem::take(&mut self.critical_threshold).unwrap_or_else(|| parse_quote!(None))
     }
+    
+    pub fn take_concurrency_mode(&mut self) -> Expr {
+        mem::take(&mut self.concurrency_mode).unwrap_or_else(|| parse_quote!(None))
+    }
 
-    pub fn take_cascade_failure(&mut self) -> Expr {
-        mem::take(&mut self.cascade_failure).unwrap_or_else(|| parse_quote!(None))
+    pub fn take_test_concurrency_mode(&mut self) -> Expr {
+        mem::take(&mut self.test_concurrency_mode).unwrap_or_else(|| parse_quote!(None))
     }
 
     fn some_or_accumulate_error<T>(&mut self, result: Result<T>) -> Option<T> {

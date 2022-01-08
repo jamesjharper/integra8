@@ -16,9 +16,9 @@ pub fn register_teardown(input_tokens: TokenStream) -> TokenStream {
     let mut teardown_fn = ExecFn::from(decorated_fn);
 
     let integra8_path = test_attr.take_integra8_path();
+    let name = test_attr.take_name();
     let ignore_expr = test_attr.take_ignore();
     let critical_threshold = test_attr.take_critical_threshold();
-    let cascade_failure = test_attr.take_cascade_failure();
     let teardown_method = teardown_fn.take_exec_fn();
     let delegate_expr = teardown_fn.take_delegate_expr();
 
@@ -28,6 +28,7 @@ pub fn register_teardown(input_tokens: TokenStream) -> TokenStream {
         #teardown_method
 
         // Prevent more then one tear down being defined with in the same mod
+        // TODO: change this so that there can be more then once tear down
         static __ONE_TEAR_DOWN_PER_NAMESPACE: &'static str = "Teardown method can only be defined once per namespace";
 
         pub(crate) mod #teardown_name_ident {
@@ -42,11 +43,12 @@ pub fn register_teardown(input_tokens: TokenStream) -> TokenStream {
                 #integra8_path ::decorations::ComponentDecoration::TearDown(
                     #integra8_path ::decorations::BookEndDecoration {
                         desc: #integra8_path ::decorations::BookEndAttributesDecoration {
-                           path: module_path!(),
-                           location: #integra8_path ::context::src!(),
-                           ignore: #ignore_expr,
-                           critical_threshold: #critical_threshold,
-                           cascade_failure: #cascade_failure
+                            name: #name,
+                            description: "",
+                            path: module_path!(),
+                            location: #integra8_path ::components::src_loc!(),
+                            ignore: #ignore_expr,
+                            critical_threshold: #critical_threshold,
                         },
                         bookend_fn: #delegate_expr,
                     }
@@ -69,9 +71,9 @@ pub fn register_setup(input_tokens: TokenStream) -> TokenStream {
     let mut setup_fn = ExecFn::from(decorated_fn);
 
     let integra8_path = test_attr.take_integra8_path();
+    let name = test_attr.take_name();
     let ignore_expr = test_attr.take_ignore();
     let critical_threshold = test_attr.take_critical_threshold();
-    let cascade_failure = test_attr.take_cascade_failure();
     let setup_method = setup_fn.take_exec_fn();
     let delegate_expr = setup_fn.take_delegate_expr();
 
@@ -95,11 +97,12 @@ pub fn register_setup(input_tokens: TokenStream) -> TokenStream {
                 #integra8_path ::decorations::ComponentDecoration::Setup(
                     #integra8_path ::decorations::BookEndDecoration {
                         desc: #integra8_path ::decorations::BookEndAttributesDecoration {
-                           path: module_path!(),
-                           location: #integra8_path ::context::src!(),
-                           ignore: #ignore_expr,
-                           critical_threshold: #critical_threshold,
-                           cascade_failure: #cascade_failure
+                            name: #name,
+                            description: "",
+                            path: module_path!(),
+                            location: #integra8_path ::components::src_loc!(),
+                            ignore: #ignore_expr,
+                            critical_threshold: #critical_threshold,
                         },
                         bookend_fn: #delegate_expr,
                     }

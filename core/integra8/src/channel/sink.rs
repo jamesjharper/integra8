@@ -1,4 +1,4 @@
-use crate::context::meta::{ComponentDescription, ComponentType};
+use integra8_components::{ComponentDescription, ComponentType};
 use crate::formatters::OutputFormatter;
 use crate::results::summary::RunSummary;
 

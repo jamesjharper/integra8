@@ -1,10 +1,14 @@
 use std::time::Duration;
 
-use crate::{BookEnds, Test};
-use integra8_context::meta::{ComponentDescription, ComponentIdentity};
-
 use integra8_context::parameters::TestParameters;
-use integra8_context::ConcurrencyMode;
+
+use crate::{
+    BookEnds, 
+    Test,
+    ComponentIdentity,
+    ComponentDescription,
+    ConcurrencyMode
+};
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct SuiteAttributes {
@@ -44,7 +48,7 @@ impl SuiteAttributes {
     pub fn new<TParameters: TestParameters>(
         parent_desc: Option<&SuiteAttributes>,
         parameters: &TParameters,
-        name: &'static str,
+        name: Option<&'static str>,
         path: &'static str,
         ignore: Option<bool>,
         allow_suite_fail: Option<bool>,
@@ -80,10 +84,18 @@ impl SuiteAttributes {
                 |val| val.clone(),
             ),
 
+
             suite_concurrency_mode: suite_concurrency_mode.map_or_else(
                 || {
                     parent_desc.map_or_else(
-                        || parameters.suite_concurrency_mode(), // root value,
+                        || {
+                            if parameters.max_concurrency() == 1 || !parameters.run_suites_in_parallel() {
+                                ConcurrencyMode::Serial
+                            } else {
+                                ConcurrencyMode::Parallel
+                            }
+                        }, 
+                        // root value,
                         |p| p.suite_concurrency_mode.clone(),
                     )
                 },
@@ -93,7 +105,13 @@ impl SuiteAttributes {
             test_concurrency_mode: test_concurrency_mode.map_or_else(
                 || {
                     parent_desc.map_or_else(
-                        || parameters.test_concurrency_mode(), // root value,
+                        || {
+                            if parameters.max_concurrency() == 1 || !parameters.run_tests_in_parallel() {
+                                ConcurrencyMode::Serial
+                            } else {
+                                ConcurrencyMode::Parallel
+                            }
+                        }, 
                         |p| p.test_concurrency_mode.clone(),
                     )
                 },

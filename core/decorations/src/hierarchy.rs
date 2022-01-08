@@ -16,8 +16,6 @@ pub struct ComponentGroup<TParameters> {
     pub sub_groups: Vec<ComponentGroup<TParameters>>,
 }
 
-
-
 impl<TParameters: TestParameters> ComponentGroup<TParameters> {
 
     pub fn into_components<ComponentsIterator>(

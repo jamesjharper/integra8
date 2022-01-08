@@ -10,6 +10,15 @@ pub use suite::{Suite, SuiteAttributes};
 mod acceptance_criteria;
 pub use acceptance_criteria::{AcceptanceCriteria, TimingAcceptanceCriteria};
 
+mod meta;
+pub use meta::{
+    ComponentIdentity, 
+    ComponentType,
+    ComponentDescription,
+    ComponentLocation,
+    ConcurrencyMode
+};
+
 //use integra8_decorations::ComponentDecoration;
 
 /*

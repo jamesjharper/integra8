@@ -1,13 +1,16 @@
 use std::time::Duration;
 
-use crate::SuiteAttributes;
-
 use integra8_context::delegates::Delegate;
-use integra8_context::meta::SourceLocation;
-use integra8_context::meta::{ComponentDescription, ComponentType};
 use integra8_context::parameters::TestParameters;
-use integra8_context::ConcurrencyMode;
-use integra8_context::meta::ComponentIdentity;
+
+use crate::{
+    SuiteAttributes,
+    ComponentIdentity,
+    ComponentDescription,
+    ComponentType,
+    ComponentLocation,
+    ConcurrencyMode
+};
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct TestAttributes {
@@ -73,9 +76,9 @@ impl<TParameters: TestParameters> Test<TParameters> {
         parent_description: &ComponentDescription,
         parent_attributes: &SuiteAttributes,
         parameters: &TParameters,
-        name: &'static str,
+        name: Option<&'static str>,
         path: &'static str,
-        src: SourceLocation,
+        src: ComponentLocation,
         ignore: Option<bool>,
         allow_fail: Option<bool>,
         warn_threshold: Option<Duration>,

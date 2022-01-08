@@ -1,33 +1,36 @@
 use std::time::Duration;
 
-use integra8_components::SuiteAttributes;
-use integra8_components::Test;
-
 use integra8_context::delegates::Delegate;
-use integra8_context::meta::{ComponentDescription, SourceLocation};
-use integra8_context::ConcurrencyMode;
-
 use integra8_context::parameters::TestParameters;
+
+use integra8_components::{
+    SuiteAttributes,
+    Test, 
+    ComponentDescription,
+    ComponentLocation,
+    ConcurrencyMode
+};
+
 
 #[derive(Debug)]
 pub struct TestAttributesDecoration {
     // The name of the test (Default: the tests namespace + test method name)
     pub name: &'static str,
 
+    // A description of the test which can be displayed by the output formatter if it supports it
+    pub description: &'static str,
+
     /// The test path used to calculate the test's test group
     pub path: &'static str,
 
     /// The source code location of this test
-    pub location: SourceLocation,
+    pub location: ComponentLocation,
 
     /// Indicates that test should be run, however failures should be ignored and do not cascade.
     pub allow_fail: Option<bool>,
 
     /// Indicates that test should not be run.
     pub ignore: Option<bool>,
-
-    /// A Cascading failure will result in automatic failure of all other yet to be run test in this test group.
-    pub cascade_failure: Option<bool>,
 
     /// Describes the the duration after which a test is flag as exceeded is expected duration.
     /// This can be used to give early warnings that a test is going to exceed some critical threshold.
@@ -61,7 +64,7 @@ impl<TParameters: TestParameters> TestDecoration<TParameters> {
             parent_description,
             parent_attributes,
             parameters,
-            self.desc.name,
+            Some(self.desc.name),
             self.desc.path,
             self.desc.location,
             self.desc.ignore,

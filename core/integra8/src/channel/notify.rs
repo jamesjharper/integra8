@@ -1,5 +1,5 @@
 use crate::channel::ResultsSource;
-use crate::context::meta::ComponentDescription;
+use crate::components::ComponentDescription;
 
 use crate::runner::notify::{ComponentProgressNotify, RunProgressNotify};
 

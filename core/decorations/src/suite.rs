@@ -1,26 +1,26 @@
 use std::time::Duration;
 
-use integra8_context::{meta::SourceLocation, ConcurrencyMode};
+use integra8_components::{ComponentLocation, ConcurrencyMode};
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct SuiteAttributesDecoration {
     // The name of the suite (Default: the suite namespace)
-    pub name: &'static str,
+    pub name: Option<&'static str>,
+
+    // A description of the suite which can be displayed by the output formatter if it supports it
+    pub description: &'static str,
 
     /// The test path used to calculate the suite's test group
     pub path: &'static str,
 
     /// The source code location of this test
-    pub location: SourceLocation,
+    pub location: ComponentLocation,
 
     /// Indicates that this entire suite should not be run.
     pub ignore: Option<bool>,
 
     /// Indicates that this suite should be run, but failures should be ignored and do not cascade.
     pub allow_suite_fail: Option<bool>,
-
-    /// A Cascading failure will result in automatic failure of all other yet to be run test outside of this suite
-    pub suite_cascade_failure: Option<bool>,
 
     /// Describes the the default duration after which a test is flag as exceeded is expected duration.
     /// Tests which are a part of this suite, that do not advertize a warning threshold will inherit this value.
@@ -43,24 +43,22 @@ pub struct SuiteAttributesDecoration {
 
 
 
-use integra8_components::{SuiteAttributes, Suite};
-
-use integra8_context::meta::{ComponentIdentity, ComponentDescription, ComponentType};
+use integra8_components::{SuiteAttributes, Suite, ComponentIdentity, ComponentDescription, ComponentType};
 use integra8_context::parameters::TestParameters; 
 
 impl SuiteAttributesDecoration {
     pub fn root(namespace: &'static str) -> Self {
         Self {
-            name: namespace,
+            name: Some(namespace),
             path: namespace,
-            location: SourceLocation {
+            description: "",
+            location: ComponentLocation {
                 file_name: "",
                 column: 0,
                 line: 0,
             },
             ignore: None,
             allow_suite_fail: None,
-            suite_cascade_failure: None,
             test_warn_threshold: None,
             test_critical_threshold: None,
             suite_concurrency_mode: None,
@@ -87,7 +85,7 @@ impl SuiteAttributesDecoration {
             self.test_concurrency_mode,
         )
     }
-    
+
     pub fn into_component<TParameters: TestParameters>(
         self,
         parent_desc: Option<&SuiteAttributes>,

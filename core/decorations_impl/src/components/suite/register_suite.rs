@@ -17,7 +17,8 @@ pub fn register_suite(input_tokens: TokenStream) -> TokenStream {
     let allow_fail_expr = test_attr.take_allow_fail();
     let warn_threshold = test_attr.take_warn_threshold();
     let critical_threshold = test_attr.take_critical_threshold();
-    let cascade_failure = test_attr.take_cascade_failure();
+    let concurrency_mode = test_attr.take_concurrency_mode();
+    let test_concurrency_mode = test_attr.take_test_concurrency_mode();
 
     let suite_name_ident = decorated_mod.ident;
     let suite_vis = decorated_mod.vis;
@@ -41,16 +42,16 @@ pub fn register_suite(input_tokens: TokenStream) -> TokenStream {
             pub (crate) fn __suite_def() -> #integra8_path ::decorations::ComponentDecoration<crate::Parameters> {
                 #integra8_path ::decorations::ComponentDecoration::Suite(
                     #integra8_path ::decorations::SuiteAttributesDecoration {
-                        name: SUITE_NAME,
+                        name: Some(SUITE_NAME),
                         path: module_path!(),
-                        location: #integra8_path ::context::src!(),
+                        description: "",
+                        location: #integra8_path ::components::src_loc!(),
                         ignore: #ignore_expr,
                         allow_suite_fail: #allow_fail_expr,
                         test_warn_threshold: #warn_threshold,
                         test_critical_threshold: #critical_threshold,
-                        suite_cascade_failure: #cascade_failure,
-                        suite_concurrency_mode:  None, // TODO: add ability to select the concurrency mode
-                        test_concurrency_mode:  None, // TODO: add ability to select the concurrency mode
+                        suite_concurrency_mode:  #concurrency_mode,
+                        test_concurrency_mode:  #test_concurrency_mode,
                     }
                 )
             }

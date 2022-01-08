@@ -10,7 +10,7 @@ pub struct TestAttributes {
     pub allow_fail: Option<Expr>,
     pub warn_threshold: Option<Expr>,
     pub critical_threshold: Option<Expr>,
-    pub cascade_failure: Option<Expr>,
+    pub concurrency_mode: Option<Expr>,
     pub errors: Option<Error>,
 }
 
@@ -22,7 +22,7 @@ impl TestAttributes {
             allow_fail: None,
             warn_threshold: None,
             critical_threshold: None,
-            cascade_failure: None,
+            concurrency_mode: None,
             errors: None,
         };
 
@@ -34,7 +34,7 @@ impl TestAttributes {
                     || builder.try_parse_ignore_test_expr(attr)
                     || builder.try_parse_warn_threshold_expr(attr)
                     || builder.try_parse_critical_threshold_expr(attr)
-                    || builder.try_parse_cascade_failure_expr(attr)
+                    || builder.try_parse_concurrency_mode_expr(attr)
             )
         });
 
@@ -92,17 +92,19 @@ impl TestAttributes {
         return false;
     }
 
+
+
     // cascade failure
-    // looking for #[cascade_failure]
-    // looking for #[do_not_cascade_failure]
-    fn try_parse_cascade_failure_expr(&mut self, attr: &Attribute) -> bool {
-        if attr.path.is_ident("cascade_failure") {
-            self.cascade_failure = Some(parse_quote!(Some(true)));
+    // looking for #[parallelizable]
+    // looking for #[sequential]
+    fn try_parse_concurrency_mode_expr(&mut self, attr: &Attribute) -> bool {
+        if attr.path.is_ident("parallelizable") {
+            self.concurrency_mode = Some(parse_quote!(Some(ConcurrencyMode::Parallel)));
             return true;
         }
 
-        if attr.path.is_ident("do_not_cascade_failure") {
-            self.cascade_failure = Some(parse_quote!(Some(false)));
+        if attr.path.is_ident("sequential") {
+            self.concurrency_mode = Some(parse_quote!(Some(ConcurrencyMode::Serial)));
             return true;
         }
 
@@ -167,8 +169,8 @@ impl TestAttributes {
         mem::take(&mut self.critical_threshold).unwrap_or_else(|| parse_quote!(None))
     }
 
-    pub fn take_cascade_failure(&mut self) -> Expr {
-        mem::take(&mut self.cascade_failure).unwrap_or_else(|| parse_quote!(None))
+    pub fn take_concurrency_mode(&mut self) -> Expr {
+        mem::take(&mut self.concurrency_mode).unwrap_or_else(|| parse_quote!(None))
     }
 
     fn some_or_accumulate_error<T>(&mut self, result: Result<T>) -> Option<T> {

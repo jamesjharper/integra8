@@ -20,7 +20,7 @@ pub fn register_test(input_tokens: TokenStream) -> TokenStream {
     let allow_fail_expr = test_attr.take_allow_fail();
     let warn_threshold = test_attr.take_warn_threshold();
     let critical_threshold = test_attr.take_critical_threshold();
-    let cascade_failure = test_attr.take_cascade_failure();
+    let concurrency_mode = test_attr.take_concurrency_mode();
     let test_method = test_fn.take_exec_fn();
     let delegate_expr = test_fn.take_delegate_expr();
 
@@ -42,13 +42,13 @@ pub fn register_test(input_tokens: TokenStream) -> TokenStream {
                         desc: #integra8_path ::decorations::TestAttributesDecoration {
                            name: stringify!(#test_name_ident), // mod name contains the test name in the path
                            path: module_path!(),
-                           location: #integra8_path ::context::src!(),
+                           description: "",
+                           location: #integra8_path ::components::src_loc!(),
                            ignore: #ignore_test_expr,
                            allow_fail: #allow_fail_expr,
                            warn_threshold: #warn_threshold,
                            critical_threshold: #critical_threshold,
-                           cascade_failure: #cascade_failure,
-                           concurrency_mode: None // TODO: add ability to select the concurrency mode
+                           concurrency_mode: #concurrency_mode,
                         },
                         test_fn: #delegate_expr,
                     }

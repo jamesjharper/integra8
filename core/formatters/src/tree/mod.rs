@@ -2,7 +2,7 @@ mod print_tree;
 use crate::tree::print_tree::ComponentResultsTreeNode;
 use crate::tree::print_tree::TreeNodePrinter;
 
-use integra8_context::meta::ComponentDescription;
+use integra8_components::ComponentDescription;
 
 use crate::OutputLocation;
 use crate::{OutputFormatter, OutputFormatterFactory};
@@ -41,12 +41,12 @@ impl TreeFormatter {
         let mut stdouts = String::new();
 
         for report in inputs {
-            results.push(report.description.identity.name.to_string());
+            results.push(report.description.full_name());
 
             if !report.artifacts.stdio.stdout.is_empty() {
                 stdouts.push_str(&format!(
                     "---- {} stdout ----\n",
-                    report.description.identity.name
+                    report.description.full_name()
                 ));
                 let output = String::from_utf8_lossy(&report.artifacts.stdio.stdout);
                 stdouts.push_str(&output);
@@ -56,7 +56,7 @@ impl TreeFormatter {
             if !report.artifacts.stdio.stderr.is_empty() {
                 stdouts.push_str(&format!(
                     "---- {} stderr ----\n",
-                    report.description.identity.name
+                    report.description.full_name()
                 ));
                 let output = String::from_utf8_lossy(&report.artifacts.stdio.stderr);
                 stdouts.push_str(&output);

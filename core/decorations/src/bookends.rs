@@ -1,10 +1,8 @@
 use std::time::Duration;
 
-use integra8_context::meta::SourceLocation;
 use integra8_context::delegates::Delegate;
 
-use integra8_components::{BookEnds, BookEnd, SuiteAttributes, BookEndAttributes};
-use integra8_context::meta::ComponentDescription;
+use integra8_components::{BookEnds, BookEnd, SuiteAttributes, BookEndAttributes, ComponentDescription, ComponentLocation};
 use integra8_context::parameters::TestParameters;
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
@@ -54,17 +52,20 @@ impl<TParameters> Default for BookEndDecorationPair<TParameters> {
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct BookEndAttributesDecoration {
+    // The name of the test (Default: the bookends namespace + method name)
+    pub name: Option<&'static str>,
+
+    // A description of the bookend which can be displayed by the output formatter if it supports it
+    pub description: &'static str,
+    
     /// The path used to calculate the bookends test group
     pub path: &'static str,
 
     /// The source code location of this bookend
-    pub location: SourceLocation,
+    pub location: ComponentLocation,
 
     /// Indicates that bookend should not be run.
     pub ignore: Option<bool>,
-
-    /// A Cascading failure will result in automatic failure of all other yet to be run test in this test group.
-    pub cascade_failure: Option<bool>,
 
     /// Describes the maximum duration a bookend can take before it is forcibly aborted
     pub critical_threshold: Option<Duration>,
@@ -80,7 +81,6 @@ impl BookEndAttributesDecoration {
         )
     }
 }
-
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct BookEndDecoration<TParameters> {
@@ -100,7 +100,7 @@ impl<TParameters: TestParameters> BookEndDecoration<TParameters> {
         BookEnd::new_setup(
             parent_suite_description,
             parent_suite_attributes,
-            self.desc.path, // TODO: make setup nameable
+            self.desc.name,
             self.desc.path,
             self.desc.location,
             self.desc.ignore,
@@ -117,7 +117,7 @@ impl<TParameters: TestParameters> BookEndDecoration<TParameters> {
         BookEnd::new_tear_down(
             parent_suite_description,
             parent_suite_attributes,
-            self.desc.path, // TODO: make setup nameable
+            self.desc.name,
             self.desc.path,
             self.desc.location,
             self.desc.ignore,

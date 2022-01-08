@@ -5,8 +5,8 @@ use integra8::results::artifacts::stdio::TestResultStdio;
 use integra8::results::{ComponentResult, ComponentTimeResult};
 use integra8::results::{DidNotRunReason, FailureReason, PassReason};
 
-use integra8::context::meta::ComponentType;
-use integra8::context::meta::SourceLocation;
+use integra8::components::ComponentType;
+use integra8::components::ComponentLocation;
 
 use std::error::Error;
 
@@ -15,7 +15,7 @@ pub struct ComponentResultsTreeNode {
     pub display_name: String,
     pub result: ComponentResult,
     pub timing: ComponentTimeResult,
-    pub src_location: SourceLocation,
+    pub src_location: ComponentLocation,
     pub component_type: ComponentType,
     pub stdio: TestResultStdio,
     pub children: Vec<ComponentResultsTreeNode>,

@@ -3,6 +3,12 @@ use integra8::{integration_suite, integration_test, setup, teardown};
 use std::{thread, time};
 
 #[setup]
+#[name(
+"somfghfhfghfgh
+fghfge
+na
+me"
+)]
 fn setup() {
     println!("setting up!");
 }

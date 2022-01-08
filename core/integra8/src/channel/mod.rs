@@ -9,7 +9,7 @@ pub use notify::{ComponentProgressChannelNotify, RunProgressChannelNotify};
 
 use integra8_async_runtime::channel;
 
-use crate::context::meta::ComponentDescription;
+use crate::components::ComponentDescription;
 use crate::results::report::ComponentRunReport;
 use crate::results::ComponentTimeResult;
 

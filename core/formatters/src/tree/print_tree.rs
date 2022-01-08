@@ -5,7 +5,7 @@ use integra8_results::artifacts::stdio::TestResultStdio;
 use integra8_results::{ComponentResult, ComponentTimeResult};
 use integra8_results::{DidNotRunReason, FailureReason, PassReason};
 
-use integra8_context::meta::{ComponentType, SourceLocation};
+use integra8_components::{ComponentType, ComponentLocation};
 
 use std::error::Error;
 
@@ -14,7 +14,7 @@ pub struct ComponentResultsTreeNode {
     pub display_name: String,
     pub result: ComponentResult,
     pub timing: ComponentTimeResult,
-    pub src_location: SourceLocation,
+    pub src_location: ComponentLocation,
     pub component_type: ComponentType,
     pub stdio: TestResultStdio,
     pub children: Vec<ComponentResultsTreeNode>,
@@ -23,7 +23,7 @@ pub struct ComponentResultsTreeNode {
 impl ComponentResultsTreeNode {
     pub fn from_report(report: &ComponentRunReport) -> Self {
         Self {
-            display_name: report.description.relative_path(),
+            display_name: report.description.friendly_name(),
             src_location: report.description.location.clone(),
             result: report.result.clone(),
             timing: report.timing.clone(),

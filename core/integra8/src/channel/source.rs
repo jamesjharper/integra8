@@ -1,5 +1,5 @@
 use crate::channel::TestEvent;
-use crate::context::meta::ComponentDescription;
+use crate::components::ComponentDescription;
 use crate::results::report::ComponentRunReport;
 use crate::results::ComponentTimeResult;
 use integra8_async_runtime::Sender;

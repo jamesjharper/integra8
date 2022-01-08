@@ -7,8 +7,9 @@ use proc_macro::TokenStream;
 pub struct BookendAttributes {
     pub integra8_path: Option<Path>,
     pub ignore: Option<Expr>,
+    pub name: Option<Expr>,
+    pub description: Option<Expr>,
     pub critical_threshold: Option<Expr>,
-    pub cascade_failure: Option<Expr>,
     pub errors: Option<Error>,
 }
 
@@ -16,9 +17,10 @@ impl BookendAttributes {
     pub fn take_from(attrs: &mut Vec<Attribute>) -> std::result::Result<Self, TokenStream> {
         let mut builder = Self {
             integra8_path: None,
+            name: None,
+            description: None,
             ignore: None,
             critical_threshold: None,
-            cascade_failure: None,
             errors: None,
         };
 
@@ -28,7 +30,7 @@ impl BookendAttributes {
                 builder.try_parse_integra8_path(attr)
                     || builder.try_parse_ignore_expr(attr)
                     || builder.try_parse_critical_threshold_expr(attr)
-                    || builder.try_parse_cascade_failure_expr(attr)
+                    || builder.try_parse_name_expr(attr)
             )
         });
 
@@ -71,17 +73,11 @@ impl BookendAttributes {
         return false;
     }
 
-    // cascade failure
-    // looking for #[cascade_failure]
-    // looking for #[do_not_cascade_failure]
-    fn try_parse_cascade_failure_expr(&mut self, attr: &Attribute) -> bool {
-        if attr.path.is_ident("cascade_failure") {
-            self.cascade_failure = Some(parse_quote!(Some(true)));
-            return true;
-        }
-
-        if attr.path.is_ident("do_not_cascade_failure") {
-            self.cascade_failure = Some(parse_quote!(Some(false)));
+    // looking for
+    // #[name("the bookends given name")]
+    fn try_parse_name_expr(&mut self, attr: &Attribute) -> bool {
+        if attr.path.is_ident("name") {
+            self.name = self.parse_string(attr);
             return true;
         }
 
@@ -114,6 +110,14 @@ impl BookendAttributes {
             .map(|exp| parse_quote!(Some(::std::time::Duration::from_millis(#exp))))
     }
 
+    fn parse_string(&mut self, attr: &Attribute) -> Option<Expr> {
+        let result =
+            attr.parse_args_with(|input: ParseStream| input.call(Expr::parse_without_eager_brace));
+
+        self.some_or_accumulate_error(result)
+            .map(|exp| parse_quote!(Some(#exp)))
+    }
+
     // Take values
 
     pub fn take_integra8_path(&mut self) -> Path {
@@ -124,12 +128,12 @@ impl BookendAttributes {
         mem::take(&mut self.ignore).unwrap_or_else(|| parse_quote!(None))
     }
 
-    pub fn take_critical_threshold(&mut self) -> Expr {
-        mem::take(&mut self.critical_threshold).unwrap_or_else(|| parse_quote!(None))
+    pub fn take_name(&mut self) -> Expr {
+        mem::take(&mut self.name).unwrap_or_else(|| parse_quote!(None))
     }
 
-    pub fn take_cascade_failure(&mut self) -> Expr {
-        mem::take(&mut self.cascade_failure).unwrap_or_else(|| parse_quote!(None))
+    pub fn take_critical_threshold(&mut self) -> Expr {
+        mem::take(&mut self.critical_threshold).unwrap_or_else(|| parse_quote!(None))
     }
 
     fn some_or_accumulate_error<T>(&mut self, result: Result<T>) -> Option<T> {

@@ -5,7 +5,7 @@ pub mod tree;
 use std::error::Error;
 use std::io::Write;
 
-use integra8_context::meta::ComponentDescription;
+use integra8_components::ComponentDescription;
 
 use integra8_results::report::ComponentRunReport;
 use integra8_results::summary::RunSummary;
