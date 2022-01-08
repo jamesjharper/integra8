@@ -13,7 +13,7 @@ pub fn register_teardown(input_tokens: TokenStream) -> TokenStream {
         Err(err) => return err,
     };
 
-    // Attributes  
+    // Attributes
     let integra8_path = test_attr.take_integra8_path();
     let name_expr = test_attr.take_name();
     let description_expr = test_attr.take_description();

@@ -2,7 +2,10 @@ use std::time::Duration;
 
 use integra8_context::parameters::TestParameters;
 
-use crate::{BookEnds, ComponentDescription, ComponentIdentity, ConcurrencyMode, ComponentType, ComponentLocation, Test};
+use crate::{
+    BookEnds, ComponentDescription, ComponentIdentity, ComponentLocation, ComponentType,
+    ConcurrencyMode, Test,
+};
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct SuiteAttributes {
@@ -128,7 +131,6 @@ pub struct Suite<TParameters> {
 }
 
 impl<TParameters: TestParameters> Suite<TParameters> {
-
     pub fn new(
         parent_desc: Option<&SuiteAttributes>,
         parameters: &TParameters,

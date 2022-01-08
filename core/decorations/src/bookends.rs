@@ -109,7 +109,7 @@ impl<TParameters: TestParameters> BookEndDecoration<TParameters> {
         parent_suite_description: &ComponentDescription,
         parent_suite_attributes: &SuiteAttributes,
     ) -> BookEnd<TParameters> {
-         BookEnd::new_tear_down(
+        BookEnd::new_tear_down(
             parent_suite_description,
             parent_suite_attributes,
             self.desc.name,

@@ -1,8 +1,6 @@
 use std::time::Duration;
 
-use integra8_components::{
-    Suite, SuiteAttributes, ComponentLocation, ConcurrencyMode
-};
+use integra8_components::{ComponentLocation, ConcurrencyMode, Suite, SuiteAttributes};
 
 use integra8_context::parameters::TestParameters;
 
@@ -70,7 +68,6 @@ impl SuiteAttributesDecoration {
         parent_desc: Option<&SuiteAttributes>,
         parameters: &TParameters,
     ) -> Suite<TParameters> {
-
         Suite::new(
             parent_desc,
             parameters,
