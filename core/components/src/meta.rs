@@ -10,6 +10,10 @@ impl ComponentPath {
     pub fn from(path: &'static str) -> Self {
         Self(path)
     }
+
+    pub fn as_str(&self) -> &'_ str {
+        self.0
+    }
 }
 
 impl Display for ComponentPath {
@@ -20,6 +24,12 @@ impl Display for ComponentPath {
 
 impl AsRef<OsStr> for ComponentPath  {
     fn as_ref(&self) -> &OsStr {
+        self.0.as_ref()
+    }
+}
+
+impl AsRef<str> for ComponentPath  {
+    fn as_ref(&self) -> &str {
         self.0.as_ref()
     }
 }
@@ -59,7 +69,7 @@ pub struct ComponentDescription {
 
     pub component_type: ComponentType,
 
-    pub location: ComponentLocation,
+    pub location: Option<ComponentLocation>,
 
     name: Option<&'static str>,
 }
@@ -72,7 +82,7 @@ impl ComponentDescription {
         parent_path: ComponentPath,    
         description: Option<&'static str>,  
         component_type: ComponentType,
-        location: ComponentLocation,
+        location: Option<ComponentLocation>,
     ) -> Self {
         Self {
             path,
@@ -108,7 +118,7 @@ impl ComponentDescription {
         }
 
         self.path
-            .0
+            .as_str()
             .strip_prefix(self.parent_path.0)
             .map(|relative| {
                 // Remove the :: prefix left over from the path

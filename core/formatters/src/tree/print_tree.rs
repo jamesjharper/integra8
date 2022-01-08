@@ -24,7 +24,7 @@ impl ComponentResultsTreeNode {
     pub fn from_report(report: &ComponentRunReport) -> Self {
         Self {
             display_name: report.description.friendly_name(),
-            src_location: report.description.location.clone(),
+            src_location: report.description.location.clone().unwrap(),
             result: report.result.clone(),
             timing: report.timing.clone(),
             component_type: report.description.component_type.clone(),

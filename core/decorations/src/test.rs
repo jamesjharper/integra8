@@ -19,7 +19,7 @@ pub struct TestAttributesDecoration {
     pub path: &'static str,
 
     /// The source code location of this test
-    pub location: ComponentLocation,
+    pub location: Option<ComponentLocation>,
 
     /// Indicates that test should be run, however failures should be ignored and do not cascade.
     pub allow_fail: Option<bool>,

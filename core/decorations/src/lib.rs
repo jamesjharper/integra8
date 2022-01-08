@@ -18,6 +18,7 @@ pub enum ComponentDecoration<TParameters> {
     Setup(BookEndDecoration<TParameters>),
 }
 
+
 impl<TParameters> ComponentDecoration<TParameters> {
     pub fn path(&self) -> &'static str {
         match self {

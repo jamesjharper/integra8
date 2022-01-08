@@ -128,7 +128,7 @@ impl<TParameters: TestParameters> Suite<TParameters> {
         description: Option<&'static str>,
         path: &'static str,
         ignore: Option<bool>,
-        src: ComponentLocation,
+        src: Option<ComponentLocation>,
         allow_suite_fail: Option<bool>,
         test_warn_threshold: Option<Duration>,
         test_critical_threshold: Option<Duration>,
@@ -142,7 +142,7 @@ impl<TParameters: TestParameters> Suite<TParameters> {
                 name,    
                 parent
                     .map(|p| p.1.path.clone())
-                    // root nodes have this selves as their parent
+                    // root nodes have themselves as their parent
                     .unwrap_or_else(|| ComponentPath::from(path)),
                 description,  
                 ComponentType::Suite,

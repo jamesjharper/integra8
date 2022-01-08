@@ -15,7 +15,7 @@ pub struct SuiteAttributesDecoration {
     pub path: &'static str,
 
     /// The source code location of this test
-    pub location: ComponentLocation,
+    pub location: Option<ComponentLocation>,
 
     /// Indicates that this entire suite should not be run.
     pub ignore: Option<bool>,
@@ -48,11 +48,7 @@ impl SuiteAttributesDecoration {
             name: Some(namespace),
             path: namespace,
             description: None,
-            location: ComponentLocation {
-                file_name: "",
-                column: 0,
-                line: 0,
-            },
+            location: None,
             ignore: None,
             allow_suite_fail: None,
             test_warn_threshold: None,

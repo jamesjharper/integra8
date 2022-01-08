@@ -76,7 +76,7 @@ impl<TParameters: TestParameters> Test<TParameters> {
         name: Option<&'static str>,
         description: Option<&'static str>,
         path: &'static str,
-        src: ComponentLocation,
+        src: Option<ComponentLocation>,
         ignore: Option<bool>,
         allow_fail: Option<bool>,
         warn_threshold: Option<Duration>,

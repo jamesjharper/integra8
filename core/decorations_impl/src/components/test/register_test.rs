@@ -47,7 +47,7 @@ pub fn register_test(input_tokens: TokenStream) -> TokenStream {
                            name: #name_expr,
                            path: module_path!(),
                            description: #description_expr,
-                           location: #integra8_path ::components::src_loc!(),
+                           location: Some(#integra8_path ::components::src_loc!()),
                            ignore: #ignore_test_expr,
                            allow_fail: #allow_fail_expr,
                            warn_threshold: #warn_threshold_expr,
