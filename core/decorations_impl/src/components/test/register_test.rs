@@ -13,15 +13,18 @@ pub fn register_test(input_tokens: TokenStream) -> TokenStream {
         Err(err) => return err,
     };
 
-    let mut test_fn = ExecFn::from(decorated_fn);
-
+    // Attributes
     let integra8_path = test_attr.take_integra8_path();
     let ignore_test_expr = test_attr.take_ignore_test();
-    let name = test_attr.take_name();
+    let name_expr = test_attr.take_name();
+    let description_expr = test_attr.take_description();
     let allow_fail_expr = test_attr.take_allow_fail();
-    let warn_threshold = test_attr.take_warn_threshold();
-    let critical_threshold = test_attr.take_critical_threshold();
-    let concurrency_mode = test_attr.take_concurrency_mode();
+    let warn_threshold_expr = test_attr.take_warn_threshold();
+    let critical_threshold_expr = test_attr.take_critical_threshold();
+    let concurrency_mode_expr = test_attr.take_concurrency_mode();
+
+    // Fn
+    let mut test_fn = ExecFn::from(decorated_fn);
     let test_method = test_fn.take_exec_fn();
     let delegate_expr = test_fn.take_delegate_expr();
 
@@ -41,15 +44,15 @@ pub fn register_test(input_tokens: TokenStream) -> TokenStream {
                 #integra8_path ::decorations::ComponentDecoration::IntegrationTest(
                     #integra8_path ::decorations::TestDecoration {
                         desc: #integra8_path ::decorations::TestAttributesDecoration {
-                           name: #name, // mod name contains the test name in the path
+                           name: #name_expr, 
                            path: module_path!(),
-                           description: "",
+                           description: #description_expr,
                            location: #integra8_path ::components::src_loc!(),
                            ignore: #ignore_test_expr,
                            allow_fail: #allow_fail_expr,
-                           warn_threshold: #warn_threshold,
-                           critical_threshold: #critical_threshold,
-                           concurrency_mode: #concurrency_mode,
+                           warn_threshold: #warn_threshold_expr,
+                           critical_threshold: #critical_threshold_expr,
+                           concurrency_mode: #concurrency_mode_expr,
                         },
                         test_fn: #delegate_expr,
                     }

@@ -46,6 +46,7 @@ impl<TParameters> BookEnd<TParameters> {
         parent_suite_description: &ComponentDescription,
         parent_suite_attributes: &SuiteAttributes,
         name: Option<&'static str>,
+        description: Option<&'static str>,
         path: &'static str,
         src: ComponentLocation,
         ignore: Option<bool>,
@@ -55,6 +56,7 @@ impl<TParameters> BookEnd<TParameters> {
         Self {
             description: ComponentDescription {
                 identity: ComponentIdentity::new(name, path),
+                description: description,
                 parent_identity: parent_suite_description.identity.clone(),
                 component_type: ComponentType::Setup,
                 location: src,
@@ -68,6 +70,7 @@ impl<TParameters> BookEnd<TParameters> {
         parent_suite_description: &ComponentDescription,
         parent_suite_attributes: &SuiteAttributes,
         name: Option<&'static str>,
+        description: Option<&'static str>,
         path: &'static str,
         src: ComponentLocation,
         ignore: Option<bool>,
@@ -77,6 +80,7 @@ impl<TParameters> BookEnd<TParameters> {
         Self {
             description: ComponentDescription {
                 identity: ComponentIdentity::new(name, path),
+                description: description,
                 parent_identity: parent_suite_description.identity.clone(),
                 component_type: ComponentType::TearDown,
                 location: src,

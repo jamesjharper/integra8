@@ -58,7 +58,7 @@ pub struct BookEndAttributesDecoration {
     pub name: Option<&'static str>,
 
     // A description of the bookend which can be displayed by the output formatter if it supports it
-    pub description: &'static str,
+    pub description: Option<&'static str>,
 
     /// The path used to calculate the bookends test group
     pub path: &'static str,
@@ -95,6 +95,7 @@ impl<TParameters: TestParameters> BookEndDecoration<TParameters> {
             parent_suite_description,
             parent_suite_attributes,
             self.desc.name,
+            self.desc.description,
             self.desc.path,
             self.desc.location,
             self.desc.ignore,
@@ -108,10 +109,11 @@ impl<TParameters: TestParameters> BookEndDecoration<TParameters> {
         parent_suite_description: &ComponentDescription,
         parent_suite_attributes: &SuiteAttributes,
     ) -> BookEnd<TParameters> {
-        BookEnd::new_tear_down(
+         BookEnd::new_tear_down(
             parent_suite_description,
             parent_suite_attributes,
             self.desc.name,
+            self.desc.description,
             self.desc.path,
             self.desc.location,
             self.desc.ignore,

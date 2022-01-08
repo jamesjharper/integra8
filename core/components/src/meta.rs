@@ -41,6 +41,8 @@ pub struct ComponentDescription {
     /// The identity of the bookend. Used for uniquely identify the bookend and displaying the test name to the end user.
     pub identity: ComponentIdentity,
 
+    pub description: Option<&'static str>,
+
     pub component_type: ComponentType,
 
     pub parent_identity: ComponentIdentity,

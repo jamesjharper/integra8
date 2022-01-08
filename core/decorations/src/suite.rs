@@ -8,7 +8,7 @@ pub struct SuiteAttributesDecoration {
     pub name: Option<&'static str>,
 
     // A description of the suite which can be displayed by the output formatter if it supports it
-    pub description: &'static str,
+    pub description: Option<&'static str>,
 
     /// The test path used to calculate the suite's test group
     pub path: &'static str,
@@ -51,7 +51,7 @@ impl SuiteAttributesDecoration {
         Self {
             name: Some(namespace),
             path: namespace,
-            description: "",
+            description: None,
             location: ComponentLocation {
                 file_name: "",
                 column: 0,
@@ -93,6 +93,7 @@ impl SuiteAttributesDecoration {
         Suite {
             description: ComponentDescription {
                 identity: ComponentIdentity::new(self.name, self.path),
+                description: self.description,
                 parent_identity: parent_desc
                     .map(|p| p.identity.clone())
                     .unwrap_or_else(|| ComponentIdentity::new(self.name, self.path)),

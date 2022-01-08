@@ -28,9 +28,10 @@ impl BookendAttributes {
             !(
                 // Keep looking until we find a match
                 builder.try_parse_integra8_path(attr)
+                    || builder.try_parse_name_expr(attr)
+                    || builder.try_parse_description_expr(attr)
                     || builder.try_parse_ignore_expr(attr)
                     || builder.try_parse_critical_threshold_expr(attr)
-                    || builder.try_parse_name_expr(attr)
             )
         });
 
@@ -84,6 +85,17 @@ impl BookendAttributes {
         return false;
     }
 
+    // looking for
+    // #[description("the description of this bookend")]
+    fn try_parse_description_expr(&mut self, attr: &Attribute) -> bool {
+        if attr.path.is_ident("description") {
+            self.description = self.parse_string(attr);
+            return true;
+        }
+
+        return false;
+    }
+
     // looking for #[ignore()]
     fn try_parse_ignore_expr(&mut self, attr: &Attribute) -> bool {
         if !attr.path.is_ident("ignore") {
@@ -126,6 +138,10 @@ impl BookendAttributes {
 
     pub fn take_name(&mut self) -> Expr {
         mem::take(&mut self.name).unwrap_or_else(|| parse_quote!(None))
+    }
+
+    pub fn take_description(&mut self) -> Expr {
+        mem::take(&mut self.description).unwrap_or_else(|| parse_quote!(None))
     }
 
     pub fn take_ignore(&mut self) -> Expr {

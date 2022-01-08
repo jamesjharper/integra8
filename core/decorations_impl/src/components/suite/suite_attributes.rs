@@ -37,6 +37,7 @@ impl SuiteAttributes {
                 // Keep looking until we find a match
                 builder.try_parse_integra8_path(attr)
                     || builder.try_parse_name_expr(attr)
+                    || builder.try_parse_description_expr(attr)
                     || builder.try_parse_allow_fail_expr(attr)
                     || builder.try_parse_concurrency_mode_expr(attr)
                     || builder.try_parse_test_concurrency_mode_expr(attr)
@@ -75,6 +76,17 @@ impl SuiteAttributes {
     fn try_parse_name_expr(&mut self, attr: &Attribute) -> bool {
         if attr.path.is_ident("name") {
             self.name = self.parse_string(attr);
+            return true;
+        }
+
+        return false;
+    }
+
+    // looking for
+    // #[description("the description of this suite")]
+    fn try_parse_description_expr(&mut self, attr: &Attribute) -> bool {
+        if attr.path.is_ident("description") {
+            self.description = self.parse_string(attr);
             return true;
         }
 
@@ -197,6 +209,10 @@ impl SuiteAttributes {
 
     pub fn take_name(&mut self) -> Expr {
         mem::take(&mut self.name).unwrap_or_else(|| parse_quote!(None))
+    }
+
+    pub fn take_description(&mut self) -> Expr {
+        mem::take(&mut self.description).unwrap_or_else(|| parse_quote!(None))
     }
 
     pub fn take_ignore(&mut self) -> Expr {

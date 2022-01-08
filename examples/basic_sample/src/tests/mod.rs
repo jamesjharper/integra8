@@ -4,12 +4,14 @@ use std::{thread, time};
 
 #[setup]
 #[name("custom named for setup")]
+#[description("the setup description")]
 fn setup() {
     println!("setting up!");
 }
 
 #[integration_test]
 #[name("custom named for test")]
+#[description("the test description")]
 fn test1() {
     println!("Running basic test 2");
 }
@@ -27,11 +29,14 @@ fn test3() {
 
 #[teardown]
 #[name("custom named for tear down")]
+#[description("the tear down description")]
 fn tear_down() {
     println!("tearing down !");
 }
 
 #[integration_suite]
+#[name("custom named suite")]
+#[description("the suite description")]
 mod nested_test_suite {
     use super::*;
     #[integration_test]

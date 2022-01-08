@@ -13,7 +13,7 @@ pub struct TestAttributesDecoration {
     pub name: Option<&'static str>,
 
     // A description of the test which can be displayed by the output formatter if it supports it
-    pub description: &'static str,
+    pub description: Option<&'static str>,
 
     /// The test path used to calculate the test's test group
     pub path: &'static str,
@@ -59,6 +59,7 @@ impl<TParameters: TestParameters> TestDecoration<TParameters> {
             parent_attributes,
             parameters,
             self.desc.name,
+            self.desc.description,
             self.desc.path,
             self.desc.location,
             self.desc.ignore,

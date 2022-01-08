@@ -75,6 +75,7 @@ impl<TParameters: TestParameters> Test<TParameters> {
         parent_attributes: &SuiteAttributes,
         parameters: &TParameters,
         name: Option<&'static str>,
+        description: Option<&'static str>,
         path: &'static str,
         src: ComponentLocation,
         ignore: Option<bool>,
@@ -87,6 +88,7 @@ impl<TParameters: TestParameters> Test<TParameters> {
         Self {
             description: ComponentDescription {
                 identity: ComponentIdentity::new(name, path),
+                description: description,
                 parent_identity: parent_description.identity.clone(),
                 component_type: ComponentType::Test,
                 location: src,

@@ -14,11 +14,13 @@ pub fn register_suite(input_tokens: TokenStream) -> TokenStream {
 
     let integra8_path = test_attr.take_integra8_path();
     let ignore_expr = test_attr.take_ignore();
+    let name_expr = test_attr.take_name();
+    let description_expr = test_attr.take_description();
     let allow_fail_expr = test_attr.take_allow_fail();
-    let warn_threshold = test_attr.take_warn_threshold();
-    let critical_threshold = test_attr.take_critical_threshold();
-    let concurrency_mode = test_attr.take_concurrency_mode();
-    let test_concurrency_mode = test_attr.take_test_concurrency_mode();
+    let warn_threshold_expr = test_attr.take_warn_threshold();
+    let critical_threshold_expr = test_attr.take_critical_threshold();
+    let concurrency_mode_expr = test_attr.take_concurrency_mode();
+    let test_concurrency_mode_expr = test_attr.take_test_concurrency_mode();
 
     let suite_name_ident = decorated_mod.ident;
     let suite_vis = decorated_mod.vis;
@@ -31,8 +33,6 @@ pub fn register_suite(input_tokens: TokenStream) -> TokenStream {
         #suite_vis mod #suite_name_ident {
             #(#mod_content)*
 
-            static SUITE_NAME: &'static str = stringify!( #suite_name_ident );
-
             use crate::REGISTERED_COMPONENTS;
 
             #[#integra8_path ::linkme::distributed_slice(REGISTERED_COMPONENTS)]
@@ -42,16 +42,16 @@ pub fn register_suite(input_tokens: TokenStream) -> TokenStream {
             pub (crate) fn __suite_def() -> #integra8_path ::decorations::ComponentDecoration<crate::Parameters> {
                 #integra8_path ::decorations::ComponentDecoration::Suite(
                     #integra8_path ::decorations::SuiteAttributesDecoration {
-                        name: Some(SUITE_NAME),
+                        name: #name_expr,
+                        description: #description_expr,
                         path: module_path!(),
-                        description: "",
                         location: #integra8_path ::components::src_loc!(),
                         ignore: #ignore_expr,
                         allow_suite_fail: #allow_fail_expr,
-                        test_warn_threshold: #warn_threshold,
-                        test_critical_threshold: #critical_threshold,
-                        suite_concurrency_mode:  #concurrency_mode,
-                        test_concurrency_mode:  #test_concurrency_mode,
+                        test_warn_threshold: #warn_threshold_expr,
+                        test_critical_threshold: #critical_threshold_expr,
+                        suite_concurrency_mode:  #concurrency_mode_expr,
+                        test_concurrency_mode:  #test_concurrency_mode_expr,
                     }
                 )
             }
