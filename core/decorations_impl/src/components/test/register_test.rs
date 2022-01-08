@@ -17,6 +17,7 @@ pub fn register_test(input_tokens: TokenStream) -> TokenStream {
 
     let integra8_path = test_attr.take_integra8_path();
     let ignore_test_expr = test_attr.take_ignore_test();
+    let name = test_attr.take_name();
     let allow_fail_expr = test_attr.take_allow_fail();
     let warn_threshold = test_attr.take_warn_threshold();
     let critical_threshold = test_attr.take_critical_threshold();
@@ -40,7 +41,7 @@ pub fn register_test(input_tokens: TokenStream) -> TokenStream {
                 #integra8_path ::decorations::ComponentDecoration::IntegrationTest(
                     #integra8_path ::decorations::TestDecoration {
                         desc: #integra8_path ::decorations::TestAttributesDecoration {
-                           name: stringify!(#test_name_ident), // mod name contains the test name in the path
+                           name: #name, // mod name contains the test name in the path
                            path: module_path!(),
                            description: "",
                            location: #integra8_path ::components::src_loc!(),

@@ -1,7 +1,7 @@
 pub mod test;
 pub use test::{Test, TestAttributes};
 
-pub  mod bookends;
+pub mod bookends;
 pub use bookends::{BookEnd, BookEndAttributes, BookEnds};
 
 mod suite;
@@ -12,11 +12,7 @@ pub use acceptance_criteria::{AcceptanceCriteria, TimingAcceptanceCriteria};
 
 mod meta;
 pub use meta::{
-    ComponentIdentity, 
-    ComponentType,
-    ComponentDescription,
-    ComponentLocation,
-    ConcurrencyMode
+    ComponentDescription, ComponentIdentity, ComponentLocation, ComponentType, ConcurrencyMode,
 };
 
 //use integra8_decorations::ComponentDecoration;

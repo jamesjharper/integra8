@@ -3,11 +3,7 @@ use std::time::Duration;
 use integra8_context::delegates::Delegate;
 
 use crate::{
-    SuiteAttributes,
-    ComponentDescription,
-    ComponentType,
-    ComponentIdentity,
-    ComponentLocation
+    ComponentDescription, ComponentIdentity, ComponentLocation, ComponentType, SuiteAttributes,
 };
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
@@ -27,7 +23,7 @@ pub struct BookEndAttributes {
 
 impl BookEndAttributes {
     pub fn new(
-        parent_desc: &SuiteAttributes, 
+        parent_desc: &SuiteAttributes,
         ignore: Option<bool>,
         critical_threshold: Option<Duration>,
     ) -> Self {
@@ -46,7 +42,6 @@ pub struct BookEnd<TParameters> {
 }
 
 impl<TParameters> BookEnd<TParameters> {
-
     pub fn new_setup(
         parent_suite_description: &ComponentDescription,
         parent_suite_attributes: &SuiteAttributes,
@@ -55,9 +50,8 @@ impl<TParameters> BookEnd<TParameters> {
         src: ComponentLocation,
         ignore: Option<bool>,
         critical_threshold: Option<Duration>,
-        setup_fn: Delegate<TParameters>
+        setup_fn: Delegate<TParameters>,
     ) -> Self {
-
         Self {
             description: ComponentDescription {
                 identity: ComponentIdentity::new(name, path),
@@ -65,15 +59,10 @@ impl<TParameters> BookEnd<TParameters> {
                 component_type: ComponentType::Setup,
                 location: src,
             },
-            attributes: BookEndAttributes::new(
-                parent_suite_attributes, 
-                ignore, 
-                critical_threshold
-            ),
+            attributes: BookEndAttributes::new(parent_suite_attributes, ignore, critical_threshold),
             bookend_fn: setup_fn,
         }
     }
-
 
     pub fn new_tear_down(
         parent_suite_description: &ComponentDescription,
@@ -83,9 +72,8 @@ impl<TParameters> BookEnd<TParameters> {
         src: ComponentLocation,
         ignore: Option<bool>,
         critical_threshold: Option<Duration>,
-        setup_fn: Delegate<TParameters>
+        setup_fn: Delegate<TParameters>,
     ) -> Self {
-
         Self {
             description: ComponentDescription {
                 identity: ComponentIdentity::new(name, path),
@@ -93,11 +81,7 @@ impl<TParameters> BookEnd<TParameters> {
                 component_type: ComponentType::TearDown,
                 location: src,
             },
-            attributes: BookEndAttributes::new(
-                parent_suite_attributes, 
-                ignore, 
-                critical_threshold
-            ),
+            attributes: BookEndAttributes::new(parent_suite_attributes, ignore, critical_threshold),
             bookend_fn: setup_fn,
         }
     }

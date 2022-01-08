@@ -6,6 +6,8 @@ use proc_macro::TokenStream;
 
 pub struct TestAttributes {
     pub integra8_path: Option<Path>,
+    pub name: Option<Expr>,
+    pub description: Option<Expr>,
     pub ignore_test: Option<Expr>,
     pub allow_fail: Option<Expr>,
     pub warn_threshold: Option<Expr>,
@@ -18,6 +20,8 @@ impl TestAttributes {
     pub fn take_from(attrs: &mut Vec<Attribute>) -> std::result::Result<Self, TokenStream> {
         let mut builder = Self {
             integra8_path: None,
+            name: None,
+            description: None,
             ignore_test: None,
             allow_fail: None,
             warn_threshold: None,
@@ -31,6 +35,7 @@ impl TestAttributes {
                 // Keep looking until we find a match
                 builder.try_parse_integra8_path(attr)
                     || builder.try_parse_allow_fail_expr(attr)
+                    || builder.try_parse_name_expr(attr)
                     || builder.try_parse_ignore_test_expr(attr)
                     || builder.try_parse_warn_threshold_expr(attr)
                     || builder.try_parse_critical_threshold_expr(attr)
@@ -63,6 +68,17 @@ impl TestAttributes {
     }
 
     // looking for
+    // #[name("the tests given name")]
+    fn try_parse_name_expr(&mut self, attr: &Attribute) -> bool {
+        if attr.path.is_ident("name") {
+            self.name = self.parse_string(attr);
+            return true;
+        }
+
+        return false;
+    }
+
+    // looking for
     // #[warn_threshold_seconds(1)]
     // #[warn_threshold_milliseconds(1000)]
     fn try_parse_warn_threshold_expr(&mut self, attr: &Attribute) -> bool {
@@ -91,8 +107,6 @@ impl TestAttributes {
         }
         return false;
     }
-
-
 
     // cascade failure
     // looking for #[parallelizable]
@@ -147,10 +161,22 @@ impl TestAttributes {
             .map(|exp| parse_quote!(Some(::std::time::Duration::from_millis(#exp))))
     }
 
+    fn parse_string(&mut self, attr: &Attribute) -> Option<Expr> {
+        let result =
+            attr.parse_args_with(|input: ParseStream| input.call(Expr::parse_without_eager_brace));
+
+        self.some_or_accumulate_error(result)
+            .map(|exp| parse_quote!(Some(#exp)))
+    }
+
     // Take values
 
     pub fn take_integra8_path(&mut self) -> Path {
         mem::take(&mut self.integra8_path).unwrap_or_else(|| parse_quote!(::integra8))
+    }
+
+    pub fn take_name(&mut self) -> Expr {
+        mem::take(&mut self.name).unwrap_or_else(|| parse_quote!(None))
     }
 
     pub fn take_ignore_test(&mut self) -> Expr {

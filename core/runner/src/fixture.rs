@@ -1,5 +1,5 @@
-use integra8_components::{AcceptanceCriteria, BookEnd, SuiteAttributes, Test};
 use integra8_components::ComponentDescription;
+use integra8_components::{AcceptanceCriteria, BookEnd, SuiteAttributes, Test};
 use integra8_context::parameters::TestParameters;
 use integra8_context::ExecutionStrategy;
 

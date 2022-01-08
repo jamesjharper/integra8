@@ -124,12 +124,12 @@ impl BookendAttributes {
         mem::take(&mut self.integra8_path).unwrap_or_else(|| parse_quote!(::integra8))
     }
 
-    pub fn take_ignore(&mut self) -> Expr {
-        mem::take(&mut self.ignore).unwrap_or_else(|| parse_quote!(None))
-    }
-
     pub fn take_name(&mut self) -> Expr {
         mem::take(&mut self.name).unwrap_or_else(|| parse_quote!(None))
+    }
+
+    pub fn take_ignore(&mut self) -> Expr {
+        mem::take(&mut self.ignore).unwrap_or_else(|| parse_quote!(None))
     }
 
     pub fn take_critical_threshold(&mut self) -> Expr {

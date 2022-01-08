@@ -4,12 +4,8 @@ use integra8_context::delegates::Delegate;
 use integra8_context::parameters::TestParameters;
 
 use crate::{
+    ComponentDescription, ComponentIdentity, ComponentLocation, ComponentType, ConcurrencyMode,
     SuiteAttributes,
-    ComponentIdentity,
-    ComponentDescription,
-    ComponentType,
-    ComponentLocation,
-    ConcurrencyMode
 };
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
@@ -54,11 +50,14 @@ impl TestAttributes {
             },
             ignore: ignore.unwrap_or_else(|| parent_desc.ignore),
 
-            warn_threshold: warn_threshold.map_or_else(|| parent_desc.test_warn_threshold, |val| val),
+            warn_threshold: warn_threshold
+                .map_or_else(|| parent_desc.test_warn_threshold, |val| val),
 
-            critical_threshold: critical_threshold.map_or_else(|| parent_desc.test_critical_threshold, |val| val),
+            critical_threshold: critical_threshold
+                .map_or_else(|| parent_desc.test_critical_threshold, |val| val),
 
-            concurrency_mode: concurrency_mode.map_or_else(|| parent_desc.test_concurrency_mode.clone(), |val| val),
+            concurrency_mode: concurrency_mode
+                .map_or_else(|| parent_desc.test_concurrency_mode.clone(), |val| val),
         }
     }
 }
@@ -69,7 +68,6 @@ pub struct Test<TParameters> {
     pub description: ComponentDescription,
     pub test_fn: Delegate<TParameters>,
 }
-
 
 impl<TParameters: TestParameters> Test<TParameters> {
     pub fn new(
@@ -84,7 +82,7 @@ impl<TParameters: TestParameters> Test<TParameters> {
         warn_threshold: Option<Duration>,
         critical_threshold: Option<Duration>,
         concurrency_mode: Option<ConcurrencyMode>,
-        test_fn: Delegate<TParameters>
+        test_fn: Delegate<TParameters>,
     ) -> Self {
         Self {
             description: ComponentDescription {
@@ -100,9 +98,9 @@ impl<TParameters: TestParameters> Test<TParameters> {
                 allow_fail,
                 warn_threshold,
                 critical_threshold,
-                concurrency_mode
+                concurrency_mode,
             ),
-            test_fn: test_fn
+            test_fn: test_fn,
         }
     }
 }

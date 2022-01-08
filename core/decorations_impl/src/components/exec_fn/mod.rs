@@ -1,5 +1,5 @@
 use std::mem;
-use syn::{parse_quote, ItemFn, Expr};
+use syn::{parse_quote, Expr, ItemFn};
 
 pub struct ExecFn {
     exec_fn: Option<ItemFn>,
@@ -61,7 +61,7 @@ impl ExecFn {
 
         Self {
             exec_fn: Some(exec_fn),
-            delegate_expr: Some(delegate_expr)
+            delegate_expr: Some(delegate_expr),
         }
     }
 

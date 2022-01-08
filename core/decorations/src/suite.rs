@@ -41,10 +41,10 @@ pub struct SuiteAttributesDecoration {
     pub test_concurrency_mode: Option<ConcurrencyMode>,
 }
 
-
-
-use integra8_components::{SuiteAttributes, Suite, ComponentIdentity, ComponentDescription, ComponentType};
-use integra8_context::parameters::TestParameters; 
+use integra8_components::{
+    ComponentDescription, ComponentIdentity, ComponentType, Suite, SuiteAttributes,
+};
+use integra8_context::parameters::TestParameters;
 
 impl SuiteAttributesDecoration {
     pub fn root(namespace: &'static str) -> Self {
@@ -71,7 +71,6 @@ impl SuiteAttributesDecoration {
         parent_desc: Option<&SuiteAttributes>,
         parameters: &TParameters,
     ) -> SuiteAttributes {
-
         SuiteAttributes::new(
             parent_desc,
             parameters,

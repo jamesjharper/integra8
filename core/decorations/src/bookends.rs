@@ -2,7 +2,9 @@ use std::time::Duration;
 
 use integra8_context::delegates::Delegate;
 
-use integra8_components::{BookEnds, BookEnd, SuiteAttributes, BookEndAttributes, ComponentDescription, ComponentLocation};
+use integra8_components::{
+    BookEnd, BookEndAttributes, BookEnds, ComponentDescription, ComponentLocation, SuiteAttributes,
+};
 use integra8_context::parameters::TestParameters;
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
@@ -57,7 +59,7 @@ pub struct BookEndAttributesDecoration {
 
     // A description of the bookend which can be displayed by the output formatter if it supports it
     pub description: &'static str,
-    
+
     /// The path used to calculate the bookends test group
     pub path: &'static str,
 
@@ -71,32 +73,24 @@ pub struct BookEndAttributesDecoration {
     pub critical_threshold: Option<Duration>,
 }
 
-
 impl BookEndAttributesDecoration {
     pub fn into_attributes(self, parent_desc: &SuiteAttributes) -> BookEndAttributes {
-        BookEndAttributes::new(
-            parent_desc, 
-            self.ignore,
-            self.critical_threshold,
-        )
+        BookEndAttributes::new(parent_desc, self.ignore, self.critical_threshold)
     }
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct BookEndDecoration<TParameters> {
     pub desc: BookEndAttributesDecoration,
-    pub bookend_fn: Delegate<TParameters>
+    pub bookend_fn: Delegate<TParameters>,
 }
 
-
 impl<TParameters: TestParameters> BookEndDecoration<TParameters> {
-
     pub fn into_setup_component(
         self,
         parent_suite_description: &ComponentDescription,
         parent_suite_attributes: &SuiteAttributes,
-    ) -> BookEnd<TParameters>  {
-
+    ) -> BookEnd<TParameters> {
         BookEnd::new_setup(
             parent_suite_description,
             parent_suite_attributes,
@@ -105,7 +99,7 @@ impl<TParameters: TestParameters> BookEndDecoration<TParameters> {
             self.desc.location,
             self.desc.ignore,
             self.desc.critical_threshold,
-            self.bookend_fn
+            self.bookend_fn,
         )
     }
 
@@ -122,7 +116,7 @@ impl<TParameters: TestParameters> BookEndDecoration<TParameters> {
             self.desc.location,
             self.desc.ignore,
             self.desc.critical_threshold,
-            self.bookend_fn
+            self.bookend_fn,
         )
     }
 }

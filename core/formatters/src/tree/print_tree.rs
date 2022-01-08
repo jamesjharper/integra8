@@ -5,7 +5,7 @@ use integra8_results::artifacts::stdio::TestResultStdio;
 use integra8_results::{ComponentResult, ComponentTimeResult};
 use integra8_results::{DidNotRunReason, FailureReason, PassReason};
 
-use integra8_components::{ComponentType, ComponentLocation};
+use integra8_components::{ComponentLocation, ComponentType};
 
 use std::error::Error;
 

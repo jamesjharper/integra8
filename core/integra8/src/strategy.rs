@@ -1,6 +1,5 @@
 use std::panic::UnwindSafe;
 
-
 use crate::context::parameters::TestParameters;
 use crate::decorations::ComponentDecoration;
 use crate::decorations::ComponentGroup;
@@ -147,7 +146,6 @@ impl<Parameters: TestParameters> ResolveComponentScheduleStrategy<Parameters>
         parameters: &Parameters,
         components: Vec<ComponentDecoration<Parameters>>,
     ) -> TaskStateMachineNode<ScheduledComponent<Parameters>> {
-
         ComponentGroup::into_components(components, parameters).into_task_state_machine()
     }
 }

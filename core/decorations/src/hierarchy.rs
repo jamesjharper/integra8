@@ -5,8 +5,8 @@ use crate::{
     TestDecoration,
 };
 
-use integra8_context::parameters::TestParameters;
 use integra8_components::{Suite, SuiteAttributes};
+use integra8_context::parameters::TestParameters;
 
 #[derive(Debug)]
 pub struct ComponentGroup<TParameters> {
@@ -17,7 +17,6 @@ pub struct ComponentGroup<TParameters> {
 }
 
 impl<TParameters: TestParameters> ComponentGroup<TParameters> {
-
     pub fn into_components<ComponentsIterator>(
         components: ComponentsIterator,
         parameters: &TParameters,
@@ -27,7 +26,7 @@ impl<TParameters: TestParameters> ComponentGroup<TParameters> {
     {
         ComponentHierarchy::from_decorated_components(components)
             .into_component_groups()
-            .into_component(None, parameters)            
+            .into_component(None, parameters)
     }
 
     fn into_component(
@@ -63,8 +62,6 @@ impl<TParameters: TestParameters> ComponentGroup<TParameters> {
         suite
     }
 }
-
-
 
 #[derive(Debug)]
 pub struct ComponentHierarchy<TParameters> {

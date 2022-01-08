@@ -4,18 +4,13 @@ use integra8_context::delegates::Delegate;
 use integra8_context::parameters::TestParameters;
 
 use integra8_components::{
-    SuiteAttributes,
-    Test, 
-    ComponentDescription,
-    ComponentLocation,
-    ConcurrencyMode
+    ComponentDescription, ComponentLocation, ConcurrencyMode, SuiteAttributes, Test,
 };
-
 
 #[derive(Debug)]
 pub struct TestAttributesDecoration {
     // The name of the test (Default: the tests namespace + test method name)
-    pub name: &'static str,
+    pub name: Option<&'static str>,
 
     // A description of the test which can be displayed by the output formatter if it supports it
     pub description: &'static str,
@@ -44,12 +39,12 @@ pub struct TestAttributesDecoration {
     /// `ConcurrencyMode::Parallel` will allow this test for be run at the same time as other tests within this tests suite
     /// `ConcurrencyMode::Serial` will ensure that this test wont run at the same time as any other test from this suite
     pub concurrency_mode: Option<ConcurrencyMode>,
-} 
+}
 
 #[derive(Debug)]
 pub struct TestDecoration<TParameters> {
     pub desc: TestAttributesDecoration,
-    pub test_fn: Delegate<TParameters>
+    pub test_fn: Delegate<TParameters>,
 }
 
 impl<TParameters: TestParameters> TestDecoration<TParameters> {
@@ -59,12 +54,11 @@ impl<TParameters: TestParameters> TestDecoration<TParameters> {
         parent_attributes: &SuiteAttributes,
         parameters: &TParameters,
     ) -> Test<TParameters> {
-
         Test::new(
             parent_description,
             parent_attributes,
             parameters,
-            Some(self.desc.name),
+            self.desc.name,
             self.desc.path,
             self.desc.location,
             self.desc.ignore,

@@ -1,6 +1,6 @@
-use integra8_components::{ComponentDescription, ComponentType};
 use crate::formatters::OutputFormatter;
 use crate::results::summary::RunSummary;
+use integra8_components::{ComponentDescription, ComponentType};
 
 use crate::results::report::ComponentRunReport;
 use crate::results::ComponentTimeResult;

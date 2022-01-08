@@ -49,7 +49,6 @@ pub struct ComponentDescription {
 }
 
 impl ComponentDescription {
-
     pub fn is_root(&self) -> bool {
         self.identity == self.parent_identity
     }
@@ -57,14 +56,14 @@ impl ComponentDescription {
     pub fn full_name(&self) -> String {
         match self.identity.name {
             Some(name) => name.to_string(),
-            None => self.identity.path.to_string()
+            None => self.identity.path.to_string(),
         }
     }
 
     pub fn friendly_name(&self) -> String {
         match self.identity.name {
             Some(name) => name.to_string(),
-            None => self.relative_path()
+            None => self.relative_path(),
         }
     }
 

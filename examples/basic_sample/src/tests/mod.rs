@@ -3,17 +3,13 @@ use integra8::{integration_suite, integration_test, setup, teardown};
 use std::{thread, time};
 
 #[setup]
-#[name(
-"somfghfhfghfgh
-fghfge
-na
-me"
-)]
+#[name("custom named for setup")]
 fn setup() {
     println!("setting up!");
 }
 
 #[integration_test]
+#[name("custom named for test")]
 fn test1() {
     println!("Running basic test 2");
 }
@@ -30,6 +26,7 @@ fn test3() {
 }
 
 #[teardown]
+#[name("custom named for tear down")]
 fn tear_down() {
     println!("tearing down !");
 }

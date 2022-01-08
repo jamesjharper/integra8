@@ -1,6 +1,6 @@
 use std::time::Duration;
 
-use crate::{ExecutionStrategy};
+use crate::ExecutionStrategy;
 
 pub trait TestParameters {
     // Parameter Projections

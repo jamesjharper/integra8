@@ -2,13 +2,7 @@ use std::time::Duration;
 
 use integra8_context::parameters::TestParameters;
 
-use crate::{
-    BookEnds, 
-    Test,
-    ComponentIdentity,
-    ComponentDescription,
-    ConcurrencyMode
-};
+use crate::{BookEnds, ComponentDescription, ComponentIdentity, ConcurrencyMode, Test};
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct SuiteAttributes {
@@ -44,7 +38,6 @@ pub struct SuiteAttributes {
 }
 
 impl SuiteAttributes {
-
     pub fn new<TParameters: TestParameters>(
         parent_desc: Option<&SuiteAttributes>,
         parameters: &TParameters,
@@ -61,7 +54,8 @@ impl SuiteAttributes {
             identity: ComponentIdentity::new(name, path),
             ignore: ignore.unwrap_or_else(|| parent_desc.map_or(false, |p| p.ignore)),
 
-            allow_suite_fail: allow_suite_fail.unwrap_or_else(|| parent_desc.map_or(false, |p| p.allow_suite_fail)),
+            allow_suite_fail: allow_suite_fail
+                .unwrap_or_else(|| parent_desc.map_or(false, |p| p.allow_suite_fail)),
 
             parent_suite_identity: parent_desc.map(|p| p.identity.clone()),
             test_warn_threshold: test_warn_threshold.map_or_else(
@@ -84,17 +78,18 @@ impl SuiteAttributes {
                 |val| val.clone(),
             ),
 
-
             suite_concurrency_mode: suite_concurrency_mode.map_or_else(
                 || {
                     parent_desc.map_or_else(
                         || {
-                            if parameters.max_concurrency() == 1 || !parameters.run_suites_in_parallel() {
+                            if parameters.max_concurrency() == 1
+                                || !parameters.run_suites_in_parallel()
+                            {
                                 ConcurrencyMode::Serial
                             } else {
                                 ConcurrencyMode::Parallel
                             }
-                        }, 
+                        },
                         // root value,
                         |p| p.suite_concurrency_mode.clone(),
                     )
@@ -106,12 +101,14 @@ impl SuiteAttributes {
                 || {
                     parent_desc.map_or_else(
                         || {
-                            if parameters.max_concurrency() == 1 || !parameters.run_tests_in_parallel() {
+                            if parameters.max_concurrency() == 1
+                                || !parameters.run_tests_in_parallel()
+                            {
                                 ConcurrencyMode::Serial
                             } else {
                                 ConcurrencyMode::Parallel
                             }
-                        }, 
+                        },
                         |p| p.test_concurrency_mode.clone(),
                     )
                 },
