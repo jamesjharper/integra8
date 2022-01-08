@@ -1,5 +1,5 @@
-use integra8_components::ComponentDescription;
-use integra8_components::{AcceptanceCriteria, BookEnd, SuiteAttributes, Test};
+
+use integra8_components::{AcceptanceCriteria, BookEnd, SuiteAttributes, Test, ComponentDescription, ComponentPath};
 use integra8_context::parameters::TestParameters;
 use integra8_context::ExecutionStrategy;
 
@@ -106,16 +106,16 @@ impl<TParameters: TestParameters> ComponentFixture<TParameters> {
         }
     }
 
-    pub fn component_path(&self) -> &'static str {
+    pub fn component_path(&self) -> ComponentPath {
         match self {
             Self::Test { test, .. } => {
-                return test.description.identity.path;
+                test.description.path.clone()
             }
             Self::BookEnd { bookend, .. } => {
-                return bookend.description.identity.path;
+                bookend.description.path.clone()
             }
             Self::Suite { description, .. } => {
-                return description.identity.path;
+                description.path.clone()
             }
         }
     }

@@ -4,7 +4,7 @@ use crate::summary::{
 
 use crate::summary::{FailedResults, NotRunResults, PassedResults};
 
-use integra8_components::{ComponentIdentity, ComponentType};
+use integra8_components::{ComponentType, ComponentPath};
 
 use crate::report::ComponentRunReport;
 use crate::ComponentResult;
@@ -105,7 +105,7 @@ impl SuiteSummary {
 
 #[derive(Clone, Debug)]
 pub struct RunSummary {
-    suite_summaries: HashMap<&'static str, SuiteSummary>,
+    suite_summaries: HashMap<ComponentPath, SuiteSummary>,
 }
 
 impl RunSummary {
@@ -115,7 +115,7 @@ impl RunSummary {
         }
     }
 
-    pub fn suites<'a>(&'a self) -> Values<'a, &'static str, SuiteSummary> {
+    pub fn suites<'a>(&'a self) -> Values<'a, ComponentPath, SuiteSummary> {
         self.suite_summaries.values()
     }
 
@@ -223,12 +223,12 @@ impl RunSummary {
 
     pub fn push_report(&mut self, report: ComponentRunReport) {
         if let ComponentType::Suite = report.description.component_type {
-            self.get_suite_mut(&report.description.identity)
+            self.get_suite_mut(&report.description.path)
                 .push_suite_report(report.clone());
         }
 
         if !report.description.is_root() {
-            self.get_suite_mut(&report.description.parent_identity)
+            self.get_suite_mut(&report.description.parent_path)
                 .push_report(report);
         }
     }
@@ -237,13 +237,13 @@ impl RunSummary {
         self.suite_summaries.values().find(|x| x.is_root())
     }
 
-    pub fn get_suite<'a>(&'a self, identity: &ComponentIdentity) -> Option<&'a SuiteSummary> {
-        self.suite_summaries.get(identity.path)
+    pub fn get_suite<'a>(&'a self, path: &ComponentPath) -> Option<&'a SuiteSummary> {
+        self.suite_summaries.get(path)
     }
 
-    fn get_suite_mut<'a>(&'a mut self, identity: &ComponentIdentity) -> &'a mut SuiteSummary {
+    fn get_suite_mut<'a>(&'a mut self, path: &ComponentPath) -> &'a mut SuiteSummary {
         self.suite_summaries
-            .entry(identity.path)
+            .entry(path.clone())
             .or_insert(SuiteSummary::new())
     }
 }

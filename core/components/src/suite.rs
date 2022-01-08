@@ -3,23 +3,17 @@ use std::time::Duration;
 use integra8_context::parameters::TestParameters;
 
 use crate::{
-    BookEnds, ComponentDescription, ComponentIdentity, ComponentLocation, ComponentType,
-    ConcurrencyMode, Test,
+    BookEnds, ComponentDescription, ComponentLocation, ComponentType, ConcurrencyMode, Test, ComponentPath
 };
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct SuiteAttributes {
-    /// The identity of the suite. Used for uniquely identify the suite and displaying the suite name to the end user.
-    pub identity: ComponentIdentity,
 
     /// Indicates that this entire suite should not be run.
     pub ignore: bool,
 
     /// Indicates that this suite should be run, but failures should be ignored and do not cascade.
     pub allow_suite_fail: bool,
-
-    /// The owning parent of this test suite, or None if root
-    pub parent_suite_identity: Option<ComponentIdentity>,
 
     /// Describes the the default duration after which a test is flag as exceeded is expected duration.
     /// Tests which are a part of this suite, that do not advertize a warning threshold will inherit this value.
@@ -44,8 +38,6 @@ impl SuiteAttributes {
     pub fn new<TParameters: TestParameters>(
         parent_desc: Option<&SuiteAttributes>,
         parameters: &TParameters,
-        name: Option<&'static str>,
-        path: &'static str,
         ignore: Option<bool>,
         allow_suite_fail: Option<bool>,
         test_warn_threshold: Option<Duration>,
@@ -54,13 +46,11 @@ impl SuiteAttributes {
         test_concurrency_mode: Option<ConcurrencyMode>,
     ) -> Self {
         Self {
-            identity: ComponentIdentity::new(name, path),
             ignore: ignore.unwrap_or_else(|| parent_desc.map_or(false, |p| p.ignore)),
 
             allow_suite_fail: allow_suite_fail
                 .unwrap_or_else(|| parent_desc.map_or(false, |p| p.allow_suite_fail)),
 
-            parent_suite_identity: parent_desc.map(|p| p.identity.clone()),
             test_warn_threshold: test_warn_threshold.map_or_else(
                 || {
                     parent_desc.map_or_else(
@@ -132,7 +122,7 @@ pub struct Suite<TParameters> {
 
 impl<TParameters: TestParameters> Suite<TParameters> {
     pub fn new(
-        parent_desc: Option<&SuiteAttributes>,
+        parent: Option<(&SuiteAttributes, &ComponentDescription)>,
         parameters: &TParameters,
         name: Option<&'static str>,
         description: Option<&'static str>,
@@ -145,21 +135,22 @@ impl<TParameters: TestParameters> Suite<TParameters> {
         suite_concurrency_mode: Option<ConcurrencyMode>,
         test_concurrency_mode: Option<ConcurrencyMode>,
     ) -> Suite<TParameters> {
+
         Suite {
-            description: ComponentDescription {
-                identity: ComponentIdentity::new(name, path),
-                description: description,
-                parent_identity: parent_desc
-                    .map(|p| p.identity.clone())
-                    .unwrap_or_else(|| ComponentIdentity::new(name, path)),
-                component_type: ComponentType::Suite,
-                location: src,
-            },
+            description: ComponentDescription::new(
+                ComponentPath::from(path),
+                name,    
+                parent
+                    .map(|p| p.1.path.clone())
+                    // root nodes have this selves as their parent
+                    .unwrap_or_else(|| ComponentPath::from(path)),
+                description,  
+                ComponentType::Suite,
+                src,
+            ),
             attributes: SuiteAttributes::new(
-                parent_desc,
+                parent.map(|p| p.0),
                 parameters,
-                name,
-                path,
                 ignore,
                 allow_suite_fail,
                 test_warn_threshold,

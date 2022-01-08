@@ -2,9 +2,7 @@ use std::time::Duration;
 
 use integra8_context::delegates::Delegate;
 
-use crate::{
-    ComponentDescription, ComponentIdentity, ComponentLocation, ComponentType, SuiteAttributes,
-};
+use crate::{ComponentDescription, ComponentLocation, ComponentType, SuiteAttributes, ComponentPath};
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct BookEnds<TParameters> {
@@ -54,13 +52,14 @@ impl<TParameters> BookEnd<TParameters> {
         setup_fn: Delegate<TParameters>,
     ) -> Self {
         Self {
-            description: ComponentDescription {
-                identity: ComponentIdentity::new(name, path),
-                description: description,
-                parent_identity: parent_suite_description.identity.clone(),
-                component_type: ComponentType::Setup,
-                location: src,
-            },
+            description: ComponentDescription::new(
+                ComponentPath::from(path),
+                name,    
+                parent_suite_description.path.clone(),   
+                description,  
+                ComponentType::Setup,
+                src,
+            ),
             attributes: BookEndAttributes::new(parent_suite_attributes, ignore, critical_threshold),
             bookend_fn: setup_fn,
         }
@@ -78,13 +77,14 @@ impl<TParameters> BookEnd<TParameters> {
         setup_fn: Delegate<TParameters>,
     ) -> Self {
         Self {
-            description: ComponentDescription {
-                identity: ComponentIdentity::new(name, path),
-                description: description,
-                parent_identity: parent_suite_description.identity.clone(),
-                component_type: ComponentType::TearDown,
-                location: src,
-            },
+            description: ComponentDescription::new(
+                ComponentPath::from(path),
+                name,    
+                parent_suite_description.path.clone(),   
+                description,  
+                ComponentType::TearDown,
+                src,
+            ),
             attributes: BookEndAttributes::new(parent_suite_attributes, ignore, critical_threshold),
             bookend_fn: setup_fn,
         }

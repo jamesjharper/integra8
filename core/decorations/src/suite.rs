@@ -1,7 +1,6 @@
 use std::time::Duration;
 
-use integra8_components::{ComponentLocation, ConcurrencyMode, Suite, SuiteAttributes};
-
+use integra8_components::{ComponentLocation, ConcurrencyMode, Suite, SuiteAttributes, ComponentDescription};
 use integra8_context::parameters::TestParameters;
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
@@ -65,11 +64,11 @@ impl SuiteAttributesDecoration {
 
     pub fn into_component<TParameters: TestParameters>(
         self,
-        parent_desc: Option<&SuiteAttributes>,
+        parent: Option<(&SuiteAttributes, &ComponentDescription)>,
         parameters: &TParameters,
     ) -> Suite<TParameters> {
         Suite::new(
-            parent_desc,
+            parent,
             parameters,
             self.name,
             self.description,

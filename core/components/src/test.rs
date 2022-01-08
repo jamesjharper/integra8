@@ -4,8 +4,7 @@ use integra8_context::delegates::Delegate;
 use integra8_context::parameters::TestParameters;
 
 use crate::{
-    ComponentDescription, ComponentIdentity, ComponentLocation, ComponentType, ConcurrencyMode,
-    SuiteAttributes,
+    ComponentDescription, ComponentLocation, ComponentType, ConcurrencyMode, SuiteAttributes, ComponentPath
 };
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
@@ -86,13 +85,14 @@ impl<TParameters: TestParameters> Test<TParameters> {
         test_fn: Delegate<TParameters>,
     ) -> Self {
         Self {
-            description: ComponentDescription {
-                identity: ComponentIdentity::new(name, path),
-                description: description,
-                parent_identity: parent_description.identity.clone(),
-                component_type: ComponentType::Test,
-                location: src,
-            },
+            description: ComponentDescription::new(
+                ComponentPath::from(path),
+                name,    
+                parent_description.path.clone(),
+                description,  
+                ComponentType::Test,
+                src,
+            ),
             attributes: TestAttributes::new(
                 parent_attributes,
                 parameters,
