@@ -1,10 +1,11 @@
-use integra8_context::ExecutionContext;
-
-use std::future::Future;
-use std::pin::Pin;
 use std::time::Duration;
 
 use integra8_context::meta::SourceLocation;
+use integra8_context::delegates::Delegate;
+
+use integra8_components::{BookEnds, BookEnd, SuiteAttributes, BookEndAttributes};
+use integra8_context::meta::ComponentDescription;
+use integra8_context::parameters::TestParameters;
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct BookEndDecorationPair<TParameters> {
@@ -22,6 +23,23 @@ impl<TParameters> BookEndDecorationPair<TParameters> {
 
     pub fn has_any(&self) -> bool {
         self.setup.is_some() || self.tear_down.is_some()
+    }
+}
+
+impl<TParameters: TestParameters> BookEndDecorationPair<TParameters> {
+    pub fn into_components(
+        self,
+        parent_suite_description: &ComponentDescription,
+        parent_suite_attributes: &SuiteAttributes,
+    ) -> BookEnds<TParameters> {
+        BookEnds {
+            setup: self.setup.map(|deco| {
+                deco.into_setup_component(parent_suite_description, parent_suite_attributes)
+            }),
+            tear_down: self.tear_down.map(|deco| {
+                deco.into_tear_down_component(parent_suite_description, parent_suite_attributes)
+            }),
+        }
     }
 }
 
@@ -52,43 +70,59 @@ pub struct BookEndAttributesDecoration {
     pub critical_threshold: Option<Duration>,
 }
 
-#[cfg(feature = "async")]
-pub type BookEndDecoration<TParameters> = bookend_async_impl::BookendDecorationAsync<TParameters>;
 
-#[cfg(feature = "async")]
-mod bookend_async_impl {
-    use super::*;
-
-    #[derive(Clone, Debug, PartialEq, Eq, Hash)]
-    pub struct BookendDecorationAsync<TParameters> {
-        pub desc: BookEndAttributesDecoration,
-        pub bookend_fn:
-            fn(ExecutionContext<TParameters>) -> Pin<Box<dyn Future<Output = ()> + Send + 'static>>,
-    }
-
-    impl<TParameters> BookendDecorationAsync<TParameters> {
-        pub async fn run(&self, params: ExecutionContext<TParameters>) {
-            (self.bookend_fn)(params).await
-        }
+impl BookEndAttributesDecoration {
+    pub fn into_attributes(self, parent_desc: &SuiteAttributes) -> BookEndAttributes {
+        BookEndAttributes::new(
+            parent_desc, 
+            self.ignore,
+            self.critical_threshold,
+        )
     }
 }
 
-#[cfg(feature = "sync")]
-pub type BookEndDecoration<TParameters> = bookend_sync_impl::BookendDecorationSync<TParameters>;
 
-#[cfg(feature = "sync")]
-mod bookend_sync_impl {
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+pub struct BookEndDecoration<TParameters> {
+    pub desc: BookEndAttributesDecoration,
+    pub bookend_fn: Delegate<TParameters>
+}
 
-    use super::*;
-    #[derive(Clone, Debug, PartialEq, Eq, Hash)]
-    pub struct BookendDecorationSync<TParameters> {
-        pub desc: BookEndAttributesDecoration,
-        pub bookend_fn: fn(ExecutionContext<TParameters>),
+
+impl<TParameters: TestParameters> BookEndDecoration<TParameters> {
+
+    pub fn into_setup_component(
+        self,
+        parent_suite_description: &ComponentDescription,
+        parent_suite_attributes: &SuiteAttributes,
+    ) -> BookEnd<TParameters>  {
+
+        BookEnd::new_setup(
+            parent_suite_description,
+            parent_suite_attributes,
+            self.desc.path, // TODO: make setup nameable
+            self.desc.path,
+            self.desc.location,
+            self.desc.ignore,
+            self.desc.critical_threshold,
+            self.bookend_fn
+        )
     }
 
-    impl<TParameters> BookendDecorationSync<TParameters> {
-        pub fn run(&self, params: ExecutionContext<TParameters>) {
-            (self.bookend_fn)(params)
-        }
+    pub fn into_tear_down_component(
+        self,
+        parent_suite_description: &ComponentDescription,
+        parent_suite_attributes: &SuiteAttributes,
+    ) -> BookEnd<TParameters> {
+        BookEnd::new_tear_down(
+            parent_suite_description,
+            parent_suite_attributes,
+            self.desc.path, // TODO: make setup nameable
+            self.desc.path,
+            self.desc.location,
+            self.desc.ignore,
+            self.desc.critical_threshold,
+            self.bookend_fn
+        )
     }
 }

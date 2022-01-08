@@ -1,7 +1,7 @@
-mod test;
+pub mod test;
 pub use test::{Test, TestAttributes};
 
-mod bookends;
+pub  mod bookends;
 pub use bookends::{BookEnd, BookEndAttributes, BookEnds};
 
 mod suite;
@@ -10,9 +10,9 @@ pub use suite::{Suite, SuiteAttributes};
 mod acceptance_criteria;
 pub use acceptance_criteria::{AcceptanceCriteria, TimingAcceptanceCriteria};
 
-use integra8_context::parameters::TestParameters;
-use integra8_decorations::ComponentDecoration;
+//use integra8_decorations::ComponentDecoration;
 
+/*
 pub struct RootSuite();
 
 impl RootSuite {
@@ -25,7 +25,7 @@ impl RootSuite {
     {
         Suite::<TParameters>::from_decorated_components(components, parameters)
     }
-}
+}*/
 
 /*
 #[cfg(test)]

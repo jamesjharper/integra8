@@ -17,14 +17,8 @@ integra8_results = {path = "../results"}
 [features]
 # non async scheduling not yet implemented
 # TODO: Refactor out 
-sync = [
-    "integra8_components/sync",
-    "integra8_results/async"
-]
-async = [
-    "integra8_components/async",
-    "integra8_results/async"
-]
+sync = []
+async = []
 
 async-std-runtime = [
     "async",

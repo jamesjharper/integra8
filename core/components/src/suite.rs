@@ -1,11 +1,7 @@
 use std::time::Duration;
 
 use crate::{BookEnds, Test};
-use integra8_context::meta::{ComponentDescription, ComponentIdentity, ComponentType};
-
-use integra8_decorations::{
-    ComponentDecoration, ComponentGroup, ComponentHierarchy, SuiteAttributesDecoration,
-};
+use integra8_context::meta::{ComponentDescription, ComponentIdentity};
 
 use integra8_context::parameters::TestParameters;
 use integra8_context::ConcurrencyMode;
@@ -44,23 +40,27 @@ pub struct SuiteAttributes {
 }
 
 impl SuiteAttributes {
-    fn new<TParameters: TestParameters>(
+
+    pub fn new<TParameters: TestParameters>(
         parent_desc: Option<&SuiteAttributes>,
-        desc: SuiteAttributesDecoration,
         parameters: &TParameters,
+        name: &'static str,
+        path: &'static str,
+        ignore: Option<bool>,
+        allow_suite_fail: Option<bool>,
+        test_warn_threshold: Option<Duration>,
+        test_critical_threshold: Option<Duration>,
+        suite_concurrency_mode: Option<ConcurrencyMode>,
+        test_concurrency_mode: Option<ConcurrencyMode>,
     ) -> Self {
         Self {
-            identity: ComponentIdentity::new(desc.name, desc.path),
-            ignore: desc
-                .ignore
-                .unwrap_or_else(|| parent_desc.map_or(false, |p| p.ignore)),
+            identity: ComponentIdentity::new(name, path),
+            ignore: ignore.unwrap_or_else(|| parent_desc.map_or(false, |p| p.ignore)),
 
-            allow_suite_fail: desc
-                .allow_suite_fail
-                .unwrap_or_else(|| parent_desc.map_or(false, |p| p.allow_suite_fail)),
+            allow_suite_fail: allow_suite_fail.unwrap_or_else(|| parent_desc.map_or(false, |p| p.allow_suite_fail)),
 
             parent_suite_identity: parent_desc.map(|p| p.identity.clone()),
-            test_warn_threshold: desc.test_warn_threshold.map_or_else(
+            test_warn_threshold: test_warn_threshold.map_or_else(
                 || {
                     parent_desc.map_or_else(
                         || parameters.warn_threshold_duration(), // root value
@@ -70,7 +70,7 @@ impl SuiteAttributes {
                 |val| val.clone(),
             ),
 
-            test_critical_threshold: desc.test_critical_threshold.map_or_else(
+            test_critical_threshold: test_critical_threshold.map_or_else(
                 || {
                     parent_desc.map_or_else(
                         || parameters.critical_threshold_duration(), // root value
@@ -80,7 +80,7 @@ impl SuiteAttributes {
                 |val| val.clone(),
             ),
 
-            suite_concurrency_mode: desc.suite_concurrency_mode.map_or_else(
+            suite_concurrency_mode: suite_concurrency_mode.map_or_else(
                 || {
                     parent_desc.map_or_else(
                         || parameters.suite_concurrency_mode(), // root value,
@@ -90,7 +90,7 @@ impl SuiteAttributes {
                 |val| val.clone(),
             ),
 
-            test_concurrency_mode: desc.test_concurrency_mode.map_or_else(
+            test_concurrency_mode: test_concurrency_mode.map_or_else(
                 || {
                     parent_desc.map_or_else(
                         || parameters.test_concurrency_mode(), // root value,
@@ -113,7 +113,7 @@ pub struct Suite<TParameters> {
 }
 
 impl<TParameters: TestParameters> Suite<TParameters> {
-    pub fn from_decorated_components<ComponentsIterator>(
+    /*pub fn from_decorated_components<ComponentsIterator>(
         components: ComponentsIterator,
         parameters: &TParameters,
     ) -> Self
@@ -148,7 +148,7 @@ impl<TParameters: TestParameters> Suite<TParameters> {
             .bookends
             .into_iter()
             .filter(|x| x.has_any())
-            .map(|x| BookEnds::new(&suite.description, &suite.attributes, x))
+            .map(|x| x::new(&suite.description, &suite.attributes, x))
             .collect();
 
         suite.suites = group
@@ -179,5 +179,5 @@ impl<TParameters: TestParameters> Suite<TParameters> {
             bookends: Vec::new(),
             suites: Vec::new(),
         }
-    }
+    }*/
 }

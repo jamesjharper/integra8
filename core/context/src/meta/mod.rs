@@ -1,3 +1,6 @@
+
+
+
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct ComponentIdentity {
     // The friendly name of the component (Default: the namespace + ident)
@@ -67,6 +70,8 @@ pub struct ComponentDescription {
 }
 
 impl ComponentDescription {
+
+
     pub fn is_root(&self) -> bool {
         self.identity == self.parent_identity
     }

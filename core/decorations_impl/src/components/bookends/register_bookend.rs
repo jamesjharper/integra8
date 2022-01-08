@@ -20,6 +20,8 @@ pub fn register_teardown(input_tokens: TokenStream) -> TokenStream {
     let critical_threshold = test_attr.take_critical_threshold();
     let cascade_failure = test_attr.take_cascade_failure();
     let teardown_method = teardown_fn.take_exec_fn();
+    let delegate_expr = teardown_fn.take_delegate_expr();
+
     let teardown_name_ident = &teardown_method.sig.ident;
 
     let tokens = quote! {
@@ -46,7 +48,7 @@ pub fn register_teardown(input_tokens: TokenStream) -> TokenStream {
                            critical_threshold: #critical_threshold,
                            cascade_failure: #cascade_failure
                         },
-                        bookend_fn: super::#teardown_name_ident,
+                        bookend_fn: #delegate_expr,
                     }
                 )
             }
@@ -64,13 +66,15 @@ pub fn register_setup(input_tokens: TokenStream) -> TokenStream {
         Err(err) => return err,
     };
 
-    let mut teardown_fn = ExecFn::from(decorated_fn);
+    let mut setup_fn = ExecFn::from(decorated_fn);
 
     let integra8_path = test_attr.take_integra8_path();
     let ignore_expr = test_attr.take_ignore();
     let critical_threshold = test_attr.take_critical_threshold();
     let cascade_failure = test_attr.take_cascade_failure();
-    let setup_method = teardown_fn.take_exec_fn();
+    let setup_method = setup_fn.take_exec_fn();
+    let delegate_expr = setup_fn.take_delegate_expr();
+
     let setup_name_ident = &setup_method.sig.ident;
 
     let tokens = quote! {
@@ -97,7 +101,7 @@ pub fn register_setup(input_tokens: TokenStream) -> TokenStream {
                            critical_threshold: #critical_threshold,
                            cascade_failure: #cascade_failure
                         },
-                        bookend_fn: super::#setup_name_ident,
+                        bookend_fn: #delegate_expr,
                     }
                 )
             }

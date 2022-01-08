@@ -1,5 +1,6 @@
 pub mod meta;
 pub mod parameters;
+pub mod delegates;
 
 use std::sync::Arc;
 

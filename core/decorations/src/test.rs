@@ -1,8 +1,15 @@
 use std::time::Duration;
 
-use integra8_context::{meta::SourceLocation, ConcurrencyMode, ExecutionContext};
+use integra8_components::SuiteAttributes;
+use integra8_components::Test;
 
-#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+use integra8_context::delegates::Delegate;
+use integra8_context::meta::{ComponentDescription, SourceLocation};
+use integra8_context::ConcurrencyMode;
+
+use integra8_context::parameters::TestParameters;
+
+#[derive(Debug)]
 pub struct TestAttributesDecoration {
     // The name of the test (Default: the tests namespace + test method name)
     pub name: &'static str,
@@ -34,48 +41,35 @@ pub struct TestAttributesDecoration {
     /// `ConcurrencyMode::Parallel` will allow this test for be run at the same time as other tests within this tests suite
     /// `ConcurrencyMode::Serial` will ensure that this test wont run at the same time as any other test from this suite
     pub concurrency_mode: Option<ConcurrencyMode>,
+} 
+
+#[derive(Debug)]
+pub struct TestDecoration<TParameters> {
+    pub desc: TestAttributesDecoration,
+    pub test_fn: Delegate<TParameters>
 }
 
-#[cfg(feature = "async")]
-pub type TestDecoration<TParameters> =
-    integration_test_async_impl::TestDecorationAsync<TParameters>;
+impl<TParameters: TestParameters> TestDecoration<TParameters> {
+    pub fn into_component(
+        self,
+        parent_description: &ComponentDescription,
+        parent_attributes: &SuiteAttributes,
+        parameters: &TParameters,
+    ) -> Test<TParameters> {
 
-#[cfg(feature = "async")]
-mod integration_test_async_impl {
-    use super::*;
-    use std::future::Future;
-    use std::pin::Pin;
-
-    #[derive(Debug)]
-    pub struct TestDecorationAsync<TParameters> {
-        pub desc: TestAttributesDecoration,
-        pub test_fn:
-            fn(ExecutionContext<TParameters>) -> Pin<Box<dyn Future<Output = ()> + Send + 'static>>,
-    }
-
-    impl<TParameters> TestDecorationAsync<TParameters> {
-        pub async fn run(&self, params: ExecutionContext<TParameters>) {
-            (self.test_fn)(params).await
-        }
-    }
-}
-
-#[cfg(feature = "sync")]
-pub type TestDecoration<TParameters> = integration_test_sync_impl::TestDecorationSync<TParameters>;
-
-#[cfg(feature = "sync")]
-mod integration_test_sync_impl {
-
-    use super::*;
-    #[derive(Debug)]
-    pub struct TestDecorationSync<TParameters> {
-        pub desc: TestAttributesDecoration,
-        pub test_fn: fn(ExecutionContext<TParameters>),
-    }
-
-    impl<TParameters> TestDecorationSync<TParameters> {
-        pub fn run(&self, params: ExecutionContext<TParameters>) {
-            (self.test_fn)(params)
-        }
+        Test::new(
+            parent_description,
+            parent_attributes,
+            parameters,
+            self.desc.name,
+            self.desc.path,
+            self.desc.location,
+            self.desc.ignore,
+            self.desc.allow_fail,
+            self.desc.warn_threshold,
+            self.desc.critical_threshold,
+            self.desc.concurrency_mode,
+            self.test_fn,
+        )
     }
 }

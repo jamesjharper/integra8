@@ -6,10 +6,3 @@ edition = "2018"
 [dependencies]
 integra8_context = {path = "../context"}
 integra8_components = {path = "../components"}
-
-
-[features]
-
-# TODO: Refactor out 
-sync = ["integra8_components/sync",]
-async = ["integra8_components/async"]

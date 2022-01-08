@@ -22,6 +22,8 @@ pub fn register_test(input_tokens: TokenStream) -> TokenStream {
     let critical_threshold = test_attr.take_critical_threshold();
     let cascade_failure = test_attr.take_cascade_failure();
     let test_method = test_fn.take_exec_fn();
+    let delegate_expr = test_fn.take_delegate_expr();
+
     let test_name_ident = &test_method.sig.ident;
 
     let tokens = quote! {
@@ -48,7 +50,7 @@ pub fn register_test(input_tokens: TokenStream) -> TokenStream {
                            cascade_failure: #cascade_failure,
                            concurrency_mode: None // TODO: add ability to select the concurrency mode
                         },
-                        test_fn: super::#test_name_ident,
+                        test_fn: #delegate_expr,
                     }
                 )
             }

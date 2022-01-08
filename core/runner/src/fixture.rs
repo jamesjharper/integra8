@@ -58,7 +58,7 @@ impl<TParameters: TestParameters> ComponentFixture<TParameters> {
                 let ctx = ExecutionContext {
                     parameters: parameters.clone(),
                 };
-                test.test_fn.run(ctx).await
+                test.test_fn.run_async(ctx).await
             }
             Self::BookEnd {
                 bookend,
@@ -68,7 +68,7 @@ impl<TParameters: TestParameters> ComponentFixture<TParameters> {
                 let ctx = ExecutionContext {
                     parameters: parameters.clone(),
                 };
-                bookend.bookend_fn.run(ctx).await
+                bookend.bookend_fn.run_async(ctx).await
             }
             Self::Suite { .. } => {
                 // Can not run

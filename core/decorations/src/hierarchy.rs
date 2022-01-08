@@ -5,6 +5,9 @@ use crate::{
     TestDecoration,
 };
 
+use integra8_context::parameters::TestParameters;
+use integra8_components::{Suite, SuiteAttributes};
+
 #[derive(Debug)]
 pub struct ComponentGroup<TParameters> {
     pub suite: Option<SuiteAttributesDecoration>,
@@ -12,6 +15,58 @@ pub struct ComponentGroup<TParameters> {
     pub bookends: Vec<BookEndDecorationPair<TParameters>>,
     pub sub_groups: Vec<ComponentGroup<TParameters>>,
 }
+
+
+
+impl<TParameters: TestParameters> ComponentGroup<TParameters> {
+
+    pub fn into_components<ComponentsIterator>(
+        components: ComponentsIterator,
+        parameters: &TParameters,
+    ) -> Suite<TParameters>
+    where
+        ComponentsIterator: IntoIterator<Item = ComponentDecoration<TParameters>>,
+    {
+        ComponentHierarchy::from_decorated_components(components)
+            .into_component_groups()
+            .into_component(None, parameters)            
+    }
+
+    fn into_component(
+        self,
+        parent_desc: Option<&SuiteAttributes>,
+        parameters: &TParameters,
+    ) -> Suite<TParameters> {
+        let parent_suite_attributes = self
+            .suite
+            .unwrap_or_else(|| SuiteAttributesDecoration::root(parameters.root_namespace()));
+
+        let mut suite = parent_suite_attributes.into_component(parent_desc, parameters);
+
+        suite.tests = self
+            .tests
+            .into_iter()
+            .map(|x| x.into_component(&suite.description, &suite.attributes, parameters))
+            .collect();
+
+        suite.bookends = self
+            .bookends
+            .into_iter()
+            .filter(|x| x.has_any())
+            .map(|x| x.into_components(&suite.description, &suite.attributes))
+            .collect();
+
+        suite.suites = self
+            .sub_groups
+            .into_iter()
+            .map(|x| x.into_component(Some(&suite.attributes), parameters))
+            .collect();
+
+        suite
+    }
+}
+
+
 
 #[derive(Debug)]
 pub struct ComponentHierarchy<TParameters> {
@@ -56,7 +111,7 @@ impl<TParameters> HierarchyNode<TParameters> {
     pub fn new_node() -> Self {
         Self {
             suite: None,
-            tests: Vec::new(),
+            tests: Vec::<TestDecoration<TParameters>>::new(),
             bookends: BookEndDecorationPair::new(),
             nodes: IndexMap::new(),
         }

@@ -1,26 +1,21 @@
 use std::time::Duration;
 
 use crate::SuiteAttributes;
-use integra8_decorations::{TestAttributesDecoration, TestDecoration};
 
-use integra8_context::meta::{ComponentDescription, ComponentIdentity, ComponentType};
+use integra8_context::delegates::Delegate;
+use integra8_context::meta::SourceLocation;
+use integra8_context::meta::{ComponentDescription, ComponentType};
 use integra8_context::parameters::TestParameters;
 use integra8_context::ConcurrencyMode;
-use integra8_context::ExecutionContext;
+use integra8_context::meta::ComponentIdentity;
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct TestAttributes {
-    /// The identity of the test. Used for uniquely identify the test and displaying the test name to the end user.
-    pub identity: ComponentIdentity,
-
     /// Indicates that test should be run, however failures should be ignored and do not cascade.
     pub allow_fail: bool,
 
     /// Indicates that test should not be run.
     pub ignore: bool,
-
-    /// The owning suite of this test
-    pub parent_suite_identity: ComponentIdentity,
 
     /// Describes the the duration after which a test is flag as exceeded is expected duration.
     /// This can be used to give early warnings that a test is going to exceed some critical threshold.
@@ -39,33 +34,28 @@ pub struct TestAttributes {
 impl TestAttributes {
     pub fn new<TParameters: TestParameters>(
         parent_desc: &SuiteAttributes,
-        def: TestAttributesDecoration,
         parameters: &TParameters,
+        ignore: Option<bool>,
+        allow_fail: Option<bool>,
+        warn_threshold: Option<Duration>,
+        critical_threshold: Option<Duration>,
+        concurrency_mode: Option<ConcurrencyMode>,
     ) -> Self {
         Self {
-            identity: ComponentIdentity::new(def.name, def.path),
             // If we are running as a child process, we need the test
             // to report as failed, so that way the process status indicates
             // an error, and the parent process will flag as allowed failure
             allow_fail: match parameters.is_child_process() {
                 true => false,
-                false => def.allow_fail.unwrap_or(false),
+                false => allow_fail.unwrap_or(false),
             },
-            ignore: def.ignore.unwrap_or_else(|| parent_desc.ignore),
+            ignore: ignore.unwrap_or_else(|| parent_desc.ignore),
 
-            parent_suite_identity: parent_desc.identity.clone(),
+            warn_threshold: warn_threshold.map_or_else(|| parent_desc.test_warn_threshold, |val| val),
 
-            warn_threshold: def
-                .warn_threshold
-                .map_or_else(|| parent_desc.test_warn_threshold, |val| val),
+            critical_threshold: critical_threshold.map_or_else(|| parent_desc.test_critical_threshold, |val| val),
 
-            critical_threshold: def
-                .critical_threshold
-                .map_or_else(|| parent_desc.test_critical_threshold, |val| val),
-
-            concurrency_mode: def
-                .concurrency_mode
-                .map_or_else(|| parent_desc.test_concurrency_mode.clone(), |val| val),
+            concurrency_mode: concurrency_mode.map_or_else(|| parent_desc.test_concurrency_mode.clone(), |val| val),
         }
     }
 }
@@ -74,69 +64,42 @@ impl TestAttributes {
 pub struct Test<TParameters> {
     pub attributes: TestAttributes,
     pub description: ComponentDescription,
-    pub test_fn: TestFn<TParameters>,
+    pub test_fn: Delegate<TParameters>,
 }
+
 
 impl<TParameters: TestParameters> Test<TParameters> {
     pub fn new(
         parent_description: &ComponentDescription,
         parent_attributes: &SuiteAttributes,
-        decorations: TestDecoration<TParameters>,
         parameters: &TParameters,
+        name: &'static str,
+        path: &'static str,
+        src: SourceLocation,
+        ignore: Option<bool>,
+        allow_fail: Option<bool>,
+        warn_threshold: Option<Duration>,
+        critical_threshold: Option<Duration>,
+        concurrency_mode: Option<ConcurrencyMode>,
+        test_fn: Delegate<TParameters>
     ) -> Self {
         Self {
             description: ComponentDescription {
-                identity: ComponentIdentity::new(decorations.desc.path, decorations.desc.path),
+                identity: ComponentIdentity::new(name, path),
                 parent_identity: parent_description.identity.clone(),
                 component_type: ComponentType::Test,
-                location: decorations.desc.location.clone(),
+                location: src,
             },
-            attributes: TestAttributes::new(parent_attributes, decorations.desc, parameters),
-            test_fn: TestFn {
-                test_fn: decorations.test_fn,
-            },
-        }
-    }
-}
-
-#[cfg(feature = "async")]
-pub type TestFn<TParameters> = test_async_impl::TestFnAsync<TParameters>;
-
-#[cfg(feature = "async")]
-mod test_async_impl {
-    use super::*;
-
-    use std::future::Future;
-    use std::pin::Pin;
-
-    #[derive(Clone, Debug, PartialEq, Eq, Hash)]
-    pub struct TestFnAsync<TParameters> {
-        pub test_fn:
-            fn(ExecutionContext<TParameters>) -> Pin<Box<dyn Future<Output = ()> + Send + 'static>>,
-    }
-
-    impl<TParameters> TestFnAsync<TParameters> {
-        pub async fn run(&self, params: ExecutionContext<TParameters>) {
-            (self.test_fn)(params).await
-        }
-    }
-}
-
-#[cfg(feature = "sync")]
-pub type TestFn<TParameters> = test_sync_impl::TestFnSync<TParameters>;
-
-#[cfg(feature = "sync")]
-mod test_sync_impl {
-
-    use super::*;
-    #[derive(Clone, Debug, PartialEq, Eq, Hash)]
-    pub struct TestFnSync<TParameters> {
-        pub test_fn: fn(ExecutionContext<TParameters>),
-    }
-
-    impl<TParameters> TestFnSync<TParameters> {
-        pub fn run(&self, params: ExecutionContext<TParameters>) {
-            (self.test_fn)(params)
+            attributes: TestAttributes::new(
+                parent_attributes,
+                parameters,
+                ignore,
+                allow_fail,
+                warn_threshold,
+                critical_threshold,
+                concurrency_mode
+            ),
+            test_fn: test_fn
         }
     }
 }

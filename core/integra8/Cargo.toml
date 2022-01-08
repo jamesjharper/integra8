@@ -23,18 +23,8 @@ futures = "0.3.17"
 
 
 [features]
-sync = [
-    "integra8_decorations/sync",
-    "integra8_components/sync",
-    "integra8_results/sync",
-    "integra8_formatters/sync",
-]
-async = [
-    "integra8_decorations/async",
-    "integra8_components/async",
-    "integra8_results/async",
-    "integra8_formatters/async",
-]
+sync = []
+async = []
 
 async-std-runtime = [
     "async", 

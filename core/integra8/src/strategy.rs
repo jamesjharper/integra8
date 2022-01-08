@@ -1,8 +1,9 @@
 use std::panic::UnwindSafe;
 
-use crate::components::RootSuite;
+
 use crate::context::parameters::TestParameters;
 use crate::decorations::ComponentDecoration;
+use crate::decorations::ComponentGroup;
 use crate::formatters::{FormatterParameters, OutputFormatter};
 use crate::runner::{DefaultScheduleRunner, ScheduleRunner};
 use crate::scheduling::{IntoTaskStateMachine, ScheduledComponent, TaskStateMachineNode};
@@ -146,7 +147,8 @@ impl<Parameters: TestParameters> ResolveComponentScheduleStrategy<Parameters>
         parameters: &Parameters,
         components: Vec<ComponentDecoration<Parameters>>,
     ) -> TaskStateMachineNode<ScheduledComponent<Parameters>> {
-        RootSuite::from_decorated_components(components, parameters).into_task_state_machine()
+
+        ComponentGroup::into_components(components, parameters).into_task_state_machine()
     }
 }
 

@@ -1,8 +1,9 @@
 use std::mem;
-use syn::{parse_quote, ItemFn};
+use syn::{parse_quote, ItemFn, Expr};
 
 pub struct ExecFn {
     exec_fn: Option<ItemFn>,
+    delegate_expr: Option<Expr>,
 }
 
 impl ExecFn {
@@ -30,52 +31,45 @@ impl ExecFn {
             false => HasParameters,
         };
 
-        let test_name_ident = &exec_fn.sig.ident;
-        let fn_item = match (asyncness, parameters) {
+        let fn_name_ident = &exec_fn.sig.ident;
+        let delegate_expr = match (asyncness, parameters) {
             (Async, HasParameters) => {
                 parse_quote!(
-                    pub fn #test_name_ident (p: crate::ExecutionContext) -> std::pin::Pin<Box<dyn std::future::Future<Output = ()> + Send>> {
-                        #exec_fn
-                        Box::pin(#test_name_ident(p))
-                    }
+                    // TODO: observe injected paths
+                    integra8::context::delegates::Delegate::async_with_context(super:: #fn_name_ident)
                 )
             }
             (Async, NoParameters) => {
                 parse_quote!(
-                    pub fn #test_name_ident (_: crate::ExecutionContext) -> std::pin::Pin<Box<dyn std::future::Future<Output = ()> + Send>> {
-                        #exec_fn
-                        Box::pin(#test_name_ident())
-                    }
+                    // TODO: observe injected paths
+                    integra8::context::delegates::Delegate::async_without_context(super:: #fn_name_ident)
                 )
             }
             (Synchronous, HasParameters) => {
                 parse_quote!(
-                    pub fn #test_name_ident (p: crate::ExecutionContext) -> std::pin::Pin<Box<dyn std::future::Future<Output = ()> + Send>> {
-                        #exec_fn
-                        Box::pin(async {
-                            #test_name_ident(p)
-                        })
-                    }
+                    // TODO: observe injected paths
+                    integra8::context::delegates::Delegate::sync_with_context(super:: #fn_name_ident)
                 )
             }
             (Synchronous, NoParameters) => {
                 parse_quote!(
-                    pub fn #test_name_ident (_: crate::ExecutionContext) -> std::pin::Pin<Box<dyn std::future::Future<Output = ()> + Send>> {
-                        #exec_fn
-                        Box::pin(async {
-                            #test_name_ident()
-                        })
-                    }
+                    // TODO: observe injected paths
+                    integra8::context::delegates::Delegate::sync_without_context(super:: #fn_name_ident)
                 )
             }
         };
 
         Self {
-            exec_fn: Some(fn_item),
+            exec_fn: Some(exec_fn),
+            delegate_expr: Some(delegate_expr)
         }
     }
 
     pub fn take_exec_fn(&mut self) -> ItemFn {
         mem::take(&mut self.exec_fn).unwrap()
+    }
+
+    pub fn take_delegate_expr(&mut self) -> Expr {
+        mem::take(&mut self.delegate_expr).unwrap()
     }
 }

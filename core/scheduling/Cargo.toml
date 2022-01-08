@@ -11,21 +11,10 @@ integra8_context = {path = "../context"}
 integra8_async_runtime = {path = "../async_runtime"}
 
 [features]
-# non async scheduling not yet implemented
-# TODO: Refactor out 
-sync = [
-    "integra8_components/sync",
-]
-async = [
-    "integra8_components/async"
-]
-
 async-std-runtime = [
-    "async",
     "integra8_async_runtime/async-std-runtime"
 ]
 tokio-runtime = [
-    "async",
     "integra8_async_runtime/tokio-runtime"
 ]
 
