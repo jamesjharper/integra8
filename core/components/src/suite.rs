@@ -2,7 +2,7 @@ use std::time::Duration;
 
 use integra8_context::parameters::TestParameters;
 
-use crate::{BookEnds, ComponentDescription, ComponentIdentity, ConcurrencyMode, Test};
+use crate::{BookEnds, ComponentDescription, ComponentIdentity, ConcurrencyMode, ComponentType, ComponentLocation, Test};
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct SuiteAttributes {
@@ -128,71 +128,46 @@ pub struct Suite<TParameters> {
 }
 
 impl<TParameters: TestParameters> Suite<TParameters> {
-    /*pub fn from_decorated_components<ComponentsIterator>(
-        components: ComponentsIterator,
-        parameters: &TParameters,
-    ) -> Self
-    where
-        ComponentsIterator: IntoIterator<Item = ComponentDecoration<TParameters>>,
-    {
-        Self::from_component_groups(
-            None,
-            ComponentHierarchy::from_decorated_components(components).into_component_groups(),
-            parameters,
-        )
-    }
 
-    fn from_component_groups(
+    pub fn new(
         parent_desc: Option<&SuiteAttributes>,
-        group: ComponentGroup<TParameters>,
         parameters: &TParameters,
-    ) -> Self {
-        let parent_suite_attributes = group
-            .suite
-            .unwrap_or_else(|| SuiteAttributesDecoration::root(parameters.root_namespace()));
-
-        let mut suite = Self::new(parent_desc, parent_suite_attributes, parameters);
-
-        suite.tests = group
-            .tests
-            .into_iter()
-            .map(|x| Test::new(&suite.description, &suite.attributes, x, parameters))
-            .collect();
-
-        suite.bookends = group
-            .bookends
-            .into_iter()
-            .filter(|x| x.has_any())
-            .map(|x| x::new(&suite.description, &suite.attributes, x))
-            .collect();
-
-        suite.suites = group
-            .sub_groups
-            .into_iter()
-            .map(|x| Self::from_component_groups(Some(&suite.attributes), x, parameters))
-            .collect();
-
-        suite
-    }
-
-    fn new(
-        parent_desc: Option<&SuiteAttributes>,
-        decorations: SuiteAttributesDecoration,
-        parameters: &TParameters,
-    ) -> Self {
-        Self {
+        name: Option<&'static str>,
+        description: Option<&'static str>,
+        path: &'static str,
+        ignore: Option<bool>,
+        src: ComponentLocation,
+        allow_suite_fail: Option<bool>,
+        test_warn_threshold: Option<Duration>,
+        test_critical_threshold: Option<Duration>,
+        suite_concurrency_mode: Option<ConcurrencyMode>,
+        test_concurrency_mode: Option<ConcurrencyMode>,
+    ) -> Suite<TParameters> {
+        Suite {
             description: ComponentDescription {
-                identity: ComponentIdentity::new(decorations.name, decorations.path),
+                identity: ComponentIdentity::new(name, path),
+                description: description,
                 parent_identity: parent_desc
                     .map(|p| p.identity.clone())
-                    .unwrap_or_else(|| ComponentIdentity::new(decorations.name, decorations.path)),
+                    .unwrap_or_else(|| ComponentIdentity::new(name, path)),
                 component_type: ComponentType::Suite,
-                location: decorations.location.clone(),
+                location: src,
             },
-            attributes: SuiteAttributes::new(parent_desc, decorations, parameters),
+            attributes: SuiteAttributes::new(
+                parent_desc,
+                parameters,
+                name,
+                path,
+                ignore,
+                allow_suite_fail,
+                test_warn_threshold,
+                test_critical_threshold,
+                suite_concurrency_mode,
+                test_concurrency_mode,
+            ),
             tests: Vec::new(),
             bookends: Vec::new(),
             suites: Vec::new(),
         }
-    }*/
+    }
 }
