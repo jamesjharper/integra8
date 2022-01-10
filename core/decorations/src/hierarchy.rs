@@ -2,7 +2,7 @@ use indexmap::IndexMap;
 
 use crate::{
     BookEndDecoration, BookEndDecorationPair, ComponentDecoration, SuiteAttributesDecoration,
-    TestDecoration
+    TestDecoration, ComponentGeneratorId
 };
 
 use integra8_components::{Suite, SuiteAttributes, ComponentDescription};
@@ -26,11 +26,12 @@ impl<TParameters: TestParameters> ComponentGroup<TParameters> {
     {
         ComponentHierarchy::from_decorated_components(components)
             .into_component_groups()
-            .into_component(None, parameters)
+            .into_component(ComponentGeneratorId::new(), None, parameters)
     }
 
     fn into_component(
         self,
+        id_gen: &mut ComponentGeneratorId,
         parent: Option<(&SuiteAttributes, &ComponentDescription)>,
         parameters: &TParameters,
     ) -> Suite<TParameters> {
@@ -43,20 +44,20 @@ impl<TParameters: TestParameters> ComponentGroup<TParameters> {
         suite.tests = self
             .tests
             .into_iter()
-            .map(|x| x.into_component(&suite.description, &suite.attributes, parameters))
+            .map(|x| x.into_component(id_gen, &suite.description, &suite.attributes, parameters))
             .collect();
 
         suite.bookends = self
             .bookends
             .into_iter()
             .filter(|x| x.has_any())
-            .map(|x| x.into_components(&suite.description, &suite.attributes))
+            .map(|x| x.into_components(id_gen, &suite.description, &suite.attributes))
             .collect();
 
         suite.suites = self
             .sub_groups
             .into_iter()
-            .map(|x| x.into_component(Some((&suite.attributes, &suite.description)), parameters))
+            .map(|x| x.into_component(id_gen, Some((&suite.attributes, &suite.description)), parameters))
             .collect();
 
         suite

@@ -21,6 +21,7 @@ pub struct ComponentResultsTreeNode {
     pub children: Vec<ComponentResultsTreeNode>,
 }
 
+
 impl ComponentResultsTreeNode {
     pub fn from_report(report: &ComponentRunReport) -> Self {
         Self {

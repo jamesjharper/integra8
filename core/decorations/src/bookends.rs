@@ -1,9 +1,8 @@
 use std::time::Duration;
 
 use integra8_context::delegates::Delegate;
-
 use integra8_components::{
-    BookEnd, BookEndAttributes, BookEnds, ComponentDescription, ComponentLocation, SuiteAttributes,
+    BookEnd, BookEndAttributes, BookEnds, ComponentDescription, ComponentLocation, SuiteAttributes, ComponentGeneratorId
 };
 use integra8_context::parameters::TestParameters;
 
@@ -88,6 +87,7 @@ pub struct BookEndDecoration<TParameters> {
 impl<TParameters: TestParameters> BookEndDecoration<TParameters> {
     pub fn into_setup_component(
         self,
+        id_gen: &mut ComponentGeneratorId,
         parent_suite_description: &ComponentDescription,
         parent_suite_attributes: &SuiteAttributes,
     ) -> BookEnd<TParameters> {
@@ -95,6 +95,7 @@ impl<TParameters: TestParameters> BookEndDecoration<TParameters> {
             parent_suite_description,
             parent_suite_attributes,
             self.desc.name,
+            id_gen,
             self.desc.description,
             self.desc.path,
             self.desc.location,
@@ -106,6 +107,7 @@ impl<TParameters: TestParameters> BookEndDecoration<TParameters> {
 
     pub fn into_tear_down_component(
         self,
+        id_gen: &mut ComponentGeneratorId,
         parent_suite_description: &ComponentDescription,
         parent_suite_attributes: &SuiteAttributes,
     ) -> BookEnd<TParameters> {
@@ -113,6 +115,7 @@ impl<TParameters: TestParameters> BookEndDecoration<TParameters> {
             parent_suite_description,
             parent_suite_attributes,
             self.desc.name,
+            id_gen,
             self.desc.description,
             self.desc.path,
             self.desc.location,

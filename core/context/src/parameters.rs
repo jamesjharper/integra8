@@ -19,22 +19,6 @@ pub trait TestParameters {
         std::time::Duration::from_secs(self.warn_threshold_seconds())
     }
 
-    /*fn suite_concurrency_mode(&self) -> ConcurrencyMode {
-        if self.max_concurrency() == 1 || !self.run_suites_in_parallel() {
-            ConcurrencyMode::Serial
-        } else {
-            ConcurrencyMode::Parallel
-        }
-    }
-
-    fn test_concurrency_mode(&self) -> ConcurrencyMode {
-        if self.max_concurrency() == 1 || !self.run_tests_in_parallel() {
-            ConcurrencyMode::Serial
-        } else {
-            ConcurrencyMode::Parallel
-        }
-    }*/
-
     // User defined
 
     fn run_suites_in_parallel(&self) -> bool {

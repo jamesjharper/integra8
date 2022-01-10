@@ -4,7 +4,7 @@ use integra8_context::delegates::Delegate;
 use integra8_context::parameters::TestParameters;
 
 use integra8_components::{
-    ComponentDescription, ComponentLocation, ConcurrencyMode, SuiteAttributes, Test,
+    ComponentDescription, ComponentLocation, ConcurrencyMode, SuiteAttributes, Test, ComponentGeneratorId
 };
 
 #[derive(Debug)]
@@ -50,6 +50,7 @@ pub struct TestDecoration<TParameters> {
 impl<TParameters: TestParameters> TestDecoration<TParameters> {
     pub fn into_component(
         self,
+        id_gen: &mut ComponentGeneratorId,
         parent_description: &ComponentDescription,
         parent_attributes: &SuiteAttributes,
         parameters: &TParameters,
@@ -59,6 +60,7 @@ impl<TParameters: TestParameters> TestDecoration<TParameters> {
             parent_attributes,
             parameters,
             self.desc.name,
+            id_gen,
             self.desc.description,
             self.desc.path,
             self.desc.location,

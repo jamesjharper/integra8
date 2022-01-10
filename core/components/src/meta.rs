@@ -5,7 +5,6 @@ use std::ffi::OsStr;
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct ComponentPath(&'static str);
 
-
 impl ComponentPath {
     pub fn from(path: &'static str) -> Self {
         Self(path)
@@ -33,6 +32,32 @@ impl AsRef<str> for ComponentPath  {
         self.0.as_ref()
     }
 }
+
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+pub struct ComponentId(usize);
+
+impl ComponentId {
+    pub fn new() -> Self {
+        Self(0)
+    }
+}
+
+#[derive(Clone)]
+pub struct ComponentGeneratorId(usize);
+
+impl ComponentGeneratorId {
+    pub fn new() -> Self {
+        Self(0)
+    }
+
+    pub fn next(&mut self) -> ComponentId {
+        let next = ComponentId(self.0);
+        self.0 += 1;
+        next
+    }
+}
+
+
 
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
@@ -63,7 +88,11 @@ pub struct ComponentDescription {
     /// The identity of the bookend. Used for uniquely identify the bookend and displaying the test name to the end user.
     pub path: ComponentPath,
 
+    pub id: ComponentId,
+
     pub parent_path: ComponentPath,
+
+    pub parent_id: ComponentId,
 
     pub description: Option<&'static str>,
 
@@ -78,15 +107,19 @@ impl ComponentDescription {
 
     pub fn new(
         path: ComponentPath,
-        name: Option<&'static str>,    
+        name: Option<&'static str>,
+        id: ComponentId,
         parent_path: ComponentPath,    
+        parent_id: ComponentId,
         description: Option<&'static str>,  
         component_type: ComponentType,
         location: Option<ComponentLocation>,
     ) -> Self {
         Self {
             path,
+            id,
             parent_path,   
+            parent_id,
             name,
             description,
             component_type,

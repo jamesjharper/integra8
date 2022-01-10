@@ -2,7 +2,7 @@ use std::time::Duration;
 
 use integra8_context::delegates::Delegate;
 
-use crate::{ComponentDescription, ComponentLocation, ComponentType, SuiteAttributes, ComponentPath};
+use crate::{ComponentDescription, ComponentLocation, ComponentType, SuiteAttributes, ComponentPath, ComponentGeneratorId};
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct BookEnds<TParameters> {
@@ -44,18 +44,21 @@ impl<TParameters> BookEnd<TParameters> {
         parent_suite_description: &ComponentDescription,
         parent_suite_attributes: &SuiteAttributes,
         name: Option<&'static str>,
+        id_gen: &mut ComponentGeneratorId,
         description: Option<&'static str>,
         path: &'static str,
         src: Option<ComponentLocation>,
         ignore: Option<bool>,
         critical_threshold: Option<Duration>,
         setup_fn: Delegate<TParameters>,
-    ) -> Self {
+    ) -> Self {       
         Self {
             description: ComponentDescription::new(
                 ComponentPath::from(path),
                 name,    
+                id_gen.next(),
                 parent_suite_description.path.clone(),   
+                parent_suite_description.parent_id.clone(),
                 description,  
                 ComponentType::Setup,
                 src,
@@ -69,6 +72,7 @@ impl<TParameters> BookEnd<TParameters> {
         parent_suite_description: &ComponentDescription,
         parent_suite_attributes: &SuiteAttributes,
         name: Option<&'static str>,
+        id_gen: &mut ComponentGeneratorId,
         description: Option<&'static str>,
         path: &'static str,
         src: Option<ComponentLocation>,
@@ -77,10 +81,14 @@ impl<TParameters> BookEnd<TParameters> {
         setup_fn: Delegate<TParameters>,
     ) -> Self {
         Self {
+
+            
             description: ComponentDescription::new(
                 ComponentPath::from(path),
                 name,    
+                id_gen.next(),
                 parent_suite_description.path.clone(),   
+                parent_suite_description.id.clone(), 
                 description,  
                 ComponentType::TearDown,
                 src,

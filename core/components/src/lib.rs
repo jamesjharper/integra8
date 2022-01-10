@@ -11,7 +11,7 @@ mod acceptance_criteria;
 pub use acceptance_criteria::{AcceptanceCriteria, TimingAcceptanceCriteria};
 
 mod meta;
-pub use meta::{ComponentDescription, ComponentLocation, ComponentType, ConcurrencyMode, ComponentPath};
+pub use meta::{ComponentDescription, ComponentLocation, ComponentType, ConcurrencyMode, ComponentPath, ComponentId, ComponentGeneratorId};
 
 //use integra8_decorations::ComponentDecoration;
 

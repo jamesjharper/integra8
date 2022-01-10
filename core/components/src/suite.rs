@@ -3,7 +3,7 @@ use std::time::Duration;
 use integra8_context::parameters::TestParameters;
 
 use crate::{
-    BookEnds, ComponentDescription, ComponentLocation, ComponentType, ConcurrencyMode, Test, ComponentPath
+    BookEnds, ComponentDescription, ComponentLocation, ComponentType, ConcurrencyMode, Test, ComponentPath, ComponentGeneratorId
 };
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
@@ -125,6 +125,7 @@ impl<TParameters: TestParameters> Suite<TParameters> {
         parent: Option<(&SuiteAttributes, &ComponentDescription)>,
         parameters: &TParameters,
         name: Option<&'static str>,
+        id_gen: &mut ComponentGeneratorId,
         description: Option<&'static str>,
         path: &'static str,
         ignore: Option<bool>,
@@ -136,14 +137,21 @@ impl<TParameters: TestParameters> Suite<TParameters> {
         test_concurrency_mode: Option<ConcurrencyMode>,
     ) -> Suite<TParameters> {
 
+        let id = id_gen.next();
+        let (parent_path, parent_id) =
+            parent.map(|p| {
+                (p.1.path.clone(), p.1.id.clone())
+            })
+            // root nodes have themselves as their parent and an id of zero
+            .unwrap_or_else(|| (ComponentPath::from(path), id.clone()));
+
         Suite {
             description: ComponentDescription::new(
                 ComponentPath::from(path),
-                name,    
-                parent
-                    .map(|p| p.1.path.clone())
-                    // root nodes have themselves as their parent
-                    .unwrap_or_else(|| ComponentPath::from(path)),
+                name,   
+                id,
+                parent_path,
+                parent_id,
                 description,  
                 ComponentType::Suite,
                 src,
