@@ -2,7 +2,7 @@
 Integra8 rust integration test framework Rust with a focus on productivity, extensibility, and speed.
 
 
-```
+```rust
 #[macro_use]
 pub extern crate integra8;
 use integra8::{integration_suite, integration_test, setup, teardown};
