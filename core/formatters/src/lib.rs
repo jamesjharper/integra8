@@ -147,7 +147,7 @@ pub enum OutputLocation {
 }
 
 impl OutputLocation {
-    pub fn write_pretty<S: AsRef<str>>(
+    pub fn write_pretty<S: std::fmt::Display>(
         &mut self,
         s: S,
         color: term::color::Color,
@@ -155,7 +155,8 @@ impl OutputLocation {
         match self {
             OutputLocation::Pretty(ref mut term) => {
                 term.fg(color)?;
-                term.write_all(s.as_ref().as_bytes())?;
+                write!(term, "{}", s)?;
+               // term.write_all(s.as_ref().as_bytes())?;
                 term.reset()?;
                 term.flush()?;
             }
@@ -166,9 +167,23 @@ impl OutputLocation {
         Ok(())
     }
 
-    pub fn write_plain<S: AsRef<str>>(&mut self, s: S) -> Result<(), Box<dyn Error>> {
+
+    /*pub fn write_plain<S: AsRef<str>>(&mut self, s: S) -> Result<(), Box<dyn Error>> {
         self.write_all(s.as_ref().as_bytes())?;
         self.flush()?;
+        Ok(())
+    }*/
+
+    pub fn write_plain<S: std::fmt::Display>(&mut self, s: S) -> Result<(), Box<dyn Error>> {
+        match *self {
+            OutputLocation::Pretty(ref mut term) => {
+                write!(term, "{}", s)?;
+            },
+            OutputLocation::Raw(ref mut stdout) => {
+                write!(stdout, "{}", s)?;
+            }
+        }
+        
         Ok(())
     }
 }
@@ -188,3 +203,76 @@ impl Write for OutputLocation {
         }
     }
 }
+
+
+
+
+
+
+/*
+pub struct IndentedTextWriter<W: io::Write> {
+    prefix: String,
+    next_prefix: String,
+    w: W
+}
+
+impl<W: io::Write> IndentedTextWriter<W> {
+    pub fn new(w : W) -> Self {
+        Self {
+            w: w
+            prefix: 
+        }
+    }
+
+    pub fn writeln<S: AsRef<str>>(
+        &mut self,
+        s: S
+    ) -> Result<(), Box<dyn Error>> {
+        
+    }
+}
+
+
+
+pub struct PrefixSegment<'a> {
+    segments: Vec<&'a str>
+}
+
+*/
+
+/*
+std::collections::VecDeque
+
+pub struct IndentedSegment {
+    deque: Vec<VecDeque>
+}
+
+impl IndentedSegment {
+    pub fn with(s : impl Into<String>) -> Self {
+        Self {
+            seq: deque::from([s.into()])
+        }
+    }
+
+    pub fn and_then(mut self, this : impl Into<String>) -> Self {
+        self.deque.push_back(this.into());
+        self
+    }
+
+    pub take_next(&mut self) -> String {
+        pop_front
+    }
+}
+
+
+
+use std::fmt; // Import `fmt`
+
+// Implement `Display` for `MinMax`.
+impl fmt::Display for MinMax {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        // Use `self.number` to refer to each positional data point.
+        write!(f, "({}, {})", self.0, self.1)
+    }
+}
+*/

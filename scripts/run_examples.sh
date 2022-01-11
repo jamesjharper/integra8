@@ -16,7 +16,7 @@ popd
 echo "Running Examples"
 pushd "${EXAMPLES_ROOT}/target/release"
 
-./simple_test_with_tokio
+./basic_sample_tests
 popd
 
 

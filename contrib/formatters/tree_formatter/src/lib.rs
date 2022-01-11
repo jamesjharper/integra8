@@ -1,4 +1,5 @@
 mod print_tree;
+mod styles;
 
 use std::error::Error;
 use structopt::StructOpt;

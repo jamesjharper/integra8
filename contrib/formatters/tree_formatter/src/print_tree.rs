@@ -7,6 +7,8 @@ use integra8_formatters::models::{DidNotRunReason, FailureReason, PassReason};
 
 use integra8_formatters::models::{ComponentLocation, ComponentType};
 
+use crate::styles::{TreeStyle, NodeStyle};
+
 use std::error::Error;
 
 #[derive(Clone, Debug)]
@@ -43,146 +45,94 @@ impl ComponentResultsTreeNode {
 
     pub fn render_node(
         &self,
-        prefix: &str,
-        next_prefix: &str,
+        style: &NodeStyle,
+        output_formatter: &mut PrefixedOutputWriter<'_>,
         out: &mut OutputLocation,
     ) -> Result<(), Box<dyn Error>> {
-        out.write_plain(prefix)?;
+        //out.write_plain(prefix)?;
 
         //△ ▲
         //▽ ▼
         //■ □ ▧ ▨
-        let type_icon = match self.component_type {
+        let type_icon_style = style.icon_style(&self.component_type);
+        
+        /*match self.component_type {
             ComponentType::Suite => "○", //"☰", //"○",
             ComponentType::Test => "▧",
             ComponentType::Setup => "▲",
             ComponentType::TearDown => "▼",
-        };
+        };*/
+
+       // output_formatter.write(out, &format!("{} - ", type_icon))?;
+
+        //output_formatter.write_newline(out)?;
+        //Ok(())
         //out.write_plain(format!("{} - ", type_icon))?;
         match self.result {
             ComponentResult::Pass(PassReason::Accepted) => {
                 if self.timing.is_warn() {
-                    out.write_pretty(type_icon, term::color::YELLOW)?;
-                    out.write_plain(format!(
-                        " - {} - (time limit warning) - {:?} ",
-                        self.display_name,
-                        self.timing.duration()
-                    ))?;
+                    output_formatter.writeln(out, &format!("{} - {} (time limit warning) - {:?} ", type_icon_style.warning, self.display_name, self.timing.duration()))?;
                 } else {
-                    out.write_pretty(type_icon, term::color::GREEN)?;
-                    out.write_plain(format!(
-                        " - {} - {:?} ",
-                        self.display_name,
-                        self.timing.duration()
-                    ))?;
+
+                    output_formatter.writeln(out, &format!("{} - {}", type_icon_style.pass, self.display_name, ))?;
                 }
             }
             ComponentResult::Pass(PassReason::FailureAllowed) => {
-                out.write_pretty(type_icon, term::color::YELLOW)?;
-                out.write_plain(format!(" - {} - (allowed)", self.display_name))?;
+                output_formatter.writeln(out, &format!("{} - {} (allowed)", type_icon_style.warning, self.display_name))?;           
             }
             ComponentResult::Fail(FailureReason::Rejected) => {
-                out.write_pretty(type_icon, term::color::RED)?;
-                out.write_plain(" - ")?;
-                out.write_pretty(&self.display_name, term::color::RED)?;
-                out.write_plain(format!("  - {:?} ", self.timing.duration()))?;
+                output_formatter.writeln(out, &format!("{} - {}", type_icon_style.failed, self.display_name))?;   
 
-                let _type_icon = match self.component_type {
+                match self.component_type {
                     ComponentType::Suite => {
                         // dont log out anything else
                     }
                     _ => {
-                        out.write_plain("\n")?;
 
-                        out.write_plain(next_prefix)?;
-                       
                         if let Some(src) = self.src_location.as_ref() {
-                            out.write_plain(format!(
-                                "    - location: {}",
+                            output_formatter.writeln(out, &format!(
+                                "      location: {}",
                                 src.hotlink_text()
                             ))?;
                         }
                        
-                        out.write_plain("\n")?;
 
                         if let Some(std_out) = self.stdio.stdout_utf8() {
-                            out.write_plain(next_prefix)?;
-                            out.write_plain("    - stdout:")?;
 
-                            out.write_plain("\n")?;
-                            out.write_plain(next_prefix)?;
-                            out.write_plain("      ```")?;
-
+                            let mut stdout_points = output_formatter.append_prefix("      ", "      ");
+                            stdout_points.writeln(out, &"stdout:".to_string())?;
+                            stdout_points.writeln(out, &"```".to_string())?;
                             for line in std_out.unwrap().lines() {
-                                out.write_plain("\n")?;
-                                out.write_plain(next_prefix)?;
-                                out.write_plain(format!("        {}", line))?;
+                                stdout_points.writeln(out, &line)?;
                             }
-                            out.write_plain("\n")?;
-                            out.write_plain(next_prefix)?;
-                            out.write_plain("      ```")?;
-                            out.write_plain("\n")?;
+                            stdout_points.writeln(out, &"```".to_string())?;
                         }
 
-                        if let Some(std_out) = self.stdio.stderr_utf8() {
-                            out.write_plain(next_prefix)?;
-                            out.write_plain("    - stderr:")?;
+                        if let Some(std_err) = self.stdio.stderr_utf8() {
 
-                            out.write_plain("\n")?;
-                            out.write_plain(next_prefix)?;
-                            out.write_plain("      ```")?;
-                            for line in std_out.unwrap().lines() {
-                                out.write_plain("\n")?;
-                                out.write_plain(next_prefix)?;
-                                out.write_plain(format!("        {}", line))?;
+
+                            let mut stderr_points = output_formatter.append_prefix("      ", "      ");
+                            stderr_points.writeln(out, &"stderr:".to_string())?;
+                            stderr_points.writeln(out, &"```".to_string())?;
+                            for line in std_err.unwrap().lines() {
+                                stderr_points.writeln(out, &line)?;
                             }
+                            stderr_points.writeln(out, &"```".to_string())?;
 
-                            out.write_plain("\n")?;
-                            out.write_plain(next_prefix)?;
-                            out.write_plain("      ```")?;
                         }
                     }
                 };
             }
             ComponentResult::Fail(FailureReason::Overtime) => {
-                out.write_pretty(type_icon, term::color::RED)?;
-                out.write_plain(format!(
-                    " - {} - (time limit exceeded) - {:?} ",
-                    self.display_name,
-                    self.timing.duration()
-                ))?;
+                output_formatter.writeln(out, &format!("{} - {} - (time limit exceeded) - {:?}", type_icon_style.overtime, self.display_name, self.timing.duration()))?;   
             }
             ComponentResult::Fail(FailureReason::ChildFailure) => {
-                out.write_pretty(type_icon, term::color::RED)?;
-                out.write_plain(format!(
-                    " - {} - {:?} ",
-                    self.display_name,
-                    self.timing.duration()
-                ))?;
+                output_formatter.writeln(out, &format!("{} - {}", type_icon_style.failed, self.display_name))?;   
             }
-            ComponentResult::DidNotRun(DidNotRunReason::Undetermined) => {
-                out.write_pretty(type_icon, term::color::BRIGHT_BLACK)?;
-                out.write_plain(" - ")?;
-                out.write_pretty(&self.display_name, term::color::BRIGHT_BLACK)?;
-            }
-            ComponentResult::DidNotRun(DidNotRunReason::Filtered) => {
-                out.write_pretty(type_icon, term::color::BRIGHT_BLACK)?;
-                out.write_plain(" - ")?;
-                out.write_pretty(&self.display_name, term::color::BRIGHT_BLACK)?;
-            }
-            ComponentResult::DidNotRun(DidNotRunReason::ParentFailure) => {
-                out.write_pretty(type_icon, term::color::BRIGHT_BLACK)?;
-                out.write_plain(" - ")?;
-                out.write_pretty(&self.display_name, term::color::BRIGHT_BLACK)?;
-            }
-            ComponentResult::DidNotRun(DidNotRunReason::Ignored) => {
-                out.write_pretty(type_icon, term::color::BRIGHT_BLACK)?;
-                out.write_plain(" - ")?;
-                out.write_pretty(&self.display_name, term::color::BRIGHT_BLACK)?;
+            ComponentResult::DidNotRun(_) => {
+                output_formatter.writeln(out, &format!("{} - {}", type_icon_style.skipped, self.display_name))?;   
             }
         }
-
-        out.write_plain("\n")?;
         Ok(())
     }
 }
@@ -197,30 +147,147 @@ impl<'a> TreeNodePrinter<'a> {
     }
 
     pub fn print_tree(&mut self, root: &ComponentResultsTreeNode) {
-        self.print_node("", "", root).unwrap();
+        self.print_node(
+            &TreeStyle::standard_colour(),
+            &mut PrefixedOutputWriter::new(), 
+        root).unwrap();
     }
 
     pub fn print_node(
         &mut self,
-        prefix: &str,
-        next_prefix: &str,
+        tree_style: &TreeStyle,
+        output_formatter: &mut PrefixedOutputWriter<'_>,
         node: &ComponentResultsTreeNode,
     ) -> Result<(), Box<dyn Error>> {
-        node.render_node(prefix, next_prefix, &mut self.out)
+        node.render_node(
+            &tree_style.node,
+            output_formatter, 
+            &mut self.out)
             .unwrap();
 
         if let Some((last_child, children)) = node.children.split_last() {
-            let mid_prefix = format!("{}{}", next_prefix.clone(), "├── ");
-            let mid_next_prefix = format!("{}{}", next_prefix.clone(), "│   ");
+        
             for child in children {
-                self.print_node(&mid_prefix, &mid_next_prefix, child)?;
+                let mut mid_node_formatter = output_formatter.append_prefix(&tree_style.branch.child, &tree_style.branch.no_child);
+                self.print_node(tree_style, &mut mid_node_formatter, child)?;
             }
 
-            let last_prefix = format!("{}{}", next_prefix.clone(), "└── ");
-            let last_next_prefix = format!("{}{}", next_prefix.clone(), "    ");
-            self.print_node(&last_prefix, &last_next_prefix, last_child)?;
+            let mut last_node_formatter = output_formatter.append_prefix(&tree_style.branch.last_child, &tree_style.branch.no_branch);
+
+            self.print_node(tree_style, &mut last_node_formatter, last_child)?;
         }
 
         Ok(())
     }
+}
+
+
+
+
+
+
+pub struct PrefixSegment<'a> {
+    segments: Vec<&'a str>
+}
+
+
+impl<'a> PrefixSegment<'a> {
+    pub fn new() -> Self {
+        Self {
+            segments: vec![]
+        }
+    }
+
+    pub fn append(&self, val : &'a str ) -> Self {
+        let mut segments = self.segments.clone();
+        segments.push(val);
+        Self {
+            segments: segments
+        }
+    }
+}
+
+use std::fmt;
+
+impl<'a> fmt::Display for PrefixSegment<'a> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        for seg in &self.segments {
+            write!(f, "{}", seg)?;
+        }
+        Ok(())
+    }
+}
+
+
+use std::mem;
+use std::io::Write;
+
+pub struct PrefixedOutputWriter<'a> {
+    new_line: bool,
+    current_prefix: PrefixSegment<'a>,
+    next_prefix: Option<PrefixSegment<'a>>,
+}
+
+impl<'a> PrefixedOutputWriter<'a> {
+
+    pub fn new() -> Self {
+        Self {
+            current_prefix: PrefixSegment::new(),
+            next_prefix: None,
+            new_line: true
+        }
+    }
+
+    pub fn append_prefix(&self, current : &'a str, next : &'a str,) -> Self {
+        Self {
+            new_line: true,
+            current_prefix: self.next_prefix
+                .as_ref()
+                .map(|n| n.append(current))
+                .unwrap_or_else(|| self.current_prefix.append(current)),
+            next_prefix: self.next_prefix
+                .as_ref()
+                .map(|n| Some(n.append(next)))
+                .unwrap_or_else(|| Some(self.current_prefix.append(next))),
+
+        }
+    }
+
+    pub fn write<W: Write, D: fmt::Display>(&mut self, writer:  &mut W, display: &D) -> Result<(), Box<dyn Error>>{
+        if self.new_line {
+            self.new_line = false;
+            write!(writer, "{}{}",  self.current_prefix, display)?;
+            Ok(())
+        } else {
+            write!(writer, "{}", display)?;
+            Ok(())
+        }
+    } 
+
+
+    pub fn writeln<W: Write, D: fmt::Display>(&mut self, writer:  &mut W, display: &D) -> Result<(), Box<dyn Error>>{
+        if self.new_line {
+            
+            writeln!(writer, "{}{}",  self.current_prefix, display)?;
+        } else {
+            writeln!(writer, "{}", display)?;
+        }
+
+        self.new_line = true;
+        // Move to the next line if we have one
+        if let Some(next) = mem::take(&mut self.next_prefix) {
+           self.current_prefix = next;
+        }
+        Ok(())
+    } 
+
+    pub fn write_newline<W: Write>(&mut self, writer:  &mut W) -> Result<(), Box<dyn Error>>{
+        // Move to the next line if we have one
+        if let Some(next) =  mem::take(&mut self.next_prefix) {
+            self.current_prefix = next;
+        }
+
+        writeln!(writer, "")?;
+        Ok(())
+    } 
 }

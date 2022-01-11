@@ -15,6 +15,7 @@ categories = ["development-tools" ]
 [dependencies]
 structopt = "0.3"
 term = "0.5"
+ansi_term = "0.12.1"
 
 [dependencies.integra8_formatters]
 version = "0.0.1-alpha"
