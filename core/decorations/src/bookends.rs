@@ -1,10 +1,8 @@
 use std::time::Duration;
 
-use integra8_context::delegates::Delegate;
 use integra8_components::{
-    BookEnd, BookEndAttributes, BookEnds, ComponentDescription, ComponentLocation, SuiteAttributes, ComponentGeneratorId
+    TestParameters, Delegate, BookEnd, BookEndAttributes, BookEnds, ComponentDescription, ComponentLocation, SuiteAttributes, ComponentGeneratorId
 };
-use integra8_context::parameters::TestParameters;
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct BookEndDecorationPair<TParameters> {

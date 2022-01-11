@@ -1,6 +1,6 @@
 use std::panic::UnwindSafe;
 
-use integra8_context::parameters::TestParameters;
+use integra8_components::TestParameters;
 use integra8_results::report::ComponentReportBuilder;
 
 use crate::notify::ComponentProgressNotify;

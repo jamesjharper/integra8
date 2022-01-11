@@ -3,7 +3,7 @@ name = "integra8_scheduling"
 version = "0.0.1-alpha"
 edition = "2018"
 description = """
-Test scheduling for integra8 test framework
+Component scheduling for integra8 test framework.
 """
 repository = "https://github.com/jamesjharper/integra8"
 readme = "../../README.md"
@@ -14,11 +14,6 @@ categories = ["development-tools" ]
 
 [dependencies]
 futures = "0.3.17"
-
-
-[dependencies.integra8_context]
-version = "0.0.1-alpha"
-path = "../context"
 
 [dependencies.integra8_components]
 version = "0.0.1-alpha"

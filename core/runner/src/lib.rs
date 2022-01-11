@@ -12,8 +12,7 @@ pub use fixture::ComponentFixture;
 use std::panic::UnwindSafe;
 use std::sync::Arc;
 
-use integra8_context::parameters::TestParameters;
-use integra8_context::ExecutionStrategy;
+use integra8_components::{TestParameters, ExecutionStrategy};
 use integra8_scheduling::iter::TaskStreamMap;
 use integra8_scheduling::state_machine::TaskStateMachineNode;
 use integra8_scheduling::{ScheduledComponent, TaskScheduler};

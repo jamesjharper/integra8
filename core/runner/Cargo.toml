@@ -3,7 +3,7 @@ name = "integra8_runner"
 version = "0.0.1-alpha"
 edition = "2018"
 description = """
-Test runner for integra8 test framework
+Test runner for the Integra8 test framework.
 """
 repository = "https://github.com/jamesjharper/integra8"
 readme = "../../README.md"
@@ -16,10 +16,6 @@ categories = ["development-tools" ]
 [dependencies]
 async-process = "1.2.0"
 futures = "0.3.17"
-
-[dependencies.integra8_context]
-version = "0.0.1-alpha"
-path = "../context"
 
 [dependencies.integra8_components]
 version = "0.0.1-alpha"

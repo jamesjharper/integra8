@@ -1,6 +1,16 @@
+
+use std::sync::Arc;
 use std::time::Duration;
 
-use crate::ExecutionStrategy;
+pub struct ExecutionContext<TParameters> {
+    pub parameters: Arc<TParameters>,
+}
+
+#[derive(Clone)]
+pub enum ExecutionStrategy {
+    ProcessInternal,
+    ProcessExternal,
+}
 
 pub trait TestParameters {
     // Parameter Projections
@@ -12,11 +22,11 @@ pub trait TestParameters {
     }
 
     fn critical_threshold_duration(&self) -> Duration {
-        std::time::Duration::from_secs(self.critical_threshold_seconds())
+        Duration::from_secs(self.critical_threshold_seconds())
     }
 
     fn warn_threshold_duration(&self) -> Duration {
-        std::time::Duration::from_secs(self.warn_threshold_seconds())
+        Duration::from_secs(self.warn_threshold_seconds())
     }
 
     // User defined

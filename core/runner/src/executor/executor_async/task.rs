@@ -9,7 +9,7 @@ use futures::FutureExt;
 use super::Executor;
 
 use crate::notify::ComponentProgressNotify;
-use integra8_context::parameters::TestParameters;
+use integra8_components::TestParameters;
 use crate::ComponentFixture;
 
 use integra8_results::artifacts::ComponentRunArtifacts;

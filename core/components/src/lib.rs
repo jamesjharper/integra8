@@ -1,4 +1,9 @@
 
+pub mod context;
+pub use context::{ExecutionContext, ExecutionStrategy, TestParameters};
+
+pub mod delegates;
+pub use delegates::Delegate;
 
 pub mod test;
 pub use test::{Test, TestAttributes};

@@ -1,7 +1,8 @@
-use crate::ExecutionContext;
 use futures::executor::block_on;
 use std::future::Future;
 use std::pin::Pin;
+
+use crate::ExecutionContext;
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub enum Delegate<TParameters> {

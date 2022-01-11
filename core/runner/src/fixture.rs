@@ -1,9 +1,5 @@
 
-use integra8_components::{AcceptanceCriteria, BookEnd, SuiteAttributes, Test, ComponentDescription, ComponentPath};
-use integra8_context::parameters::TestParameters;
-use integra8_context::ExecutionStrategy;
-
-use integra8_context::ExecutionContext;
+use integra8_components::{TestParameters, ExecutionStrategy, ExecutionContext, AcceptanceCriteria, BookEnd, SuiteAttributes, Test, ComponentDescription, ComponentPath};
 
 use std::sync::Arc;
 

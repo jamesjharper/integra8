@@ -1,0 +1,13 @@
+[package]
+name = "simple_test_with_tokio"
+version = "1.0.0"
+edition = "2018"
+
+[dependencies]
+integra8 = {path = "../../../core/integra8", features = ["tokio-runtime"] }
+
+linkme = "0.2"
+structopt = { version = "0.3", default-features = false }
+
+tokio = { version = "1.10.0", features = ["full"] }
+reqwest = { version = "0.11", features = ["json"] }

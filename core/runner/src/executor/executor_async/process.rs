@@ -14,7 +14,7 @@ use integra8_results::artifacts::stdio::TestResultStdio;
 
 use crate::notify::ComponentProgressNotify;
 
-use integra8_context::parameters::TestParameters;
+use integra8_components::TestParameters;
 use crate::ComponentFixture;
 
 pub struct AsyncProcessExecutor;

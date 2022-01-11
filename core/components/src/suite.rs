@@ -1,9 +1,7 @@
 use std::time::Duration;
 
-use integra8_context::parameters::TestParameters;
-
 use crate::{
-    BookEnds, ComponentDescription, ComponentLocation, ComponentType, ConcurrencyMode, Test, ComponentPath, ComponentGeneratorId
+    TestParameters, BookEnds, ComponentDescription, ComponentLocation, ComponentType, ConcurrencyMode, Test, ComponentPath, ComponentGeneratorId
 };
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]

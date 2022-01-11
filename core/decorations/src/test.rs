@@ -1,13 +1,8 @@
 use std::time::Duration;
 
-use integra8_context::delegates::Delegate;
-use integra8_context::parameters::TestParameters;
-
 use integra8_components::{
-    ComponentDescription, ComponentLocation, ConcurrencyMode, SuiteAttributes, Test, ComponentGeneratorId
+    TestParameters, Delegate, ComponentDescription, ComponentLocation, ConcurrencyMode, SuiteAttributes, Test, ComponentGeneratorId
 };
-
-
 
 #[derive(Debug)]
 pub struct TestAttributesDecoration {

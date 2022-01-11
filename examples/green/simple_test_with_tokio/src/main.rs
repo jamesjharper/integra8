@@ -1,8 +1,3 @@
-# integra8
-Integra8 rust integration test framework Rust with a focus on productivity, extensibility, and speed.
-
-
-```
 #[macro_use]
 pub extern crate integra8;
 use integra8::{integration_suite, integration_test, setup, teardown};
@@ -45,23 +40,3 @@ mod sample_test_suite {
         println!("Tear downs, always runs");
     }
 }
-
-```
-
-```
-○ - simple_test_with_tokio - 10.700192ms 
-└── ○ - sample_test_suite
-    ├── ▲ - setup
-    ├── ▧ - green_test
-    ├── ▼ - teardown
-    └── ○ - sample_nested_suite
-        └── ▧ - nested_failing_test - (allowed)
-```
-
-
-
-
-# Special Notes:
-Mac Build for 1.56 and above, seem seems to broken dues to open issue with linkme crate, used to auto detect tests
-https://github.com/dtolnay/linkme/issues/41
-https://github.com/CodeChain-io/intertrait/issues/6

@@ -3,7 +3,7 @@ name = "integra8_decorations"
 version = "0.0.1-alpha"
 edition = "2018"
 description = """
-A collection flat shorthand notation objects which can be complied to components. 
+A collection flat shorthand notation objects used by the Integra8 test framework for building test suite hierarchies. 
 """
 repository = "https://github.com/jamesjharper/integra8"
 readme = "../../README.md"
@@ -14,10 +14,6 @@ categories = ["development-tools" ]
 
 [dependencies]
 indexmap = "1.7.0"
-
-[dependencies.integra8_context]
-version = "0.0.1-alpha"
-path = "../context"
 
 [dependencies.integra8_components]
 version = "0.0.1-alpha"

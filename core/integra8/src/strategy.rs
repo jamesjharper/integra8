@@ -1,6 +1,6 @@
 use std::panic::UnwindSafe;
 
-use crate::context::parameters::TestParameters;
+use crate::components::TestParameters;
 use crate::decorations::ComponentDecoration;
 use crate::decorations::ComponentGroup;
 use crate::formatters::{FormatterParameters, OutputFormatter};

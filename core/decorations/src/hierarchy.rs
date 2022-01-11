@@ -5,8 +5,7 @@ use crate::{
     TestDecoration, 
 };
 
-use integra8_components::{Suite, SuiteAttributes, ComponentDescription, ComponentGeneratorId};
-use integra8_context::parameters::TestParameters;
+use integra8_components::{TestParameters, Suite, SuiteAttributes, ComponentDescription, ComponentGeneratorId};
 
 #[derive(Debug)]
 pub struct ComponentGroup<TParameters> {

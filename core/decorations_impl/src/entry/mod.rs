@@ -34,7 +34,6 @@ pub fn main_test(input_tokens: TokenStream) -> TokenStream {
 
         use #integra8_path ::decorations::ComponentDecoration;
 
-
         #[#integra8_path ::linkme::distributed_slice]
         #[linkme(crate = #integra8_path ::linkme)]
         pub static REGISTERED_COMPONENTS : [fn() -> ComponentDecoration<Parameters>] = [..];
@@ -46,7 +45,7 @@ pub fn main_test(input_tokens: TokenStream) -> TokenStream {
             #formatter_settings_type
         >;
 
-        type ExecutionContext = #integra8_path ::context::ExecutionContext<Parameters>;
+        type ExecutionContext = #integra8_path ::components::ExecutionContext<Parameters>;
 
         pub mod command_line {
             use super::*;
@@ -272,7 +271,7 @@ pub fn main_test(input_tokens: TokenStream) -> TokenStream {
             }
 
 
-            impl #integra8_path ::context::parameters::TestParameters
+            impl #integra8_path ::components::TestParameters
             for BaseParameters<
                 #settings_extensions_type,
                 #formatter_settings_type

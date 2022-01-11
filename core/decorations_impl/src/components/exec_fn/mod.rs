@@ -36,25 +36,25 @@ impl ExecFn {
             (Async, HasParameters) => {
                 parse_quote!(
                     // TODO: observe injected paths
-                    integra8::context::delegates::Delegate::async_with_context(super:: #fn_name_ident)
+                    integra8::components::delegates::Delegate::async_with_context(super:: #fn_name_ident)
                 )
             }
             (Async, NoParameters) => {
                 parse_quote!(
                     // TODO: observe injected paths
-                    integra8::context::delegates::Delegate::async_without_context(super:: #fn_name_ident)
+                    integra8::components::delegates::Delegate::async_without_context(super:: #fn_name_ident)
                 )
             }
             (Synchronous, HasParameters) => {
                 parse_quote!(
                     // TODO: observe injected paths
-                    integra8::context::delegates::Delegate::sync_with_context(super:: #fn_name_ident)
+                    integra8::components::delegates::Delegate::sync_with_context(super:: #fn_name_ident)
                 )
             }
             (Synchronous, NoParameters) => {
                 parse_quote!(
                     // TODO: observe injected paths
-                    integra8::context::delegates::Delegate::sync_without_context(super:: #fn_name_ident)
+                    integra8::components::delegates::Delegate::sync_without_context(super:: #fn_name_ident)
                 )
             }
         };

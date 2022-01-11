@@ -1,8 +1,6 @@
 use std::time::Duration;
 
-use integra8_context::delegates::Delegate;
-
-use crate::{ComponentDescription, ComponentLocation, ComponentType, SuiteAttributes, ComponentPath, ComponentGeneratorId};
+use crate::{Delegate, ComponentDescription, ComponentLocation, ComponentType, SuiteAttributes, ComponentPath, ComponentGeneratorId};
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct BookEnds<TParameters> {

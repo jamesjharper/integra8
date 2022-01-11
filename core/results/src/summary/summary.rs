@@ -1,16 +1,17 @@
+use std::collections::hash_map::Values;
+use std::collections::HashMap;
+
 use crate::summary::{
     DidNotRunResultsCountSummary, FailResultsCountSummary, PassResultsCountSummary,
 };
 
 use crate::summary::{FailedResults, NotRunResults, PassedResults};
-
-use integra8_components::{ComponentType, ComponentPath};
-
 use crate::report::ComponentRunReport;
 use crate::ComponentResult;
 
-use std::collections::hash_map::Values;
-use std::collections::HashMap;
+use integra8_components::{ComponentType, ComponentPath};
+
+
 
 /// A `ComponentResultSummary` is a collection of `ComponentRunReport` which can be queried based on
 /// wether they *passed*, *failed* or where *not run*

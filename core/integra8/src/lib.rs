@@ -14,10 +14,6 @@ pub mod scheduling {
     pub use integra8_scheduling::*;
 }
 
-pub mod context {
-    pub use integra8_context::*;
-}
-
 pub mod decorations {
     pub use integra8_decorations::*;
 }
@@ -67,7 +63,7 @@ use strategy::{
 use integra8_results::ComponentResult;
 use integra8_runner::{DefaultScheduleRunner, ScheduleRunner};
 
-use integra8_context::parameters::TestParameters;
+use integra8_components::TestParameters;
 use integra8_formatters::none::NoOutputFormatter;
 use integra8_formatters::FormatterParameters;
 
