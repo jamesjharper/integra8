@@ -1,13 +1,24 @@
 [package]
 name = "integra8_decorations"
-version = "0.1.0"
+version = "0.0.1-alpha"
 edition = "2018"
+description = """
+A collection flat shorthand notation objects which can be complied to components. 
+"""
+repository = "https://github.com/jamesjharper/integra8"
+readme = "../../README.md"
+license = "MIT OR Apache-2.0"
+keywords = ["integra8", "test", "framework", "integration", "bdd"]
+documentation = "https://api.integra8.rs/v0.0.1-alpha/integra8/"
+categories = ["development-tools" ]
 
 [dependencies]
-integra8_context = {path = "../context"}
-integra8_components = {path = "../components"}
 indexmap = "1.7.0"
 
-[features]
-sync = []
-async = []
+[dependencies.integra8_context]
+version = "0.0.1-alpha"
+path = "../context"
+
+[dependencies.integra8_components]
+version = "0.0.1-alpha"
+path = "../components"

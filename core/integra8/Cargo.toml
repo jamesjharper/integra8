@@ -1,19 +1,20 @@
 [package]
 name = "integra8"
-version = "0.1.0"
+version = "0.0.1-alpha"
 edition = "2018"
+description = """
+Integra8 rust integration test framework Rust with a focus on productivity, extensibility, and speed.
+"""
+
+repository = "https://github.com/jamesjharper/integra8"
+readme = "../../README.md"
+license = "MIT OR Apache-2.0"
+keywords = ["integra8", "test", "framework", "integration", "bdd"]
+documentation = "https://api.integra8.rs/v0.0.1-alpha/integra8/"
+categories = ["development-tools" ]
+
 
 [dependencies]
-integra8_context = {path = "../context"}
-integra8_decorations = {path = "../decorations"}
-integra8_decorations_impl = {path = "../decorations_impl"}
-integra8_components = {path = "../components"}
-integra8_scheduling = {path = "../scheduling"}
-integra8_results = { path = "../results"}
-integra8_formatters = {path = "../formatters"}
-integra8_runner = {path = "../runner"}
-integra8_async_runtime = {path = "../async_runtime"}
-
 structopt = "0.3"
 term = "0.5"
 linkme = "0.2"
@@ -21,8 +22,44 @@ linkme = "0.2"
 async-process = "1.2.0"
 futures = "0.3.17"
 
+[dependencies.integra8_context]
+version = "0.0.1-alpha"
+path = "../context"
+
+[dependencies.integra8_decorations]
+version = "0.0.1-alpha"
+path = "../decorations"
+
+[dependencies.integra8_decorations_impl]
+version = "0.0.1-alpha"
+path = "../decorations_impl"
+
+[dependencies.integra8_components]
+version = "0.0.1-alpha"
+path = "../components"
+
+[dependencies.integra8_scheduling]
+version = "0.0.1-alpha"
+path = "../scheduling"
+
+[dependencies.integra8_results]
+version = "0.0.1-alpha"
+path = "../results"
+
+[dependencies.integra8_formatters]
+version = "0.0.1-alpha"
+path = "../formatters"
+
+[dependencies.integra8_runner]
+version = "0.0.1-alpha"
+path = "../runner"
+
+[dependencies.integra8_async_runtime]
+version = "0.0.1-alpha"
+path = "../async_runtime"
 
 [features]
+default = ["tokio-runtime"]
 sync = []
 async = []
 
@@ -30,7 +67,6 @@ async-std-runtime = [
     "async", 
     "integra8_async_runtime/async-std-runtime",
     "integra8_scheduling/async-std-runtime",
-    "integra8_decorations_impl/async-std-runtime",
     "integra8_runner/async-std-runtime",
 ]
 
@@ -38,7 +74,6 @@ tokio-runtime = [
     "async", 
     "integra8_async_runtime/tokio-runtime",
     "integra8_scheduling/tokio-runtime",
-    "integra8_decorations_impl/tokio-runtime",
     "integra8_runner/tokio-runtime",
 ]
 

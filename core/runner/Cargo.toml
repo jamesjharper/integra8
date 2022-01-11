@@ -1,18 +1,42 @@
 [package]
 name = "integra8_runner"
-version = "1.0.0"
+version = "0.0.1-alpha"
 edition = "2018"
+description = """
+Test runner for integra8 test framework
+"""
+repository = "https://github.com/jamesjharper/integra8"
+readme = "../../README.md"
+license = "MIT OR Apache-2.0"
+keywords = ["integra8", "test", "framework", "integration", "bdd"]
+documentation = "https://api.integra8.rs/v0.0.1-alpha/integra8/"
+categories = ["development-tools" ]
+
 
 [dependencies]
-
 async-process = "1.2.0"
 futures = "0.3.17"
 
-integra8_components = {path = "../components"}
-integra8_context = {path = "../context"}
-integra8_scheduling = {path = "../scheduling"}
-integra8_async_runtime = {path = "../async_runtime"}
-integra8_results = {path = "../results"}
+[dependencies.integra8_context]
+version = "0.0.1-alpha"
+path = "../context"
+
+[dependencies.integra8_components]
+version = "0.0.1-alpha"
+path = "../components"
+
+[dependencies.integra8_scheduling]
+version = "0.0.1-alpha"
+path = "../scheduling"
+
+[dependencies.integra8_async_runtime]
+version = "0.0.1-alpha"
+path = "../async_runtime"
+
+[dependencies.integra8_results]
+version = "0.0.1-alpha"
+path = "../results"
+
 
 [features]
 # non async scheduling not yet implemented

@@ -7,6 +7,8 @@ use integra8_components::{
     ComponentDescription, ComponentLocation, ConcurrencyMode, SuiteAttributes, Test, ComponentGeneratorId
 };
 
+
+
 #[derive(Debug)]
 pub struct TestAttributesDecoration {
     // The name of the test (Default: the tests namespace + test method name)

@@ -1,6 +1,4 @@
 [workspace]
 members = [
   "core/integra8",
-  "formatters/tree_formatter",
-  "examples/basic_sample",
 ]
