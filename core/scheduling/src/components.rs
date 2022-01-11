@@ -7,7 +7,7 @@ use integra8_components::{
     TestParameters, BookEnd, ComponentDescription, ConcurrencyMode, Suite, SuiteAttributes, Test,
 };
 
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug)]
 pub enum ScheduledComponent<TParameters> {
     Suite(ComponentDescription, SuiteAttributes),
     Test(Test<TParameters>),

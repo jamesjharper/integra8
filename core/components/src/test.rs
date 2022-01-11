@@ -58,7 +58,7 @@ impl TestAttributes {
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Debug)]
 pub struct Test<TParameters> {
     pub attributes: TestAttributes,
     pub description: ComponentDescription,

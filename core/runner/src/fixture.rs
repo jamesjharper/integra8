@@ -52,7 +52,8 @@ impl<TParameters: TestParameters> ComponentFixture<TParameters> {
                 test, parameters, ..
             } => {
                 let ctx = ExecutionContext {
-                    parameters: parameters.clone(),
+                    parameters: parameters.as_ref(),
+                    description : self.description()
                 };
                 test.test_fn.run_async(ctx).await
             }
@@ -62,7 +63,8 @@ impl<TParameters: TestParameters> ComponentFixture<TParameters> {
                 ..
             } => {
                 let ctx = ExecutionContext {
-                    parameters: parameters.clone(),
+                    parameters: parameters.as_ref(),
+                    description : self.description()
                 };
                 bookend.bookend_fn.run_async(ctx).await
             }

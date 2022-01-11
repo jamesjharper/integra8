@@ -2,13 +2,13 @@ use std::time::Duration;
 
 use crate::{Delegate, ComponentDescription, ComponentLocation, ComponentType, SuiteAttributes, ComponentPath, ComponentGeneratorId};
 
-#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Debug)]
 pub struct BookEnds<TParameters> {
     pub setup: Option<BookEnd<TParameters>>,
     pub tear_down: Option<BookEnd<TParameters>>,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Debug)]
 pub struct BookEndAttributes {
     /// Indicates that bookend should not be run.
     pub ignore: bool,
@@ -30,7 +30,7 @@ impl BookEndAttributes {
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Debug)]
 pub struct BookEnd<TParameters> {
     pub attributes: BookEndAttributes,
     pub description: ComponentDescription,

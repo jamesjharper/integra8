@@ -109,7 +109,7 @@ impl SuiteAttributes {
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Debug)]
 pub struct Suite<TParameters> {
     pub attributes: SuiteAttributes,
     pub description: ComponentDescription,

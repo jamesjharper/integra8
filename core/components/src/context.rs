@@ -1,9 +1,11 @@
-
-use std::sync::Arc;
 use std::time::Duration;
 
-pub struct ExecutionContext<TParameters> {
-    pub parameters: Arc<TParameters>,
+use crate::ComponentDescription;
+
+#[derive(Clone, Debug)]
+pub struct ExecutionContext<'a, TParameters> {
+    pub parameters: &'a TParameters,
+    pub description: &'a ComponentDescription,
 }
 
 #[derive(Clone)]

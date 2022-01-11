@@ -4,7 +4,7 @@ use integra8_components::{
     TestParameters, Delegate, BookEnd, BookEndAttributes, BookEnds, ComponentDescription, ComponentLocation, SuiteAttributes, ComponentGeneratorId
 };
 
-#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Debug)]
 pub struct BookEndDecorationPair<TParameters> {
     pub setup: Option<BookEndDecoration<TParameters>>,
     pub tear_down: Option<BookEndDecoration<TParameters>>,
@@ -77,7 +77,7 @@ impl BookEndAttributesDecoration {
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Debug)]
 pub struct BookEndDecoration<TParameters> {
     pub desc: BookEndAttributesDecoration,
     pub bookend_fn: Delegate<TParameters>,
