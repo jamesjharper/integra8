@@ -1,5 +1,5 @@
-use crate::components::bookends::bookend_attributes::BookendAttributes;
-use crate::components::exec_fn::ExecFn;
+use crate::decorations::bookends::bookend_attributes::BookendAttributes;
+use crate::decorations::exec_fn::ExecFn;
 
 use proc_macro::TokenStream;
 use quote::quote;

@@ -1,5 +1,5 @@
-use crate::components::exec_fn::ExecFn;
-use crate::components::test::test_attributes::TestAttributes;
+use crate::decorations::exec_fn::ExecFn;
+use crate::decorations::test::test_attributes::TestAttributes;
 
 use proc_macro::TokenStream;
 use quote::quote;

@@ -22,6 +22,10 @@ linkme = "0.2"
 async-process = "1.2.0"
 futures = "0.3.17"
 
+[dependencies.integra8_impl]
+version = "0.0.1-alpha"
+path = "../integra8_impl"
+
 [dependencies.integra8_decorations]
 version = "0.0.1-alpha"
 path = "../decorations"
@@ -64,7 +68,7 @@ async-std-runtime = [
     "integra8_async_runtime/async-std-runtime",
     "integra8_scheduling/async-std-runtime",
     "integra8_runner/async-std-runtime",
-    "integra8_decorations_impl/async-std-runtime",
+    "integra8_impl/async-std-runtime",
 ]
 
 tokio-runtime = [
@@ -72,6 +76,6 @@ tokio-runtime = [
     "integra8_async_runtime/tokio-runtime",
     "integra8_scheduling/tokio-runtime",
     "integra8_runner/tokio-runtime",
-    "integra8_decorations_impl/tokio-runtime",
+    "integra8_impl/tokio-runtime",
 ]
 

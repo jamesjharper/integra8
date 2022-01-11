@@ -41,7 +41,6 @@ impl<TParameters> fmt::Debug for Delegate<TParameters> {
     }
 }
 
-
 impl<TParameters> Delegate<TParameters> {
     pub fn sync_without_context(del: fn()) -> Self {
         Self::SyncWithoutContext(del)

@@ -1,9 +1,9 @@
 [package]
-name = "integra8_decorations_impl"
+name = "integra8_impl"
 version = "0.0.1-alpha"
 edition = "2018"
 description = """
-Procedural macros for declaring test components used by the Integra8 test framework.
+Procedural macros for declaring an application entrypoint used by the Integra8 test framework.
 """
 repository = "https://github.com/jamesjharper/integra8"
 readme = "../../README.md"
@@ -20,3 +20,9 @@ syn = "1.0"
 quote = "1.0"
 proc-macro-error = "1.0"
 proc-macro2 = "1.0.32"
+
+
+[features]
+default = ["tokio-runtime"]
+async-std-runtime = []
+tokio-runtime = []

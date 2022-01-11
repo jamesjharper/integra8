@@ -2,6 +2,8 @@ mod channel;
 
 pub mod strategy;
 
+pub use integra8_impl::*;
+
 pub mod formatters {
     pub use integra8_formatters::*;
 }
