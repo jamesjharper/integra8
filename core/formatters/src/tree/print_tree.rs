@@ -14,7 +14,7 @@ pub struct ComponentResultsTreeNode {
     pub display_name: String,
     pub result: ComponentResult,
     pub timing: ComponentTimeResult,
-    pub src_location: ComponentLocation,
+    pub src_location: Option<ComponentLocation>,
     pub component_type: ComponentType,
     pub stdio: TestResultStdio,
     pub children: Vec<ComponentResultsTreeNode>,
@@ -24,7 +24,7 @@ impl ComponentResultsTreeNode {
     pub fn from_report(report: &ComponentRunReport) -> Self {
         Self {
             display_name: report.description.friendly_name(),
-            src_location: report.description.location.clone().unwrap(),
+            src_location: report.description.location.clone(),
             result: report.result.clone(),
             timing: report.timing.clone(),
             component_type: report.description.component_type.clone(),
@@ -95,10 +95,14 @@ impl ComponentResultsTreeNode {
                         out.write_plain("\n")?;
 
                         out.write_plain(next_prefix)?;
-                        out.write_plain(format!(
-                            "    - location: {}",
-                            self.src_location.hotlink_text()
-                        ))?;
+                       
+                        if let Some(src) = self.src_location.as_ref() {
+                            out.write_plain(format!(
+                                "    - location: {}",
+                                src.hotlink_text()
+                            ))?;
+                        }
+                       
                         out.write_plain("\n")?;
 
                         if let Some(std_out) = self.stdio.stdout_utf8() {

@@ -124,8 +124,8 @@ impl<TParameters: TestParameters> Suite<TParameters> {
     pub fn new(
         parent: Option<(&SuiteAttributes, &ComponentDescription)>,
         parameters: &TParameters,
-        name: Option<&'static str>,
         id_gen: &mut ComponentGeneratorId,
+        name: Option<&'static str>,
         description: Option<&'static str>,
         path: &'static str,
         ignore: Option<bool>,

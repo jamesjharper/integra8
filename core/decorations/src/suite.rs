@@ -67,8 +67,8 @@ impl SuiteAttributesDecoration {
         Suite::new(
             parent,
             parameters,
-            self.name,
             id_gen,
+            self.name,
             self.description,
             self.path,
             self.ignore,

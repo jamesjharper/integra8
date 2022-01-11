@@ -43,8 +43,8 @@ impl<TParameters> BookEnd<TParameters> {
     pub fn new_setup(
         parent_suite_description: &ComponentDescription,
         parent_suite_attributes: &SuiteAttributes,
-        name: Option<&'static str>,
         id_gen: &mut ComponentGeneratorId,
+        name: Option<&'static str>,
         description: Option<&'static str>,
         path: &'static str,
         src: Option<ComponentLocation>,
@@ -71,8 +71,8 @@ impl<TParameters> BookEnd<TParameters> {
     pub fn new_tear_down(
         parent_suite_description: &ComponentDescription,
         parent_suite_attributes: &SuiteAttributes,
-        name: Option<&'static str>,
         id_gen: &mut ComponentGeneratorId,
+        name: Option<&'static str>,
         description: Option<&'static str>,
         path: &'static str,
         src: Option<ComponentLocation>,

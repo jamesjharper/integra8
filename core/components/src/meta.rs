@@ -58,8 +58,6 @@ impl ComponentGeneratorId {
 }
 
 
-
-
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub enum ComponentType {
     Suite,

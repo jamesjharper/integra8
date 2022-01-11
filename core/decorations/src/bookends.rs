@@ -28,15 +28,16 @@ impl<TParameters> BookEndDecorationPair<TParameters> {
 impl<TParameters: TestParameters> BookEndDecorationPair<TParameters> {
     pub fn into_components(
         self,
+        id_gen: &mut ComponentGeneratorId,
         parent_suite_description: &ComponentDescription,
         parent_suite_attributes: &SuiteAttributes,
     ) -> BookEnds<TParameters> {
         BookEnds {
             setup: self.setup.map(|deco| {
-                deco.into_setup_component(parent_suite_description, parent_suite_attributes)
+                deco.into_setup_component(id_gen, parent_suite_description, parent_suite_attributes)
             }),
             tear_down: self.tear_down.map(|deco| {
-                deco.into_tear_down_component(parent_suite_description, parent_suite_attributes)
+                deco.into_tear_down_component(id_gen, parent_suite_description, parent_suite_attributes)
             }),
         }
     }
@@ -94,8 +95,8 @@ impl<TParameters: TestParameters> BookEndDecoration<TParameters> {
         BookEnd::new_setup(
             parent_suite_description,
             parent_suite_attributes,
-            self.desc.name,
             id_gen,
+            self.desc.name,
             self.desc.description,
             self.desc.path,
             self.desc.location,
@@ -114,8 +115,8 @@ impl<TParameters: TestParameters> BookEndDecoration<TParameters> {
         BookEnd::new_tear_down(
             parent_suite_description,
             parent_suite_attributes,
-            self.desc.name,
             id_gen,
+            self.desc.name,
             self.desc.description,
             self.desc.path,
             self.desc.location,

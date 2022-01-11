@@ -2,10 +2,10 @@ use indexmap::IndexMap;
 
 use crate::{
     BookEndDecoration, BookEndDecorationPair, ComponentDecoration, SuiteAttributesDecoration,
-    TestDecoration, ComponentGeneratorId
+    TestDecoration, 
 };
 
-use integra8_components::{Suite, SuiteAttributes, ComponentDescription};
+use integra8_components::{Suite, SuiteAttributes, ComponentDescription, ComponentGeneratorId};
 use integra8_context::parameters::TestParameters;
 
 #[derive(Debug)]
@@ -26,7 +26,7 @@ impl<TParameters: TestParameters> ComponentGroup<TParameters> {
     {
         ComponentHierarchy::from_decorated_components(components)
             .into_component_groups()
-            .into_component(ComponentGeneratorId::new(), None, parameters)
+            .into_component(&mut ComponentGeneratorId::new(), None, parameters)
     }
 
     fn into_component(
@@ -39,7 +39,7 @@ impl<TParameters: TestParameters> ComponentGroup<TParameters> {
             .suite
             .unwrap_or_else(|| SuiteAttributesDecoration::root(parameters.root_namespace()));
 
-        let mut suite = parent_suite_attributes.into_component(parent, parameters);
+        let mut suite = parent_suite_attributes.into_component(id_gen, parent, parameters);
 
         suite.tests = self
             .tests
