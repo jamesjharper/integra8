@@ -1,11 +1,11 @@
-use crate::OutputLocation;
-use integra8_results::report::ComponentRunReport;
+use integra8_formatters::OutputLocation;
+use integra8_formatters::models::report::ComponentRunReport;
 
-use integra8_results::artifacts::stdio::TestResultStdio;
-use integra8_results::{ComponentResult, ComponentTimeResult};
-use integra8_results::{DidNotRunReason, FailureReason, PassReason};
+use integra8_formatters::models::artifacts::stdio::TestResultStdio;
+use integra8_formatters::models::{ComponentResult, ComponentTimeResult};
+use integra8_formatters::models::{DidNotRunReason, FailureReason, PassReason};
 
-use integra8_components::{ComponentLocation, ComponentType};
+use integra8_formatters::models::{ComponentLocation, ComponentType};
 
 use std::error::Error;
 

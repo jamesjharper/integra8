@@ -1,6 +1,3 @@
-
-// Simple abstraction layer for interacting with different async runtimes
-
 #[cfg(feature = "tokio-runtime")]
 mod channel_impl {
     pub use tokio::sync::mpsc::channel;

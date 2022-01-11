@@ -1,0 +1,21 @@
+[package]
+name = "integra8_tree_formatter"
+version = "0.0.1-alpha"
+edition = "2018"
+description = """
+Tree structured output formatters for displaying test results for the Integra8 test framework.
+"""
+repository = "https://github.com/jamesjharper/integra8"
+readme = "../../README.md"
+license = "MIT OR Apache-2.0"
+keywords = ["integra8", "test", "framework", "integration", "bdd"]
+documentation = "https://api.integra8.rs/v0.0.1-alpha/integra8/"
+categories = ["development-tools" ]
+
+[dependencies]
+structopt = "0.3"
+term = "0.5"
+
+[dependencies.integra8_formatters]
+version = "0.0.1-alpha"
+path = "../../../core/formatters"

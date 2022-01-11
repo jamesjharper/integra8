@@ -1,17 +1,19 @@
-
-
 pub mod none;
-pub mod pretty;
-pub mod tree;
+
+
+pub mod models {
+    pub use integra8_results::*;
+    pub use integra8_components::{ComponentDescription, ComponentLocation, ComponentType};
+}
 
 use std::error::Error;
 use std::io::Write;
 
-use integra8_components::ComponentDescription;
+use models::ComponentDescription;
 
-use integra8_results::report::ComponentRunReport;
-use integra8_results::summary::RunSummary;
-use integra8_results::ComponentTimeResult;
+use models::report::ComponentRunReport;
+use models::summary::RunSummary;
+use models::ComponentTimeResult;
 
 pub trait FormatterParameters {
     fn create_formatter(&self) -> Option<Box<dyn OutputFormatter>>;

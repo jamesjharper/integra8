@@ -1,18 +1,17 @@
 mod print_tree;
-use crate::tree::print_tree::ComponentResultsTreeNode;
-use crate::tree::print_tree::TreeNodePrinter;
-
-use integra8_components::ComponentDescription;
-
-use crate::OutputLocation;
-use crate::{OutputFormatter, OutputFormatterFactory};
-
-use integra8_results::report::ComponentRunReport;
-use integra8_results::summary::{RunSummary, SuiteSummary};
 
 use std::error::Error;
-
 use structopt::StructOpt;
+
+use crate::print_tree::ComponentResultsTreeNode;
+use crate::print_tree::TreeNodePrinter;
+
+use integra8_formatters::models::ComponentDescription;
+use integra8_formatters::models::report::ComponentRunReport;
+use integra8_formatters::models::summary::{RunSummary, SuiteSummary};
+
+use integra8_formatters::OutputLocation;
+use integra8_formatters::{OutputFormatter, OutputFormatterFactory};
 
 #[derive(StructOpt, Clone, Debug)] // TODO: Remove the need for clone here
 pub struct TreeFormatterParameters {}

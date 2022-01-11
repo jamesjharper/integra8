@@ -3,7 +3,7 @@ pub extern crate integra8;
 use integra8::{integration_suite, integration_test, setup, teardown};
 
 main_test! {
-    console_output: integra8::formatters::tree::TreeFormatter,
+    console_output: integra8_tree_formatter::TreeFormatter,
     settings : {
         #[structopt(long = "target-url", default_value = "https://httpbin.org/ip")]
         pub url: String,

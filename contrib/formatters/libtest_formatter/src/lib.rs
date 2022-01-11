@@ -1,14 +1,14 @@
 use std::io::prelude::Write;
 
-use crate::OutputLocation;
-use crate::{OutputFormatter, OutputFormatterFactory};
-use integra8_components::ComponentDescription;
+use integra8_formatters::OutputLocation;
+use integra8_formatters::{OutputFormatter, OutputFormatterFactory};
+use integra8_formatters::models::ComponentDescription;
 
-use integra8_results::summary::{RunSummary, SuiteSummary};
+use integra8_formatters::models::summary::{RunSummary, SuiteSummary};
 
-use integra8_results::report::ComponentRunReport;
+use integra8_formatters::models::report::ComponentRunReport;
 
-use integra8_results::{
+use integra8_formatters::models::{
     ComponentResult, ComponentTimeResult, DidNotRunReason, FailureReason, PassReason,
 };
 
