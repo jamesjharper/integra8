@@ -1,14 +1,23 @@
 # integra8
 Integra8 rust integration test framework Rust with a focus on productivity, extensibility, and speed.
 
+| This repo is in a "work in progress" state, and is not yet available as a crate via crates.io.
+
+Work remaining before release,
+[ ] Finalize formatter design
+[ ] Reinstate Unit tests
+[ ] Compete documentation
+[ ] Write examples
+[ ] Validate against Mac, Windows and Linux
 
 ```rust
 #[macro_use]
 pub extern crate integra8;
 use integra8::{integration_suite, integration_test, setup, teardown};
+use integra8::formatters::tree::TreeFormatter;
 
 main_test! {
-    console_output: integra8::formatters::tree::TreeFormatter,
+    console_output: TreeFormatter,
     settings : {
         #[structopt(long = "target-url", default_value = "https://httpbin.org/ip")]
         pub url: String,
@@ -57,8 +66,6 @@ mod sample_test_suite {
     └── ○ - sample_nested_suite
         └── ▧ - nested_failing_test - (allowed)
 ```
-
-
 
 
 # Special Notes:
