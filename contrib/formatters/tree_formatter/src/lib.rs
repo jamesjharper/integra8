@@ -8,10 +8,9 @@ use structopt::StructOpt;
 use crate::tree::{ResultsNode, ResultsTree};
 use crate::styles::{TreeStyle, StyleSettings, FormattingTheme, OutputTheme, CharacterTheme};
 
-
 use integra8_formatters::models::ComponentDescription;
 use integra8_formatters::models::report::ComponentRunReport;
-use integra8_formatters::models::summary::{RunSummary, SuiteSummary};
+use integra8_formatters::models::summary::{RunSummary, SuiteSummary, ComponentTypeCountSummary};
 
 use integra8_formatters::OutputLocation;
 use integra8_formatters::{OutputFormatter, OutputFormatterFactory};
@@ -176,10 +175,10 @@ impl OutputFormatterFactory for TreeFormatter {
 }
 
 impl OutputFormatter for TreeFormatter {
-    fn write_run_start(&mut self, test_count: usize) -> Result<(), Box<dyn Error>> {
-        let noun = if test_count != 1 { "tests" } else { "test" };
+    fn write_run_start(&mut self, summary: &ComponentTypeCountSummary) -> Result<(), Box<dyn Error>> {
+        let noun = if summary.tests() != 1 { "tests" } else { "test" };
         self.out
-            .write_plain(&format!("\nrunning {} {}\n", test_count, noun))?;
+            .write_plain(&format!("\nrunning {} {}\n", summary.tests(), noun))?;
         Ok(())
     }
 
@@ -195,7 +194,7 @@ impl OutputFormatter for TreeFormatter {
         
         let style = StyleSettings {
             formatting: FormattingTheme::Standard,
-            output: OutputTheme::Text,
+            output: OutputTheme::Symbols,
             characters :CharacterTheme::Utf8
         };
 

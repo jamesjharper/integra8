@@ -10,9 +10,8 @@ use std::error::Error;
 use std::io::Write;
 
 use models::ComponentDescription;
-
 use models::report::ComponentRunReport;
-use models::summary::RunSummary;
+use models::summary::{RunSummary, ComponentTypeCountSummary};
 use models::ComponentTimeResult;
 
 pub trait FormatterParameters {
@@ -30,7 +29,7 @@ pub trait OutputFormatterFactory {
 pub trait OutputFormatter {
     // run
 
-    fn write_run_start(&mut self, _test_count: usize) -> Result<(), Box<dyn Error>> {
+    fn write_run_start(&mut self, _summary: &ComponentTypeCountSummary) -> Result<(), Box<dyn Error>> {
         Ok(())
     }
 

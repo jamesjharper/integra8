@@ -22,14 +22,5 @@ mod counts;
 #[doc(inline)]
 pub use counts::{
     DidNotRunResultsCountSummary, FailResultsCountSummary, PassResultsCountSummary,
-    ResultsCountSummary,
+    ResultsCountSummary, ComponentTypeCountSummary
 };
-
-
-
-#[derive(Clone, Debug, Eq, PartialEq)]
-pub struct CountSummary  {
-    Pass(PassReason),
-    Fail(FailureReason),
-    DidNotRun(DidNotRunReason),
-}

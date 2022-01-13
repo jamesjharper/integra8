@@ -1,5 +1,7 @@
 use crate::{ComponentResult, DidNotRunReason, FailureReason, PassReason};
 
+use integra8_components::ComponentType;
+
 /// A struct for interrogating *pass* results.
 /// Implements `Iterator` and can be reduced to a filtered results set using its accompanying  `due_to...` methods
 pub trait ResultReasonCounter {
@@ -193,5 +195,49 @@ impl ResultReasonCounter for DidNotRunResultsCountSummary {
             DidNotRunReason::Ignored => self.ignored,
             DidNotRunReason::ParentFailure => self.parent_failure,
         }
+    }
+}
+
+#[derive(Clone, Debug)]
+pub struct ComponentTypeCountSummary {
+    tests: usize,
+    suites: usize,
+    setups: usize,
+    tear_downs: usize,
+}
+
+impl ComponentTypeCountSummary {
+    pub fn new() -> Self {
+        Self {
+            tests: 0,
+            suites: 0,
+            setups: 0,
+            tear_downs: 0,
+        }
+    }
+
+    pub fn increment(&mut self, reason: &ComponentType) {
+        match reason {
+            ComponentType::Suite => self.suites += 1,
+            ComponentType::Test => self.tests += 1,
+            ComponentType::Setup => self.setups += 1,
+            ComponentType::TearDown => self.tear_downs += 1,
+        }
+    }
+
+    pub fn tests(&self) -> usize {
+        self.tests
+    }
+
+    pub fn suites(&self) -> usize {
+        self.suites
+    }
+
+    pub fn setups(&self) -> usize {
+        self.setups
+    }
+
+    pub fn tear_downs(&self) -> usize {
+        self.tear_downs
     }
 }

@@ -9,18 +9,16 @@ pub use notify::{ComponentProgressChannelNotify, RunProgressChannelNotify};
 
 use integra8_async_runtime::channel;
 
-use crate::components::ComponentDescription;
-use crate::results::report::ComponentRunReport;
-use crate::results::ComponentTimeResult;
+use integra8_components::ComponentDescription;
+use integra8_results::ComponentTimeResult;
+use integra8_results::report::ComponentRunReport;
+use integra8_results::summary::ComponentTypeCountSummary;
 
 #[derive(Debug)]
 pub enum TestEvent {
     // Run
     NotifyRunStart {
-        test_count: usize,
-        suite_count: usize,
-        tear_down_count: usize,
-        setup_count: usize,
+        summary: ComponentTypeCountSummary
     },
 
     NotifyRunComplete,

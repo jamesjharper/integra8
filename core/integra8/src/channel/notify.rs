@@ -6,8 +6,9 @@ use crate::runner::notify::{ComponentProgressNotify, RunProgressNotify};
 use std::future::Future;
 use std::pin::Pin;
 
-use integra8_results::report::ComponentRunReport;
 use integra8_results::ComponentTimeResult;
+use integra8_results::report::ComponentRunReport;
+use integra8_results::summary::ComponentTypeCountSummary;
 
 #[derive(Clone)]
 pub struct RunProgressChannelNotify {
@@ -27,13 +28,13 @@ impl RunProgressNotify for RunProgressChannelNotify {
 
     fn notify_run_start(
         &self,
-        _test_count: usize,
-        _suite_count: usize,
-        _tear_down_count: usize,
-        _setup_count: usize,
+        summary: ComponentTypeCountSummary
     ) -> Pin<Box<dyn Future<Output = ()> + Send + '_>> {
-        let fut = async {};
-        Box::pin(fut)
+        async fn notify_run_complete(inner_self: &RunProgressChannelNotify, summary: ComponentTypeCountSummary) {
+            inner_self.result_publisher.notify_run_start(summary).await
+        }
+
+        Box::pin(notify_run_complete(self, summary))
     }
 
     fn notify_run_complete(&self) -> Pin<Box<dyn Future<Output = ()> + Send + '_>> {

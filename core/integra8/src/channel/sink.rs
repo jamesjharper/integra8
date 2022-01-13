@@ -7,6 +7,7 @@ use crate::results::ComponentTimeResult;
 use std::error::Error;
 
 use integra8_async_runtime::Receiver;
+use integra8_results::summary::ComponentTypeCountSummary;
 
 use crate::channel::TestEvent;
 
@@ -41,14 +42,10 @@ impl ResultsSink {
         match msg {
             // Run
             TestEvent::NotifyRunStart {
-                test_count,
-                suite_count,
-                tear_down_count,
-                setup_count,
-            } => self
-                .sink
-                .on_run_start(test_count, suite_count, tear_down_count, setup_count),
-
+                summary
+            } => {
+                self.sink.on_run_start(summary)
+            },
             TestEvent::NotifyComponentStart { description } => {
                 self.sink.on_component_start(description)
             }
@@ -67,8 +64,7 @@ impl ResultsSink {
                 // close down message pump
                 return true;
             }
-        }
-        .unwrap();
+        }.unwrap();
         false
     }
 }
@@ -91,13 +87,10 @@ impl ResultsOutputWriterSink {
     // Run
     pub fn on_run_start(
         &mut self,
-        test_count: usize,
-        _suite_count: usize,
-        _tear_down_count: usize,
-        _setup_count: usize,
+        summary: ComponentTypeCountSummary
     ) -> Result<(), Box<dyn Error>> {
         // TODO: plumb the rest here
-        self.output_writer.write_run_start(test_count)
+        self.output_writer.write_run_start(&summary)
     }
 
     pub fn on_run_complete(&mut self) -> Result<(), Box<dyn Error>> {
@@ -174,9 +167,9 @@ impl OutputFormatterAggregator {
 
 impl OutputFormatter for OutputFormatterAggregator {
     // run
-    fn write_run_start(&mut self, test_count: usize) -> Result<(), Box<dyn Error>> {
+    fn write_run_start(&mut self, summary: &ComponentTypeCountSummary) -> Result<(), Box<dyn Error>> {
         for o in &mut self.output_writers {
-            o.write_run_start(test_count)?;
+            o.write_run_start(summary)?;
         }
         Ok(())
     }

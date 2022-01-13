@@ -1,8 +1,12 @@
 use crate::channel::TestEvent;
-use crate::components::ComponentDescription;
-use crate::results::report::ComponentRunReport;
-use crate::results::ComponentTimeResult;
+
+
 use integra8_async_runtime::Sender;
+use integra8_results::summary::ComponentTypeCountSummary;
+use integra8_results::report::ComponentRunReport;
+use integra8_results::ComponentTimeResult;
+
+use integra8_components::ComponentDescription;
 
 #[derive(Clone)]
 pub struct ResultsSource {
@@ -13,22 +17,15 @@ impl ResultsSource {
     // Run
     pub async fn notify_run_start(
         &self,
-        test_count: usize,
-        suite_count: usize,
-        tear_down_count: usize,
-        setup_count: usize,
+        summary: ComponentTypeCountSummary
     ) {
-        self.send(TestEvent::NotifyRunStart {
-            test_count,
-            suite_count,
-            tear_down_count,
-            setup_count,
-        })
-        .await
+        self.send(TestEvent::NotifyRunStart { summary })
+            .await
     }
 
     pub async fn notify_run_complete(&self) {
-        self.send(TestEvent::NotifyRunComplete).await
+        self.send(TestEvent::NotifyRunComplete)
+            .await
     }
 
     pub async fn notify_component_start(&self, description: ComponentDescription) {

@@ -11,6 +11,8 @@ pub use suite::SuiteAttributesDecoration;
 mod hierarchy;
 pub use hierarchy::{ComponentGroup, ComponentHierarchy};
 
+use integra8_components::ComponentType;
+
 #[derive(Debug)]
 pub enum ComponentDecoration<TParameters> {
     IntegrationTest(TestDecoration<TParameters>),
@@ -26,6 +28,15 @@ impl<TParameters> ComponentDecoration<TParameters> {
             ComponentDecoration::Suite(c) => c.path,
             ComponentDecoration::TearDown(c) => c.desc.path,
             ComponentDecoration::Setup(c) => c.desc.path,
+        }
+    }
+
+    pub fn component_type(&self) -> ComponentType {
+        match self {
+            ComponentDecoration::IntegrationTest(_) => ComponentType::Test,
+            ComponentDecoration::Suite(_) => ComponentType::Suite,
+            ComponentDecoration::TearDown(_) => ComponentType::TearDown,
+            ComponentDecoration::Setup(_) => ComponentType::Setup,
         }
     }
 }

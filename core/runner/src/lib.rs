@@ -17,8 +17,10 @@ use integra8_scheduling::iter::TaskStreamMap;
 use integra8_scheduling::state_machine::TaskStateMachineNode;
 use integra8_scheduling::{ScheduledComponent, TaskScheduler};
 
-use crate::executor::{process_external_executor, process_internal_executor, Executor};
+use integra8_results::summary::ComponentTypeCountSummary;
 use integra8_results::report::{ComponentReportBuilder, ComponentRunReport};
+
+use crate::executor::{process_external_executor, process_internal_executor, Executor};
 
 use std::future::Future;
 use std::pin::Pin;
@@ -28,6 +30,7 @@ pub trait ScheduleRunner<TParameters> {
         self,
         parameters: TParameters,
         schedule: TaskStateMachineNode<ScheduledComponent<TParameters>>,
+        summary: ComponentTypeCountSummary
     ) -> Pin<Box<dyn Future<Output = ()> + Send + 'static>>;
 }
 
@@ -45,6 +48,7 @@ impl<
         self,
         parameters: TParameters,
         schedule: TaskStateMachineNode<ScheduledComponent<TParameters>>,
+        summary: ComponentTypeCountSummary
     ) -> Pin<Box<dyn Future<Output = ()> + Send + 'static>> {
         async fn run<
             TInnerParameters: TestParameters + Sync + Send + UnwindSafe + 'static,
@@ -53,7 +57,10 @@ impl<
             mut runner: DefaultScheduleRunner<InnerProgressNotify>,
             parameters: TInnerParameters,
             schedule: TaskStateMachineNode<ScheduledComponent<TInnerParameters>>,
+            summary: ComponentTypeCountSummary
         ) {
+
+            runner.sender.notify_run_start(summary).await;
             let sender = runner.sender.clone();
 
             let parameters = Arc::new(parameters);
@@ -72,7 +79,7 @@ impl<
             runner.sender.notify_run_complete().await;
         }
 
-        Box::pin(run(self, parameters, schedule))
+        Box::pin(run(self, parameters, schedule, summary))
     }
 }
 

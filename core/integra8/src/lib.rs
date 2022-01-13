@@ -63,6 +63,8 @@ use strategy::{
 };
 
 use integra8_results::ComponentResult;
+use integra8_results::summary::ComponentTypeCountSummary;
+
 use integra8_runner::{DefaultScheduleRunner, ScheduleRunner};
 
 use integra8_components::TestParameters;
@@ -112,7 +114,7 @@ pub async fn run<
     auto_detect_components: Vec<ComponentDecoration<TParameters>>,
     parameters: TParameters,
 ) -> ComponentResult {
-    let components = resolve_components::<TParameters, Locator>(&parameters, auto_detect_components);
+    let (summary, components) = resolve_components::<TParameters, Locator>(&parameters, auto_detect_components);
     let schedule = resolve_component_schedule::<TParameters, Locator>(&parameters, components);
 
     let max_concurrency = std::cmp::min(parameters.max_concurrency(), schedule.max_concurrency());
@@ -122,7 +124,7 @@ pub async fn run<
 
     let runner_task = integra8_async_runtime::spawn(async move {
         DefaultScheduleRunner::new(RunProgressChannelNotify::new(sender))
-            .run(parameters, schedule)
+            .run(parameters, schedule, summary)
             .await;
     });
 
@@ -151,11 +153,11 @@ pub fn resolve_components<
 >(
     parameters: &TParameters,
     auto_detect_components: Vec<ComponentDecoration<TParameters>>,
-) -> Vec<ComponentDecoration<TParameters>> {
-    let components = Locator::resolve_components_strategy(&parameters)
+) -> (ComponentTypeCountSummary, Vec<ComponentDecoration<TParameters>>) {
+    let mut components = Locator::resolve_components_strategy(&parameters)
         .resolve_components(parameters, auto_detect_components);
 
-    match parameters.is_child_process() {
+    components = match parameters.is_child_process() {
         true => {
             // Child process is used to run a single component in a separate process
             components
@@ -165,7 +167,18 @@ pub fn resolve_components<
                 .collect()
         }
         false => components,
-    }
+    };
+
+    let summary = components
+        .iter()
+        .fold(
+            ComponentTypeCountSummary::new(), 
+            |mut count, c| {
+                count.increment(&c.component_type());
+                count
+            }
+        );
+    (summary, components)
 }
 
 pub fn resolve_component_schedule<
