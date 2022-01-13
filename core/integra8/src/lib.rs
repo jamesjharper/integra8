@@ -112,8 +112,7 @@ pub async fn run<
     auto_detect_components: Vec<ComponentDecoration<TParameters>>,
     parameters: TParameters,
 ) -> ComponentResult {
-    let components =
-        resolve_components::<TParameters, Locator>(&parameters, auto_detect_components);
+    let components = resolve_components::<TParameters, Locator>(&parameters, auto_detect_components);
     let schedule = resolve_component_schedule::<TParameters, Locator>(&parameters, components);
 
     let max_concurrency = std::cmp::min(parameters.max_concurrency(), schedule.max_concurrency());

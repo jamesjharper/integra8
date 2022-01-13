@@ -8,7 +8,7 @@ edition = "2018"
 
 structopt = { version = "0.3", default-features = false }
 
-
+indoc = "1.0.3"
 linkme = "0.2"
 integra8 = {path = "../../core/integra8", features = ["tokio-runtime"] }
 integra8_tree_formatter = {path = "../../contrib/formatters/tree_formatter" }

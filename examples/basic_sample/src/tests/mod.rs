@@ -30,8 +30,8 @@ fn test3() {
 #[teardown]
 #[name("custom named for tear down")]
 #[description("the tear down description")]
-fn tear_down() {
-    println!("tearing down !");
+fn tear_down(_ctx: crate::ExecutionContext) {
+    assert_eq!(true, false);
 }
 
 #[integration_suite]
@@ -85,6 +85,7 @@ mod nested_test_suite {
                 fn first() {}
 
                 #[integration_test]
+                #[description("the test description")]
                 //  #[allow_fail]
                 fn second() {
                     assert_eq!(true, false);
@@ -121,7 +122,6 @@ mod nested_test_suite {
             }
 
             #[integration_suite]
-            #[allow_fail]
             mod suite_should_fail {
                 use super::*;
 
@@ -131,12 +131,22 @@ mod nested_test_suite {
                 }
 
                 #[integration_test]
-                fn first() {}
-
-                #[integration_test]
+                #[description(indoc::indoc! 
+                {"
+                    the test description
+                    on more then
+                    one
+                    line
+                "})]
                 fn second() {
                     assert_eq!(true, false);
                 }
+
+                #[integration_test]
+                fn first() {}
+
+
+                
 
                 #[teardown]
                 fn tear_down_which_should_run() {

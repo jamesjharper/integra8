@@ -1,11 +1,13 @@
-mod print_tree;
+mod tree;
 mod styles;
+mod writer;
 
 use std::error::Error;
 use structopt::StructOpt;
 
-use crate::print_tree::ComponentResultsTreeNode;
-use crate::print_tree::TreeNodePrinter;
+use crate::tree::{ResultsNode, ResultsTree};
+use crate::styles::{TreeStyle, StyleSettings, FormattingTheme, OutputTheme, CharacterTheme};
+
 
 use integra8_formatters::models::ComponentDescription;
 use integra8_formatters::models::report::ComponentRunReport;
@@ -119,29 +121,29 @@ impl TreeFormatter {
         Ok(())
     }
 
-    fn get_tree(&self, state: &RunSummary) -> ComponentResultsTreeNode {
+    fn get_tree<'a>(&self, state: &'a RunSummary) -> ResultsTree<'a> {
         let suite = state.get_root_suite().unwrap();
-        self.get_node(state, suite)
+        ResultsTree::new(self.get_node(state, suite))
     }
 
-    fn get_node(
+    fn get_node<'a>(
         &self,
-        state: &RunSummary,
-        suite_summary: &SuiteSummary,
-    ) -> ComponentResultsTreeNode {
+        state: &'a RunSummary,
+        suite_summary: &'a SuiteSummary,
+    ) -> ResultsNode<'a> {
         let mut suite_node =
-            ComponentResultsTreeNode::from_report(suite_summary.suite_report.as_ref().unwrap());
+            ResultsNode::from_report(suite_summary.suite_report.as_ref().unwrap());
 
         for setup_report in &suite_summary.setups.reports {
-            suite_node.add_child_report(&setup_report);
+            suite_node.add_child_node(ResultsNode::from_report(&setup_report));
         }
 
         for test_report in &suite_summary.tests.reports {
-            suite_node.add_child_report(&test_report);
+            suite_node.add_child_node(ResultsNode::from_report(&test_report));
         }
 
         for tear_down_report in &suite_summary.tear_downs.reports {
-            suite_node.add_child_report(&tear_down_report);
+            suite_node.add_child_node(ResultsNode::from_report(&tear_down_report));
         }
 
         for suite_report in &suite_summary.suites.reports {
@@ -190,63 +192,18 @@ impl OutputFormatter for TreeFormatter {
     }
 
     fn write_run_complete(&mut self, state: &RunSummary) -> Result<(), Box<dyn Error>> {
-        self.write_run_failures(state)?;
-        self.write_run_time_failures(state)?;
+        
+        let style = StyleSettings {
+            formatting: FormattingTheme::Standard,
+            output: OutputTheme::Text,
+            characters :CharacterTheme::Utf8
+        };
 
-        let tree = self.get_tree(state);
 
-        TreeNodePrinter::new(&mut self.out).print_tree(&tree);
+        self.get_tree(state)
+            .render_tree(&mut self.out, &TreeStyle::new(&style))?;
 
-        self.out.write_plain("\n\n")?;
         Ok(())
     }
 
-    /*fn write_run_complete(&mut self, state: &RunSummary) -> Result<(), Box<dyn Error>> {
-
-
-        /*if state.options.display_output {
-            self.write_successes(state)?;
-        }*/
-
-
-        let success = state.is_success();
-
-        self.write_run_failures(state)?;
-        self.write_run_time_failures(state)?;
-
-        self.write_plain("\ntest result: ")?;
-
-        if success {
-            // There's no parallelism at this point so it's safe to use color
-            self.write_pretty("ok", term::color::GREEN)?;
-        } else {
-            self.write_pretty("FAILED", term::color::RED)?;
-        }
-
-         if state.tests_passed().due_to_allowed_failure().has_some() {
-            format!(
-                ". {} passed; {} failed ({} allowed); {} skipped",
-                state.tests_passed().count(),
-                state.tests_failed().count() + state.tests_passed().due_to_allowed_failure().count(),
-                state.tests_passed().due_to_allowed_failure().count(),
-                state.tests_not_run().count(),
-            )
-        } else {
-            format!(
-                ". {} passed; {} failed; {} skipped",
-                state.tests_passed().count(), state.tests_failed().count(), state.tests_not_run().count()
-            )
-        };
-
-        //self.write_plain(&s)?;
-
-        /*if let Some(result_timings) = &state.total_time {
-            let time_str = format!("; finished in {:.2} seconds",  result_timings.duration().as_secs_f64());
-            self.write_plain(&time_str)?;
-        }*/
-
-
-        self.write_plain("\n\n")?;
-        Ok(())
-    }*/
 }
