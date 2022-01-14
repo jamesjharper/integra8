@@ -58,9 +58,7 @@ impl<
 
             if let Err(_) = result {
                 progress_notify.notify_timed_out().await;
-            } else {
-                progress_notify.notify_complete().await;
-            }
+            } 
 
             match result {
                 Err(_timeout) => {

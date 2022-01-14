@@ -12,7 +12,6 @@ use std::io::Write;
 use models::ComponentDescription;
 use models::report::ComponentRunReport;
 use models::summary::{RunSummary, ComponentTypeCountSummary};
-use models::ComponentTimeResult;
 
 pub trait FormatterParameters {
     fn create_formatter(&self) -> Option<Box<dyn OutputFormatter>>;
@@ -49,7 +48,6 @@ pub trait OutputFormatter {
     fn write_component_timeout(
         &mut self,
         _desc: &ComponentDescription,
-        _result_timings: &ComponentTimeResult,
     ) -> Result<(), Box<dyn Error>> {
         Ok(())
     }
@@ -70,7 +68,6 @@ pub trait OutputFormatter {
     fn write_suite_timeout(
         &mut self,
         _desc: &ComponentDescription,
-        _result_timings: &ComponentTimeResult,
     ) -> Result<(), Box<dyn Error>> {
         Ok(())
     }
@@ -88,7 +85,6 @@ pub trait OutputFormatter {
     fn write_setup_timeout(
         &mut self,
         _desc: &ComponentDescription,
-        _result_timings: &ComponentTimeResult,
     ) -> Result<(), Box<dyn Error>> {
         Ok(())
     }
@@ -109,7 +105,6 @@ pub trait OutputFormatter {
     fn write_tear_down_timeout(
         &mut self,
         _desc: &ComponentDescription,
-        _result_timings: &ComponentTimeResult,
     ) -> Result<(), Box<dyn Error>> {
         Ok(())
     }
@@ -130,7 +125,6 @@ pub trait OutputFormatter {
     fn write_test_timeout(
         &mut self,
         _desc: &ComponentDescription,
-        _result_timings: &ComponentTimeResult,
     ) -> Result<(), Box<dyn Error>> {
         Ok(())
     }

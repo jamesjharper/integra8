@@ -6,7 +6,7 @@ use std::error::Error;
 use structopt::StructOpt;
 
 use crate::tree::{ResultsNode, ResultsTree};
-use crate::styles::{TreeStyle, StyleSettings, FormattingTheme, OutputTheme, CharacterTheme};
+use crate::styles::{TreeStyle, StyleSettings, FormattingTheme, OutputTheme, CharacterTheme, OutputLevel};
 
 use integra8_formatters::models::ComponentDescription;
 use integra8_formatters::models::report::ComponentRunReport;
@@ -195,7 +195,8 @@ impl OutputFormatter for TreeFormatter {
         let style = StyleSettings {
             formatting: FormattingTheme::Standard,
             output: OutputTheme::Symbols,
-            characters :CharacterTheme::Utf8
+            characters :CharacterTheme::Utf8,
+            level : OutputLevel::Verbose
         };
 
 

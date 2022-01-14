@@ -1,7 +1,7 @@
 use crate::TaskStream;
 
 pub trait TaskStreamMap<In, Out> {
-    fn map<F>(self, f: F) -> iter::TaskStreamMap<Self, F>
+    fn map<F>(self, f: F) -> map::TaskStreamMap<Self, F>
     where
         Self: Sized + TaskStream<Payload = In>,
         F: FnMut(In) -> Out;
@@ -11,16 +11,16 @@ impl<In, Out, Stream> TaskStreamMap<In, Out> for Stream
 where
     Stream: TaskStream<Payload = In>,
 {
-    fn map<F>(self, f: F) -> iter::TaskStreamMap<Self, F>
+    fn map<F>(self, f: F) -> map::TaskStreamMap<Self, F>
     where
         Self: Sized + TaskStream<Payload = In>,
         F: FnMut(In) -> Out,
     {
-        iter::TaskStreamMap::new(self, f)
+        map::TaskStreamMap::new(self, f)
     }
 }
 
-mod iter {
+mod map {
     use crate::{PollTaskResult, TaskNodePath, TaskStream};
 
     pub struct TaskStreamMap<Stream, F> {

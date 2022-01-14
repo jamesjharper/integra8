@@ -10,7 +10,6 @@ pub use notify::{ComponentProgressChannelNotify, RunProgressChannelNotify};
 use integra8_async_runtime::channel;
 
 use integra8_components::ComponentDescription;
-use integra8_results::ComponentTimeResult;
 use integra8_results::report::ComponentRunReport;
 use integra8_results::summary::ComponentTypeCountSummary;
 
@@ -29,10 +28,8 @@ pub enum TestEvent {
 
     NotifyComponentTimeout {
         description: ComponentDescription,
-        timing_result: ComponentTimeResult,
     },
-
-    NotifyComponentComplete {
+    NotifyComponentReportComplete {
         report: ComponentRunReport,
     },
 }
@@ -44,7 +41,7 @@ impl ResultsChannel {
         sink: ResultsOutputWriterSink,
         max_concurrency: usize,
     ) -> (ResultsSource, ResultsSink) {
-        let (sender, receiver) = channel::<TestEvent>(max_concurrency * 2);
+        let (sender, receiver) = channel::<TestEvent>(max_concurrency * 5);
         (
             ResultsSource { tx: sender },
             ResultsSink {

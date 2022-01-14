@@ -47,7 +47,8 @@ impl<
                 .arg("--child-process")
                 .arg("--filter")
                 .arg(fixture.component_path())
-                .args(std::env::args().skip(1))
+                // Replicate args given to the original test runner
+                .args(std::env::args().skip(1)) 
                 .stdout(Stdio::piped())
                 .stderr(Stdio::piped())
                 .spawn()
@@ -67,8 +68,6 @@ impl<
 
                 // Make sure the process is killed if we timed out
                 child_process.kill().unwrap();
-            } else {
-                progress_notify.notify_complete().await;
             }
     
             let output = child_process.output().await.unwrap();

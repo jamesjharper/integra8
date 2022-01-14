@@ -10,18 +10,12 @@ use integra8_formatters::models::report::ComponentRunReport;
 pub struct StyleSettings {
     pub formatting: FormattingTheme,
     pub output: OutputTheme ,
-    pub characters :CharacterTheme
+    pub characters :CharacterTheme,
+    pub level :OutputLevel
  }
 
-/*
-pub struct OutputCriteria {
-    pub use_uft8: bool, 
-    pub use_text_formatting: bool, 
-    pub use_colour: bool, 
-}
-*/
 
-
+#[derive(Clone, Eq, PartialEq)]
 pub enum OutputLevel {
     Verbose,
     Info,
@@ -268,6 +262,7 @@ impl TreeBranchStyle {
 pub struct TreeStyle {
     pub branch: TreeBranchStyle, 
     pub node: NodeStyle,
+    pub level: OutputLevel,
 }
 
 impl TreeStyle {
@@ -275,6 +270,7 @@ impl TreeStyle {
       Self {
         branch: TreeBranchStyle::new(settings),
         node: NodeStyle::new(settings),
+        level: settings.level.clone(),
       }
   }
 }

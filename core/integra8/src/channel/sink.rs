@@ -3,7 +3,6 @@ use crate::results::summary::RunSummary;
 use integra8_components::{ComponentDescription, ComponentType};
 
 use crate::results::report::ComponentRunReport;
-use crate::results::ComponentTimeResult;
 use std::error::Error;
 
 use integra8_async_runtime::Receiver;
@@ -52,11 +51,10 @@ impl ResultsSink {
 
             TestEvent::NotifyComponentTimeout {
                 description,
-                timing_result,
-            } => self.sink.on_component_timed_out(description, timing_result),
+            } => self.sink.on_component_timed_out(description),
 
-            TestEvent::NotifyComponentComplete { report } => {
-                self.sink.on_component_complete(report)
+            TestEvent::NotifyComponentReportComplete { report } => {
+                self.sink.on_component_report_complete(report)
             }
 
             TestEvent::NotifyRunComplete => {
@@ -89,7 +87,6 @@ impl ResultsOutputWriterSink {
         &mut self,
         summary: ComponentTypeCountSummary
     ) -> Result<(), Box<dyn Error>> {
-        // TODO: plumb the rest here
         self.output_writer.write_run_start(&summary)
     }
 
@@ -115,28 +112,27 @@ impl ResultsOutputWriterSink {
     pub fn on_component_timed_out(
         &mut self,
         description: ComponentDescription,
-        timing_result: ComponentTimeResult,
     ) -> Result<(), Box<dyn Error>> {
         match description.component_type {
             ComponentType::Suite => self
                 .output_writer
-                .write_suite_timeout(&description, &timing_result),
+                .write_suite_timeout(&description),
             ComponentType::Test => self
                 .output_writer
-                .write_test_timeout(&description, &timing_result),
+                .write_test_timeout(&description),
             ComponentType::Setup => self
                 .output_writer
-                .write_setup_timeout(&description, &timing_result),
+                .write_setup_timeout(&description),
             ComponentType::TearDown => self
                 .output_writer
-                .write_tear_down_timeout(&description, &timing_result),
+                .write_tear_down_timeout(&description),
         }?;
         self.output_writer
-            .write_component_timeout(&description, &timing_result)?;
+            .write_component_timeout(&description)?;
         Ok(())
     }
 
-    pub fn on_component_complete(
+    pub fn on_component_report_complete(
         &mut self,
         report: ComponentRunReport,
     ) -> Result<(), Box<dyn Error>> {
@@ -193,10 +189,9 @@ impl OutputFormatter for OutputFormatterAggregator {
     fn write_component_timeout(
         &mut self,
         desc: &ComponentDescription,
-        result_timings: &ComponentTimeResult,
     ) -> Result<(), Box<dyn Error>> {
         for o in &mut self.output_writers {
-            o.write_component_timeout(desc, result_timings)?;
+            o.write_component_timeout(desc)?;
         }
         Ok(())
     }
@@ -223,10 +218,9 @@ impl OutputFormatter for OutputFormatterAggregator {
     fn write_suite_timeout(
         &mut self,
         desc: &ComponentDescription,
-        result_timings: &ComponentTimeResult,
     ) -> Result<(), Box<dyn Error>> {
         for o in &mut self.output_writers {
-            o.write_suite_timeout(desc, result_timings)?;
+            o.write_suite_timeout(desc)?;
         }
         Ok(())
     }
@@ -250,10 +244,9 @@ impl OutputFormatter for OutputFormatterAggregator {
     fn write_setup_timeout(
         &mut self,
         desc: &ComponentDescription,
-        result_timings: &ComponentTimeResult,
     ) -> Result<(), Box<dyn Error>> {
         for o in &mut self.output_writers {
-            o.write_setup_timeout(desc, result_timings)?;
+            o.write_setup_timeout(desc)?;
         }
         Ok(())
     }
@@ -277,10 +270,9 @@ impl OutputFormatter for OutputFormatterAggregator {
     fn write_tear_down_timeout(
         &mut self,
         desc: &ComponentDescription,
-        result_timings: &ComponentTimeResult,
     ) -> Result<(), Box<dyn Error>> {
         for o in &mut self.output_writers {
-            o.write_tear_down_timeout(desc, result_timings)?;
+            o.write_tear_down_timeout(desc)?;
         }
         Ok(())
     }
@@ -307,10 +299,9 @@ impl OutputFormatter for OutputFormatterAggregator {
     fn write_test_timeout(
         &mut self,
         desc: &ComponentDescription,
-        result_timings: &ComponentTimeResult,
     ) -> Result<(), Box<dyn Error>> {
         for o in &mut self.output_writers {
-            o.write_test_timeout(desc, result_timings)?;
+            o.write_test_timeout(desc)?;
         }
         Ok(())
     }

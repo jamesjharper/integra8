@@ -50,6 +50,8 @@ impl<
         schedule: TaskStateMachineNode<ScheduledComponent<TParameters>>,
         summary: ComponentTypeCountSummary
     ) -> Pin<Box<dyn Future<Output = ()> + Send + 'static>> {
+
+        // TODO: Performance check how much slower  using async_trait is over manually writing this this way.
         async fn run<
             TInnerParameters: TestParameters + Sync + Send + UnwindSafe + 'static,
             InnerProgressNotify: RunProgressNotify + Clone + Send + Sync + 'static,
@@ -71,7 +73,7 @@ impl<
             TaskScheduler::new(scheduled_component_runs, parameters.max_concurrency())
                 .for_each_concurrent(|runner| async {
                     if let ComponentRunResult::Ready(report) = runner.run().await {
-                        sender.notify_component_complete(report).await;
+                        sender.notify_component_report_complete(report).await;
                     }
                 })
                 .await;

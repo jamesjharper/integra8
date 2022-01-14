@@ -4,7 +4,6 @@ use crate::channel::TestEvent;
 use integra8_async_runtime::Sender;
 use integra8_results::summary::ComponentTypeCountSummary;
 use integra8_results::report::ComponentRunReport;
-use integra8_results::ComponentTimeResult;
 
 use integra8_components::ComponentDescription;
 
@@ -36,17 +35,15 @@ impl ResultsSource {
     pub async fn notify_component_timed_out(
         &self,
         description: ComponentDescription,
-        timing_result: ComponentTimeResult,
     ) {
         self.send(TestEvent::NotifyComponentTimeout {
             description,
-            timing_result,
         })
         .await
     }
 
-    pub async fn notify_component_complete(&self, report: ComponentRunReport) {
-        self.send(TestEvent::NotifyComponentComplete { report })
+    pub async fn notify_component_report_complete(&self, report: ComponentRunReport) {
+        self.send(TestEvent::NotifyComponentReportComplete { report })
             .await
     }
 
