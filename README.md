@@ -4,11 +4,11 @@ Integra8 rust integration test framework Rust with a focus on productivity, exte
 | This repo is in a "work in progress" state, and is not yet available as a crate via crates.io.
 
 Work remaining before release,
-[ ] Finalize formatter design
-[ ] Reinstate Unit tests
-[ ] Compete documentation
-[ ] Write examples
-[ ] Validate against Mac, Windows and Linux
+- [ ] Finalize formatter design
+- [ ] Reinstate Unit tests
+- [ ] Compete documentation
+- [ ] Write examples
+- [ ] Validate against Mac, Windows and Linux
 
 ```rust
 #[macro_use]
