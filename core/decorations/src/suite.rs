@@ -1,8 +1,9 @@
 use std::time::Duration;
 
-
-
-use integra8_components::{TestParameters, ComponentLocation, ConcurrencyMode, Suite, SuiteAttributes, ComponentDescription, ComponentGeneratorId};
+use integra8_components::{
+    ComponentDescription, ComponentGeneratorId, ComponentLocation, ConcurrencyMode, Suite,
+    SuiteAttributes, TestParameters,
+};
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct SuiteAttributesDecoration {

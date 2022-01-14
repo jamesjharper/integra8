@@ -16,22 +16,14 @@ use integra8_results::summary::ComponentTypeCountSummary;
 #[derive(Debug)]
 pub enum TestEvent {
     // Run
-    NotifyRunStart {
-        summary: ComponentTypeCountSummary
-    },
+    NotifyRunStart { summary: ComponentTypeCountSummary },
 
     NotifyRunComplete,
 
-    NotifyComponentStart {
-        description: ComponentDescription,
-    },
+    NotifyComponentStart { description: ComponentDescription },
 
-    NotifyComponentTimeout {
-        description: ComponentDescription,
-    },
-    NotifyComponentReportComplete {
-        report: ComponentRunReport,
-    },
+    NotifyComponentTimeout { description: ComponentDescription },
+    NotifyComponentReportComplete { report: ComponentRunReport },
 }
 
 pub struct ResultsChannel;

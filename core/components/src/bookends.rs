@@ -1,6 +1,9 @@
 use std::time::Duration;
 
-use crate::{Delegate, ComponentDescription, ComponentLocation, ComponentType, SuiteAttributes, ComponentPath, ComponentGeneratorId};
+use crate::{
+    ComponentDescription, ComponentGeneratorId, ComponentLocation, ComponentPath, ComponentType,
+    Delegate, SuiteAttributes,
+};
 
 #[derive(Clone, Debug)]
 pub struct BookEnds<TParameters> {
@@ -49,15 +52,15 @@ impl<TParameters> BookEnd<TParameters> {
         ignore: Option<bool>,
         critical_threshold: Option<Duration>,
         setup_fn: Delegate<TParameters>,
-    ) -> Self {       
+    ) -> Self {
         Self {
             description: ComponentDescription::new(
                 ComponentPath::from(path),
-                name,    
+                name,
                 id_gen.next(),
-                parent_suite_description.path.clone(),   
+                parent_suite_description.path.clone(),
                 parent_suite_description.parent_id.clone(),
-                description,  
+                description,
                 ComponentType::Setup,
                 src,
             ),
@@ -79,15 +82,13 @@ impl<TParameters> BookEnd<TParameters> {
         setup_fn: Delegate<TParameters>,
     ) -> Self {
         Self {
-
-            
             description: ComponentDescription::new(
                 ComponentPath::from(path),
-                name,    
+                name,
                 id_gen.next(),
-                parent_suite_description.path.clone(),   
-                parent_suite_description.id.clone(), 
-                description,  
+                parent_suite_description.path.clone(),
+                parent_suite_description.id.clone(),
+                description,
                 ComponentType::TearDown,
                 src,
             ),

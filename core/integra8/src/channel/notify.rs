@@ -27,9 +27,12 @@ impl RunProgressNotify for RunProgressChannelNotify {
 
     fn notify_run_start(
         &self,
-        summary: ComponentTypeCountSummary
+        summary: ComponentTypeCountSummary,
     ) -> Pin<Box<dyn Future<Output = ()> + Send + '_>> {
-        async fn notify_run_complete(inner_self: &RunProgressChannelNotify, summary: ComponentTypeCountSummary) {
+        async fn notify_run_complete(
+            inner_self: &RunProgressChannelNotify,
+            summary: ComponentTypeCountSummary,
+        ) {
             inner_self.result_source.notify_run_start(summary).await
         }
 
@@ -43,7 +46,6 @@ impl RunProgressNotify for RunProgressChannelNotify {
 
         Box::pin(notify_run_complete(self))
     }
-
 
     fn notify_component_report_complete(
         &self,

@@ -2,10 +2,12 @@ use indexmap::IndexMap;
 
 use crate::{
     BookEndDecoration, BookEndDecorationPair, ComponentDecoration, SuiteAttributesDecoration,
-    TestDecoration, 
+    TestDecoration,
 };
 
-use integra8_components::{TestParameters, Suite, SuiteAttributes, ComponentDescription, ComponentGeneratorId};
+use integra8_components::{
+    ComponentDescription, ComponentGeneratorId, Suite, SuiteAttributes, TestParameters,
+};
 
 #[derive(Debug)]
 pub struct ComponentGroup<TParameters> {
@@ -56,7 +58,13 @@ impl<TParameters: TestParameters> ComponentGroup<TParameters> {
         suite.suites = self
             .sub_groups
             .into_iter()
-            .map(|x| x.into_component(id_gen, Some((&suite.attributes, &suite.description)), parameters))
+            .map(|x| {
+                x.into_component(
+                    id_gen,
+                    Some((&suite.attributes, &suite.description)),
+                    parameters,
+                )
+            })
             .collect();
 
         suite

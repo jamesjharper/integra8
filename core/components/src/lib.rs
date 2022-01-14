@@ -1,4 +1,3 @@
-
 pub mod context;
 pub use context::{ExecutionContext, ExecutionStrategy, TestParameters};
 
@@ -18,7 +17,10 @@ mod acceptance_criteria;
 pub use acceptance_criteria::{AcceptanceCriteria, TimingAcceptanceCriteria};
 
 mod meta;
-pub use meta::{ComponentDescription, ComponentLocation, ComponentType, ConcurrencyMode, ComponentPath, ComponentId, ComponentGeneratorId};
+pub use meta::{
+    ComponentDescription, ComponentGeneratorId, ComponentId, ComponentLocation, ComponentPath,
+    ComponentType, ConcurrencyMode,
+};
 
 //use integra8_decorations::ComponentDecoration;
 
@@ -36,4 +38,3 @@ impl RootSuite {
         Suite::<TParameters>::from_decorated_components(components, parameters)
     }
 }*/
-

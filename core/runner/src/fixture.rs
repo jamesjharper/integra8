@@ -1,5 +1,7 @@
-
-use integra8_components::{TestParameters, ExecutionStrategy, ExecutionContext, AcceptanceCriteria, BookEnd, SuiteAttributes, Test, ComponentDescription, ComponentPath};
+use integra8_components::{
+    AcceptanceCriteria, BookEnd, ComponentDescription, ComponentPath, ExecutionContext,
+    ExecutionStrategy, SuiteAttributes, Test, TestParameters,
+};
 
 use std::sync::Arc;
 
@@ -53,7 +55,7 @@ impl<TParameters: TestParameters> ComponentFixture<TParameters> {
             } => {
                 let ctx = ExecutionContext {
                     parameters: parameters.as_ref(),
-                    description : self.description()
+                    description: self.description(),
                 };
                 test.test_fn.run_async(ctx).await
             }
@@ -64,7 +66,7 @@ impl<TParameters: TestParameters> ComponentFixture<TParameters> {
             } => {
                 let ctx = ExecutionContext {
                     parameters: parameters.as_ref(),
-                    description : self.description()
+                    description: self.description(),
                 };
                 bookend.bookend_fn.run_async(ctx).await
             }
@@ -106,15 +108,9 @@ impl<TParameters: TestParameters> ComponentFixture<TParameters> {
 
     pub fn component_path(&self) -> ComponentPath {
         match self {
-            Self::Test { test, .. } => {
-                test.description.path.clone()
-            }
-            Self::BookEnd { bookend, .. } => {
-                bookend.description.path.clone()
-            }
-            Self::Suite { description, .. } => {
-                description.path.clone()
-            }
+            Self::Test { test, .. } => test.description.path.clone(),
+            Self::BookEnd { bookend, .. } => bookend.description.path.clone(),
+            Self::Suite { description, .. } => description.path.clone(),
         }
     }
 

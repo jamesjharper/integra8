@@ -1,6 +1,6 @@
-use std::fmt::{self, Display, Formatter};
 use std::convert::AsRef;
 use std::ffi::OsStr;
+use std::fmt::{self, Display, Formatter};
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct ComponentPath(&'static str);
@@ -21,13 +21,13 @@ impl Display for ComponentPath {
     }
 }
 
-impl AsRef<OsStr> for ComponentPath  {
+impl AsRef<OsStr> for ComponentPath {
     fn as_ref(&self) -> &OsStr {
         self.0.as_ref()
     }
 }
 
-impl AsRef<str> for ComponentPath  {
+impl AsRef<str> for ComponentPath {
     fn as_ref(&self) -> &str {
         self.0.as_ref()
     }
@@ -56,7 +56,6 @@ impl ComponentGeneratorId {
         next
     }
 }
-
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub enum ComponentType {
@@ -102,21 +101,20 @@ pub struct ComponentDescription {
 }
 
 impl ComponentDescription {
-
     pub fn new(
         path: ComponentPath,
         name: Option<&'static str>,
         id: ComponentId,
-        parent_path: ComponentPath,    
+        parent_path: ComponentPath,
         parent_id: ComponentId,
-        description: Option<&'static str>,  
+        description: Option<&'static str>,
         component_type: ComponentType,
         location: Option<ComponentLocation>,
     ) -> Self {
         Self {
             path,
             id,
-            parent_path,   
+            parent_path,
             parent_id,
             name,
             description,

@@ -1,7 +1,8 @@
 use std::time::Duration;
 
 use integra8_components::{
-    TestParameters, Delegate, BookEnd, BookEndAttributes, BookEnds, ComponentDescription, ComponentLocation, SuiteAttributes, ComponentGeneratorId
+    BookEnd, BookEndAttributes, BookEnds, ComponentDescription, ComponentGeneratorId,
+    ComponentLocation, Delegate, SuiteAttributes, TestParameters,
 };
 
 #[derive(Clone, Debug)]
@@ -35,7 +36,11 @@ impl<TParameters: TestParameters> BookEndDecorationPair<TParameters> {
                 deco.into_setup_component(id_gen, parent_suite_description, parent_suite_attributes)
             }),
             tear_down: self.tear_down.map(|deco| {
-                deco.into_tear_down_component(id_gen, parent_suite_description, parent_suite_attributes)
+                deco.into_tear_down_component(
+                    id_gen,
+                    parent_suite_description,
+                    parent_suite_attributes,
+                )
             }),
         }
     }

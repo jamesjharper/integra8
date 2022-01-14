@@ -1,7 +1,8 @@
 use std::time::Duration;
 
 use crate::{
-    TestParameters, Delegate, ComponentDescription, ComponentLocation, ComponentType, ConcurrencyMode, SuiteAttributes, ComponentPath, ComponentGeneratorId
+    ComponentDescription, ComponentGeneratorId, ComponentLocation, ComponentPath, ComponentType,
+    ConcurrencyMode, Delegate, SuiteAttributes, TestParameters,
 };
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
@@ -85,11 +86,11 @@ impl<TParameters: TestParameters> Test<TParameters> {
         Self {
             description: ComponentDescription::new(
                 ComponentPath::from(path),
-                name,    
+                name,
                 id_gen.next(),
                 parent_description.path.clone(),
                 parent_description.id.clone(),
-                description,  
+                description,
                 ComponentType::Test,
                 src,
             ),

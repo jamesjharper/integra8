@@ -62,8 +62,8 @@ use strategy::{
     TestApplicationLocator,
 };
 
-use integra8_results::ComponentResult;
 use integra8_results::summary::ComponentTypeCountSummary;
+use integra8_results::ComponentResult;
 
 use integra8_runner::{DefaultScheduleRunner, ScheduleRunner};
 
@@ -114,7 +114,8 @@ pub async fn run<
     auto_detect_components: Vec<ComponentDecoration<TParameters>>,
     parameters: TParameters,
 ) -> ComponentResult {
-    let (summary, components) = resolve_components::<TParameters, Locator>(&parameters, auto_detect_components);
+    let (summary, components) =
+        resolve_components::<TParameters, Locator>(&parameters, auto_detect_components);
     let schedule = resolve_component_schedule::<TParameters, Locator>(&parameters, components);
 
     let max_concurrency = std::cmp::min(parameters.max_concurrency(), schedule.max_concurrency());
@@ -153,7 +154,10 @@ pub fn resolve_components<
 >(
     parameters: &TParameters,
     auto_detect_components: Vec<ComponentDecoration<TParameters>>,
-) -> (ComponentTypeCountSummary, Vec<ComponentDecoration<TParameters>>) {
+) -> (
+    ComponentTypeCountSummary,
+    Vec<ComponentDecoration<TParameters>>,
+) {
     let mut components = Locator::resolve_components_strategy(&parameters)
         .resolve_components(parameters, auto_detect_components);
 
@@ -171,13 +175,10 @@ pub fn resolve_components<
 
     let summary = components
         .iter()
-        .fold(
-            ComponentTypeCountSummary::new(), 
-            |mut count, c| {
-                count.increment(&c.component_type());
-                count
-            }
-        );
+        .fold(ComponentTypeCountSummary::new(), |mut count, c| {
+            count.increment(&c.component_type());
+            count
+        });
     (summary, components)
 }
 

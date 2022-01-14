@@ -1,4 +1,3 @@
-
 mod test;
 pub use test::{TestAttributesDecoration, TestDecoration};
 
@@ -41,8 +40,6 @@ impl<TParameters> ComponentDecoration<TParameters> {
     }
 }
 
-
-
 /*
 #[cfg(test)]
 mod tests {
@@ -69,28 +66,51 @@ mod tests {
     }
     */
 
-    /*mod mock_test_app {
+/*mod mock_test_app {
 
-        use integra8_impl::integration_test;
-        use integra8_impl::integration_suite;
-        use integra8_impl::teardown;
-        use integra8_impl::setup;
+    use integra8_impl::integration_test;
+    use integra8_impl::integration_suite;
+    use integra8_impl::teardown;
+    use integra8_impl::setup;
+
+    #[integration_test]
+    #[integra8(crate = crate)]
+    pub fn test_c() { }
+
+    #[integration_test]
+    #[integra8(crate = crate)]
+    pub fn test_b() { }
+
+    #[integration_test]
+    #[integra8(crate = crate)]
+    pub fn test_a() { }
+
+    #[integration_suite]
+    #[integra8(crate = crate)]
+    pub mod suite1 {
+        pub use super::*;
+
+        #[teardown]
+        #[integra8(crate = crate)]
+        fn teardown() { }
+
+        #[setup]
+        #[integra8(crate = crate)]
+        fn setup() { }
 
         #[integration_test]
         #[integra8(crate = crate)]
-        pub fn test_c() { }
+        pub fn suite1_test_c() { }
 
         #[integration_test]
         #[integra8(crate = crate)]
-        pub fn test_b() { }
+        pub fn suite1_test_b() { }
 
         #[integration_test]
         #[integra8(crate = crate)]
-        pub fn test_a() { }
+        pub fn suite1_test_a() { }
 
-        #[integration_suite]
-        #[integra8(crate = crate)]
-        pub mod suite1 {
+        pub mod nested_mod  {
             pub use super::*;
 
             #[teardown]
@@ -103,63 +123,40 @@ mod tests {
 
             #[integration_test]
             #[integra8(crate = crate)]
-            pub fn suite1_test_c() { }
-
-            #[integration_test]
-            #[integra8(crate = crate)]
-            pub fn suite1_test_b() { }
-
-            #[integration_test]
-            #[integra8(crate = crate)]
-            pub fn suite1_test_a() { }
-
-            pub mod nested_mod  {
-                pub use super::*;
-
-                #[teardown]
-                #[integra8(crate = crate)]
-                fn teardown() { }
-
-                #[setup]
-                #[integra8(crate = crate)]
-                fn setup() { }
-
-                #[integration_test]
-                #[integra8(crate = crate)]
-                pub fn suite1_nested_mod_test_d() { }
-            }
-
-            #[integration_suite]
-            #[integra8(crate = crate)]
-            pub mod nested_suite_1a {
-                pub use super::*;
-
-                #[integration_test]
-                #[integra8(crate = crate)]
-                pub fn nested_suite_1a_test_d() { }
-            }
+            pub fn suite1_nested_mod_test_d() { }
         }
 
         #[integration_suite]
         #[integra8(crate = crate)]
-        pub mod suite2 {
+        pub mod nested_suite_1a {
             pub use super::*;
 
             #[integration_test]
             #[integra8(crate = crate)]
-            pub fn suite2_test_c() { }
-
-            #[integration_test]
-            #[integra8(crate = crate)]
-            pub fn suite2_test_b() { }
-
-            #[integration_test]
-            #[integra8(crate = crate)]
-            pub fn suite2_test_a() { }
+            pub fn nested_suite_1a_test_d() { }
         }
-    }*/
+    }
 
-    /*
+    #[integration_suite]
+    #[integra8(crate = crate)]
+    pub mod suite2 {
+        pub use super::*;
+
+        #[integration_test]
+        #[integra8(crate = crate)]
+        pub fn suite2_test_c() { }
+
+        #[integration_test]
+        #[integra8(crate = crate)]
+        pub fn suite2_test_b() { }
+
+        #[integration_test]
+        #[integra8(crate = crate)]
+        pub fn suite2_test_a() { }
+    }
+}*/
+
+/*
     #[macro_export]
     macro_rules! assert_has_tests {
         (

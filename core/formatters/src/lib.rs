@@ -1,17 +1,16 @@
 pub mod none;
 
-
 pub mod models {
-    pub use integra8_results::*;
     pub use integra8_components::{ComponentDescription, ComponentLocation, ComponentType};
+    pub use integra8_results::*;
 }
 
 use std::error::Error;
 use std::io::Write;
 
-use models::ComponentDescription;
 use models::report::ComponentRunReport;
-use models::summary::{RunSummary, ComponentTypeCountSummary};
+use models::summary::{ComponentTypeCountSummary, RunSummary};
+use models::ComponentDescription;
 
 pub trait FormatterParameters {
     fn create_formatter(&self) -> Option<Box<dyn OutputFormatter>>;
@@ -28,7 +27,10 @@ pub trait OutputFormatterFactory {
 pub trait OutputFormatter {
     // run
 
-    fn write_run_start(&mut self, _summary: &ComponentTypeCountSummary) -> Result<(), Box<dyn Error>> {
+    fn write_run_start(
+        &mut self,
+        _summary: &ComponentTypeCountSummary,
+    ) -> Result<(), Box<dyn Error>> {
         Ok(())
     }
 
@@ -65,10 +67,7 @@ pub trait OutputFormatter {
         Ok(())
     }
 
-    fn write_suite_timeout(
-        &mut self,
-        _desc: &ComponentDescription,
-    ) -> Result<(), Box<dyn Error>> {
+    fn write_suite_timeout(&mut self, _desc: &ComponentDescription) -> Result<(), Box<dyn Error>> {
         Ok(())
     }
 
@@ -82,10 +81,7 @@ pub trait OutputFormatter {
         Ok(())
     }
 
-    fn write_setup_timeout(
-        &mut self,
-        _desc: &ComponentDescription,
-    ) -> Result<(), Box<dyn Error>> {
+    fn write_setup_timeout(&mut self, _desc: &ComponentDescription) -> Result<(), Box<dyn Error>> {
         Ok(())
     }
 
@@ -122,10 +118,7 @@ pub trait OutputFormatter {
         Ok(())
     }
 
-    fn write_test_timeout(
-        &mut self,
-        _desc: &ComponentDescription,
-    ) -> Result<(), Box<dyn Error>> {
+    fn write_test_timeout(&mut self, _desc: &ComponentDescription) -> Result<(), Box<dyn Error>> {
         Ok(())
     }
 
@@ -149,7 +142,7 @@ impl OutputLocation {
             OutputLocation::Pretty(ref mut term) => {
                 term.fg(color)?;
                 write!(term, "{}", s)?;
-               // term.write_all(s.as_ref().as_bytes())?;
+                // term.write_all(s.as_ref().as_bytes())?;
                 term.reset()?;
                 term.flush()?;
             }
@@ -159,7 +152,6 @@ impl OutputLocation {
         }
         Ok(())
     }
-
 
     /*pub fn write_plain<S: AsRef<str>>(&mut self, s: S) -> Result<(), Box<dyn Error>> {
         self.write_all(s.as_ref().as_bytes())?;
@@ -171,12 +163,12 @@ impl OutputLocation {
         match *self {
             OutputLocation::Pretty(ref mut term) => {
                 write!(term, "{}", s)?;
-            },
+            }
             OutputLocation::Raw(ref mut stdout) => {
                 write!(stdout, "{}", s)?;
             }
         }
-        
+
         Ok(())
     }
 }
@@ -197,11 +189,6 @@ impl Write for OutputLocation {
     }
 }
 
-
-
-
-
-
 /*
 pub struct IndentedTextWriter<W: io::Write> {
     prefix: String,
@@ -213,7 +200,7 @@ impl<W: io::Write> IndentedTextWriter<W> {
     pub fn new(w : W) -> Self {
         Self {
             w: w
-            prefix: 
+            prefix:
         }
     }
 
@@ -221,7 +208,7 @@ impl<W: io::Write> IndentedTextWriter<W> {
         &mut self,
         s: S
     ) -> Result<(), Box<dyn Error>> {
-        
+
     }
 }
 

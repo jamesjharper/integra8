@@ -1,7 +1,7 @@
 use futures::executor::block_on;
+use std::fmt;
 use std::future::Future;
 use std::pin::Pin;
-use std::fmt;
 
 use crate::ExecutionContext;
 
@@ -17,26 +17,17 @@ pub enum Delegate<TParameters> {
 
 impl<TParameters> fmt::Debug for Delegate<TParameters> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-
         match self {
-            Self::SyncWithoutContext(del) => {
-                f.debug_struct("SyncWithoutContext")
+            Self::SyncWithoutContext(del) => f
+                .debug_struct("SyncWithoutContext")
                 .field("del", del)
-                .finish()
-            },
-            Self::SyncWithContext(_)  => {
-                f.debug_struct("SyncWithContext")
-                .finish()
-            },
-            Self::AsyncWithoutContext(del) => {
-                f.debug_struct("AsyncWithoutContext")
+                .finish(),
+            Self::SyncWithContext(_) => f.debug_struct("SyncWithContext").finish(),
+            Self::AsyncWithoutContext(del) => f
+                .debug_struct("AsyncWithoutContext")
                 .field("del", del)
-                .finish()
-            },
-            Self::AsyncWithContext(_)  => {
-                f.debug_struct("AsyncWithContext")
-                .finish()
-            },
+                .finish(),
+            Self::AsyncWithContext(_) => f.debug_struct("AsyncWithContext").finish(),
         }
     }
 }

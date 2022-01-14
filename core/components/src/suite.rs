@@ -1,12 +1,12 @@
 use std::time::Duration;
 
 use crate::{
-    TestParameters, BookEnds, ComponentDescription, ComponentLocation, ComponentType, ConcurrencyMode, Test, ComponentPath, ComponentGeneratorId
+    BookEnds, ComponentDescription, ComponentGeneratorId, ComponentLocation, ComponentPath,
+    ComponentType, ConcurrencyMode, Test, TestParameters,
 };
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct SuiteAttributes {
-
     /// Indicates that this entire suite should not be run.
     pub ignore: bool,
 
@@ -134,23 +134,20 @@ impl<TParameters: TestParameters> Suite<TParameters> {
         suite_concurrency_mode: Option<ConcurrencyMode>,
         test_concurrency_mode: Option<ConcurrencyMode>,
     ) -> Suite<TParameters> {
-
         let id = id_gen.next();
-        let (parent_path, parent_id) =
-            parent.map(|p| {
-                (p.1.path.clone(), p.1.id.clone())
-            })
+        let (parent_path, parent_id) = parent
+            .map(|p| (p.1.path.clone(), p.1.id.clone()))
             // root nodes have themselves as their parent and an id of zero
             .unwrap_or_else(|| (ComponentPath::from(path), id.clone()));
 
         Suite {
             description: ComponentDescription::new(
                 ComponentPath::from(path),
-                name,   
+                name,
                 id,
                 parent_path,
                 parent_id,
-                description,  
+                description,
                 ComponentType::Suite,
                 src,
             ),

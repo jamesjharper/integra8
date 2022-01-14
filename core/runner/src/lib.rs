@@ -12,13 +12,13 @@ pub use fixture::ComponentFixture;
 use std::panic::UnwindSafe;
 use std::sync::Arc;
 
-use integra8_components::{TestParameters, ExecutionStrategy};
+use integra8_components::{ExecutionStrategy, TestParameters};
 use integra8_scheduling::iter::TaskStreamMap;
 use integra8_scheduling::state_machine::TaskStateMachineNode;
 use integra8_scheduling::{ScheduledComponent, TaskScheduler};
 
-use integra8_results::summary::ComponentTypeCountSummary;
 use integra8_results::report::{ComponentReportBuilder, ComponentRunReport};
+use integra8_results::summary::ComponentTypeCountSummary;
 
 use crate::executor::{process_external_executor, process_internal_executor, Executor};
 
@@ -30,7 +30,7 @@ pub trait ScheduleRunner<TParameters> {
         self,
         parameters: TParameters,
         schedule: TaskStateMachineNode<ScheduledComponent<TParameters>>,
-        summary: ComponentTypeCountSummary
+        summary: ComponentTypeCountSummary,
     ) -> Pin<Box<dyn Future<Output = ()> + Send + 'static>>;
 }
 
@@ -48,9 +48,8 @@ impl<
         self,
         parameters: TParameters,
         schedule: TaskStateMachineNode<ScheduledComponent<TParameters>>,
-        summary: ComponentTypeCountSummary
+        summary: ComponentTypeCountSummary,
     ) -> Pin<Box<dyn Future<Output = ()> + Send + 'static>> {
-
         // TODO: Performance check how much slower  using async_trait is over manually writing this this way.
         async fn run<
             TInnerParameters: TestParameters + Sync + Send + UnwindSafe + 'static,
@@ -59,9 +58,8 @@ impl<
             mut runner: DefaultScheduleRunner<InnerProgressNotify>,
             parameters: TInnerParameters,
             schedule: TaskStateMachineNode<ScheduledComponent<TInnerParameters>>,
-            summary: ComponentTypeCountSummary
+            summary: ComponentTypeCountSummary,
         ) {
-
             runner.sender.notify_run_start(summary).await;
             let sender = runner.sender.clone();
 

@@ -5,13 +5,11 @@ use crate::summary::{
     DidNotRunResultsCountSummary, FailResultsCountSummary, PassResultsCountSummary,
 };
 
-use crate::summary::{FailedResults, NotRunResults, PassedResults};
 use crate::report::ComponentRunReport;
+use crate::summary::{FailedResults, NotRunResults, PassedResults};
 use crate::ComponentResult;
 
-use integra8_components::{ComponentType, ComponentPath};
-
-
+use integra8_components::{ComponentPath, ComponentType};
 
 /// A `ComponentResultSummary` is a collection of `ComponentRunReport` which can be queried based on
 /// wether they *passed*, *failed* or where *not run*

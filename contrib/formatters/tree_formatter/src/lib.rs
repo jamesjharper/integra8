@@ -1,16 +1,18 @@
-mod tree;
 mod styles;
+mod tree;
 mod writer;
 
 use std::error::Error;
 use structopt::StructOpt;
 
+use crate::styles::{
+    CharacterTheme, FormattingTheme, OutputLevel, OutputTheme, StyleSettings, TreeStyle,
+};
 use crate::tree::{ResultsNode, ResultsTree};
-use crate::styles::{TreeStyle, StyleSettings, FormattingTheme, OutputTheme, CharacterTheme, OutputLevel};
 
-use integra8_formatters::models::ComponentDescription;
 use integra8_formatters::models::report::ComponentRunReport;
-use integra8_formatters::models::summary::{RunSummary, SuiteSummary, ComponentTypeCountSummary};
+use integra8_formatters::models::summary::{ComponentTypeCountSummary, RunSummary, SuiteSummary};
+use integra8_formatters::models::ComponentDescription;
 
 use integra8_formatters::OutputLocation;
 use integra8_formatters::{OutputFormatter, OutputFormatterFactory};
@@ -130,8 +132,7 @@ impl TreeFormatter {
         state: &'a RunSummary,
         suite_summary: &'a SuiteSummary,
     ) -> ResultsNode<'a> {
-        let mut suite_node =
-            ResultsNode::from_report(suite_summary.suite_report.as_ref().unwrap());
+        let mut suite_node = ResultsNode::from_report(suite_summary.suite_report.as_ref().unwrap());
 
         for setup_report in &suite_summary.setups.reports {
             suite_node.add_child_node(ResultsNode::from_report(&setup_report));
@@ -175,8 +176,15 @@ impl OutputFormatterFactory for TreeFormatter {
 }
 
 impl OutputFormatter for TreeFormatter {
-    fn write_run_start(&mut self, summary: &ComponentTypeCountSummary) -> Result<(), Box<dyn Error>> {
-        let noun = if summary.tests() != 1 { "tests" } else { "test" };
+    fn write_run_start(
+        &mut self,
+        summary: &ComponentTypeCountSummary,
+    ) -> Result<(), Box<dyn Error>> {
+        let noun = if summary.tests() != 1 {
+            "tests"
+        } else {
+            "test"
+        };
         self.out
             .write_plain(&format!("\nrunning {} {}\n", summary.tests(), noun))?;
         Ok(())
@@ -191,19 +199,16 @@ impl OutputFormatter for TreeFormatter {
     }
 
     fn write_run_complete(&mut self, state: &RunSummary) -> Result<(), Box<dyn Error>> {
-        
         let style = StyleSettings {
             formatting: FormattingTheme::Standard,
             output: OutputTheme::Symbols,
-            characters :CharacterTheme::Utf8,
-            level : OutputLevel::Verbose
+            characters: CharacterTheme::Utf8,
+            level: OutputLevel::Verbose,
         };
-
 
         self.get_tree(state)
             .render_tree(&mut self.out, &TreeStyle::new(&style))?;
 
         Ok(())
     }
-
 }

@@ -4,7 +4,7 @@ use std::vec::IntoIter;
 use crate::state_machine::{ParallelTaskNode, SerialTaskNode, TaskStateMachineNode};
 
 use integra8_components::{
-    TestParameters, BookEnd, ComponentDescription, ConcurrencyMode, Suite, SuiteAttributes, Test,
+    BookEnd, ComponentDescription, ConcurrencyMode, Suite, SuiteAttributes, Test, TestParameters,
 };
 
 #[derive(Clone, Debug)]
