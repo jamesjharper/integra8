@@ -1,70 +1,60 @@
 use ansi_term::Colour::{Black, Green, Purple, Red, Yellow};
-use ansi_term::Style;
 use integra8_formatters::models::report::ComponentRunReport;
 use integra8_formatters::models::{ComponentResult, ComponentType, PassReason};
 
-pub struct StyleSettings {
-    pub formatting: FormattingTheme,
-    pub output: OutputTheme,
-    pub characters: CharacterTheme,
-    pub level: OutputLevel,
+pub enum Formatting {
+    Ansi,
+    None
 }
 
-#[derive(Clone, Eq, PartialEq)]
-pub enum OutputLevel {
-    Verbose,
-    Info,
-    Error,
-}
+impl Formatting {
 
-pub enum CharacterTheme {
-    Utf8,
-    Ascii,
-}
-
-pub enum OutputTheme {
-    Symbols,
-    Text,
-}
-
-pub enum FormattingTheme {
-    NoAnsi,
-    Standard,
-}
-
-impl FormattingTheme {
-    pub fn apply_pass_colour(&self, text: impl Into<String>) -> String {
-        match self {
-            Self::Standard => Green.paint(text.into()).to_string(),
-            Self::NoAnsi => text.into(),
+    pub fn new(ansi_mode: &AnsiMode) -> Self {
+        match  ansi_mode.is_enabled() {
+            true => Self::Ansi,
+            false => Self::None, 
         }
     }
 
-    pub fn apply_fail_colour(&self, text: impl Into<String>) -> String {
+    pub fn apply_pass_formatting(&self, text: impl Into<String>) -> String {
         match self {
-            Self::Standard => Red.paint(text.into()).to_string(),
-            Self::NoAnsi => text.into(),
+            Self::Ansi => Green.paint(text.into()).to_string(),
+            Self::None => text.into(),
         }
     }
 
-    pub fn apply_warning_colour(&self, text: impl Into<String>) -> String {
+    pub fn apply_fail_formatting(&self, text: impl Into<String>) -> String {
         match self {
-            Self::Standard => Yellow.paint(text.into()).to_string(),
-            Self::NoAnsi => text.into(),
+            Self::Ansi => Red.paint(text.into()).to_string(),
+            Self::None => text.into(),
         }
     }
 
-    pub fn apply_skipped_colour(&self, text: impl Into<String>) -> String {
+    pub fn apply_warning_formatting(&self, text: impl Into<String>) -> String {
         match self {
-            Self::Standard => Style::default().dimmed().paint(text.into()).to_string(),
-            Self::NoAnsi => text.into(),
+            Self::Ansi => Yellow.paint(text.into()).to_string(),
+            Self::None => text.into(),
         }
     }
 
-    pub fn apply_tree_colour(&self, text: impl Into<String>) -> String {
+    pub fn apply_skipped_formatting(&self, text: impl Into<String>) -> String {
         match self {
-            Self::Standard => Style::default().dimmed().paint(text.into()).to_string(),
-            Self::NoAnsi => text.into(),
+            Self::Ansi => ansi_term::Style::default().dimmed().paint(text.into()).to_string(),
+            Self::None => text.into(),
+        }
+    }
+
+    pub fn apply_attribute_formatting(&self, text: impl Into<String>) -> String {
+        match self {
+            Self::Ansi => ansi_term::Style::default().dimmed().paint(text.into()).to_string(),
+            Self::None => text.into(),
+        }
+    }
+
+    pub fn apply_tree_formatting(&self, text: impl Into<String>) -> String {
+        match self {
+            Self::Ansi => ansi_term::Style::default().dimmed().paint(text.into()).to_string(),
+            Self::None => text.into(),
         }
     }
 }
@@ -99,19 +89,19 @@ pub struct NodeStyle {
 }
 
 impl NodeStyle {
-    pub fn new(settings: &StyleSettings) -> Self {
-        match settings.output {
-            OutputTheme::Text => Self::text(&settings.formatting),
-            OutputTheme::Symbols => Self::symbols(&settings.formatting),
+    pub fn new(format: &Formatting, _encoding: &Encoding, style: &Style) -> Self {
+        match style {
+            Style::Text => Self::text(format),
+            Style::Symbols => Self::symbols(format),
         }
     }
 
-    pub fn text(theme: &FormattingTheme) -> Self {
-        let pass = theme.apply_pass_colour("[✓]");
-        let failed = theme.apply_fail_colour("[x]");
-        let overtime = theme.apply_fail_colour("[⏳]");
-        let skipped = theme.apply_skipped_colour("[-]");
-        let warning = theme.apply_warning_colour("[!]");
+    pub fn text(format: &Formatting) -> Self {
+        let pass = format.apply_pass_formatting("[✓]");
+        let failed = format.apply_fail_formatting("[x]");
+        let overtime = format.apply_fail_formatting("[⏳]");
+        let skipped = format.apply_skipped_formatting("[-]");
+        let warning = format.apply_warning_formatting("[!]");
 
         Self {
             suite: ComponentNodeStyle {
@@ -145,35 +135,35 @@ impl NodeStyle {
         }
     }
 
-    pub fn symbols(theme: &FormattingTheme) -> Self {
+    pub fn symbols(format: &Formatting) -> Self {
         Self {
             suite: ComponentNodeStyle {
-                pass: theme.apply_pass_colour("○"),
-                failed: theme.apply_fail_colour("●"),
-                overtime: theme.apply_fail_colour("⊛"),
-                skipped: theme.apply_skipped_colour("◌"),
-                warning: theme.apply_warning_colour("◑"),
+                pass: format.apply_pass_formatting("○"),
+                failed: format.apply_fail_formatting("●"),
+                overtime: format.apply_fail_formatting("⊛"),
+                skipped: format.apply_skipped_formatting("◌"),
+                warning: format.apply_warning_formatting("◑"),
             },
             test: ComponentNodeStyle {
-                pass: theme.apply_pass_colour("□"),
-                failed: theme.apply_fail_colour("■"),
-                overtime: theme.apply_fail_colour("▧"),
-                skipped: theme.apply_skipped_colour("⬚"),
-                warning: theme.apply_warning_colour("◪"),
+                pass: format.apply_pass_formatting("□"),
+                failed: format.apply_fail_formatting("■"),
+                overtime: format.apply_fail_formatting("▧"),
+                skipped: format.apply_skipped_formatting("⬚"),
+                warning: format.apply_warning_formatting("◪"),
             },
             setup: ComponentNodeStyle {
-                pass: theme.apply_pass_colour("△"),
-                failed: theme.apply_fail_colour("▲"),
-                overtime: theme.apply_fail_colour("◭"),
-                skipped: theme.apply_skipped_colour("△"),
-                warning: theme.apply_warning_colour("◭"),
+                pass: format.apply_pass_formatting("△"),
+                failed: format.apply_fail_formatting("▲"),
+                overtime: format.apply_fail_formatting("◭"),
+                skipped: format.apply_skipped_formatting("△"),
+                warning: format.apply_warning_formatting("◭"),
             },
             tear_down: ComponentNodeStyle {
-                pass: theme.apply_pass_colour("▽"),
-                failed: theme.apply_fail_colour("▼"),
-                overtime: theme.apply_fail_colour("⧨"),
-                skipped: theme.apply_skipped_colour("▽"),
-                warning: theme.apply_warning_colour("⧨"),
+                pass: format.apply_pass_formatting("▽"),
+                failed: format.apply_fail_formatting("▼"),
+                overtime: format.apply_fail_formatting("⧨"),
+                skipped: format.apply_skipped_formatting("▽"),
+                warning: format.apply_warning_formatting("⧨"),
             },
         }
     }
@@ -223,46 +213,69 @@ pub struct TreeBranchStyle {
 }
 
 impl TreeBranchStyle {
-    pub fn new(settings: &StyleSettings) -> Self {
-        match settings.characters {
-            CharacterTheme::Utf8 => Self::utf8(&settings.formatting),
-            CharacterTheme::Ascii => Self::ascii(&settings.formatting),
+    pub fn new(format: &Formatting, encoding: &Encoding) -> Self {
+
+        match encoding {
+            Encoding::Utf8 => Self::utf8(format),
+            Encoding::Ascii => Self::ascii(format),
         }
     }
 
-    pub fn ascii(theme: &FormattingTheme) -> Self {
+    pub fn ascii(format: &Formatting) -> Self {
         Self {
-            child: theme.apply_tree_colour(" ¦-- "),
-            last_child: theme.apply_tree_colour(" '-- "),
-            no_child: theme.apply_tree_colour(" ¦   "),
+            child: format.apply_tree_formatting(" ¦-- "),
+            last_child: format.apply_tree_formatting(" '-- "),
+            no_child: format.apply_tree_formatting(" ¦   "),
             no_branch: "     ".to_string(),
             attribute_indent: "  ".to_string(),
         }
     }
 
-    pub fn utf8(theme: &FormattingTheme) -> Self {
+    pub fn utf8(format: &Formatting) -> Self {
         Self {
-            child: theme.apply_tree_colour("├── "),
-            last_child: theme.apply_tree_colour("└── "),
-            no_child: theme.apply_tree_colour("│   "),
+            child: format.apply_tree_formatting("├── "),
+            last_child: format.apply_tree_formatting("└── "),
+            no_child: format.apply_tree_formatting("│   "),
             no_branch: "    ".to_string(),
             attribute_indent: "  ".to_string(),
         }
     }
 }
 
+use crate::Encoding;
+use crate::DetailLevel;
+use crate::Style;
+use crate::AnsiMode;
+
 pub struct TreeStyle {
     pub branch: TreeBranchStyle,
     pub node: NodeStyle,
-    pub level: OutputLevel,
+    pub detail_level: DetailLevel,
 }
 
 impl TreeStyle {
-    pub fn new(settings: &StyleSettings) -> Self {
+
+    pub fn new(
+        style: Style,
+        detail_level: DetailLevel,
+        encoding: Encoding,
+        ansi_mode: AnsiMode,
+    ) -> Self {
+
+        let format = Formatting::new(&ansi_mode);
+        Self {
+            branch: TreeBranchStyle::new(&format, &encoding),
+            node: NodeStyle::new(&format, &encoding, &style ),
+            detail_level: detail_level,
+        }
+    } 
+
+
+    /*pub fn new(settings: &StyleSettings) -> Self {
         Self {
             branch: TreeBranchStyle::new(settings),
             node: NodeStyle::new(settings),
             level: settings.level.clone(),
         }
-    }
+    }*/
 }

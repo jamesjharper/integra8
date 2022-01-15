@@ -33,6 +33,11 @@ pub fn main_test(input_tokens: TokenStream) -> TokenStream {
     let formatter_factory_type = console_output_formatter.formatter_factory_type;
     let formatter_settings_type = console_output_formatter.formatter_settings_type;
 
+    let console_output_style_expr = global_attr.take_console_output_style(&formatter_factory_type, &integra8_path);
+    let console_output_level_expr = global_attr.take_console_output_level(&formatter_factory_type, &integra8_path);
+    let console_output_encoding_expr = global_attr.take_console_output_encoding(&formatter_factory_type, &integra8_path);
+    let console_output_ansi_mode_expr = global_attr.take_console_output_ansi_mode(&formatter_factory_type, &integra8_path);
+
     let tokens = quote! {
 
         #main_expr
@@ -62,20 +67,21 @@ pub fn main_test(input_tokens: TokenStream) -> TokenStream {
             #[derive(Clone, Debug)]
             pub struct BaseParameters<
                 TParametersExtend : #structopt_path ::StructOptInternal,
-                TParametersFormatter : #structopt_path ::StructOptInternal
+                TParametersExtendFormatter : #structopt_path ::StructOptInternal
             > {
                 pub test_parameters: TestParameters,
                 pub app_parameters : TParametersExtend,
-                pub formatter_parameters : TParametersFormatter
+                pub console_output_parameters_ext : TParametersExtendFormatter,
+                pub console_output_parameters: ConsoleOutputParameters
             }
 
             impl <
                 TParametersExtend,
-                TParametersFormatter
-            >  #structopt_path ::StructOpt for BaseParameters<TParametersExtend, TParametersFormatter>
+                TParametersExtendFormatter
+            >  #structopt_path ::StructOpt for BaseParameters<TParametersExtend, TParametersExtendFormatter>
             where
                 TParametersExtend : #structopt_path ::StructOptInternal,
-                TParametersFormatter : #structopt_path ::StructOptInternal
+                TParametersExtendFormatter : #structopt_path ::StructOptInternal
             {
                 fn clap<'a, 'b>() -> #structopt_path ::clap::App<'a, 'b> {
                     let app = #structopt_path ::clap::App::new(env!("CARGO_PKG_NAME"));
@@ -86,18 +92,19 @@ pub fn main_test(input_tokens: TokenStream) -> TokenStream {
                     BaseParameters {
                         test_parameters: #structopt_path ::StructOpt::from_clap(matches),
                         app_parameters: #structopt_path ::StructOpt::from_clap(matches),
-                        formatter_parameters: #structopt_path ::StructOpt::from_clap(matches),
+                        console_output_parameters: #structopt_path ::StructOpt::from_clap(matches),
+                        console_output_parameters_ext: #structopt_path ::StructOpt::from_clap(matches),
                     }
                 }
             }
 
             impl <
                 TParametersExtend,
-                TParametersFormatter
-            >  #structopt_path ::StructOptInternal for BaseParameters<TParametersExtend, TParametersFormatter>
+                TParametersExtendFormatter
+            >  #structopt_path ::StructOptInternal for BaseParameters<TParametersExtend, TParametersExtendFormatter>
             where
                 TParametersExtend : #structopt_path ::StructOptInternal,
-                TParametersFormatter : #structopt_path ::StructOptInternal
+                TParametersExtendFormatter : #structopt_path ::StructOptInternal
             {
                 fn augment_clap<'a, 'b>(
                     app: #structopt_path ::clap::App<'a, 'b>,
@@ -105,7 +112,8 @@ pub fn main_test(input_tokens: TokenStream) -> TokenStream {
                     {
                         let app = <TestParameters as #structopt_path ::StructOptInternal>::augment_clap(app);
                         let app = <TParametersExtend as #structopt_path ::StructOptInternal>::augment_clap(app);
-                        let app = <TParametersFormatter as #structopt_path ::StructOptInternal>::augment_clap(app);
+                        let app = <TParametersExtendFormatter as #structopt_path ::StructOptInternal>::augment_clap(app);
+                        let app = <ConsoleOutputParameters as #structopt_path ::StructOptInternal>::augment_clap(app);
 
                         app.version(env!("CARGO_PKG_VERSION"))
                     }
@@ -117,11 +125,11 @@ pub fn main_test(input_tokens: TokenStream) -> TokenStream {
 
             impl <
                 TParametersExtend,
-                TParametersFormatter
-            >  BaseParameters<TParametersExtend, TParametersFormatter>
+                TParametersExtendFormatter
+            >  BaseParameters<TParametersExtend, TParametersExtendFormatter>
             where
                 TParametersExtend : #structopt_path ::StructOptInternal,
-                TParametersFormatter : #structopt_path ::StructOptInternal
+                TParametersExtendFormatter : #structopt_path ::StructOptInternal
             {
 
                 pub fn from_command_line() -> Self {
@@ -247,6 +255,7 @@ pub fn main_test(input_tokens: TokenStream) -> TokenStream {
                     .arg(Arg::with_name("default:test-concurrency")
                         .takes_value(true)
                         .multiple(false)
+                        .possible_values(&["Serial", "Parallel"])
                         .required(false)
                         .validator(|s| {
                             ::std::str::FromStr::from_str(s.as_str())
@@ -259,6 +268,7 @@ pub fn main_test(input_tokens: TokenStream) -> TokenStream {
                         .takes_value(true)
                         .multiple(false)
                         .required(false)
+                        .possible_values(&["Serial", "Parallel"])
                         .validator(|s| {
                             ::std::str::FromStr::from_str(s.as_str())
                                 .map(|_: #integra8_path ::components::ConcurrencyMode| ())
@@ -328,13 +338,119 @@ pub fn main_test(input_tokens: TokenStream) -> TokenStream {
             }
 
 
+
+            // Test Parameters
+
+            #[derive(Clone, Debug)]
+            pub struct ConsoleOutputParameters {
+                pub style: String,
+                pub detail_level : String,
+                pub encoding : String,
+                pub ansi_mode : String,
+            }
+
+            impl #structopt_path ::StructOptInternal for ConsoleOutputParameters {
+                fn augment_clap<'a, 'b>(
+                    mut app: #structopt_path ::clap::App<'a, 'b>,
+                ) -> #structopt_path ::clap::App<'a, 'b> {
+     
+                    let supported_styles = < #formatter_factory_type as #integra8_path ::formatters::OutputFormatterFactory>::supported_styles();
+                    let supported_detail_levels = < #formatter_factory_type as #integra8_path ::formatters::OutputFormatterFactory>::supported_detail_levels();
+                    let supported_encodings = < #formatter_factory_type as #integra8_path ::formatters::OutputFormatterFactory>::supported_encodings();
+                    let supported_ansi = < #formatter_factory_type as #integra8_path ::formatters::OutputFormatterFactory>::supported_ansi_modes();
+
+                    use #structopt_path ::clap::Arg;
+
+
+                    if !supported_styles.is_empty() {
+                        app = app.arg(Arg::with_name("console:style")
+                            .takes_value(true)
+                            .hidden(false)
+                            .multiple(false)
+                            .possible_values(&supported_styles)
+                            .long("console:style")
+                            .default_value(#console_output_style_expr),
+
+                         );
+                    }
+
+                    if !supported_detail_levels.is_empty() {
+                        app = app.arg(Arg::with_name("console:level")
+                            .takes_value(true)
+                            .hidden(false)
+                            .multiple(false)
+                            .possible_values(&supported_detail_levels)
+                            .long("console:level")
+                            .default_value(#console_output_level_expr),
+                        );
+                    }
+
+                    if !supported_encodings.is_empty() {
+                        app = app.arg(Arg::with_name("console:encoding")
+                            .takes_value(true)
+                            .hidden(false)
+                            .multiple(false)
+                            .possible_values(&supported_encodings)
+                            .long("console:encoding")
+                            .default_value(#console_output_encoding_expr),
+                        );
+                    }
+
+                    if !supported_ansi.is_empty() {
+                        app = app.arg(Arg::with_name("console:ansi-mode")
+                            .takes_value(true)
+                            .hidden(false)
+                            .multiple(false)
+                            .possible_values(&supported_ansi)
+                            .long("console:ansi-mode")
+                            .default_value(#console_output_ansi_mode_expr)
+                        );
+                    }
+                    
+                    app.version(env!("CARGO_PKG_VERSION"))
+                }
+
+                fn is_subcommand() -> bool {
+                    false
+                }
+            }
+
+            impl #structopt_path ::StructOpt for ConsoleOutputParameters {
+                fn clap<'a, 'b>() -> #structopt_path ::clap::App<'a, 'b> {
+                    let app = #structopt_path ::clap::App::new(env!("CARGO_PKG_NAME"));
+                    <Self as #structopt_path ::StructOptInternal>::augment_clap(app)
+                }
+
+                fn from_clap(matches: &#structopt_path ::clap::ArgMatches) -> Self {
+
+                    ConsoleOutputParameters {
+                        style: matches
+                            .value_of("console:style")
+                            .map(|s| ::std::str::FromStr::from_str(s).unwrap())
+                            .unwrap_or("".to_string()),
+                        detail_level : matches
+                            .value_of("console:level")
+                            .map(|s| ::std::str::FromStr::from_str(s).unwrap())
+                            .unwrap_or("".to_string()),
+                        encoding : matches
+                            .value_of("console:encoding")
+                            .map(|s| ::std::str::FromStr::from_str(s).unwrap())
+                            .unwrap_or("".to_string()),
+                        ansi_mode : matches
+                            .value_of("console:ansi-mode")
+                            .map(|s| ::std::str::FromStr::from_str(s).unwrap())
+                            .unwrap_or("".to_string()),
+                    }
+                }
+            }
+
             impl #integra8_path ::components::TestParameters
             for BaseParameters<
                 #settings_extensions_type,
                 #formatter_settings_type
             > {
 
-                fn child_process_target<'a>(&'a self) -> Option<&'a str> {
+                fn child_process_target(&self) -> Option<&'_ str> {
                     self.test_parameters.child_process_target.as_ref().map(String::as_ref)
                 }
 
@@ -372,6 +488,19 @@ pub fn main_test(input_tokens: TokenStream) -> TokenStream {
                 fn root_namespace(&self) -> &'static str {
                     super::__ROOT_NAMESPACE
                 }
+
+                fn console_output_style(&self) -> &'_ str {
+                    &self.console_output_parameters.style
+                }
+                fn console_output_detail_level(&self) -> &'_ str  {
+                    &self.console_output_parameters.detail_level
+                }
+                fn console_output_encoding(&self) -> &'_ str  {
+                    &self.console_output_parameters.encoding
+                }
+                fn console_output_ansi_mode(&self) -> &'_ str {
+                    &self.console_output_parameters.ansi_mode
+                }
             }
 
             impl #integra8_path ::formatters::FormatterParameters
@@ -381,7 +510,7 @@ pub fn main_test(input_tokens: TokenStream) -> TokenStream {
             > {
                 fn create_formatter(&self) -> Option<Box<dyn #integra8_path ::formatters::OutputFormatter>> {
                     let formatters = < #formatter_factory_type as #integra8_path ::formatters::OutputFormatterFactory>::create(
-                        &self.formatter_parameters,
+                        &self.console_output_parameters_ext,
                         self
                     );
                     Some(formatters)

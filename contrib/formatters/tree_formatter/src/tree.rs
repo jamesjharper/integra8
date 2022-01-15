@@ -7,7 +7,7 @@ use integra8_formatters::models::{ComponentLocation, ComponentType};
 use integra8_formatters::models::{ComponentResult, ComponentTimeResult};
 use integra8_formatters::models::{DidNotRunReason, FailureReason, PassReason};
 
-use crate::styles::{NodeStyle, OutputLevel, TreeStyle};
+use crate::styles::{NodeStyle, TreeStyle};
 use crate::writer::{Prefix, PrefixedTextWriter};
 
 #[derive(Clone, Debug)]
@@ -48,9 +48,9 @@ impl<'a> ResultsNode<'a> {
             }
             _ => {
                 // Skip rendering non error nodes when output level set to Error
-                if style.level == OutputLevel::Error {
-                    return Ok(());
-                }
+                //if style.level == OutputLevel::Error {
+                //    return Ok(());
+                //}
                 let component_heading = match self.report.timing.is_warn() {
                     true => style.node.component_heading_with_remark(
                         &self.report,
@@ -60,9 +60,9 @@ impl<'a> ResultsNode<'a> {
                 };
                 output_formatter.writeln(&component_heading)?;
 
-                if style.level == OutputLevel::Verbose {
+               /* if style.detail_level == OutputLevel::Verbose {
                     self.render_node_attributes(style, output_formatter)?;
-                }
+                }*/
             }
         }
         Ok(())

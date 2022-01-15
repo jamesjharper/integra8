@@ -1,7 +1,7 @@
 pub mod none;
 
 pub mod models {
-    pub use integra8_components::{ComponentDescription, ComponentLocation, ComponentType};
+    pub use integra8_components::{ComponentDescription, ComponentLocation, ComponentType, TestParameters};
     pub use integra8_results::*;
 }
 
@@ -10,7 +10,7 @@ use std::io::Write;
 
 use models::report::ComponentRunReport;
 use models::summary::{ComponentTypeCountSummary, RunSummary};
-use models::ComponentDescription;
+use models::{ComponentDescription, TestParameters};
 
 pub trait FormatterParameters {
     fn create_formatter(&self) -> Option<Box<dyn OutputFormatter>>;
@@ -18,10 +18,43 @@ pub trait FormatterParameters {
 
 pub trait OutputFormatterFactory {
     type FormatterParameters;
-    fn create<T>(
+    fn create<T: TestParameters>(
         formatter_parameters: &Self::FormatterParameters,
         test_parameters: &T,
     ) -> Box<dyn OutputFormatter>;
+
+    fn default_style() -> &'static str {
+        ""
+    }
+
+    fn supported_styles() -> Vec<&'static str> {
+        vec![]
+    }
+
+    fn supported_detail_levels() -> Vec<&'static str> {
+        vec![]
+    }
+
+    fn default_detail_levels() -> &'static str {
+        ""
+    }
+
+    fn supported_encodings() -> Vec<&'static str> {
+        vec![]
+    }
+
+    fn default_encoding() -> &'static str {
+        ""
+    }
+
+    fn supported_ansi_modes() -> Vec<&'static str> {
+        vec![]
+    }
+
+    fn default_ansi_mode() -> &'static str {
+        ""
+    }
+
 }
 
 pub trait OutputFormatter {

@@ -69,11 +69,15 @@ pub trait TestParameters {
     fn test_warn_threshold_seconds(&self) -> u64;
     fn test_concurrency(&self) -> ConcurrencyMode;
     fn suite_concurrency(&self) -> ConcurrencyMode;
-    fn child_process_target<'a>(&'a self) -> Option<&'a str>;
+    fn child_process_target(&self) -> Option<&'_ str>;
 
     fn max_concurrency(&self) -> usize;
     fn root_namespace(&self) -> &'static str;
     fn use_child_processes(&self) -> bool;
 
 
+    fn console_output_style(&self) -> &'_ str;
+    fn console_output_detail_level(&self) -> &'_ str;
+    fn console_output_encoding(&self) -> &'_ str;
+    fn console_output_ansi_mode(&self) -> &'_ str;
 }

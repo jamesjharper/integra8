@@ -32,6 +32,10 @@ impl Parse for Parameter {
             | "test_warn_threshold_seconds"
             | "test_concurrency"
             | "suite_concurrency"
+            | "console_output_level"
+            | "console_output_style"
+            | "console_output_encoding"
+            | "console_output_ansi_mode"
             | "use_child_process" => input.call(ParameterValue::parse_string_parameter)?,
             "settings" => input.call(|s| ParameterValue::parse_settings_structopt_struct(s))?,
             "console_output"  => {

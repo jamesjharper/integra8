@@ -83,7 +83,6 @@ pub enum ConcurrencyMode {
 impl std::str::FromStr for ConcurrencyMode {
     type Err = String;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-
         match s {
             "Parallel" => Ok(ConcurrencyMode::Parallel),
             "Serial" => Ok(ConcurrencyMode::Serial),
