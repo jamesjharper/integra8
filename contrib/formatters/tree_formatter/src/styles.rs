@@ -89,10 +89,16 @@ pub struct NodeStyle {
 }
 
 impl NodeStyle {
-    pub fn new(format: &Formatting, _encoding: &Encoding, style: &Style) -> Self {
+    pub fn new(format: &Formatting, encoding: &Encoding, style: &Style) -> Self {
         match style {
             Style::Text => Self::text(format),
-            Style::Symbols => Self::symbols(format),
+            Style::Symbols => {
+                match encoding {
+                    Encoding::Utf8 => Self::symbols_utf8(format),
+                    Encoding::Ascii => Self::symbols_ascii(format)
+                }
+
+            },
         }
     }
 
@@ -135,7 +141,7 @@ impl NodeStyle {
         }
     }
 
-    pub fn symbols(format: &Formatting) -> Self {
+    pub fn symbols_utf8(format: &Formatting) -> Self {
         Self {
             suite: ComponentNodeStyle {
                 pass: format.apply_pass_formatting("○"),
@@ -164,6 +170,39 @@ impl NodeStyle {
                 overtime: format.apply_fail_formatting("⧨"),
                 skipped: format.apply_skipped_formatting("▽"),
                 warning: format.apply_warning_formatting("⧨"),
+            },
+        }
+    }
+
+    pub fn symbols_ascii(format: &Formatting) -> Self {
+        Self {
+            suite: ComponentNodeStyle {
+                pass: format.apply_pass_formatting("( )"),
+                failed: format.apply_fail_formatting("(x)"),
+                overtime: format.apply_fail_formatting("(*)"),
+                skipped: format.apply_skipped_formatting("(-)"),
+                warning: format.apply_warning_formatting("(!)"),
+            },
+            test: ComponentNodeStyle {
+                pass: format.apply_pass_formatting("[ ]"),
+                failed: format.apply_fail_formatting("[x]"),
+                overtime: format.apply_fail_formatting("[*]"),
+                skipped: format.apply_skipped_formatting("[-]"),
+                warning: format.apply_warning_formatting("[!]"),
+            },
+            setup: ComponentNodeStyle {
+                pass: format.apply_pass_formatting("/ \\"),
+                failed: format.apply_fail_formatting("/x\\"),
+                overtime: format.apply_fail_formatting("/*\\"),
+                skipped: format.apply_skipped_formatting("/-\\"),
+                warning: format.apply_warning_formatting("/!\\"),
+            },
+            tear_down: ComponentNodeStyle {
+                pass: format.apply_pass_formatting("\\ /"),
+                failed: format.apply_fail_formatting("\\x/"),
+                overtime: format.apply_fail_formatting("\\*/"),
+                skipped: format.apply_skipped_formatting("\\-/"),
+                warning: format.apply_warning_formatting("\\!/"),
             },
         }
     }
