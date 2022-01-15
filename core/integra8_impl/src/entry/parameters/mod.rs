@@ -52,25 +52,25 @@ impl ApplicationParameters {
     }
 
     pub fn take_setup_critical_threshold_seconds(&mut self) -> TokenStream {
-        self.take_string_parameter("setup_critical_threshold_seconds")
+        self.take_string_parameter("setup_time_limit_seconds")
             .map(|x| x.render_tokens())
             .unwrap_or_else(|| parse_quote!("30"))
     }
 
     pub fn take_tear_down_critical_threshold_seconds(&mut self) -> TokenStream {
-        self.take_string_parameter("tear_down_critical_threshold_seconds")
+        self.take_string_parameter("tear_down_time_limit_seconds")
             .map(|x| x.render_tokens())
             .unwrap_or_else(|| parse_quote!("30"))
     }
 
     pub fn take_test_critical_threshold_seconds(&mut self) -> TokenStream {
-        self.take_string_parameter("test_critical_threshold_seconds")
+        self.take_string_parameter("test_time_limit_seconds")
             .map(|x| x.render_tokens())
             .unwrap_or_else(|| parse_quote!("30"))
     }
 
     pub fn take_test_warn_threshold_seconds(&mut self) -> TokenStream {
-        self.take_string_parameter("test_warn_threshold_seconds")
+        self.take_string_parameter("test_warn_time_limit_seconds")
             .map(|x| x.render_tokens())
             .unwrap_or_else(|| parse_quote!("10"))
     }

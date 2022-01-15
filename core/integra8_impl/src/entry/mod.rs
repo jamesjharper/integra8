@@ -195,7 +195,7 @@ pub fn main_test(input_tokens: TokenStream) -> TokenStream {
                         .long("framework:max-concurrency")
                         .default_value(#max_concurrency_expr),
                     )
-                    .arg(Arg::with_name("default:setup-critical-threshold-seconds")
+                    .arg(Arg::with_name("default:setup-time-limit")
                         .takes_value(true)
                         .multiple(false)
                         .required(false)
@@ -204,11 +204,11 @@ pub fn main_test(input_tokens: TokenStream) -> TokenStream {
                                 .map(|_: u64| ())
                                 .map_err(|e| e.to_string())
                         })
-                        .long("default:setup-critical-threshold-seconds")
+                        .long("default:setup-time-limit")
                         .default_value(#setup_critical_threshold_seconds_expr),
                     )
 
-                    .arg(Arg::with_name("default:tear-down-critical-threshold-seconds")
+                    .arg(Arg::with_name("default:tear-down-time-limit")
                         .takes_value(true)
                         .multiple(false)
                         .required(false)
@@ -217,10 +217,10 @@ pub fn main_test(input_tokens: TokenStream) -> TokenStream {
                                 .map(|_: u64| ())
                                 .map_err(|e| e.to_string())
                         })
-                        .long("default:tear-down-critical-threshold-seconds")
+                        .long("default:tear-down-time-limit")
                         .default_value(#tear_down_critical_threshold_seconds_expr),
                     )       
-                    .arg(Arg::with_name("default:test-critical-threshold-seconds")
+                    .arg(Arg::with_name("default:test-time-limit")
                         .takes_value(true)
                         .multiple(false)
                         .required(false)
@@ -229,10 +229,10 @@ pub fn main_test(input_tokens: TokenStream) -> TokenStream {
                                 .map(|_: u64| ())
                                 .map_err(|e| e.to_string())
                         })
-                        .long("default:test-critical-threshold-seconds")
+                        .long("default:test-time-limit")
                         .default_value(#test_critical_threshold_seconds_expr),
                     )
-                    .arg(Arg::with_name("default:test-warn-threshold-seconds")
+                    .arg(Arg::with_name("default:test-warn-time-limit")
                         .takes_value(true)
                         .multiple(false)
                         .required(false)
@@ -241,7 +241,7 @@ pub fn main_test(input_tokens: TokenStream) -> TokenStream {
                                 .map(|_: u64| ())
                                 .map_err(|e| e.to_string())
                         })
-                        .long("default:test-warn-threshold-seconds")
+                        .long("default:test-warn-time-limit")
                         .default_value(#test_warn_threshold_seconds_expr),
                     )
                     .arg(Arg::with_name("default:test-concurrency")
@@ -300,19 +300,19 @@ pub fn main_test(input_tokens: TokenStream) -> TokenStream {
                             })
                             .unwrap(),
                         setup_critical_threshold_seconds: matches
-                            .value_of("default:setup-critical-threshold-seconds")
+                            .value_of("default:setup-time-limit")
                             .map(|s| ::std::str::FromStr::from_str(s).unwrap())
                             .unwrap(),
                         tear_down_critical_threshold_seconds: matches
-                            .value_of("default:tear-down-critical-threshold-seconds")
+                            .value_of("default:tear-down-time-limit")
                             .map(|s| ::std::str::FromStr::from_str(s).unwrap())
                             .unwrap(),   
                         test_critical_threshold_seconds: matches
-                            .value_of("default:test-critical-threshold-seconds")
+                            .value_of("default:test-time-limit")
                             .map(|s| ::std::str::FromStr::from_str(s).unwrap())
                             .unwrap(),
                         test_warn_threshold_seconds: matches
-                            .value_of("default:test-warn-threshold-seconds")
+                            .value_of("default:test-warn-time-limit")
                             .map(|s| ::std::str::FromStr::from_str(s).unwrap())
                             .unwrap(),
                         test_concurrency: matches
