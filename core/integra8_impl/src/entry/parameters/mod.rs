@@ -36,17 +36,41 @@ impl ApplicationParameters {
     pub fn take_max_concurrency_expr(&mut self) -> TokenStream {
         self.take_string_parameter("max_concurrency")
             .map(|x| x.render_tokens())
-            .unwrap_or_else(|| parse_quote!("4"))
+            .unwrap_or_else(|| parse_quote!("Auto"))
     }
 
-    pub fn take_critical_threshold_seconds(&mut self) -> TokenStream {
-        self.take_string_parameter("critical_threshold_seconds")
+    pub fn take_test_concurrency(&mut self) -> TokenStream {
+        self.take_string_parameter("test_concurrency")
             .map(|x| x.render_tokens())
-            .unwrap_or_else(|| parse_quote!("25"))
+            .unwrap_or_else(|| parse_quote!("Parallel"))
     }
 
-    pub fn take_warn_threshold_seconds(&mut self) -> TokenStream {
-        self.take_string_parameter("warn_threshold_seconds")
+    pub fn take_suite_concurrency(&mut self) -> TokenStream {
+        self.take_string_parameter("suite_concurrency")
+            .map(|x| x.render_tokens())
+            .unwrap_or_else(|| parse_quote!("Parallel"))
+    }
+
+    pub fn take_setup_critical_threshold_seconds(&mut self) -> TokenStream {
+        self.take_string_parameter("setup_critical_threshold_seconds")
+            .map(|x| x.render_tokens())
+            .unwrap_or_else(|| parse_quote!("30"))
+    }
+
+    pub fn take_tear_down_critical_threshold_seconds(&mut self) -> TokenStream {
+        self.take_string_parameter("tear_down_critical_threshold_seconds")
+            .map(|x| x.render_tokens())
+            .unwrap_or_else(|| parse_quote!("30"))
+    }
+
+    pub fn take_test_critical_threshold_seconds(&mut self) -> TokenStream {
+        self.take_string_parameter("test_critical_threshold_seconds")
+            .map(|x| x.render_tokens())
+            .unwrap_or_else(|| parse_quote!("30"))
+    }
+
+    pub fn take_test_warn_threshold_seconds(&mut self) -> TokenStream {
+        self.take_string_parameter("test_warn_threshold_seconds")
             .map(|x| x.render_tokens())
             .unwrap_or_else(|| parse_quote!("10"))
     }
@@ -76,6 +100,7 @@ impl ApplicationParameters {
         self.take_output_formatter_type("console_output")
             .unwrap_or_else(|| OutputFormatterTypeValue::InlineFactoryType {
                 formatter_factory_type: parse_quote!(
+                    // TODO: should be configured via features
                     ::integra8::formatters::pretty::PrettyFormatter
                 ),
             })

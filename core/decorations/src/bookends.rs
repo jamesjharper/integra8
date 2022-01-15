@@ -76,12 +76,6 @@ pub struct BookEndAttributesDecoration {
     pub critical_threshold: Option<Duration>,
 }
 
-impl BookEndAttributesDecoration {
-    pub fn into_attributes(self, parent_desc: &SuiteAttributes) -> BookEndAttributes {
-        BookEndAttributes::new(parent_desc, self.ignore, self.critical_threshold)
-    }
-}
-
 #[derive(Clone, Debug)]
 pub struct BookEndDecoration<TParameters> {
     pub desc: BookEndAttributesDecoration,

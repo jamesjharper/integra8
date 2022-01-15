@@ -10,8 +10,10 @@ pub struct SuiteAttributes {
     pub description: Option<Expr>,
     pub ignore: Option<Expr>,
     pub allow_fail: Option<Expr>,
-    pub warn_threshold: Option<Expr>,
-    pub critical_threshold: Option<Expr>,
+    pub test_warn_threshold: Option<Expr>,
+    pub test_critical_threshold: Option<Expr>,
+    pub setup_critical_threshold: Option<Expr>,
+    pub tear_down_critical_threshold: Option<Expr>,
     pub concurrency_mode: Option<Expr>,
     pub test_concurrency_mode: Option<Expr>,
     pub errors: Option<Error>,
@@ -25,8 +27,10 @@ impl SuiteAttributes {
             description: None,
             ignore: None,
             allow_fail: None,
-            warn_threshold: None,
-            critical_threshold: None,
+            test_warn_threshold: None,
+            test_critical_threshold: None,
+            setup_critical_threshold: None,
+            tear_down_critical_threshold: None,
             concurrency_mode: None,
             test_concurrency_mode: None,
             errors: None,
@@ -44,6 +48,8 @@ impl SuiteAttributes {
                     || builder.try_parse_ignore_expr(attr)
                     || builder.try_parse_warn_threshold_expr(attr)
                     || builder.try_parse_critical_threshold_expr(attr)
+                    || builder.try_parse_setup_critical_threshold_expr(attr)
+                    || builder.try_parse_tear_down_critical_threshold_expr(attr)
             )
         });
 
@@ -98,11 +104,11 @@ impl SuiteAttributes {
     // #[warn_threshold_milliseconds(1000)]
     fn try_parse_warn_threshold_expr(&mut self, attr: &Attribute) -> bool {
         if attr.path.is_ident("warn_threshold_seconds") {
-            self.warn_threshold = self.parse_duration_from_sec(attr);
+            self.test_warn_threshold = self.parse_duration_from_sec(attr);
             return true;
         }
         if attr.path.is_ident("warn_threshold_milliseconds") {
-            self.warn_threshold = self.parse_duration_from_millis(attr);
+            self.test_warn_threshold = self.parse_duration_from_millis(attr);
             return true;
         }
         return false;
@@ -113,15 +119,46 @@ impl SuiteAttributes {
     // #[critical_threshold_milliseconds(1000)]
     fn try_parse_critical_threshold_expr(&mut self, attr: &Attribute) -> bool {
         if attr.path.is_ident("critical_threshold_seconds") {
-            self.critical_threshold = self.parse_duration_from_sec(attr);
+            self.test_critical_threshold = self.parse_duration_from_sec(attr);
             return true;
         }
         if attr.path.is_ident("critical_threshold_milliseconds") {
-            self.critical_threshold = self.parse_duration_from_millis(attr);
+            self.test_critical_threshold = self.parse_duration_from_millis(attr);
             return true;
         }
         return false;
     }
+
+    // looking for
+    // #[setup_critical_threshold_seconds(1)]
+    // #[setup_critical_threshold_milliseconds(1000)]
+    fn try_parse_setup_critical_threshold_expr(&mut self, attr: &Attribute) -> bool {
+        if attr.path.is_ident("setup_critical_threshold_seconds") {
+            self.setup_critical_threshold = self.parse_duration_from_sec(attr);
+            return true;
+        }
+        if attr.path.is_ident("setup_critical_threshold_milliseconds") {
+            self.setup_critical_threshold = self.parse_duration_from_millis(attr);
+            return true;
+        }
+        return false;
+    }
+
+     // looking for
+    // #[tear_down_critical_threshold_seconds(1)]
+    // #[tear_down_critical_threshold_milliseconds(1000)]
+    fn try_parse_tear_down_critical_threshold_expr(&mut self, attr: &Attribute) -> bool {
+        if attr.path.is_ident("tear_down_critical_threshold_seconds") {
+            self.tear_down_critical_threshold = self.parse_duration_from_sec(attr);
+            return true;
+        }
+        if attr.path.is_ident("tear_down_critical_threshold_milliseconds") {
+            self.tear_down_critical_threshold = self.parse_duration_from_millis(attr);
+            return true;
+        }
+        return false;
+    }
+
 
     // looking for #[ignore()]
     fn try_parse_ignore_expr(&mut self, attr: &Attribute) -> bool {
@@ -223,12 +260,20 @@ impl SuiteAttributes {
         mem::take(&mut self.allow_fail).unwrap_or_else(|| parse_quote!(None))
     }
 
-    pub fn take_warn_threshold(&mut self) -> Expr {
-        mem::take(&mut self.warn_threshold).unwrap_or_else(|| parse_quote!(None))
+    pub fn take_test_warn_threshold(&mut self) -> Expr {
+        mem::take(&mut self.test_warn_threshold).unwrap_or_else(|| parse_quote!(None))
     }
 
-    pub fn take_critical_threshold(&mut self) -> Expr {
-        mem::take(&mut self.critical_threshold).unwrap_or_else(|| parse_quote!(None))
+    pub fn take_test_critical_threshold(&mut self) -> Expr {
+        mem::take(&mut self.test_critical_threshold).unwrap_or_else(|| parse_quote!(None))
+    }
+
+    pub fn take_setup_critical_threshold(&mut self) -> Expr {
+        mem::take(&mut self.setup_critical_threshold).unwrap_or_else(|| parse_quote!(None))
+    }
+
+    pub fn take_tear_down_critical_threshold(&mut self) -> Expr {
+        mem::take(&mut self.tear_down_critical_threshold).unwrap_or_else(|| parse_quote!(None))
     }
 
     pub fn take_concurrency_mode(&mut self) -> Expr {

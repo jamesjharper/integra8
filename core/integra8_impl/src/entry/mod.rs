@@ -14,8 +14,14 @@ pub fn main_test(input_tokens: TokenStream) -> TokenStream {
     let main_expr = global_attr.take_main();
 
     let max_concurrency_expr = global_attr.take_max_concurrency_expr();
-    let critical_threshold_seconds_expr = global_attr.take_critical_threshold_seconds();
-    let warn_threshold_seconds_expr = global_attr.take_warn_threshold_seconds();
+
+    let setup_critical_threshold_seconds_expr = global_attr.take_setup_critical_threshold_seconds();
+    let tear_down_critical_threshold_seconds_expr = global_attr.take_tear_down_critical_threshold_seconds();
+    let test_critical_threshold_seconds_expr = global_attr.take_test_critical_threshold_seconds();
+    let test_warn_threshold_seconds_expr = global_attr.take_test_warn_threshold_seconds();
+
+    let test_concurrency_expr = global_attr.take_test_concurrency();
+    let suite_concurrency_expr = global_attr.take_suite_concurrency();
 
     let use_child_process_expr = global_attr.take_use_child_process();
 
@@ -50,7 +56,6 @@ pub fn main_test(input_tokens: TokenStream) -> TokenStream {
             use super::*;
 
             #settings_extensions_def
-
 
             // Base Parameters
 
@@ -110,7 +115,6 @@ pub fn main_test(input_tokens: TokenStream) -> TokenStream {
                 }
             }
 
-
             impl <
                 TParametersExtend,
                 TParametersFormatter
@@ -136,8 +140,13 @@ pub fn main_test(input_tokens: TokenStream) -> TokenStream {
 
                 pub child_process_target: Option<String>,
                 pub max_concurrency: usize,
-                pub critical_threshold_seconds: u64,
-                pub warn_threshold_seconds: u64,
+                pub setup_critical_threshold_seconds: u64, 
+                pub test_critical_threshold_seconds: u64,
+                pub test_warn_threshold_seconds: u64,
+                pub tear_down_critical_threshold_seconds: u64,
+
+                pub test_concurrency: #integra8_path ::components::ConcurrencyMode,
+                pub suite_concurrency: #integra8_path ::components::ConcurrencyMode 
             }
 
             impl #structopt_path ::StructOptInternal for TestParameters {
@@ -157,7 +166,8 @@ pub fn main_test(input_tokens: TokenStream) -> TokenStream {
                                 .map_err(|e| e.to_string())
                         })
                         .long("internal:child-process-target"),
-                    ).arg(Arg::with_name("framework:use-child-process")
+                    )
+                    .arg(Arg::with_name("framework:use-child-process")
                     .takes_value(true)
                     .multiple(false)
                     .required(false)
@@ -168,12 +178,13 @@ pub fn main_test(input_tokens: TokenStream) -> TokenStream {
                     })
                     .long("framework:use-child-process")
                     .default_value(#use_child_process_expr),
-                    ).arg(Arg::with_name("framework:max-concurrency")
+                    )
+                    .arg(Arg::with_name("framework:max-concurrency")
                         .takes_value(true)
                         .multiple(false)
                         .required(false)
                         .validator(|s| {
-                            if s == "auto" {
+                            if s == "Auto" {
                                 Ok(())
                             } else {
                                 ::std::str::FromStr::from_str(s.as_str())
@@ -183,7 +194,8 @@ pub fn main_test(input_tokens: TokenStream) -> TokenStream {
                         })
                         .long("framework:max-concurrency")
                         .default_value(#max_concurrency_expr),
-                    ).arg(Arg::with_name("default:critical-threshold-seconds")
+                    )
+                    .arg(Arg::with_name("default:setup-critical-threshold-seconds")
                         .takes_value(true)
                         .multiple(false)
                         .required(false)
@@ -192,9 +204,11 @@ pub fn main_test(input_tokens: TokenStream) -> TokenStream {
                                 .map(|_: u64| ())
                                 .map_err(|e| e.to_string())
                         })
-                        .long("default:critical-threshold-seconds")
-                        .default_value(#critical_threshold_seconds_expr),
-                    ).arg(Arg::with_name("default:warn-threshold-seconds")
+                        .long("default:setup-critical-threshold-seconds")
+                        .default_value(#setup_critical_threshold_seconds_expr),
+                    )
+
+                    .arg(Arg::with_name("default:tear-down-critical-threshold-seconds")
                         .takes_value(true)
                         .multiple(false)
                         .required(false)
@@ -203,8 +217,54 @@ pub fn main_test(input_tokens: TokenStream) -> TokenStream {
                                 .map(|_: u64| ())
                                 .map_err(|e| e.to_string())
                         })
-                        .long("default:warn-threshold-seconds")
-                        .default_value(#warn_threshold_seconds_expr),
+                        .long("default:tear-down-critical-threshold-seconds")
+                        .default_value(#tear_down_critical_threshold_seconds_expr),
+                    )       
+                    .arg(Arg::with_name("default:test-critical-threshold-seconds")
+                        .takes_value(true)
+                        .multiple(false)
+                        .required(false)
+                        .validator(|s| {
+                            ::std::str::FromStr::from_str(s.as_str())
+                                .map(|_: u64| ())
+                                .map_err(|e| e.to_string())
+                        })
+                        .long("default:test-critical-threshold-seconds")
+                        .default_value(#test_critical_threshold_seconds_expr),
+                    )
+                    .arg(Arg::with_name("default:test-warn-threshold-seconds")
+                        .takes_value(true)
+                        .multiple(false)
+                        .required(false)
+                        .validator(|s| {
+                            ::std::str::FromStr::from_str(s.as_str())
+                                .map(|_: u64| ())
+                                .map_err(|e| e.to_string())
+                        })
+                        .long("default:test-warn-threshold-seconds")
+                        .default_value(#test_warn_threshold_seconds_expr),
+                    )
+                    .arg(Arg::with_name("default:test-concurrency")
+                        .takes_value(true)
+                        .multiple(false)
+                        .required(false)
+                        .validator(|s| {
+                            ::std::str::FromStr::from_str(s.as_str())
+                                .map(|_: #integra8_path ::components::ConcurrencyMode| ())
+                        })
+                        .long("default:test-concurrency")
+                        .default_value(#test_concurrency_expr),
+                    )
+                    .arg(Arg::with_name("default:suite-concurrency")
+                        .takes_value(true)
+                        .multiple(false)
+                        .required(false)
+                        .validator(|s| {
+                            ::std::str::FromStr::from_str(s.as_str())
+                                .map(|_: #integra8_path ::components::ConcurrencyMode| ())
+                        })
+                        .long("default:suite-concurrency")
+                        .default_value(#suite_concurrency_expr),
                     );
                     app.version(env!("CARGO_PKG_VERSION"))
                 }
@@ -232,19 +292,35 @@ pub fn main_test(input_tokens: TokenStream) -> TokenStream {
                         max_concurrency: matches
                             .value_of("framework:max-concurrency")
                             .map(|s| {
-                                if s == "auto" {
+                                if s == "Auto" {
                                     0 
                                 } else {
                                     ::std::str::FromStr::from_str(s).unwrap()
                                 }
                             })
                             .unwrap(),
-                        critical_threshold_seconds: matches
-                            .value_of("default:critical-threshold-seconds")
+                        setup_critical_threshold_seconds: matches
+                            .value_of("default:setup-critical-threshold-seconds")
                             .map(|s| ::std::str::FromStr::from_str(s).unwrap())
                             .unwrap(),
-                        warn_threshold_seconds: matches
-                            .value_of("default:warn-threshold-seconds")
+                        tear_down_critical_threshold_seconds: matches
+                            .value_of("default:tear-down-critical-threshold-seconds")
+                            .map(|s| ::std::str::FromStr::from_str(s).unwrap())
+                            .unwrap(),   
+                        test_critical_threshold_seconds: matches
+                            .value_of("default:test-critical-threshold-seconds")
+                            .map(|s| ::std::str::FromStr::from_str(s).unwrap())
+                            .unwrap(),
+                        test_warn_threshold_seconds: matches
+                            .value_of("default:test-warn-threshold-seconds")
+                            .map(|s| ::std::str::FromStr::from_str(s).unwrap())
+                            .unwrap(),
+                        test_concurrency: matches
+                            .value_of("default:test-concurrency")
+                            .map(|s| ::std::str::FromStr::from_str(s).unwrap())
+                            .unwrap(),
+                        suite_concurrency: matches
+                            .value_of("default:suite-concurrency")
                             .map(|s| ::std::str::FromStr::from_str(s).unwrap())
                             .unwrap(),
                     }
@@ -270,12 +346,27 @@ pub fn main_test(input_tokens: TokenStream) -> TokenStream {
                     self.test_parameters.max_concurrency
                 }
 
-                fn critical_threshold_seconds(&self) -> u64 {
-                    self.test_parameters.critical_threshold_seconds
+                fn test_concurrency(&self) -> #integra8_path ::components::ConcurrencyMode {
+                    self.test_parameters.test_concurrency.clone()
                 }
 
-                fn warn_threshold_seconds(&self) -> u64 {
-                    self.test_parameters.warn_threshold_seconds
+                fn suite_concurrency(&self) -> #integra8_path ::components::ConcurrencyMode {
+                    self.test_parameters.suite_concurrency.clone()
+                }       
+
+                fn setup_critical_threshold_seconds(&self) -> u64 {
+                    self.test_parameters.setup_critical_threshold_seconds
+                }
+                fn tear_down_critical_threshold_seconds(&self) -> u64 {
+                    self.test_parameters.tear_down_critical_threshold_seconds
+                }
+
+                fn test_critical_threshold_seconds(&self) -> u64 {
+                    self.test_parameters.test_critical_threshold_seconds
+                }
+
+                fn test_warn_threshold_seconds(&self) -> u64 {
+                    self.test_parameters.test_warn_threshold_seconds
                 }
 
                 fn root_namespace(&self) -> &'static str {

@@ -17,18 +17,31 @@ pub struct BookEndAttributes {
     pub ignore: bool,
 
     /// Describes the maximum duration a bookend can take before it is forcibly aborted
-    pub critical_threshold: Option<Duration>,
+    pub critical_threshold: Duration,
 }
 
 impl BookEndAttributes {
-    pub fn new(
+    pub fn new_setup(
         parent_desc: &SuiteAttributes,
         ignore: Option<bool>,
         critical_threshold: Option<Duration>,
     ) -> Self {
         Self {
             ignore: ignore.unwrap_or_else(|| parent_desc.ignore),
-            critical_threshold: critical_threshold,
+            critical_threshold: critical_threshold
+                .map_or_else(|| parent_desc.setup_critical_threshold, |val| val),
+        }
+    }
+
+    pub fn new_tear_down(
+        parent_desc: &SuiteAttributes,
+        ignore: Option<bool>,
+        critical_threshold: Option<Duration>,
+    ) -> Self {
+        Self {
+            ignore: ignore.unwrap_or_else(|| parent_desc.ignore),
+            critical_threshold: critical_threshold
+                .map_or_else(|| parent_desc.tear_down_critical_threshold, |val| val),
         }
     }
 }
@@ -64,7 +77,7 @@ impl<TParameters> BookEnd<TParameters> {
                 ComponentType::Setup,
                 src,
             ),
-            attributes: BookEndAttributes::new(parent_suite_attributes, ignore, critical_threshold),
+            attributes: BookEndAttributes::new_setup(parent_suite_attributes, ignore, critical_threshold),
             bookend_fn: setup_fn,
         }
     }
@@ -92,7 +105,7 @@ impl<TParameters> BookEnd<TParameters> {
                 ComponentType::TearDown,
                 src,
             ),
-            attributes: BookEndAttributes::new(parent_suite_attributes, ignore, critical_threshold),
+            attributes: BookEndAttributes::new_tear_down(parent_suite_attributes, ignore, critical_threshold),
             bookend_fn: setup_fn,
         }
     }

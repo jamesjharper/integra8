@@ -45,8 +45,8 @@ impl TimingAcceptanceCriteria {
 
     pub fn for_bookend(attributes: &BookEndAttributes) -> Self {
         Self {
-            warn_threshold: attributes.critical_threshold.clone(),
-            critical_threshold: attributes.critical_threshold.clone(),
+            warn_threshold: Some(attributes.critical_threshold.clone()),
+            critical_threshold: Some(attributes.critical_threshold.clone()),
         }
     }
 

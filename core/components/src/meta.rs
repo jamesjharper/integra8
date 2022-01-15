@@ -80,6 +80,18 @@ pub enum ConcurrencyMode {
     Serial,
 }
 
+impl std::str::FromStr for ConcurrencyMode {
+    type Err = String;
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+
+        match s {
+            "Parallel" => Ok(ConcurrencyMode::Parallel),
+            "Serial" => Ok(ConcurrencyMode::Serial),
+            _ => Err(format!("{} was not a valid concurrency mode. Valid values are either \"Parallel\" or \"Serial\".", s))
+        }
+    }
+}
+
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct ComponentDescription {
     /// The identity of the bookend. Used for uniquely identify the bookend and displaying the test name to the end user.

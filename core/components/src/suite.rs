@@ -21,6 +21,14 @@ pub struct SuiteAttributes {
     /// Tests which are a part of this suite, that do not advertize a critical threshold will inherit this value
     pub test_critical_threshold: Duration,
 
+    /// Describes the maximum duration a setup can take before it is forcibly aborted.
+    /// Setups which are a part of this suite, that do not advertize a critical threshold will inherit this value
+    pub setup_critical_threshold: Duration,
+
+    /// Describes the maximum duration a tear down can take before it is forcibly aborted.
+    /// Tear downs which are a part of this suite, that do not advertize a critical threshold will inherit this value
+    pub tear_down_critical_threshold: Duration,
+
     /// The concurrency model used when executing this suite of tests.
     /// `ConcurrencyMode::Parallel` will allow this suite to be run at the same time as other suites.
     /// `ConcurrencyMode::Serial` will ensure this suite is only run on its own
@@ -40,6 +48,8 @@ impl SuiteAttributes {
         allow_suite_fail: Option<bool>,
         test_warn_threshold: Option<Duration>,
         test_critical_threshold: Option<Duration>,
+        setup_critical_threshold: Option<Duration>,
+        tear_down_critical_threshold: Option<Duration>,
         suite_concurrency_mode: Option<ConcurrencyMode>,
         test_concurrency_mode: Option<ConcurrencyMode>,
     ) -> Self {
@@ -52,7 +62,7 @@ impl SuiteAttributes {
             test_warn_threshold: test_warn_threshold.map_or_else(
                 || {
                     parent_desc.map_or_else(
-                        || parameters.warn_threshold_duration(), // root value
+                        || parameters.test_warn_threshold_duration(), // root value
                         |p| p.test_warn_threshold,
                     )
                 },
@@ -62,8 +72,28 @@ impl SuiteAttributes {
             test_critical_threshold: test_critical_threshold.map_or_else(
                 || {
                     parent_desc.map_or_else(
-                        || parameters.critical_threshold_duration(), // root value
+                        || parameters.test_critical_threshold_duration(), // root value
                         |p| p.test_critical_threshold,
+                    )
+                },
+                |val| val.clone(),
+            ),
+
+            setup_critical_threshold: setup_critical_threshold.map_or_else(
+                || {
+                    parent_desc.map_or_else(
+                        || parameters.setup_critical_threshold_duration(), // root value
+                        |p| p.setup_critical_threshold,
+                    )
+                },
+                |val| val.clone(),
+            ),
+
+            tear_down_critical_threshold: tear_down_critical_threshold.map_or_else(
+                || {
+                    parent_desc.map_or_else(
+                        || parameters.tear_down_critical_threshold_duration(), // root value
+                        |p| p.tear_down_critical_threshold,
                     )
                 },
                 |val| val.clone(),
@@ -74,11 +104,10 @@ impl SuiteAttributes {
                     parent_desc.map_or_else(
                         || {
                             if parameters.max_concurrency() == 1
-                                || !parameters.run_suites_in_parallel()
                             {
                                 ConcurrencyMode::Serial
                             } else {
-                                ConcurrencyMode::Parallel
+                                parameters.suite_concurrency()
                             }
                         },
                         // root value,
@@ -93,11 +122,10 @@ impl SuiteAttributes {
                     parent_desc.map_or_else(
                         || {
                             if parameters.max_concurrency() == 1
-                                || !parameters.run_tests_in_parallel()
                             {
                                 ConcurrencyMode::Serial
                             } else {
-                                ConcurrencyMode::Parallel
+                                parameters.suite_concurrency()
                             }
                         },
                         |p| p.test_concurrency_mode.clone(),
@@ -131,6 +159,8 @@ impl<TParameters: TestParameters> Suite<TParameters> {
         allow_suite_fail: Option<bool>,
         test_warn_threshold: Option<Duration>,
         test_critical_threshold: Option<Duration>,
+        setup_critical_threshold: Option<Duration>,
+        tear_down_critical_threshold: Option<Duration>,
         suite_concurrency_mode: Option<ConcurrencyMode>,
         test_concurrency_mode: Option<ConcurrencyMode>,
     ) -> Suite<TParameters> {
@@ -158,6 +188,8 @@ impl<TParameters: TestParameters> Suite<TParameters> {
                 allow_suite_fail,
                 test_warn_threshold,
                 test_critical_threshold,
+                setup_critical_threshold,
+                tear_down_critical_threshold,
                 suite_concurrency_mode,
                 test_concurrency_mode,
             ),
