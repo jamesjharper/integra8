@@ -18,7 +18,9 @@ use integra8_formatters::OutputLocation;
 use integra8_formatters::{OutputFormatter, OutputFormatterFactory};
 
 #[derive(StructOpt, Clone, Debug)] // TODO: Remove the need for clone here
-pub struct TreeFormatterParameters {}
+pub struct TreeFormatterParameters {
+    
+}
 
 pub struct TreeFormatter {
     out: OutputLocation,

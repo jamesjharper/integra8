@@ -31,28 +31,9 @@ pub trait TestParameters {
         Duration::from_secs(self.warn_threshold_seconds())
     }
 
-    // User defined
-
-    fn run_suites_in_parallel(&self) -> bool {
-        true
+    fn is_child_process(&self) -> bool {
+        self.child_process_target().is_some()
     }
-
-    fn run_tests_in_parallel(&self) -> bool {
-        true
-    }
-
-    fn critical_threshold_seconds(&self) -> u64;
-    fn warn_threshold_seconds(&self) -> u64;
-    fn max_concurrency(&self) -> usize;
-
-    fn is_child_process(&self) -> bool;
-    fn filter(&self) -> Option<String>;
-
-    fn root_namespace(&self) -> &'static str;
-
-    fn output_formatter(&self) -> String;
-
-    fn use_child_processes(&self) -> bool;
 
     fn execution_strategy(&self) -> ExecutionStrategy {
         if self.is_child_process() {
@@ -65,9 +46,29 @@ pub trait TestParameters {
     }
 
     fn exclude_component_predicate(&self, component_path: &str) -> bool {
-        match &self.filter() {
-            Some(name) => name != component_path,
+        match &self.child_process_target() {
+            Some(name) => name != &component_path,
             None => false,
         }
     }
+
+    // User defined
+
+    fn run_suites_in_parallel(&self) -> bool {
+        true
+    }
+
+    fn run_tests_in_parallel(&self) -> bool {
+        true
+    }
+
+    fn child_process_target<'a>(&'a self) -> Option<&'a str>;
+
+    fn critical_threshold_seconds(&self) -> u64;
+    fn warn_threshold_seconds(&self) -> u64;
+    fn max_concurrency(&self) -> usize;
+    fn root_namespace(&self) -> &'static str;
+    fn use_child_processes(&self) -> bool;
+
+
 }

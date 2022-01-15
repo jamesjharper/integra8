@@ -4,6 +4,14 @@ pub trait TaskStream {
     type Payload;
     fn try_poll(&mut self) -> PollTaskResult<Self::Payload>;
     fn max_concurrency(&self) -> usize;
+    fn max_concurrency_or_limit(&self, limit: usize) -> usize {
+        if limit == 0 {
+            // if max_concurrency == 0 then "auto" detect
+            self.max_concurrency()
+        } else {
+            cmp::min(limit, self.max_concurrency())
+        }
+    }
     fn complete_task(&mut self, path: TaskNodePath) -> bool;
     fn len(&self) -> usize;
 }

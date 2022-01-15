@@ -118,8 +118,8 @@ pub async fn run<
         resolve_components::<TParameters, Locator>(&parameters, auto_detect_components);
     let schedule = resolve_component_schedule::<TParameters, Locator>(&parameters, components);
 
-    let max_concurrency = std::cmp::min(parameters.max_concurrency(), schedule.max_concurrency());
-
+    let max_concurrency = schedule.max_concurrency_or_limit(parameters.max_concurrency());
+   
     let sink = resolve_results_sink::<TParameters, Locator>(&parameters);
     let (sender, receiver) = ResultsChannel::new(sink, max_concurrency);
 

@@ -44,10 +44,9 @@ impl<
             
             let mut child_process = Command::new(std::env::current_exe().unwrap())
                 .kill_on_drop(true)
-                .arg("--child-process")
-                .arg("--filter")
+                .arg("--internal:child-process-target")
                 .arg(fixture.component_path())
-                // Replicate args given to the original test runner
+                // Replicate args passed to the original test runner
                 .args(std::env::args().skip(1)) 
                 .stdout(Stdio::piped())
                 .stderr(Stdio::piped())

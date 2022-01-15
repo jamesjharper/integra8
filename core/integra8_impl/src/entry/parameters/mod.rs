@@ -61,12 +61,6 @@ impl ApplicationParameters {
         MainDefinitionValue::configured_runtime().render_tokens()
     }
 
-    pub fn take_output(&mut self) -> TokenStream {
-        self.take_string_parameter("output")
-            .map(|x| x.render_tokens())
-            .unwrap_or_else(|| parse_quote!("default"))
-    }
-
     pub fn take_settings_extensions(&mut self) -> StructoptStruct {
         self.take_structopt_struct("settings")
             .unwrap_or_else(|| {

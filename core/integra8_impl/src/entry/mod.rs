@@ -18,7 +18,6 @@ pub fn main_test(input_tokens: TokenStream) -> TokenStream {
     let warn_threshold_seconds_expr = global_attr.take_warn_threshold_seconds();
 
     let use_child_process_expr = global_attr.take_use_child_process();
-    let output_expr = global_attr.take_output();
 
     let settings_extensions = global_attr.take_settings_extensions();
     let settings_extensions_def = settings_extensions.definition;
@@ -53,7 +52,7 @@ pub fn main_test(input_tokens: TokenStream) -> TokenStream {
             #settings_extensions_def
 
 
-            // Base Paramters
+            // Base Parameters
 
             #[derive(Clone, Debug)]
             pub struct BaseParameters<
@@ -123,7 +122,6 @@ pub fn main_test(input_tokens: TokenStream) -> TokenStream {
 
                 pub fn from_command_line() -> Self {
                     let args: Vec<String> = std::env::args().collect();
-                   // Self::from_iter(&args)
                     <Self as #structopt_path ::StructOpt>::from_iter(&args)
                 }
             }
@@ -133,102 +131,84 @@ pub fn main_test(input_tokens: TokenStream) -> TokenStream {
 
             #[derive(Clone, Debug)]
             pub struct TestParameters {
-                // indicates that this instance is running as a child process
-                pub is_child_process: bool,
                 // indicates is this instance will spawn child processes
                 pub use_child_processes: bool,
 
-                pub filter: Option<String>,
+                pub child_process_target: Option<String>,
                 pub max_concurrency: usize,
                 pub critical_threshold_seconds: u64,
                 pub warn_threshold_seconds: u64,
-                pub output_formatter: String,
             }
 
             impl #structopt_path ::StructOptInternal for TestParameters {
                 fn augment_clap<'a, 'b>(
                     app: #structopt_path ::clap::App<'a, 'b>,
                 ) -> #structopt_path ::clap::App<'a, 'b> {
-                    {
-                        use #structopt_path ::clap::Arg;
-                        let app =
-                        app.arg(Arg::with_name("child-process")
-                            .takes_value(false)
-                            .multiple(false)
-                            .hidden(true)
-                            .long("child-process"),
-                        ).arg(Arg::with_name("use-child-process")
+     
+                    use #structopt_path ::clap::Arg;
+                    let app = app
+                    .arg(Arg::with_name("internal:child-process-target")
+                        .takes_value(true)
+                        .hidden(true)
+                        .multiple(false)
+                        .validator(|s| {
+                            ::std::str::FromStr::from_str(s.as_str())
+                                .map(|_: String| ())
+                                .map_err(|e| e.to_string())
+                        })
+                        .long("internal:child-process-target"),
+                    ).arg(Arg::with_name("framework:use-child-process")
+                    .takes_value(true)
+                    .multiple(false)
+                    .required(false)
+                    .validator(|s| {
+                        ::std::str::FromStr::from_str(s.as_str())
+                            .map(|_: bool| ())
+                            .map_err(|e| e.to_string())
+                    })
+                    .long("framework:use-child-process")
+                    .default_value(#use_child_process_expr),
+                    ).arg(Arg::with_name("framework:max-concurrency")
+                        .takes_value(true)
+                        .multiple(false)
+                        .required(false)
+                        .validator(|s| {
+                            if s == "auto" {
+                                Ok(())
+                            } else {
+                                ::std::str::FromStr::from_str(s.as_str())
+                                    .map(|_: usize| ())
+                                    .map_err(|e| e.to_string())
+                            }
+                        })
+                        .long("framework:max-concurrency")
+                        .default_value(#max_concurrency_expr),
+                    ).arg(Arg::with_name("default:critical-threshold-seconds")
                         .takes_value(true)
                         .multiple(false)
                         .required(false)
                         .validator(|s| {
                             ::std::str::FromStr::from_str(s.as_str())
-                                .map(|_: bool| ())
+                                .map(|_: u64| ())
                                 .map_err(|e| e.to_string())
                         })
-                        .long("use-child-process")
-                        .default_value(#use_child_process_expr),
-                        ).arg(Arg::with_name("filter")
-                            .takes_value(true)
-                            .multiple(false)
-                            .validator(|s| {
-                                ::std::str::FromStr::from_str(s.as_str())
-                                    .map(|_: String| ())
-                                    .map_err(|e| e.to_string())
-                            })
-                            .long("filter"),
-                        ).arg(Arg::with_name("max-concurrency")
-                            .takes_value(true)
-                            .multiple(false)
-                            .required(false)
-                            .validator(|s| {
-                                ::std::str::FromStr::from_str(s.as_str())
-                                    .map(|_: usize| ())
-                                    .map_err(|e| e.to_string())
-                            })
-                            .long("max-concurrency")
-                            .default_value(#max_concurrency_expr),
-                        ).arg(Arg::with_name("critical-threshold-seconds")
-                            .takes_value(true)
-                            .multiple(false)
-                            .required(false)
-                            .validator(|s| {
-                                ::std::str::FromStr::from_str(s.as_str())
-                                    .map(|_: u64| ())
-                                    .map_err(|e| e.to_string())
-                            })
-                            .long("critical-threshold-seconds")
-                            .default_value(#critical_threshold_seconds_expr),
-                        ).arg(Arg::with_name("warn-threshold-seconds")
-                            .takes_value(true)
-                            .multiple(false)
-                            .required(false)
-                            .validator(|s| {
-                                ::std::str::FromStr::from_str(s.as_str())
-                                    .map(|_: u64| ())
-                                    .map_err(|e| e.to_string())
-                            })
-                            .long("warn-threshold-seconds")
-                            .default_value(#warn_threshold_seconds_expr),
-                        ).arg(Arg::with_name("continue-on-failure")
-                            .takes_value(false)
-                            .multiple(false)
-                            .long("continue-on-failure"),
-                        ).arg( Arg::with_name("output-formatter")
-                            .takes_value(true)
-                            .multiple(false)
-                            .required(false)
-                            .validator(|s| {
-                                ::std::str::FromStr::from_str(s.as_str())
-                                    .map(|_: String| ())
-                                    .map_err(|e| e.to_string())
-                            })
-                            .long("output")
-                            .default_value(#output_expr),
-                        );
-                        app.version(env!("CARGO_PKG_VERSION"))
-                    }
+                        .long("default:critical-threshold-seconds")
+                        .default_value(#critical_threshold_seconds_expr),
+                    ).arg(Arg::with_name("default:warn-threshold-seconds")
+                        .takes_value(true)
+                        .multiple(false)
+                        .required(false)
+                        .validator(|s| {
+                            ::std::str::FromStr::from_str(s.as_str())
+                                .map(|_: u64| ())
+                                .map_err(|e| e.to_string())
+                        })
+                        .long("default:warn-threshold-seconds")
+                        .default_value(#warn_threshold_seconds_expr),
+                    );
+                    app.version(env!("CARGO_PKG_VERSION"))
                 }
+
                 fn is_subcommand() -> bool {
                     false
                 }
@@ -242,28 +222,29 @@ pub fn main_test(input_tokens: TokenStream) -> TokenStream {
 
                 fn from_clap(matches: &#structopt_path ::clap::ArgMatches) -> Self {
                     TestParameters {
-                        is_child_process: matches.is_present("child-process"),
+                        child_process_target: matches
+                            .value_of("internal:child-process-target")
+                            .map(|s| ::std::str::FromStr::from_str(s).unwrap()),
                         use_child_processes: matches
-                            .value_of("use-child-process")
+                            .value_of("framework:use-child-process")
                             .map(|s| ::std::str::FromStr::from_str(s).unwrap())
                             .unwrap(),
-                        filter: matches
-                            .value_of("filter")
-                            .map(|s| ::std::str::FromStr::from_str(s).unwrap()),
                         max_concurrency: matches
-                            .value_of("max-concurrency")
-                            .map(|s| ::std::str::FromStr::from_str(s).unwrap())
+                            .value_of("framework:max-concurrency")
+                            .map(|s| {
+                                if s == "auto" {
+                                    0 
+                                } else {
+                                    ::std::str::FromStr::from_str(s).unwrap()
+                                }
+                            })
                             .unwrap(),
                         critical_threshold_seconds: matches
-                            .value_of("critical-threshold-seconds")
+                            .value_of("default:critical-threshold-seconds")
                             .map(|s| ::std::str::FromStr::from_str(s).unwrap())
                             .unwrap(),
                         warn_threshold_seconds: matches
-                            .value_of("warn-threshold-seconds")
-                            .map(|s| ::std::str::FromStr::from_str(s).unwrap())
-                            .unwrap(),
-                        output_formatter: matches
-                            .value_of("output-formatter")
+                            .value_of("default:warn-threshold-seconds")
                             .map(|s| ::std::str::FromStr::from_str(s).unwrap())
                             .unwrap(),
                     }
@@ -277,24 +258,16 @@ pub fn main_test(input_tokens: TokenStream) -> TokenStream {
                 #formatter_settings_type
             > {
 
-                fn is_child_process(&self) -> bool {
-                    self.test_parameters.is_child_process
+                fn child_process_target<'a>(&'a self) -> Option<&'a str> {
+                    self.test_parameters.child_process_target.as_ref().map(String::as_ref)
                 }
 
                 fn use_child_processes(&self) -> bool {
                     self.test_parameters.use_child_processes
                 }
 
-                fn filter(&self) -> Option<String> {
-                    self.test_parameters.filter.clone()
-                }
-
                 fn max_concurrency(&self) -> usize {
                     self.test_parameters.max_concurrency
-                }
-
-                fn output_formatter(&self) -> String {
-                    self.test_parameters.output_formatter.clone()
                 }
 
                 fn critical_threshold_seconds(&self) -> u64 {
