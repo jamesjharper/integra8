@@ -38,21 +38,21 @@ impl ResultsCountSummary {
 #[derive(Clone, Debug)]
 pub struct PassResultsCountSummary {
     accepted: usize,
-    allowed_failure: usize,
+    accepted_with_warning: usize,
 }
 
 impl PassResultsCountSummary {
     pub fn new() -> Self {
         Self {
             accepted: 0,
-            allowed_failure: 0,
+            accepted_with_warning: 0,
         }
     }
 
     pub fn increment(&mut self, reason: &PassReason) {
         match reason {
             PassReason::Accepted => self.accepted += 1,
-            PassReason::FailureAllowed => self.allowed_failure += 1,
+            PassReason::AcceptedWithWarning(_) => self.accepted_with_warning += 1,
         }
     }
 
@@ -60,8 +60,8 @@ impl PassResultsCountSummary {
         self.accepted
     }
 
-    pub fn allowed_failure(&self) -> usize {
-        self.allowed_failure
+    pub fn accepted_with_warning(&self) -> usize {
+        self.accepted_with_warning
     }
 }
 
@@ -69,13 +69,13 @@ impl ResultReasonCounter for PassResultsCountSummary {
     type ReasonType = PassReason;
 
     fn total(&self) -> usize {
-        self.accepted().saturating_add(self.allowed_failure())
+        self.accepted().saturating_add(self.accepted_with_warning())
     }
 
     fn by_reason(&self, reason: &PassReason) -> usize {
         match reason {
             PassReason::Accepted => self.accepted,
-            PassReason::FailureAllowed => self.allowed_failure,
+            PassReason::AcceptedWithWarning(_) => self.accepted_with_warning,
         }
     }
 }

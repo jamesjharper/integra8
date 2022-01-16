@@ -12,9 +12,16 @@ pub enum ComponentResult {
 }
 
 #[derive(Clone, Debug, Eq, PartialEq)]
+pub enum WarningReason {
+    FailureAllowed,
+    WarningDurationThreshold,
+    ChildWarning,
+}
+
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub enum PassReason {
     Accepted,
-    FailureAllowed,
+    AcceptedWithWarning(WarningReason),
 }
 
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -38,7 +45,9 @@ impl ComponentResult {
     }
 
     pub fn rejection_exempt() -> Self {
-        Self::Pass(PassReason::FailureAllowed)
+        Self::Pass(
+            PassReason::AcceptedWithWarning(WarningReason::FailureAllowed)
+        )
     }
 
     pub fn child_failure() -> Self {

@@ -5,7 +5,7 @@ use crate::summary::{
 
 use crate::report::ComponentRunReport;
 use crate::ComponentResult;
-use crate::{DidNotRunReason, FailureReason, PassReason};
+use crate::{DidNotRunReason, FailureReason, PassReason, WarningReason};
 
 pub use std::slice::Iter;
 
@@ -89,8 +89,13 @@ impl<'a> PassedResults<'a> {
     ///    std::thread::sleep(std::time::Duration::from_millis(1100));
     /// }
     ///```
-    pub fn due_to_allowed_failure(self) -> PassReasonResults<'a> {
-        self.due_to_reason(PassReason::FailureAllowed)
+    pub fn due_to_acceptance_with_warning(self) -> PassReasonResults<'a> {
+        self.due_to_reason(
+            PassReason::AcceptedWithWarning(
+                // WarningReason will be ignored
+                WarningReason::FailureAllowed
+            )
+        )
     }
 
     /// Returns a iterator for only the pass results which matches the give pass reason
@@ -155,7 +160,13 @@ impl<'a> Iterator for PassReasonResults<'a> {
     fn next(&mut self) -> Option<Self::Item> {
         let filter_by_reason = self.filter_by_reason.clone();
         self.iter.find_map(|report| match &report.result {
-            ComponentResult::Pass(reason) if reason == &filter_by_reason => Some(report),
+            ComponentResult::Pass(reason) => {
+                match (&filter_by_reason, &reason) {
+                    (PassReason::Accepted, PassReason::Accepted) => Some(report),
+                    ( PassReason::AcceptedWithWarning(_),PassReason::AcceptedWithWarning(_)) => Some(report),
+                    _ => None
+                }
+            },
             _ => None,
         })
     }

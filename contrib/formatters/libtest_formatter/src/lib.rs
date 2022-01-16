@@ -319,13 +319,13 @@ impl OutputFormatter for PrettyFormatter {
             self.write_pretty("FAILED", term::color::RED)?;
         }
 
-        if state.tests_passed().due_to_allowed_failure().has_some() {
+        if state.tests_passed().due_to_acceptance_with_warning().has_some() {
             format!(
                 ". {} passed; {} failed ({} allowed); {} skipped",
                 state.tests_passed().count(),
                 state.tests_failed().count()
-                    + state.tests_passed().due_to_allowed_failure().count(),
-                state.tests_passed().due_to_allowed_failure().count(),
+                    + state.tests_passed().due_to_acceptance_with_warning().count(),
+                state.tests_passed().due_to_acceptance_with_warning().count(),
                 state.tests_not_run().count(),
             )
         } else {

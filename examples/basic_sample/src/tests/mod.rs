@@ -31,7 +31,7 @@ fn test3() {
 #[name("custom named for tear down")]
 #[description("the tear down description")]
 fn tear_down(_ctx: crate::ExecutionContext) {
-    assert_eq!(true, false);
+    assert_eq!(true, true);
 }
 
 #[integration_suite]
@@ -54,9 +54,9 @@ mod nested_test_suite {
     mod another_nested_test_suite {
         use super::*;
         #[integration_test]
-        //#[allow_fail]
+        #[allow_fail]
         fn first() {
-            //assert_eq!(false, true);
+            assert_eq!(false, true);
         }
 
         #[integration_test]
@@ -122,6 +122,7 @@ mod nested_test_suite {
             }
 
             #[integration_suite]
+            #[allow_fail]
             mod suite_should_fail {
                 use super::*;
 
