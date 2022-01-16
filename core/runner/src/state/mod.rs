@@ -136,7 +136,10 @@ impl ComponentStateToken {
             return;
         }
 
-        if child_model.state.is_success() && !parent_model.state.is_failed() && !parent_model.state.is_warn() {
+        if child_model.state.is_success()
+            && !parent_model.state.is_failed()
+            && !parent_model.state.is_warn()
+        {
             // If no children failed or have warnings, the then we implicitly succeeded
             parent_model.state = ComponentState::Tentative(ComponentResult::passed());
             return;

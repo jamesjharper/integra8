@@ -33,7 +33,6 @@ impl ResultsChannel {
         sink: ResultsOutputWriterSink,
         max_concurrency: usize,
     ) -> (ResultsSource, ResultsSink) {
-        
         let (sender, receiver) = channel::<TestEvent>(max_concurrency * 5);
         (
             ResultsSource { tx: sender },

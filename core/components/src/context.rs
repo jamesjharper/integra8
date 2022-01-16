@@ -1,6 +1,6 @@
 use std::time::Duration;
 
-use crate::{ConcurrencyMode, ComponentDescription};
+use crate::{ComponentDescription, ConcurrencyMode};
 
 #[derive(Clone, Debug)]
 pub struct ExecutionContext<'a, TParameters> {
@@ -21,7 +21,7 @@ pub trait TestParameters {
             return false;
         }
         true
-       // self.run_suites_in_parallel() || self.run_tests_in_parallel()
+        // self.run_suites_in_parallel() || self.run_tests_in_parallel()
     }
 
     fn setup_critical_threshold_duration(&self) -> Duration {
@@ -74,7 +74,6 @@ pub trait TestParameters {
     fn max_concurrency(&self) -> usize;
     fn root_namespace(&self) -> &'static str;
     fn use_child_processes(&self) -> bool;
-
 
     fn console_output_style(&self) -> &'_ str;
     fn console_output_detail_level(&self) -> &'_ str;

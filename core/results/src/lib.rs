@@ -45,9 +45,7 @@ impl ComponentResult {
     }
 
     pub fn rejection_exempt() -> Self {
-        Self::Warning(
-            WarningReason::FailureAllowed
-        )
+        Self::Warning(WarningReason::FailureAllowed)
     }
 
     pub fn child_failure() -> Self {
@@ -89,14 +87,14 @@ impl ComponentResult {
     pub fn has_failed(&self) -> bool {
         match self {
             Self::Fail(_) => true,
-            _ => false
+            _ => false,
         }
     }
 
     pub fn has_passed(&self) -> bool {
-        match self { 
+        match self {
             Self::Pass(_) => true,
-            _ => false
+            _ => false,
         }
     }
 
@@ -110,7 +108,7 @@ impl ComponentResult {
     pub fn has_not_run(&self) -> bool {
         match self {
             Self::DidNotRun(_) => true,
-            _ => false
+            _ => false,
         }
     }
 }

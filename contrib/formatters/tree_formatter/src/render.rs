@@ -1,71 +1,74 @@
 use std::io::Write;
 use std::time::Duration;
 
-
 use crate::parameters::DetailLevel;
 use crate::styles::TreeStyle;
 use crate::writer::{Prefix, PrefixedTextWriter};
 
-use integra8_formatters::models::{ComponentType};
-use integra8_formatters::models::{ComponentResult};
-use integra8_formatters::models::{FailureReason, WarningReason};
 use integra8_formatters::models::report::ComponentRunReport;
+use integra8_formatters::models::ComponentResult;
+use integra8_formatters::models::ComponentType;
+use integra8_formatters::models::{FailureReason, WarningReason};
 
 pub fn render_component_heading<W: Write>(
     output_formatter: &mut PrefixedTextWriter<W>,
     report: &ComponentRunReport,
     style: &TreeStyle,
-    detail_level: &DetailLevel
+    detail_level: &DetailLevel,
 ) -> std::io::Result<()> {
-
     let component_heading = match &report.result {
-        ComponentResult::Fail(FailureReason::Overtime) => {
-            style.node.component_heading_with_remark(
-                report,
-                report.description.friendly_name(),
-                &format!("time limit exceeded {}",  render_human_time(&report.timing.duration()))
-            )
-        },
+        ComponentResult::Fail(FailureReason::Overtime) => style.node.component_heading_with_remark(
+            report,
+            report.description.friendly_name(),
+            &format!(
+                "time limit exceeded {}",
+                render_human_time(&report.timing.duration())
+            ),
+        ),
         ComponentResult::Warning(WarningReason::FailureAllowed) => {
             style.node.component_heading_with_remark(
                 report,
                 report.description.friendly_name(),
-                "failure allowed"
+                "failure allowed",
             )
-        },
+        }
         ComponentResult::Warning(WarningReason::OvertimeWarning) => {
             style.node.component_heading_with_remark(
                 report,
                 report.description.friendly_name(),
-                &format!("time limit warning {}", render_human_time(&report.timing.duration()))
+                &format!(
+                    "time limit warning {}",
+                    render_human_time(&report.timing.duration())
+                ),
             )
-        },
-        ComponentResult::DidNotRun(_) => {
-            style.node.component_heading(report, report.description.friendly_name())
         }
+        ComponentResult::DidNotRun(_) => style
+            .node
+            .component_heading(report, report.description.friendly_name()),
         _ => {
             if detail_level != &DetailLevel::StopWatch {
-                style.node.component_heading(report, report.description.friendly_name())
+                style
+                    .node
+                    .component_heading(report, report.description.friendly_name())
             } else {
                 style.node.component_heading_with_remark(
                     report,
                     report.description.friendly_name(),
-                    &format!("{}", render_human_time(&report.timing.duration()))
+                    &format!("{}", render_human_time(&report.timing.duration())),
                 )
             }
-        },
+        }
     };
 
     output_formatter.writeln(component_heading)?;
     Ok(())
 }
 
-
 pub fn render_node_attributes<W: Write>(
     output_formatter: &mut PrefixedTextWriter<W>,
     report: &ComponentRunReport,
     style: &TreeStyle,
-    detail_level: &DetailLevel
+    detail_level: &DetailLevel,
 ) -> std::io::Result<()> {
     let mut has_attributes = false;
     output_formatter.push(Prefix::with(&style.branch.attribute_indent));
@@ -82,14 +85,18 @@ pub fn render_node_attributes<W: Write>(
             has_attributes = true;
         }
     }
-    
 
     if detail_level != &DetailLevel::StopWatch {
         let duration = report.timing.duration();
 
         // Only print duration if the test takes longer then 2 seconds
         if duration > Duration::new(2, 0) {
-            render_attribute(output_formatter, style, "duration", &render_human_time(&report.timing.duration()))?;
+            render_attribute(
+                output_formatter,
+                style,
+                "duration",
+                &render_human_time(&report.timing.duration()),
+            )?;
             has_attributes = true;
         }
     }
@@ -112,7 +119,6 @@ pub fn render_node_attributes<W: Write>(
     Ok(())
 }
 
-
 pub fn render_attribute<W: Write>(
     output_formatter: &mut PrefixedTextWriter<W>,
     style: &TreeStyle,
@@ -134,8 +140,7 @@ pub fn render_attribute<W: Write>(
         }
         _ => {
             // write on many lines
-            output_formatter
-                .writeln(format!("{}", style.node.attribute_style(attribute_name)))?;
+            output_formatter.writeln(format!("{}", style.node.attribute_style(attribute_name)))?;
             output_formatter.push(Prefix::with(&style.branch.attribute_indent));
             for line in attribute_text_lines {
                 output_formatter.writeln(line)?;
@@ -146,28 +151,24 @@ pub fn render_attribute<W: Write>(
     Ok(())
 }
 
-
-
 pub fn render_human_time(duration: &Duration) -> String {
-    
     let seconds = duration.as_secs() % 60;
     let minutes = (duration.as_secs() / 60) % 60;
     let hours = (duration.as_secs() / 60) / 60;
-    
+
     if hours != 0 {
         if minutes != 0 {
-            return format!("{}h {}m", hours, minutes)
+            return format!("{}h {}m", hours, minutes);
         } else {
-            return format!("{}h", hours)
+            return format!("{}h", hours);
         }
-        
     }
 
     if minutes != 0 {
         if seconds != 0 {
-            return format!("{}m {}s", minutes, seconds)
+            return format!("{}m {}s", minutes, seconds);
         } else {
-            return format!("{}m", minutes)
+            return format!("{}m", minutes);
         }
     }
     // Otherwise use default time formatter

@@ -1,22 +1,20 @@
+pub mod parameters;
+pub mod render;
 mod styles;
 mod tree;
 mod writer;
-pub mod parameters;
-pub mod render;
 
-use std::str::FromStr;
 use std::error::Error;
-use std::io::{self, Write, Stdout};
+use std::io::{self, Stdout, Write};
+use std::str::FromStr;
 
-use crate::styles::{
-    TreeStyle,
-};
+use crate::parameters::{AnsiMode, DetailLevel, Encoding, Style, TreeFormatterParameters};
+use crate::styles::TreeStyle;
 use crate::tree::{ResultsNode, ResultsTree};
-use crate::parameters::{TreeFormatterParameters, Style, DetailLevel, Encoding, AnsiMode};
 use crate::writer::PrefixedTextWriter;
-use integra8_formatters::models::summary::{ComponentTypeCountSummary, RunSummary, SuiteSummary};
-use integra8_formatters::models::{TestParameters, ComponentResult, ComponentType};
 use integra8_formatters::models::report::ComponentRunReport;
+use integra8_formatters::models::summary::{ComponentTypeCountSummary, RunSummary, SuiteSummary};
+use integra8_formatters::models::{ComponentResult, ComponentType, TestParameters};
 use integra8_formatters::{OutputFormatter, OutputFormatterFactory};
 
 pub struct TreeFormatter {
@@ -37,7 +35,7 @@ impl TreeFormatter {
             writer,
             tree_style,
             progress_style,
-            detail_level
+            detail_level,
         }
     }
 
@@ -72,7 +70,6 @@ impl TreeFormatter {
 
         suite_node
     }
-
 }
 
 impl OutputFormatterFactory for TreeFormatter {
@@ -81,33 +78,21 @@ impl OutputFormatterFactory for TreeFormatter {
         _formatter_parameters: &Self::FormatterParameters,
         parameters: &T,
     ) -> Box<dyn OutputFormatter> {
-
         let style = Style::from_str(parameters.console_output_style()).unwrap();
         let detail_level = DetailLevel::from_str(parameters.console_output_detail_level()).unwrap();
         let encoding = Encoding::from_str(parameters.console_output_encoding()).unwrap();
         let ansi_mode = AnsiMode::from_str(parameters.console_output_ansi_mode()).unwrap();
 
-        let tree_style = TreeStyle::new(
-            style,
-            encoding.clone(),
-            ansi_mode.clone(),
-        );
+        let tree_style = TreeStyle::new(style, encoding.clone(), ansi_mode.clone());
 
-        let progress_style = TreeStyle::new(
-            Style::Text,
-            encoding,
-            ansi_mode,
-        );
+        let progress_style = TreeStyle::new(Style::Text, encoding, ansi_mode);
 
-
-        Box::new(
-            TreeFormatter::new(
-                io::stdout(), 
-                tree_style,
-                progress_style,
-                detail_level,
-            )
-        )
+        Box::new(TreeFormatter::new(
+            io::stdout(),
+            tree_style,
+            progress_style,
+            detail_level,
+        ))
     }
 
     fn default_style() -> &'static str {
@@ -153,12 +138,14 @@ impl OutputFormatter for TreeFormatter {
             "test"
         };
 
-        writeln!(self.writer,"\nrunning {} {}\n", summary.tests(), noun)?;
+        writeln!(self.writer, "\nrunning {} {}\n", summary.tests(), noun)?;
         Ok(())
     }
 
-    fn write_component_report(&mut self, report: &ComponentRunReport) -> Result<(), Box<dyn Error>> {
-
+    fn write_component_report(
+        &mut self,
+        report: &ComponentRunReport,
+    ) -> Result<(), Box<dyn Error>> {
         if report.description.component_type == ComponentType::Suite {
             return Ok(());
         }
@@ -169,26 +156,28 @@ impl OutputFormatter for TreeFormatter {
 
         let mut prefixed_text_writer = PrefixedTextWriter::new(&mut self.writer);
         let results = ResultsNode::from_report(report);
-        results.render_node(&mut prefixed_text_writer, &self.progress_style, &DetailLevel::Info)?;
+        results.render_node(
+            &mut prefixed_text_writer,
+            &self.progress_style,
+            &DetailLevel::Info,
+        )?;
 
         Ok(())
     }
 
-
     fn write_run_complete(&mut self, state: &RunSummary) -> Result<(), Box<dyn Error>> {
-
-
-        writeln!(self.writer,"\ntest result: ")?;
+        writeln!(self.writer, "\ntest result: ")?;
 
         match state.run_result() {
-            ComponentResult::Pass(_) => write!(self.writer,"ok")?,
-            ComponentResult::Warning(_) => write!(self.writer,"completed with warnings")?,         
-            ComponentResult::Fail(_) => write!(self.writer,"FAILED")?,        
-            ComponentResult::DidNotRun(_) => write!(self.writer,"undetermined")?,    
+            ComponentResult::Pass(_) => write!(self.writer, "ok")?,
+            ComponentResult::Warning(_) => write!(self.writer, "completed with warnings")?,
+            ComponentResult::Fail(_) => write!(self.writer, "FAILED")?,
+            ComponentResult::DidNotRun(_) => write!(self.writer, "undetermined")?,
         }
 
         if state.tests_warning().has_some() {
-            writeln!(self.writer,
+            writeln!(
+                self.writer,
                 ". {} passed; {} failed ({} allowed); {} skipped",
                 state.tests_passed().count(),
                 state.tests_failed().count() + state.tests_warning().count(),
@@ -196,7 +185,8 @@ impl OutputFormatter for TreeFormatter {
                 state.tests_not_run().count(),
             )?;
         } else {
-            writeln!(self.writer,
+            writeln!(
+                self.writer,
                 ". {} passed; {} failed; {} skipped",
                 state.tests_passed().count(),
                 state.tests_failed().count(),
@@ -210,7 +200,7 @@ impl OutputFormatter for TreeFormatter {
             (DetailLevel::Error, ComponentResult::Warning(_)) => DetailLevel::Warning,
             (DetailLevel::Error, ComponentResult::Pass(_)) => DetailLevel::Info,
             (DetailLevel::Warning, ComponentResult::Pass(_)) => DetailLevel::Info,
-            _=> self.detail_level.clone()
+            _ => self.detail_level.clone(),
         };
 
         self.get_tree(state)

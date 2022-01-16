@@ -100,9 +100,9 @@ impl ComponentReportBuilder {
                     result = ComponentResult::rejection_exempt();
                 }
 
-                // ** Subtle design choice here. 
+                // ** Subtle design choice here.
                 // Tests which allowed_fail will still fail
-                // if they time out. 
+                // if they time out.
                 // This logic should probably be somewhere else
                 if let Some(timing_results) = &self.timing {
                     if timing_results.is_critical() {

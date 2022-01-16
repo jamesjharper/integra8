@@ -2,7 +2,8 @@ use std::collections::hash_map::Values;
 use std::collections::HashMap;
 
 use crate::summary::{
-    DidNotRunResultsCountSummary, FailResultsCountSummary, PassResultsCountSummary, WarningResultsCountSummary,
+    DidNotRunResultsCountSummary, FailResultsCountSummary, PassResultsCountSummary,
+    WarningResultsCountSummary,
 };
 
 use crate::report::ComponentRunReport;

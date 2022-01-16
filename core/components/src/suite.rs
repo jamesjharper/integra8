@@ -103,8 +103,7 @@ impl SuiteAttributes {
                 || {
                     parent_desc.map_or_else(
                         || {
-                            if parameters.max_concurrency() == 1
-                            {
+                            if parameters.max_concurrency() == 1 {
                                 ConcurrencyMode::Serial
                             } else {
                                 parameters.suite_concurrency()
@@ -121,8 +120,7 @@ impl SuiteAttributes {
                 || {
                     parent_desc.map_or_else(
                         || {
-                            if parameters.max_concurrency() == 1
-                            {
+                            if parameters.max_concurrency() == 1 {
                                 ConcurrencyMode::Serial
                             } else {
                                 parameters.suite_concurrency()

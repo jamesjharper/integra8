@@ -1,8 +1,8 @@
 use std::time::Duration;
 
 use integra8_components::{
-    BookEnd, BookEnds, ComponentDescription, ComponentGeneratorId,
-    ComponentLocation, Delegate, SuiteAttributes, TestParameters,
+    BookEnd, BookEnds, ComponentDescription, ComponentGeneratorId, ComponentLocation, Delegate,
+    SuiteAttributes, TestParameters,
 };
 
 #[derive(Clone, Debug)]

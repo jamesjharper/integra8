@@ -1,7 +1,9 @@
 pub mod none;
 
 pub mod models {
-    pub use integra8_components::{ComponentDescription, ComponentLocation, ComponentType, TestParameters};
+    pub use integra8_components::{
+        ComponentDescription, ComponentLocation, ComponentType, TestParameters,
+    };
     pub use integra8_results::*;
 }
 
@@ -54,7 +56,6 @@ pub trait OutputFormatterFactory {
     fn default_ansi_mode() -> &'static str {
         ""
     }
-
 }
 
 pub trait OutputFormatter {

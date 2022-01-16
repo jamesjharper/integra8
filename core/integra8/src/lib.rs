@@ -102,7 +102,7 @@ pub async fn run_test<
     .await
     {
         ComponentResult::Pass(_) => 0,
-        ComponentResult::Warning(_) => 0, // TODO: update AsyncProcessExecutor to interpret these results correctly 
+        ComponentResult::Warning(_) => 0, // TODO: update AsyncProcessExecutor to interpret these results correctly
         ComponentResult::Fail(_) => 1,
         ComponentResult::DidNotRun(_) => 3,
     }
@@ -120,7 +120,7 @@ pub async fn run<
     let schedule = resolve_component_schedule::<TParameters, Locator>(&parameters, components);
 
     let max_concurrency = schedule.max_concurrency_or_limit(parameters.max_concurrency());
-   
+
     let sink = resolve_results_sink::<TParameters, Locator>(&parameters);
     let (sender, receiver) = ResultsChannel::new(sink, max_concurrency);
 

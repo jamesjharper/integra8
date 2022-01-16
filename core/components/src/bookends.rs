@@ -77,7 +77,11 @@ impl<TParameters> BookEnd<TParameters> {
                 ComponentType::Setup,
                 src,
             ),
-            attributes: BookEndAttributes::new_setup(parent_suite_attributes, ignore, critical_threshold),
+            attributes: BookEndAttributes::new_setup(
+                parent_suite_attributes,
+                ignore,
+                critical_threshold,
+            ),
             bookend_fn: setup_fn,
         }
     }
@@ -105,7 +109,11 @@ impl<TParameters> BookEnd<TParameters> {
                 ComponentType::TearDown,
                 src,
             ),
-            attributes: BookEndAttributes::new_tear_down(parent_suite_attributes, ignore, critical_threshold),
+            attributes: BookEndAttributes::new_tear_down(
+                parent_suite_attributes,
+                ignore,
+                critical_threshold,
+            ),
             bookend_fn: setup_fn,
         }
     }

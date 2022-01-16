@@ -2,22 +2,21 @@ use ansi_term::Colour::{Green, Purple, Red, Yellow};
 use integra8_formatters::models::report::ComponentRunReport;
 use integra8_formatters::models::{ComponentResult, ComponentType};
 
+use crate::parameters::AnsiMode;
 use crate::parameters::Encoding;
 use crate::parameters::Style;
-use crate::parameters::AnsiMode;
 
 #[derive(Clone)]
 pub enum Formatting {
     Ansi,
-    None
+    None,
 }
 
 impl Formatting {
-
     pub fn new(ansi_mode: &AnsiMode) -> Self {
-        match  ansi_mode.is_enabled() {
+        match ansi_mode.is_enabled() {
             true => Self::Ansi,
-            false => Self::None, 
+            false => Self::None,
         }
     }
 
@@ -44,7 +43,10 @@ impl Formatting {
 
     pub fn apply_skipped_formatting(&self, text: impl Into<String>) -> String {
         match self {
-            Self::Ansi => ansi_term::Style::default().dimmed().paint(text.into()).to_string(),
+            Self::Ansi => ansi_term::Style::default()
+                .dimmed()
+                .paint(text.into())
+                .to_string(),
             Self::None => text.into(),
         }
     }
@@ -58,7 +60,10 @@ impl Formatting {
 
     pub fn apply_tree_formatting(&self, text: impl Into<String>) -> String {
         match self {
-            Self::Ansi => ansi_term::Style::default().dimmed().paint(text.into()).to_string(),
+            Self::Ansi => ansi_term::Style::default()
+                .dimmed()
+                .paint(text.into())
+                .to_string(),
             Self::None => text.into(),
         }
     }
@@ -83,20 +88,16 @@ impl ComponentStyle {
         }
     }
 
-    pub fn apply_heading_formatting(&self, report: &ComponentRunReport, text: impl Into<String>) -> String {
+    pub fn apply_heading_formatting(
+        &self,
+        report: &ComponentRunReport,
+        text: impl Into<String>,
+    ) -> String {
         match report.result {
-            ComponentResult::Pass(_) => {
-                self.format.apply_pass_formatting(text)
-            }
-            ComponentResult::Warning(_)  => {
-                self.format.apply_warning_formatting(text)
-            }
-            ComponentResult::Fail(_)  => {
-                self.format.apply_fail_formatting(text)
-            }
-            ComponentResult::DidNotRun(_) => {
-                self.format.apply_skipped_formatting(text)
-            }
+            ComponentResult::Pass(_) => self.format.apply_pass_formatting(text),
+            ComponentResult::Warning(_) => self.format.apply_warning_formatting(text),
+            ComponentResult::Fail(_) => self.format.apply_fail_formatting(text),
+            ComponentResult::DidNotRun(_) => self.format.apply_skipped_formatting(text),
         }
     }
 }
@@ -113,11 +114,9 @@ impl ComponentTypeStyle {
     pub fn new(format: &Formatting, encoding: &Encoding, style: &Style) -> Self {
         match style {
             Style::Text => Self::text(format, encoding),
-            Style::Symbols => {
-                match encoding {
-                    Encoding::Utf8 => Self::symbols_utf8(format),
-                    Encoding::Ascii => Self::symbols_ascii(format)
-                }
+            Style::Symbols => match encoding {
+                Encoding::Utf8 => Self::symbols_utf8(format),
+                Encoding::Ascii => Self::symbols_ascii(format),
             },
         }
     }
@@ -219,7 +218,7 @@ impl ComponentTypeStyle {
                 warning: format.apply_warning_formatting("⧨"),
                 format: format.clone(),
             },
-            format: format.clone()
+            format: format.clone(),
         }
     }
 
@@ -270,7 +269,11 @@ impl ComponentTypeStyle {
         }
     }
 
-    pub fn component_heading(&self, report: &ComponentRunReport, name: impl Into<String>) -> String {
+    pub fn component_heading(
+        &self,
+        report: &ComponentRunReport,
+        name: impl Into<String>,
+    ) -> String {
         let node_style = self.node_style(report);
 
         let heading = node_style.apply_heading_formatting(report, name);
@@ -287,16 +290,12 @@ impl ComponentTypeStyle {
         let node_style = self.node_style(report);
         let heading = node_style.apply_heading_formatting(report, name);
         let icon = node_style.icon(report);
-        format!(
-            "{} - {} ({})",
-            icon,
-            heading,
-            remark
-        )
+        format!("{} - {} ({})", icon, heading, remark)
     }
 
     pub fn attribute_style(&self, attribute_name: &str) -> String {
-        self.format.apply_attribute_formatting(&format!("{}:", attribute_name))
+        self.format
+            .apply_attribute_formatting(&format!("{}:", attribute_name))
     }
 }
 
@@ -310,7 +309,6 @@ pub struct TreeBranchStyle {
 
 impl TreeBranchStyle {
     pub fn new(format: &Formatting, encoding: &Encoding) -> Self {
-
         match encoding {
             Encoding::Utf8 => Self::utf8(format),
             Encoding::Ascii => Self::ascii(format),
@@ -338,23 +336,17 @@ impl TreeBranchStyle {
     }
 }
 
-
 pub struct TreeStyle {
     pub branch: TreeBranchStyle,
     pub node: ComponentTypeStyle,
 }
 
 impl TreeStyle {
-    pub fn new(
-        style: Style,
-        encoding: Encoding,
-        ansi_mode: AnsiMode,
-    ) -> Self {
-
+    pub fn new(style: Style, encoding: Encoding, ansi_mode: AnsiMode) -> Self {
         let format = Formatting::new(&ansi_mode);
         Self {
             branch: TreeBranchStyle::new(&format, &encoding),
-            node: ComponentTypeStyle::new(&format, &encoding, &style ),
+            node: ComponentTypeStyle::new(&format, &encoding, &style),
         }
-    } 
+    }
 }

@@ -16,7 +16,8 @@ pub fn main_test(input_tokens: TokenStream) -> TokenStream {
     let max_concurrency_expr = global_attr.take_max_concurrency_expr();
 
     let setup_critical_threshold_seconds_expr = global_attr.take_setup_critical_threshold_seconds();
-    let tear_down_critical_threshold_seconds_expr = global_attr.take_tear_down_critical_threshold_seconds();
+    let tear_down_critical_threshold_seconds_expr =
+        global_attr.take_tear_down_critical_threshold_seconds();
     let test_critical_threshold_seconds_expr = global_attr.take_test_critical_threshold_seconds();
     let test_warn_threshold_seconds_expr = global_attr.take_test_warn_threshold_seconds();
 
@@ -33,10 +34,14 @@ pub fn main_test(input_tokens: TokenStream) -> TokenStream {
     let formatter_factory_type = console_output_formatter.formatter_factory_type;
     let formatter_settings_type = console_output_formatter.formatter_settings_type;
 
-    let console_output_style_expr = global_attr.take_console_output_style(&formatter_factory_type, &integra8_path);
-    let console_output_level_expr = global_attr.take_console_output_level(&formatter_factory_type, &integra8_path);
-    let console_output_encoding_expr = global_attr.take_console_output_encoding(&formatter_factory_type, &integra8_path);
-    let console_output_ansi_mode_expr = global_attr.take_console_output_ansi_mode(&formatter_factory_type, &integra8_path);
+    let console_output_style_expr =
+        global_attr.take_console_output_style(&formatter_factory_type, &integra8_path);
+    let console_output_level_expr =
+        global_attr.take_console_output_level(&formatter_factory_type, &integra8_path);
+    let console_output_encoding_expr =
+        global_attr.take_console_output_encoding(&formatter_factory_type, &integra8_path);
+    let console_output_ansi_mode_expr =
+        global_attr.take_console_output_ansi_mode(&formatter_factory_type, &integra8_path);
 
     let tokens = quote! {
 
@@ -148,20 +153,20 @@ pub fn main_test(input_tokens: TokenStream) -> TokenStream {
 
                 pub child_process_target: Option<String>,
                 pub max_concurrency: usize,
-                pub setup_critical_threshold_seconds: u64, 
+                pub setup_critical_threshold_seconds: u64,
                 pub test_critical_threshold_seconds: u64,
                 pub test_warn_threshold_seconds: u64,
                 pub tear_down_critical_threshold_seconds: u64,
 
                 pub test_concurrency: #integra8_path ::components::ConcurrencyMode,
-                pub suite_concurrency: #integra8_path ::components::ConcurrencyMode 
+                pub suite_concurrency: #integra8_path ::components::ConcurrencyMode
             }
 
             impl #structopt_path ::StructOptInternal for TestParameters {
                 fn augment_clap<'a, 'b>(
                     app: #structopt_path ::clap::App<'a, 'b>,
                 ) -> #structopt_path ::clap::App<'a, 'b> {
-     
+
                     use #structopt_path ::clap::Arg;
                     let app = app
                     .arg(Arg::with_name("internal:child-process-target")
@@ -227,7 +232,7 @@ pub fn main_test(input_tokens: TokenStream) -> TokenStream {
                         })
                         .long("default:tear-down-time-limit")
                         .default_value(#tear_down_critical_threshold_seconds_expr),
-                    )       
+                    )
                     .arg(Arg::with_name("default:test-time-limit")
                         .takes_value(true)
                         .multiple(false)
@@ -303,7 +308,7 @@ pub fn main_test(input_tokens: TokenStream) -> TokenStream {
                             .value_of("framework:max-concurrency")
                             .map(|s| {
                                 if s == "Auto" {
-                                    0 
+                                    0
                                 } else {
                                     ::std::str::FromStr::from_str(s).unwrap()
                                 }
@@ -316,7 +321,7 @@ pub fn main_test(input_tokens: TokenStream) -> TokenStream {
                         tear_down_critical_threshold_seconds: matches
                             .value_of("default:tear-down-time-limit")
                             .map(|s| ::std::str::FromStr::from_str(s).unwrap())
-                            .unwrap(),   
+                            .unwrap(),
                         test_critical_threshold_seconds: matches
                             .value_of("default:test-time-limit")
                             .map(|s| ::std::str::FromStr::from_str(s).unwrap())
@@ -353,7 +358,7 @@ pub fn main_test(input_tokens: TokenStream) -> TokenStream {
                 fn augment_clap<'a, 'b>(
                     mut app: #structopt_path ::clap::App<'a, 'b>,
                 ) -> #structopt_path ::clap::App<'a, 'b> {
-     
+
                     let supported_styles = < #formatter_factory_type as #integra8_path ::formatters::OutputFormatterFactory>::supported_styles();
                     let supported_detail_levels = < #formatter_factory_type as #integra8_path ::formatters::OutputFormatterFactory>::supported_detail_levels();
                     let supported_encodings = < #formatter_factory_type as #integra8_path ::formatters::OutputFormatterFactory>::supported_encodings();
@@ -406,7 +411,7 @@ pub fn main_test(input_tokens: TokenStream) -> TokenStream {
                             .default_value(#console_output_ansi_mode_expr)
                         );
                     }
-                    
+
                     app.version(env!("CARGO_PKG_VERSION"))
                 }
 
@@ -468,7 +473,7 @@ pub fn main_test(input_tokens: TokenStream) -> TokenStream {
 
                 fn suite_concurrency(&self) -> #integra8_path ::components::ConcurrencyMode {
                     self.test_parameters.suite_concurrency.clone()
-                }       
+                }
 
                 fn setup_critical_threshold_seconds(&self) -> u64 {
                     self.test_parameters.setup_critical_threshold_seconds

@@ -1,5 +1,5 @@
-use std::str::FromStr;
 use atty::Stream;
+use std::str::FromStr;
 
 use structopt::StructOpt;
 #[derive(StructOpt, Clone, Debug)] // TODO: Remove the need for clone here
@@ -10,7 +10,7 @@ pub struct TreeFormatterParameters {
 #[derive(Clone, Eq, PartialEq)]
 pub enum Style {
     Text,
-    Symbols
+    Symbols,
 }
 
 impl Style {
@@ -22,7 +22,7 @@ impl Style {
         match self {
             Self::Text => "Text",
             Self::Symbols => "Symbols",
-        } 
+        }
     }
 
     pub fn list_all() -> Vec<&'static str> {
@@ -36,19 +36,21 @@ impl FromStr for Style {
         match s {
             "Text" => Ok(Style::Text),
             "Symbols" => Ok(Style::Symbols),
-            _ => Err(format!("{} was not a valid style. Valid values are either \"Text\" or \"Symbols\".", s))
+            _ => Err(format!(
+                "{} was not a valid style. Valid values are either \"Text\" or \"Symbols\".",
+                s
+            )),
         }
     }
 }
-
 
 #[derive(Clone, Eq, PartialEq)]
 pub enum DetailLevel {
     Error,
     Warning,
-    Info, 
+    Info,
     Verbose,
-    StopWatch, 
+    StopWatch,
 }
 
 impl DetailLevel {
@@ -63,11 +65,11 @@ impl DetailLevel {
             Self::Info => "Info",
             Self::StopWatch => "StopWatch",
             Self::Verbose => "Verbose",
-        } 
+        }
     }
 
     pub fn list_all() -> Vec<&'static str> {
-        vec!["Error","Warning", "Info", "Verbose", "StopWatch"]
+        vec!["Error", "Warning", "Info", "Verbose", "StopWatch"]
     }
 }
 
@@ -88,7 +90,7 @@ impl FromStr for DetailLevel {
 #[derive(Clone, Eq, PartialEq)]
 pub enum Encoding {
     Ascii,
-    Utf8
+    Utf8,
 }
 
 impl Encoding {
@@ -100,7 +102,7 @@ impl Encoding {
         match self {
             Self::Ascii => "Ascii",
             Self::Utf8 => "Utf8",
-        } 
+        }
     }
 
     pub fn list_all() -> Vec<&'static str> {
@@ -114,7 +116,10 @@ impl FromStr for Encoding {
         match s {
             "Ascii" => Ok(Encoding::Ascii),
             "Utf8" => Ok(Encoding::Utf8),
-            _ => Err(format!("{} was not a valid encoding type. Valid values are either \"Ascii\" or \"Utf8\".", s))
+            _ => Err(format!(
+                "{} was not a valid encoding type. Valid values are either \"Ascii\" or \"Utf8\".",
+                s
+            )),
         }
     }
 }
@@ -127,13 +132,12 @@ pub enum AnsiMode {
 }
 
 impl AnsiMode {
-
     pub fn is_enabled(&self) -> bool {
         match self {
             Self::Auto => atty::is(Stream::Stdout),
             Self::Enabled => true,
             Self::Disabled => false,
-        } 
+        }
     }
 
     pub fn default_value() -> Self {
@@ -145,14 +149,13 @@ impl AnsiMode {
             Self::Auto => "Auto",
             Self::Enabled => "Enabled",
             Self::Disabled => "Disabled",
-        } 
+        }
     }
 
     pub fn list_all() -> Vec<&'static str> {
         vec!["Auto", "Enabled", "Disabled"]
     }
 }
-
 
 impl FromStr for AnsiMode {
     type Err = String;
@@ -161,8 +164,10 @@ impl FromStr for AnsiMode {
             "Auto" => Ok(AnsiMode::Auto),
             "Enabled" => Ok(AnsiMode::Enabled),
             "Disabled" => Ok(AnsiMode::Disabled),
-            _ => Err(format!("{} was not a ANSI mode. Valid values are \"Auto\", \"Enabled\" or \"Disabled\".", s))
+            _ => Err(format!(
+                "{} was not a ANSI mode. Valid values are \"Auto\", \"Enabled\" or \"Disabled\".",
+                s
+            )),
         }
     }
 }
-

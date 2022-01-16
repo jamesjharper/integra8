@@ -10,8 +10,8 @@ use proc_macro2::TokenStream;
 
 use syn::parse::{Parse, ParseStream};
 use syn::punctuated::Punctuated;
-use syn::{Token, Path, Expr};
 use syn::{parse_quote, Result};
+use syn::{Expr, Path, Token};
 
 use proc_macro_error::abort;
 use std::collections::HashMap;
@@ -75,7 +75,11 @@ impl ApplicationParameters {
             .unwrap_or_else(|| parse_quote!("10"))
     }
 
-    pub fn take_console_output_style(&mut self, formatter_factory_type: &Box<Expr>, integra8_path: &Path) -> TokenStream {
+    pub fn take_console_output_style(
+        &mut self,
+        formatter_factory_type: &Box<Expr>,
+        integra8_path: &Path,
+    ) -> TokenStream {
         self.take_string_parameter("console_output_style")
             .map(|x| x.render_tokens())
             .unwrap_or_else(|| parse_quote!{
@@ -83,7 +87,11 @@ impl ApplicationParameters {
             })
     }
 
-    pub fn take_console_output_level(&mut self, formatter_factory_type: &Box<Expr>, integra8_path: &Path) -> TokenStream {
+    pub fn take_console_output_level(
+        &mut self,
+        formatter_factory_type: &Box<Expr>,
+        integra8_path: &Path,
+    ) -> TokenStream {
         self.take_string_parameter("console_output_level")
             .map(|x| x.render_tokens())
             .unwrap_or_else(|| parse_quote!{
@@ -91,7 +99,11 @@ impl ApplicationParameters {
             })
     }
 
-    pub fn take_console_output_encoding(&mut self, formatter_factory_type: &Box<Expr>, integra8_path: &Path) -> TokenStream {
+    pub fn take_console_output_encoding(
+        &mut self,
+        formatter_factory_type: &Box<Expr>,
+        integra8_path: &Path,
+    ) -> TokenStream {
         self.take_string_parameter("console_output_encoding")
             .map(|x| x.render_tokens())
             .unwrap_or_else(|| parse_quote!{
@@ -99,14 +111,17 @@ impl ApplicationParameters {
             })
     }
 
-    pub fn take_console_output_ansi_mode(&mut self, formatter_factory_type: &Box<Expr>, integra8_path: &Path) -> TokenStream {
+    pub fn take_console_output_ansi_mode(
+        &mut self,
+        formatter_factory_type: &Box<Expr>,
+        integra8_path: &Path,
+    ) -> TokenStream {
         self.take_string_parameter("console_output_ansi_mode")
             .map(|x| x.render_tokens())
             .unwrap_or_else(|| parse_quote!{
                 < #formatter_factory_type as #integra8_path ::formatters::OutputFormatterFactory>::default_ansi_mode()
             })
     }
-
 
     pub fn take_use_child_process(&mut self) -> TokenStream {
         self.take_string_parameter("use_child_process")

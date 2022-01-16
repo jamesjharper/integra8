@@ -45,9 +45,7 @@ pub struct PassResultsCountSummary {
 
 impl PassResultsCountSummary {
     pub fn new() -> Self {
-        Self {
-            accepted: 0,
-        }
+        Self { accepted: 0 }
     }
 
     pub fn increment(&mut self, reason: &PassReason) {

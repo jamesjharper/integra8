@@ -22,5 +22,5 @@ mod counts;
 #[doc(inline)]
 pub use counts::{
     ComponentTypeCountSummary, DidNotRunResultsCountSummary, FailResultsCountSummary,
-    WarningResultsCountSummary, PassResultsCountSummary, ResultsCountSummary,
+    PassResultsCountSummary, ResultsCountSummary, WarningResultsCountSummary,
 };

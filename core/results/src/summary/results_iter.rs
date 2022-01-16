@@ -1,6 +1,7 @@
 use crate::summary::counts::ResultReasonCounter;
 use crate::summary::{
-    DidNotRunResultsCountSummary, FailResultsCountSummary, PassResultsCountSummary, WarningResultsCountSummary
+    DidNotRunResultsCountSummary, FailResultsCountSummary, PassResultsCountSummary,
+    WarningResultsCountSummary,
 };
 
 use crate::report::ComponentRunReport;
@@ -137,7 +138,6 @@ impl<'a> Iterator for PassReasonResults<'a> {
     }
 }
 
-
 /// A struct for interrogating *pass* results.
 /// Implements `Iterator` and can be reduced to a filtered results set using its accompanying  `due_to...` methods
 pub struct WarningResults<'a> {
@@ -153,7 +153,10 @@ impl<'a> WarningResults<'a> {
         }
     }
 
-    pub fn from(iter: Iter<'a, ComponentRunReport>, counts: &'a WarningResultsCountSummary) -> Self {
+    pub fn from(
+        iter: Iter<'a, ComponentRunReport>,
+        counts: &'a WarningResultsCountSummary,
+    ) -> Self {
         Self {
             iter: ChainedResultsIter::from_single(iter, counts),
         }
@@ -196,11 +199,8 @@ impl<'a> WarningResults<'a> {
     /// }
     ///```
     pub fn due_to_allowed_failure(self) -> WarningReasonResults<'a> {
-        self.due_to_reason(
-            WarningReason::FailureAllowed
-        )
+        self.due_to_reason(WarningReason::FailureAllowed)
     }
-
 
     /// Returns a iterator of only the waring results with an *overtime warning* reason.
     ///
@@ -215,10 +215,8 @@ impl<'a> WarningResults<'a> {
     /// }
     ///```
     pub fn due_to_overtime_warning(self) -> WarningReasonResults<'a> {
-        self.due_to_reason(
-            WarningReason::OvertimeWarning
-        )
-    }   
+        self.due_to_reason(WarningReason::OvertimeWarning)
+    }
 
     /// Returns a iterator of only the waring results with an *overtime warning* reason.
     ///
@@ -228,7 +226,7 @@ impl<'a> WarningResults<'a> {
     /// // This suite will have ChildWarning as its WarningReason
     /// #[integration_suite]
     /// mod test_suite {
-    /// 
+    ///
     ///     #[integration_test]
     ///     #[allow_fail]
     ///     fn this_test_will_fail_but_will_be_accepted() {
@@ -237,10 +235,8 @@ impl<'a> WarningResults<'a> {
     /// }
     ///```
     pub fn due_to_child_warning(self) -> WarningReasonResults<'a> {
-        self.due_to_reason(
-            WarningReason::ChildWarning
-        )
-    }   
+        self.due_to_reason(WarningReason::ChildWarning)
+    }
 
     /// Returns a iterator for only the warning results which matches the give warning reason
     ///
