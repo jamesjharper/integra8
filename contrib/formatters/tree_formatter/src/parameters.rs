@@ -45,7 +45,10 @@ impl FromStr for Style {
 #[derive(Clone, Eq, PartialEq)]
 pub enum DetailLevel {
     Error,
-    Verbose
+    Warning,
+    Info, 
+    Verbose,
+    StopWatch, 
 }
 
 impl DetailLevel {
@@ -56,12 +59,15 @@ impl DetailLevel {
     pub fn as_str(&self) -> &'static str {
         match self {
             Self::Error => "Error",
+            Self::Warning => "Warning",
+            Self::Info => "Info",
+            Self::StopWatch => "StopWatch",
             Self::Verbose => "Verbose",
         } 
     }
 
     pub fn list_all() -> Vec<&'static str> {
-        vec!["Error", "Verbose"]
+        vec!["Error","Warning", "Info", "Verbose", "StopWatch"]
     }
 }
 
@@ -70,8 +76,11 @@ impl FromStr for DetailLevel {
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
             "Error" => Ok(DetailLevel::Error),
+            "Warning" => Ok(DetailLevel::Warning),
+            "Info" => Ok(DetailLevel::Info),
+            "StopWatch" => Ok(DetailLevel::StopWatch),
             "Verbose" => Ok(DetailLevel::Verbose),
-            _ => Err(format!("{} was not a valid detail level. Valid values are either \"Error\" or \"Verbose\".", s))
+            _ => Err(format!("{} was not a valid detail level. Valid values are \"Error\", \"Warning\", \"Info\", \"Verbose\" or \"StopWatch\".", s))
         }
     }
 }

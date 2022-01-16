@@ -4,7 +4,6 @@ use std::pin::Pin;
 use integra8_components::ComponentDescription;
 use integra8_results::report::ComponentRunReport;
 use integra8_results::summary::ComponentTypeCountSummary;
-use integra8_results::ComponentTimeResult;
 
 pub trait ComponentProgressNotify {
     fn notify_started(&self) -> Pin<Box<dyn Future<Output = ()> + Send + '_>>;

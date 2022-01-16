@@ -2,34 +2,42 @@ mod styles;
 mod tree;
 mod writer;
 pub mod parameters;
+pub mod render;
 
 use std::str::FromStr;
 use std::error::Error;
 use std::io::{self, Write, Stdout};
-
-
 
 use crate::styles::{
     TreeStyle,
 };
 use crate::tree::{ResultsNode, ResultsTree};
 use crate::parameters::{TreeFormatterParameters, Style, DetailLevel, Encoding, AnsiMode};
-
+use crate::writer::PrefixedTextWriter;
 use integra8_formatters::models::summary::{ComponentTypeCountSummary, RunSummary, SuiteSummary};
-use integra8_formatters::models::{ComponentDescription, TestParameters};
-
+use integra8_formatters::models::{TestParameters, ComponentResult, ComponentType};
+use integra8_formatters::models::report::ComponentRunReport;
 use integra8_formatters::{OutputFormatter, OutputFormatterFactory};
 
 pub struct TreeFormatter {
     writer: Stdout,
-    tree_style: TreeStyle
+    tree_style: TreeStyle,
+    progress_style: TreeStyle,
+    detail_level: DetailLevel,
 }
 
 impl TreeFormatter {
-    pub fn new(writer: Stdout,  tree_style: TreeStyle) -> Self {
+    pub fn new(
+        writer: Stdout,
+        tree_style: TreeStyle,
+        progress_style: TreeStyle,
+        detail_level: DetailLevel,
+    ) -> Self {
         TreeFormatter {
-            writer: writer,
-            tree_style: tree_style
+            writer,
+            tree_style,
+            progress_style,
+            detail_level
         }
     }
 
@@ -64,8 +72,8 @@ impl TreeFormatter {
 
         suite_node
     }
-}
 
+}
 
 impl OutputFormatterFactory for TreeFormatter {
     type FormatterParameters = TreeFormatterParameters;
@@ -81,13 +89,25 @@ impl OutputFormatterFactory for TreeFormatter {
 
         let tree_style = TreeStyle::new(
             style,
-            detail_level,
+            encoding.clone(),
+            ansi_mode.clone(),
+        );
+
+        let progress_style = TreeStyle::new(
+            Style::Text,
             encoding,
             ansi_mode,
         );
 
-            
-        Box::new(TreeFormatter::new(io::stdout(), tree_style))
+
+        Box::new(
+            TreeFormatter::new(
+                io::stdout(), 
+                tree_style,
+                progress_style,
+                detail_level,
+            )
+        )
     }
 
     fn default_style() -> &'static str {
@@ -133,24 +153,68 @@ impl OutputFormatter for TreeFormatter {
             "test"
         };
 
-
         writeln!(self.writer,"\nrunning {} {}\n", summary.tests(), noun)?;
         Ok(())
     }
 
-    fn write_component_start(
-        &mut self,
-        _desc: &ComponentDescription,
-    ) -> Result<(), Box<dyn Error>> {
+    fn write_component_report(&mut self, report: &ComponentRunReport) -> Result<(), Box<dyn Error>> {
 
-        write!(self.writer, ".")?;
+        if report.description.component_type == ComponentType::Suite {
+            return Ok(());
+        }
+
+        if report.result.has_not_run() {
+            return Ok(());
+        }
+
+        let mut prefixed_text_writer = PrefixedTextWriter::new(&mut self.writer);
+        let results = ResultsNode::from_report(report);
+        results.render_node(&mut prefixed_text_writer, &self.progress_style, &DetailLevel::Info)?;
 
         Ok(())
     }
 
+
     fn write_run_complete(&mut self, state: &RunSummary) -> Result<(), Box<dyn Error>> {
+
+
+        writeln!(self.writer,"\ntest result: ")?;
+
+        match state.run_result() {
+            ComponentResult::Pass(_) => write!(self.writer,"ok")?,
+            ComponentResult::Warning(_) => write!(self.writer,"completed with warnings")?,         
+            ComponentResult::Fail(_) => write!(self.writer,"FAILED")?,        
+            ComponentResult::DidNotRun(_) => write!(self.writer,"undetermined")?,    
+        }
+
+        if state.tests_warning().has_some() {
+            writeln!(self.writer,
+                ". {} passed; {} failed ({} allowed); {} skipped",
+                state.tests_passed().count(),
+                state.tests_failed().count() + state.tests_warning().count(),
+                state.tests_warning().count(),
+                state.tests_not_run().count(),
+            )?;
+        } else {
+            writeln!(self.writer,
+                ". {} passed; {} failed; {} skipped",
+                state.tests_passed().count(),
+                state.tests_failed().count(),
+                state.tests_not_run().count()
+            )?;
+        };
+        writeln!(self.writer, "")?;
+        // Just the detail level to capture most relevant details in relation to the result
+        let detail_level = match (&self.detail_level, state.run_result()) {
+            // If there are no errors or warnings, downgrade Error level
+            (DetailLevel::Error, ComponentResult::Warning(_)) => DetailLevel::Warning,
+            (DetailLevel::Error, ComponentResult::Pass(_)) => DetailLevel::Info,
+            (DetailLevel::Warning, ComponentResult::Pass(_)) => DetailLevel::Info,
+            _=> self.detail_level.clone()
+        };
+
         self.get_tree(state)
-            .render_tree(&mut self.writer, &self.tree_style)?;
+            .render_tree(&mut self.writer, &self.tree_style, &detail_level)?;
 
         Ok(())
     }

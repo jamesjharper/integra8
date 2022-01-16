@@ -19,7 +19,7 @@ fn test1() {
 #[integration_test]
 #[allow_fail]
 fn test2() {
-    assert_eq!(true, false);
+    assert_eq!(true, true);
 }
 
 #[integration_test]
@@ -56,7 +56,7 @@ mod nested_test_suite {
         #[integration_test]
         #[allow_fail]
         fn first() {
-            assert_eq!(false, true);
+            assert_eq!(false, false);
         }
 
         #[integration_test]
@@ -77,7 +77,7 @@ mod nested_test_suite {
             fn second() {}
 
             #[integration_suite]
-            #[allow_fail]
+            //#[allow_fail]
             mod suite_which_is_aloud_to_fail {
                 use super::*;
                 #[integration_test]
@@ -88,7 +88,7 @@ mod nested_test_suite {
                 #[description("the test description")]
                 //  #[allow_fail]
                 fn second() {
-                    assert_eq!(true, false);
+                    assert_eq!(true, true);
                 }
             }
 
@@ -102,7 +102,7 @@ mod nested_test_suite {
                 #[integration_test]
                 #[warn_threshold_seconds(1)]
                 fn should_have_time_warning() {
-                    thread::sleep(time::Duration::from_millis(1100));
+                   thread::sleep(time::Duration::from_millis(1100));
                 }
             }
 
@@ -140,7 +140,7 @@ mod nested_test_suite {
                     line
                 "})]
                 fn second() {
-                    assert_eq!(true, false);
+                    assert_eq!(true, true);
                 }
 
                 #[integration_test]
@@ -163,9 +163,8 @@ mod nested_test_suite {
                 fn first() {}
 
                 #[integration_test]
-                #[ignore]
                 fn second() {
-                    assert_eq!(true, false);
+                    assert_eq!(true, true);
                 }
             }
         }
