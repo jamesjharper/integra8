@@ -7,6 +7,7 @@ use std::time::Duration;
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub enum ComponentResult {
     Pass(PassReason),
+    Warning(WarningReason),
     Fail(FailureReason),
     DidNotRun(DidNotRunReason),
 }
@@ -14,14 +15,13 @@ pub enum ComponentResult {
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub enum WarningReason {
     FailureAllowed,
-    WarningDurationThreshold,
+    OvertimeWarning,
     ChildWarning,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub enum PassReason {
     Accepted,
-    AcceptedWithWarning(WarningReason),
 }
 
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -45,13 +45,21 @@ impl ComponentResult {
     }
 
     pub fn rejection_exempt() -> Self {
-        Self::Pass(
-            PassReason::AcceptedWithWarning(WarningReason::FailureAllowed)
+        Self::Warning(
+            WarningReason::FailureAllowed
         )
     }
 
     pub fn child_failure() -> Self {
         Self::Fail(FailureReason::ChildFailure)
+    }
+
+    pub fn child_warning() -> Self {
+        Self::Warning(WarningReason::ChildWarning)
+    }
+
+    pub fn time_out_warning() -> Self {
+        Self::Warning(WarningReason::OvertimeWarning)
     }
 
     pub fn timed_out() -> Self {
@@ -80,22 +88,29 @@ impl ComponentResult {
 
     pub fn has_failed(&self) -> bool {
         match self {
-            Self::Pass(_) | Self::DidNotRun(_) => false,
             Self::Fail(_) => true,
+            _ => false
         }
     }
 
     pub fn has_passed(&self) -> bool {
-        match self {
-            Self::Fail(_) | Self::DidNotRun(_) => false,
+        match self { 
             Self::Pass(_) => true,
+            _ => false
+        }
+    }
+
+    pub fn has_warn(&self) -> bool {
+        match self {
+            Self::Warning(_) => true,
+            _ => false,
         }
     }
 
     pub fn has_not_run(&self) -> bool {
         match self {
-            Self::Fail(_) | Self::Pass(_) => false,
             Self::DidNotRun(_) => true,
+            _ => false
         }
     }
 }

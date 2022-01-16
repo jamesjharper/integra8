@@ -95,17 +95,21 @@ impl ComponentReportBuilder {
         match &self.result {
             Some(r) => {
                 let mut result = r.clone();
-                if self
-                    .timing
-                    .as_ref()
-                    .map(|t| t.is_critical())
-                    .unwrap_or(false)
-                {
-                    result = ComponentResult::timed_out();
-                }
 
                 if result.has_failed() && self.acceptance_criteria.allowed_fail {
                     result = ComponentResult::rejection_exempt();
+                }
+
+                // ** Subtle design choice here. 
+                // Tests which allowed_fail will still fail
+                // if they time out. 
+                // This logic should probably be somewhere else
+                if let Some(timing_results) = &self.timing {
+                    if timing_results.is_critical() {
+                        result = ComponentResult::timed_out();
+                    } else if timing_results.is_warn() {
+                        result = ComponentResult::time_out_warning();
+                    }
                 }
 
                 result

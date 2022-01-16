@@ -102,6 +102,7 @@ pub async fn run_test<
     .await
     {
         ComponentResult::Pass(_) => 0,
+        ComponentResult::Warning(_) => 0, // TODO: update AsyncProcessExecutor to interpret these results correctly 
         ComponentResult::Fail(_) => 1,
         ComponentResult::DidNotRun(_) => 3,
     }

@@ -1,6 +1,6 @@
 use crate::summary::counts::ResultReasonCounter;
 use crate::summary::{
-    DidNotRunResultsCountSummary, FailResultsCountSummary, PassResultsCountSummary,
+    DidNotRunResultsCountSummary, FailResultsCountSummary, PassResultsCountSummary, WarningResultsCountSummary
 };
 
 use crate::report::ComponentRunReport;
@@ -69,35 +69,6 @@ impl<'a> PassedResults<'a> {
         self.due_to_reason(PassReason::Accepted)
     }
 
-    /// Returns a iterator of only the pass results with an *failure allowed* reason.
-    ///
-    /// # Examples of tests with this result and reason:
-    ///
-    /// ```rust,ignore
-    /// #[integration_test]
-    /// #[allow_fail]
-    /// fn this_test_will_fail_but_will_be_accepted() {
-    ///    assert_eq!(true, false);
-    /// }
-    ///```
-    ///
-    /// ```rust,ignore
-    /// #[integration_test]
-    /// #[allow_fail]
-    /// #[critical_threshold_seconds(1)]
-    /// fn this_test_will_be_aborted_after_1_second_but_will_still_be_accepted() {
-    ///    std::thread::sleep(std::time::Duration::from_millis(1100));
-    /// }
-    ///```
-    pub fn due_to_acceptance_with_warning(self) -> PassReasonResults<'a> {
-        self.due_to_reason(
-            PassReason::AcceptedWithWarning(
-                // WarningReason will be ignored
-                WarningReason::FailureAllowed
-            )
-        )
-    }
-
     /// Returns a iterator for only the pass results which matches the give pass reason
     ///
     /// # Arguments
@@ -160,13 +131,180 @@ impl<'a> Iterator for PassReasonResults<'a> {
     fn next(&mut self) -> Option<Self::Item> {
         let filter_by_reason = self.filter_by_reason.clone();
         self.iter.find_map(|report| match &report.result {
-            ComponentResult::Pass(reason) => {
-                match (&filter_by_reason, &reason) {
-                    (PassReason::Accepted, PassReason::Accepted) => Some(report),
-                    ( PassReason::AcceptedWithWarning(_),PassReason::AcceptedWithWarning(_)) => Some(report),
-                    _ => None
-                }
-            },
+            ComponentResult::Pass(reason) if reason == &filter_by_reason => Some(report),
+            _ => None,
+        })
+    }
+}
+
+
+/// A struct for interrogating *pass* results.
+/// Implements `Iterator` and can be reduced to a filtered results set using its accompanying  `due_to...` methods
+pub struct WarningResults<'a> {
+    iter: ChainedResultsIter<'a, WarningResultsCountSummary>,
+}
+
+impl<'a> WarningResults<'a> {
+    pub fn from_many(
+        many: Vec<(Iter<'a, ComponentRunReport>, &'a WarningResultsCountSummary)>,
+    ) -> Self {
+        Self {
+            iter: ChainedResultsIter::from_many(many),
+        }
+    }
+
+    pub fn from(iter: Iter<'a, ComponentRunReport>, counts: &'a WarningResultsCountSummary) -> Self {
+        Self {
+            iter: ChainedResultsIter::from_single(iter, counts),
+        }
+    }
+
+    /// Returns `true` if there are no *pass* results.
+    pub fn has_none(&self) -> bool {
+        self.count() == 0
+    }
+
+    /// Returns `true` if there are any *pass* results.
+    pub fn has_some(&self) -> bool {
+        self.count() != 0
+    }
+
+    /// Returns the total count of *pass* results
+    pub fn count(&self) -> usize {
+        (&self.iter).count()
+    }
+
+    /// Returns the total count of *warning* results for a given reason.
+    ///
+    /// # Arguments
+    ///
+    /// * `reason` - The `WarningReason` enum to count.
+    ///
+    pub fn count_due_to_reason(&self, reason: &WarningReason) -> usize {
+        (&self.iter).count_due_to_reason(reason)
+    }
+
+    /// Returns a iterator of only the waring results with an *failure allowed* reason.
+    ///
+    /// # Example of test with this result and reason:
+    ///
+    /// ```rust,ignore
+    /// #[integration_test]
+    /// #[allow_fail]
+    /// fn this_test_will_fail_but_will_be_accepted() {
+    ///    assert_eq!(true, false);
+    /// }
+    ///```
+    pub fn due_to_allowed_failure(self) -> WarningReasonResults<'a> {
+        self.due_to_reason(
+            WarningReason::FailureAllowed
+        )
+    }
+
+
+    /// Returns a iterator of only the waring results with an *overtime warning* reason.
+    ///
+    /// # Example of test with this result and reason:
+    ///
+    /// ```rust,ignore
+    /// #[integration_test]
+    /// #[allow_fail]
+    /// #[warning_critical_threshold_seconds(1)]
+    /// fn this_test_will_be_aborted_after_1_second_but_will_still_be_accepted() {
+    ///    std::thread::sleep(std::time::Duration::from_millis(1100));
+    /// }
+    ///```
+    pub fn due_to_overtime_warning(self) -> WarningReasonResults<'a> {
+        self.due_to_reason(
+            WarningReason::OvertimeWarning
+        )
+    }   
+
+    /// Returns a iterator of only the waring results with an *overtime warning* reason.
+    ///
+    /// # Example of test with this result and reason:
+    ///
+    /// ```rust,ignore
+    /// // This suite will have ChildWarning as its WarningReason
+    /// #[integration_suite]
+    /// mod test_suite {
+    /// 
+    ///     #[integration_test]
+    ///     #[allow_fail]
+    ///     fn this_test_will_fail_but_will_be_accepted() {
+    ///         assert_eq!(true, false);
+    ///     }
+    /// }
+    ///```
+    pub fn due_to_child_warning(self) -> WarningReasonResults<'a> {
+        self.due_to_reason(
+            WarningReason::ChildWarning
+        )
+    }   
+
+    /// Returns a iterator for only the warning results which matches the give warning reason
+    ///
+    /// # Arguments
+    ///
+    /// * `reason` - The `WarningReason` enum to filter by.
+    ///
+    pub fn due_to_reason(self, reason: WarningReason) -> WarningReasonResults<'a> {
+        WarningReasonResults {
+            count: self.count_due_to_reason(&reason),
+            iter: self.iter,
+            filter_by_reason: reason,
+        }
+    }
+}
+
+impl<'a> Iterator for WarningResults<'a> {
+    type Item = &'a ComponentRunReport;
+
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        let len = self.count();
+        (len, Some(len))
+    }
+
+    fn next(&mut self) -> Option<Self::Item> {
+        self.iter.find_map(|report| match report.result {
+            ComponentResult::Warning(_) => Some(report),
+            _ => None,
+        })
+    }
+}
+
+/// A struct for iterating *warning* result reasons.
+pub struct WarningReasonResults<'a> {
+    iter: ChainedResultsIter<'a, WarningResultsCountSummary>,
+    filter_by_reason: WarningReason,
+    count: usize,
+}
+
+impl<'a> WarningReasonResults<'a> {
+    pub fn has_none(&self) -> bool {
+        self.count == 0
+    }
+
+    pub fn has_some(&self) -> bool {
+        self.count != 0
+    }
+
+    pub fn count(&self) -> usize {
+        self.count
+    }
+}
+
+impl<'a> Iterator for WarningReasonResults<'a> {
+    type Item = &'a ComponentRunReport;
+
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        (self.count, Some(self.count))
+    }
+
+    fn next(&mut self) -> Option<Self::Item> {
+        let filter_by_reason = self.filter_by_reason.clone();
+        self.iter.find_map(|report| match &report.result {
+            ComponentResult::Warning(reason) if reason == &filter_by_reason => Some(report),
             _ => None,
         })
     }

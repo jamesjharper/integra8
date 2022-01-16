@@ -2,11 +2,11 @@ use std::collections::hash_map::Values;
 use std::collections::HashMap;
 
 use crate::summary::{
-    DidNotRunResultsCountSummary, FailResultsCountSummary, PassResultsCountSummary,
+    DidNotRunResultsCountSummary, FailResultsCountSummary, PassResultsCountSummary, WarningResultsCountSummary,
 };
 
 use crate::report::ComponentRunReport;
-use crate::summary::{FailedResults, NotRunResults, PassedResults};
+use crate::summary::{FailedResults, NotRunResults, PassedResults, WarningResults};
 use crate::ComponentResult;
 
 use integra8_components::{ComponentPath, ComponentType};
@@ -17,6 +17,7 @@ use integra8_components::{ComponentPath, ComponentType};
 pub struct ComponentResultSummary {
     pub reports: Vec<ComponentRunReport>,
     passed: PassResultsCountSummary,
+    warning: WarningResultsCountSummary,
     failed: FailResultsCountSummary,
     did_not_run: DidNotRunResultsCountSummary,
 }
@@ -26,6 +27,7 @@ impl ComponentResultSummary {
         Self {
             reports: Vec::new(),
             passed: PassResultsCountSummary::new(),
+            warning: WarningResultsCountSummary::new(),
             failed: FailResultsCountSummary::new(),
             did_not_run: DidNotRunResultsCountSummary::new(),
         }
@@ -34,6 +36,7 @@ impl ComponentResultSummary {
     pub fn push_report(&mut self, report: ComponentRunReport) {
         match &report.result {
             ComponentResult::Pass(result) => self.passed.increment(result),
+            ComponentResult::Warning(result) => self.warning.increment(result),
             ComponentResult::Fail(result) => self.failed.increment(result),
             ComponentResult::DidNotRun(result) => self.did_not_run.increment(result),
         }
@@ -42,6 +45,10 @@ impl ComponentResultSummary {
 
     pub fn passed<'a>(&'a self) -> PassedResults<'a> {
         PassedResults::from(self.reports.iter(), &self.passed)
+    }
+
+    pub fn warning<'a>(&'a self) -> WarningResults<'a> {
+        WarningResults::from(self.reports.iter(), &self.warning)
     }
 
     pub fn failed<'a>(&'a self) -> FailedResults<'a> {
@@ -139,6 +146,15 @@ impl RunSummary {
         )
     }
 
+    pub fn tests_warning<'a>(&'a self) -> WarningResults<'a> {
+        WarningResults::from_many(
+            self.suite_summaries
+                .values()
+                .map(|suite| (suite.tests.reports.iter(), &suite.tests.warning))
+                .collect(),
+        )
+    }
+
     pub fn tests_failed<'a>(&'a self) -> FailedResults<'a> {
         FailedResults::from_many(
             self.suite_summaries
@@ -168,6 +184,15 @@ impl RunSummary {
         )
     }
 
+    pub fn setup_warning<'a>(&'a self) -> WarningResults<'a> {
+        WarningResults::from_many(
+            self.suite_summaries
+                .values()
+                .map(|suite| (suite.setups.reports.iter(), &suite.setups.warning))
+                .collect(),
+        )
+    }
+
     pub fn setup_failed<'a>(&'a self) -> FailedResults<'a> {
         FailedResults::from_many(
             self.suite_summaries
@@ -193,6 +218,15 @@ impl RunSummary {
             self.suite_summaries
                 .values()
                 .map(|suite| (suite.tear_downs.reports.iter(), &suite.tear_downs.passed))
+                .collect(),
+        )
+    }
+
+    pub fn tear_down_warnings<'a>(&'a self) -> WarningResults<'a> {
+        WarningResults::from_many(
+            self.suite_summaries
+                .values()
+                .map(|suite| (suite.tear_downs.reports.iter(), &suite.tear_downs.warning))
                 .collect(),
         )
     }

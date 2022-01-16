@@ -96,6 +96,7 @@ impl ComponentStateToken {
     ///
     /// Parents state is determined by the following rules:
     /// - If a child has pass result, the parents own status is also passed.
+    /// - If **any** children are pass but with a warning, the parents own status is also pass with warning.
     /// - If **any** children are failed, the parents own status is also failed with the reason `child_failure`
     /// - If **all** children are skipped, the parents status is also skipped.   
     ///
@@ -135,9 +136,15 @@ impl ComponentStateToken {
             return;
         }
 
-        if child_model.state.is_success() && !parent_model.state.is_failed() {
-            // If no children failed, the then we implicitly succeeded
+        if child_model.state.is_success() && !parent_model.state.is_failed() && !parent_model.state.is_warn() {
+            // If no children failed or have warnings, the then we implicitly succeeded
             parent_model.state = ComponentState::Tentative(ComponentResult::passed());
+            return;
+        }
+
+        if child_model.state.is_warn() && !parent_model.state.is_failed() {
+            // If no children failed, the then we implicitly have a warnings
+            parent_model.state = ComponentState::Tentative(ComponentResult::child_warning());
             return;
         }
 

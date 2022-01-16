@@ -1,4 +1,4 @@
-use crate::{ComponentResult, DidNotRunReason, FailureReason, PassReason};
+use crate::{ComponentResult, DidNotRunReason, FailureReason, PassReason, WarningReason};
 
 use integra8_components::ComponentType;
 
@@ -13,6 +13,7 @@ pub trait ResultReasonCounter {
 #[derive(Clone, Debug)]
 pub struct ResultsCountSummary {
     pub passed: PassResultsCountSummary,
+    pub warning: WarningResultsCountSummary,
     pub failed: FailResultsCountSummary,
     pub did_not_run: DidNotRunResultsCountSummary,
 }
@@ -21,6 +22,7 @@ impl ResultsCountSummary {
     pub fn new() -> Self {
         Self {
             passed: PassResultsCountSummary::new(),
+            warning: WarningResultsCountSummary::new(),
             failed: FailResultsCountSummary::new(),
             did_not_run: DidNotRunResultsCountSummary::new(),
         }
@@ -29,6 +31,7 @@ impl ResultsCountSummary {
     pub fn increment(&mut self, result: &ComponentResult) {
         match result {
             ComponentResult::Pass(result) => self.passed.increment(result),
+            ComponentResult::Warning(result) => self.warning.increment(result),
             ComponentResult::Fail(result) => self.failed.increment(result),
             ComponentResult::DidNotRun(result) => self.did_not_run.increment(result),
         }
@@ -38,30 +41,23 @@ impl ResultsCountSummary {
 #[derive(Clone, Debug)]
 pub struct PassResultsCountSummary {
     accepted: usize,
-    accepted_with_warning: usize,
 }
 
 impl PassResultsCountSummary {
     pub fn new() -> Self {
         Self {
             accepted: 0,
-            accepted_with_warning: 0,
         }
     }
 
     pub fn increment(&mut self, reason: &PassReason) {
         match reason {
             PassReason::Accepted => self.accepted += 1,
-            PassReason::AcceptedWithWarning(_) => self.accepted_with_warning += 1,
         }
     }
 
     pub fn accepted(&self) -> usize {
         self.accepted
-    }
-
-    pub fn accepted_with_warning(&self) -> usize {
-        self.accepted_with_warning
     }
 }
 
@@ -69,13 +65,67 @@ impl ResultReasonCounter for PassResultsCountSummary {
     type ReasonType = PassReason;
 
     fn total(&self) -> usize {
-        self.accepted().saturating_add(self.accepted_with_warning())
+        self.accepted
     }
 
     fn by_reason(&self, reason: &PassReason) -> usize {
         match reason {
             PassReason::Accepted => self.accepted,
-            PassReason::AcceptedWithWarning(_) => self.accepted_with_warning,
+        }
+    }
+}
+
+#[derive(Clone, Debug)]
+pub struct WarningResultsCountSummary {
+    failure_allowed: usize,
+    overtime_warning: usize,
+    child_warning: usize,
+}
+
+impl WarningResultsCountSummary {
+    pub fn new() -> Self {
+        Self {
+            failure_allowed: 0,
+            overtime_warning: 0,
+            child_warning: 0,
+        }
+    }
+
+    pub fn increment(&mut self, reason: &WarningReason) {
+        match reason {
+            WarningReason::FailureAllowed => self.failure_allowed += 1,
+            WarningReason::OvertimeWarning => self.overtime_warning += 1,
+            WarningReason::ChildWarning => self.child_warning += 1,
+        }
+    }
+
+    pub fn failure_allowed(&self) -> usize {
+        self.failure_allowed
+    }
+
+    pub fn overtime_warning(&self) -> usize {
+        self.overtime_warning
+    }
+
+    pub fn child_warning(&self) -> usize {
+        self.child_warning
+    }
+}
+
+impl ResultReasonCounter for WarningResultsCountSummary {
+    type ReasonType = WarningReason;
+
+    fn total(&self) -> usize {
+        self.failure_allowed
+            .saturating_add(self.overtime_warning)
+            .saturating_add(self.child_warning)
+    }
+
+    fn by_reason(&self, reason: &WarningReason) -> usize {
+        match reason {
+            WarningReason::FailureAllowed => self.failure_allowed,
+            WarningReason::OvertimeWarning => self.overtime_warning,
+            WarningReason::ChildWarning => self.child_warning,
         }
     }
 }

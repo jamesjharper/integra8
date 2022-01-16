@@ -76,7 +76,7 @@ impl ComponentNodeStyle {
                 true => &self.warning,
                 false => &self.pass,
             },
-            ComponentResult::Pass(PassReason::AcceptedWithWarning(_)) => &self.warning,
+            ComponentResult::Warning(_) => &self.warning,
             ComponentResult::Fail(_) => &self.failed,
             ComponentResult::DidNotRun(_) => &self.skipped,
         }

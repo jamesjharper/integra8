@@ -24,6 +24,10 @@ impl ComponentState {
         self.result().map(|r| r.has_passed()).unwrap_or(false)
     }
 
+    pub fn is_warn(&self) -> bool {
+        self.result().map(|r| r.has_warn()).unwrap_or(false)
+    }
+
     pub fn is_skipped(&self) -> bool {
         self.result().map(|r| r.has_not_run()).unwrap_or(false)
     }
