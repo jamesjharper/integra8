@@ -1,13 +1,12 @@
-use std::error::Error;
 use std::io::Write;
 
 use integra8_formatters::models::artifacts::stdio::TestResultStdio;
 use integra8_formatters::models::report::ComponentRunReport;
 use integra8_formatters::models::{ComponentLocation, ComponentType};
 use integra8_formatters::models::{ComponentResult, ComponentTimeResult};
-use integra8_formatters::models::{DidNotRunReason, FailureReason, PassReason};
+use integra8_formatters::models::{FailureReason};
 
-use crate::styles::{NodeStyle, TreeStyle};
+use crate::styles::TreeStyle;
 use crate::writer::{Prefix, PrefixedTextWriter};
 
 #[derive(Clone, Debug)]

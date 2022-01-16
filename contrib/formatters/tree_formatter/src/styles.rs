@@ -2,6 +2,7 @@ use ansi_term::Colour::{Black, Green, Purple, Red, Yellow};
 use integra8_formatters::models::report::ComponentRunReport;
 use integra8_formatters::models::{ComponentResult, ComponentType, PassReason};
 
+#[derive(Clone)]
 pub enum Formatting {
     Ansi,
     None
@@ -45,8 +46,9 @@ impl Formatting {
     }
 
     pub fn apply_attribute_formatting(&self, text: impl Into<String>) -> String {
+
         match self {
-            Self::Ansi => ansi_term::Style::default().dimmed().paint(text.into()).to_string(),
+            Self::Ansi => Purple.italic().paint(text.into()).to_string(),
             Self::None => text.into(),
         }
     }
@@ -86,6 +88,7 @@ pub struct NodeStyle {
     test: ComponentNodeStyle,
     setup: ComponentNodeStyle,
     tear_down: ComponentNodeStyle,
+    format: Formatting,
 }
 
 impl NodeStyle {
@@ -138,6 +141,7 @@ impl NodeStyle {
                 skipped: format!("{} Tear Down", skipped),
                 warning: format!("{} Tear Down", warning),
             },
+            format: format.clone(),
         }
     }
 
@@ -171,6 +175,7 @@ impl NodeStyle {
                 skipped: format.apply_skipped_formatting("▽"),
                 warning: format.apply_warning_formatting("⧨"),
             },
+            format: format.clone()
         }
     }
 
@@ -204,6 +209,7 @@ impl NodeStyle {
                 skipped: format.apply_skipped_formatting("\\-/"),
                 warning: format.apply_warning_formatting("\\!/"),
             },
+            format: format.clone(),
         }
     }
 
@@ -236,10 +242,7 @@ impl NodeStyle {
     }
 
     pub fn attribute_style(&self, attribute_name: &str) -> String {
-        Purple
-            .italic()
-            .paint(format!("{}:", attribute_name))
-            .to_string()
+        self.format.apply_attribute_formatting(&format!("{}:", attribute_name))
     }
 }
 
