@@ -21,8 +21,8 @@ pub fn register_suite(input_tokens: TokenStream) -> TokenStream {
     let test_critical_threshold_expr = test_attr.take_test_critical_threshold();
     let setup_critical_threshold_expr = test_attr.take_setup_critical_threshold();
     let tear_down_critical_threshold_expr = test_attr.take_tear_down_critical_threshold();
-    let concurrency_mode_expr = test_attr.take_concurrency_mode();
-    let test_concurrency_mode_expr = test_attr.take_test_concurrency_mode();
+    let suite_concurrency_mode_expr = test_attr.take_suite_concurrency_mode(&integra8_path);
+    let test_concurrency_mode_expr = test_attr.take_test_concurrency_mode(&integra8_path);
 
     let suite_name_ident = decorated_mod.ident;
     let suite_vis = decorated_mod.vis;
@@ -54,7 +54,7 @@ pub fn register_suite(input_tokens: TokenStream) -> TokenStream {
                         test_critical_threshold: #test_critical_threshold_expr,
                         setup_critical_threshold: #setup_critical_threshold_expr,
                         tear_down_critical_threshold: #tear_down_critical_threshold_expr,
-                        suite_concurrency_mode:  #concurrency_mode_expr,
+                        suite_concurrency_mode:  #suite_concurrency_mode_expr,
                         test_concurrency_mode:  #test_concurrency_mode_expr,
                     }
                 )

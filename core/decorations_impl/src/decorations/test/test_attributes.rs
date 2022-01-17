@@ -4,6 +4,7 @@ use syn::{parse_quote, Attribute, Expr, Path, Token};
 
 use proc_macro::TokenStream;
 
+
 pub struct TestAttributes {
     pub integra8_path: Option<Path>,
     pub name: Option<Expr>,
@@ -12,7 +13,7 @@ pub struct TestAttributes {
     pub allow_fail: Option<Expr>,
     pub warn_threshold: Option<Expr>,
     pub critical_threshold: Option<Expr>,
-    pub concurrency_mode: Option<Expr>,
+    pub parallel_enabled: Option<bool>,
     pub errors: Option<Error>,
 }
 
@@ -26,7 +27,7 @@ impl TestAttributes {
             allow_fail: None,
             warn_threshold: None,
             critical_threshold: None,
-            concurrency_mode: None,
+            parallel_enabled: None,
             errors: None,
         };
 
@@ -125,12 +126,12 @@ impl TestAttributes {
     // looking for #[sequential]
     fn try_parse_concurrency_mode_expr(&mut self, attr: &Attribute) -> bool {
         if attr.path.is_ident("parallelizable") {
-            self.concurrency_mode = Some(parse_quote!(Some(ConcurrencyMode::Parallel)));
+            self.parallel_enabled = Some(true);
             return true;
         }
 
         if attr.path.is_ident("sequential") {
-            self.concurrency_mode = Some(parse_quote!(Some(ConcurrencyMode::Serial)));
+            self.parallel_enabled = Some(false);
             return true;
         }
 
@@ -211,8 +212,18 @@ impl TestAttributes {
         mem::take(&mut self.critical_threshold).unwrap_or_else(|| parse_quote!(None))
     }
 
-    pub fn take_concurrency_mode(&mut self) -> Expr {
-        mem::take(&mut self.concurrency_mode).unwrap_or_else(|| parse_quote!(None))
+    pub fn take_concurrency_mode(&mut self, integra8_path: &Path) -> Expr {
+        match mem::take(&mut self.parallel_enabled) {
+            Some(true) => {
+                parse_quote!(Some(#integra8_path ::components::ConcurrencyMode::Parallel))
+            },
+            Some(false) => {
+                parse_quote!(Some(#integra8_path ::components::ConcurrencyMode::Serial))
+            },
+            None => {
+                parse_quote!(None)
+            },
+        }            
     }
 
     fn some_or_accumulate_error<T>(&mut self, result: Result<T>) -> Option<T> {

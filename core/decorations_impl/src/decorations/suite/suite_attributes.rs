@@ -14,8 +14,9 @@ pub struct SuiteAttributes {
     pub test_critical_threshold: Option<Expr>,
     pub setup_critical_threshold: Option<Expr>,
     pub tear_down_critical_threshold: Option<Expr>,
-    pub concurrency_mode: Option<Expr>,
-    pub test_concurrency_mode: Option<Expr>,
+    
+    pub suite_parallel_enabled: Option<bool>,
+    pub test_parallel_enabled: Option<bool>,
     pub errors: Option<Error>,
 }
 
@@ -31,8 +32,8 @@ impl SuiteAttributes {
             test_critical_threshold: None,
             setup_critical_threshold: None,
             tear_down_critical_threshold: None,
-            concurrency_mode: None,
-            test_concurrency_mode: None,
+            suite_parallel_enabled: None,
+            test_parallel_enabled: None,
             errors: None,
         };
 
@@ -187,12 +188,12 @@ impl SuiteAttributes {
     // looking for #[sequential]
     fn try_parse_concurrency_mode_expr(&mut self, attr: &Attribute) -> bool {
         if attr.path.is_ident("parallelizable") {
-            self.concurrency_mode = Some(parse_quote!(Some(ConcurrencyMode::Parallel)));
+            self.suite_parallel_enabled = Some(true);
             return true;
         }
 
         if attr.path.is_ident("sequential") {
-            self.concurrency_mode = Some(parse_quote!(Some(ConcurrencyMode::Serial)));
+            self.suite_parallel_enabled = Some(false);
             return true;
         }
 
@@ -204,12 +205,12 @@ impl SuiteAttributes {
     // looking for #[sequence_tests]
     fn try_parse_test_concurrency_mode_expr(&mut self, attr: &Attribute) -> bool {
         if attr.path.is_ident("parallelize_tests") {
-            self.test_concurrency_mode = Some(parse_quote!(Some(ConcurrencyMode::Parallel)));
+            self.test_parallel_enabled = Some(true);
             return true;
         }
 
         if attr.path.is_ident("sequence_tests") {
-            self.test_concurrency_mode = Some(parse_quote!(Some(ConcurrencyMode::Serial)));
+            self.suite_parallel_enabled = Some(false);
             return true;
         }
 
@@ -278,12 +279,32 @@ impl SuiteAttributes {
         mem::take(&mut self.tear_down_critical_threshold).unwrap_or_else(|| parse_quote!(None))
     }
 
-    pub fn take_concurrency_mode(&mut self) -> Expr {
-        mem::take(&mut self.concurrency_mode).unwrap_or_else(|| parse_quote!(None))
+    pub fn take_suite_concurrency_mode(&mut self, integra8_path: &Path) -> Expr {
+        match mem::take(&mut self.suite_parallel_enabled) {
+            Some(true) => {
+                parse_quote!(Some(#integra8_path ::components::ConcurrencyMode::Parallel))
+            },
+            Some(false) => {
+                parse_quote!(Some(#integra8_path ::components::ConcurrencyMode::Serial))
+            },
+            None => {
+                parse_quote!(None)
+            },
+        }         
     }
 
-    pub fn take_test_concurrency_mode(&mut self) -> Expr {
-        mem::take(&mut self.test_concurrency_mode).unwrap_or_else(|| parse_quote!(None))
+    pub fn take_test_concurrency_mode(&mut self, integra8_path: &Path) -> Expr {
+        match mem::take(&mut self.test_parallel_enabled) {
+            Some(true) => {
+                parse_quote!(Some(#integra8_path ::components::ConcurrencyMode::Parallel))
+            },
+            Some(false) => {
+                parse_quote!(Some(#integra8_path ::components::ConcurrencyMode::Serial))
+            },
+            None => {
+                parse_quote!(None)
+            },
+        }   
     }
 
     fn some_or_accumulate_error<T>(&mut self, result: Result<T>) -> Option<T> {

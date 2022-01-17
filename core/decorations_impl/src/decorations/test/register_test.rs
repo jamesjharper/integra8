@@ -21,7 +21,7 @@ pub fn register_test(input_tokens: TokenStream) -> TokenStream {
     let allow_fail_expr = test_attr.take_allow_fail();
     let warn_threshold_expr = test_attr.take_warn_threshold();
     let critical_threshold_expr = test_attr.take_critical_threshold();
-    let concurrency_mode_expr = test_attr.take_concurrency_mode();
+    let concurrency_mode_expr = test_attr.take_concurrency_mode(&integra8_path);
 
     // Fn
     let mut test_fn = ExecFn::from(decorated_fn, &integra8_path);
