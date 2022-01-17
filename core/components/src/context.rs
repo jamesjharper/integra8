@@ -16,12 +16,11 @@ pub enum ExecutionStrategy {
 
 pub trait TestParameters {
     // Parameter Projections
-    fn is_multi_threaded(&self) -> bool {
+    fn is_multi_threaded(&self) -> bool { // TODO: remove
         if self.max_concurrency() == 1 {
             return false;
         }
         true
-        // self.run_suites_in_parallel() || self.run_tests_in_parallel()
     }
 
     fn setup_critical_threshold_duration(&self) -> Duration {

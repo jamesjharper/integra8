@@ -40,6 +40,10 @@ impl ComponentId {
     pub fn new() -> Self {
         Self(0)
     }
+
+    pub fn as_unique_number(&self) -> usize {
+        self.0
+    }
 }
 
 #[derive(Clone)]

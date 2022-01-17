@@ -123,7 +123,7 @@ impl SuiteAttributes {
                             if parameters.max_concurrency() == 1 {
                                 ConcurrencyMode::Serial
                             } else {
-                                parameters.suite_concurrency()
+                                parameters.test_concurrency()
                             }
                         },
                         |p| p.test_concurrency_mode.clone(),

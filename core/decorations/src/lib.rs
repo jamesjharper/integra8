@@ -50,21 +50,93 @@ use test_rigging::*;
 #[cfg(test)]
 mod test_rigging {
 
-    use structopt::StructOpt;
-
-    //#[cfg(test)]
-    //type ExecutionContext  = crate::runner::context::ExecutionContext<MockParameters>;
-
+    //type ExecutionContext  = crate::runner::context::ExecutionContext<Parameters>;
 
     #[linkme::distributed_slice]
-    pub static REGISTERED_COMPONENTS: [fn() -> crate::ComponentDecoration<MockParameters>] = [..];
+    pub static REGISTERED_COMPONENTS: [fn() -> crate::ComponentDecoration<Parameters>] = [..];
 
+    pub struct TestAppParameters {
+        pub max_concurrency: usize,
+        pub setup_critical_threshold_seconds: u64,
+        pub test_critical_threshold_seconds: u64,
+        pub test_warn_threshold_seconds: u64,
+        pub tear_down_critical_threshold_seconds: u64,
+        pub test_concurrency: components::ConcurrencyMode,
+        pub suite_concurrency: components::ConcurrencyMode
+    }
 
-    #[derive(Clone, Debug, StructOpt)]
-    #[structopt()]
-    pub struct MockParameters {}
+    impl TestAppParameters {
+        pub fn default() -> Self {
+            Self {
+                max_concurrency: 10,
+                setup_critical_threshold_seconds: 20,
+                test_critical_threshold_seconds: 30,
+                test_warn_threshold_seconds: 40,
+                tear_down_critical_threshold_seconds: 50,
+                test_concurrency: components::ConcurrencyMode::Parallel,
+                suite_concurrency: components::ConcurrencyMode::Serial,       
+            }
+        }
+    }
 
-    pub type Parameters = MockParameters;
+    impl components::TestParameters for TestAppParameters {
+        fn child_process_target(&self) -> Option<&'_ str> {
+            None // not needed for tests
+        }
+
+        fn use_child_processes(&self) -> bool {
+            true // not needed for tests
+        }
+
+        fn max_concurrency(&self) -> usize {
+            self.max_concurrency
+        }
+
+        fn test_concurrency(&self) -> components::ConcurrencyMode {
+            self.test_concurrency.clone()
+        }
+
+        fn suite_concurrency(&self) -> components::ConcurrencyMode {
+            self.suite_concurrency.clone()
+        }
+
+        fn setup_critical_threshold_seconds(&self) -> u64 {
+            self.setup_critical_threshold_seconds
+        }
+        fn tear_down_critical_threshold_seconds(&self) -> u64 {
+            self.tear_down_critical_threshold_seconds
+        }
+
+        fn test_critical_threshold_seconds(&self) -> u64 {
+            self.test_critical_threshold_seconds
+        }
+
+        fn test_warn_threshold_seconds(&self) -> u64 {
+            self.test_warn_threshold_seconds
+        }
+
+        // Find somewhere else for this
+        fn root_namespace(&self) -> &'static str {
+            "integra8_decorations"
+        }
+
+        // Consider refactoring this to ::formatters::FormatterParameters
+        // to de-clutter this object
+        fn console_output_style(&self) -> &'_ str {
+            ""
+        }
+        fn console_output_detail_level(&self) -> &'_ str  {
+            ""
+        }
+        fn console_output_encoding(&self) -> &'_ str  {
+            ""
+        }
+        fn console_output_ansi_mode(&self) -> &'_ str {
+            ""
+        }
+    }
+
+    pub type Parameters = TestAppParameters;
 
     pub mod linkme {
         pub use linkme::*;
@@ -83,6 +155,7 @@ mod test_rigging {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use super::components::ConcurrencyMode;
 
     mod mock_app {
         
@@ -90,23 +163,49 @@ mod tests {
     
         #[integration_test]
         #[integra8(crate = crate)]
-        pub fn test_c() { }
+        pub fn test_a() { }
+    }
+
+
+    #[macro_export]
+    macro_rules! assert_is_root {
+        ($root:expr) => {
+            assert_eq!("integra8_decorations", $root.description.path.as_str());
+            assert_eq!(0, $root.description.id.as_unique_number());
+            assert_eq!($root.description.id, $root.description.parent_id);
+            assert_eq!(None, $root.description.description);
+            assert_eq!(ComponentType::Suite, $root.description.component_type);
+        }
     }
 
     #[test]
-    fn can_build_test_groups_from_empty_tree() {
+    fn build_test_components_from_zero_decorations() {
 
         // Act
-        let group = ComponentHierarchy::from_decorated_components(
-            Vec::<ComponentDecoration<MockParameters>>::new()
-        ).into_component_groups();
+        let root = ComponentGroup::into_components(
+            vec![],
+            &Parameters::default()
+        );
 
         // Assert
-        //assert_eq!(0, group.suite.len());
-        assert_eq!(0, group.tests.len());
-        assert_eq!(0, group.bookends.len());
-        assert_eq!(0, group.sub_groups.len());
+        assert_eq!(0, root.tests.len());
+        assert_eq!(0, root.bookends.len());
+        assert_eq!(0, root.suites.len());
+        assert_is_root!(root);
+
+        assert_eq!(false, root.attributes.ignore);
+        assert_eq!(false, root.attributes.allow_suite_fail);
+
+        assert_eq!(20, root.attributes.setup_critical_threshold.as_secs());
+        assert_eq!(30, root.attributes.test_critical_threshold.as_secs());
+        assert_eq!(40, root.attributes.test_warn_threshold.as_secs());
+        assert_eq!(50, root.attributes.tear_down_critical_threshold.as_secs());
+        
+        assert_eq!(ConcurrencyMode::Serial, root.attributes.suite_concurrency_mode);
+        assert_eq!(ConcurrencyMode::Parallel, root.attributes.test_concurrency_mode);
     }
+
+    
 }
 
 /*mod mock_test_app {
