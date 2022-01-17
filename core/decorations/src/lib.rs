@@ -193,11 +193,15 @@ mod tests {
     #[macro_export]
     macro_rules! assert_is_root {
         ($root:expr) => {
-            assert_eq!("integra8_decorations", $root.description.path().as_str());
-            assert_eq!(0, $root.description.id().as_unique_number());
+            assert_eq!($root.description.path().as_str(), "integra8_decorations");
+            assert_eq!($root.description.relative_path(), "integra8_decorations", );
+            assert_eq!($root.description.full_name(), "integra8_decorations", );
+            assert_eq!($root.description.friendly_name(), "integra8_decorations", );
+            assert_eq!($root.description.is_root(), true);
+            assert_eq!($root.description.id().as_unique_number(), 0);
             assert_eq!($root.description.id(), $root.description.parent_id());
-            assert_eq!(None, $root.description.description());
-            assert_eq!(&ComponentType::Suite, $root.description.component_type());
+            assert_eq!($root.description.description(), None);
+            assert_eq!($root.description.component_type(), &ComponentType::Suite);
         }
     }
 
@@ -245,6 +249,9 @@ mod tests {
         // Assert attributes/description was inherited from the Parameters
         let test1 = &root.tests[0];
         assert_eq!(test1.description.path().as_str(), "integra8_decorations::tests::mock_app::test_a", );
+        assert_eq!(test1.description.relative_path(), "tests::mock_app::test_a", );
+        assert_eq!(test1.description.full_name(), "integra8_decorations::tests::mock_app::test_a", );
+        assert_eq!(test1.description.friendly_name(), "tests::mock_app::test_a", );
         assert_eq!(test1.description.id().as_unique_number(), 1 );
         assert_eq!(test1.description.parent_id().as_unique_number(), 0);
         assert_eq!(test1.description.description(), None);
