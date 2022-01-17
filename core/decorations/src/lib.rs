@@ -164,6 +164,16 @@ mod tests {
         #[integration_test]
         #[integra8(crate = crate)]
         pub fn test_a() { }
+
+        /*#[integration_test]
+        #[integra8(crate = crate)]
+        #[critical_threshold_seconds(2)]
+        #[description("the description of this test")]
+        #[warn_threshold_milliseconds(1000)]
+        #[sequential]
+        #[ignore()]
+        #[allow_fail()]
+        pub fn test_a_with_decorations() { }*/
     }
 
 
@@ -179,7 +189,7 @@ mod tests {
     }
 
     #[test]
-    fn build_test_components_from_zero_decorations() {
+    fn components_from_no_decorations() {
 
         // Act
         let root = ComponentGroup::into_components(
@@ -188,24 +198,79 @@ mod tests {
         );
 
         // Assert
-        assert_eq!(0, root.tests.len());
-        assert_eq!(0, root.bookends.len());
-        assert_eq!(0, root.suites.len());
+        assert_eq!(root.tests.len(), 0);
+        assert_eq!(root.bookends.len(), 0);
+        assert_eq!(root.suites.len(), 0);
         assert_is_root!(root);
 
-        assert_eq!(false, root.attributes.ignore);
-        assert_eq!(false, root.attributes.allow_suite_fail);
-
-        assert_eq!(20, root.attributes.setup_critical_threshold.as_secs());
-        assert_eq!(30, root.attributes.test_critical_threshold.as_secs());
-        assert_eq!(40, root.attributes.test_warn_threshold.as_secs());
-        assert_eq!(50, root.attributes.tear_down_critical_threshold.as_secs());
-        
-        assert_eq!(ConcurrencyMode::Serial, root.attributes.suite_concurrency_mode);
-        assert_eq!(ConcurrencyMode::Parallel, root.attributes.test_concurrency_mode);
+        // Assert attributes were inherited from the Parameters
+        assert_eq!(root.attributes.ignore, false);
+        assert_eq!(root.attributes.allow_suite_fail, false);
+        assert_eq!(root.attributes.setup_critical_threshold.as_secs(), 20);
+        assert_eq!(root.attributes.test_critical_threshold.as_secs(), 30);
+        assert_eq!(root.attributes.test_warn_threshold.as_secs(), 40);
+        assert_eq!(root.attributes.tear_down_critical_threshold.as_secs(), 50);
+        assert_eq!(root.attributes.suite_concurrency_mode, ConcurrencyMode::Serial);
+        assert_eq!(root.attributes.test_concurrency_mode, ConcurrencyMode::Parallel);
     }
 
-    
+    #[test]
+    fn components_from_single_test() {
+
+        // Act
+        let root = ComponentGroup::into_components(
+            vec![mock_app::test_a::test_def()],
+            &Parameters::default()
+        );
+
+        // Assert
+        assert_eq!(root.tests.len(), 1);
+        assert_eq!(root.bookends.len(), 0);
+        assert_eq!(root.suites.len(), 0);
+        assert_is_root!(root);
+
+
+        // Assert attributes were inherited from the Parameters
+        let test1 = &root.tests[0];
+        assert_eq!(test1.description.path.as_str(), "integra8_decorations::tests::mock_app::test_a", );
+        assert_eq!(test1.description.id.as_unique_number(), 1 );
+        assert_eq!(test1.description.parent_id.as_unique_number(), 0);
+        assert_eq!(test1.description.description, None);
+        assert_eq!(test1.description.component_type, ComponentType::Test);
+
+        // Assert attributes were inherited from the Parameters
+        assert_eq!(test1.attributes.allow_fail, false);
+        assert_eq!(test1.attributes.ignore, false);
+        assert_eq!(test1.attributes.critical_threshold.as_secs(), 30);
+        assert_eq!(test1.attributes.warn_threshold.as_secs(), 40);
+        assert_eq!(test1.attributes.concurrency_mode, ConcurrencyMode::Parallel);
+
+    }
+
+    /*#[test]
+    fn test_decorations_should_override_parameters() {
+
+        // Act
+        let root = ComponentGroup::into_components(
+            vec![mock_app::test_a_with_decorations::test_def()],
+            &Parameters::default()
+        );
+
+        // Assert
+        assert_eq!(root.tests.len(), 1);
+        assert_eq!(root.bookends.len(), 0);
+        assert_eq!(root.suites.len(), 0);
+        assert_is_root!(root);
+
+
+        // Assert attributes were inherited from the Parameters
+        let test1 = &root.tests[0];
+        assert_eq!(test1.description.path.as_str(), "integra8_decorations::tests::mock_app::test_a_with_decorations", );
+        assert_eq!(test1.description.id.as_unique_number(), 1 );
+        assert_eq!(test1.description.parent_id.as_unique_number(), 0);
+        assert_eq!(test1.description.description, None);
+        assert_eq!(test1.description.component_type, ComponentType::Test);
+    }*/
 }
 
 /*mod mock_test_app {
