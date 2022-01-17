@@ -1,5 +1,5 @@
 use std::mem;
-use syn::{parse_quote, Expr, ItemFn};
+use syn::{parse_quote, Expr, ItemFn, Path};
 
 pub struct ExecFn {
     exec_fn: Option<ItemFn>,
@@ -7,7 +7,7 @@ pub struct ExecFn {
 }
 
 impl ExecFn {
-    pub fn from(exec_fn: syn::ItemFn) -> Self {
+    pub fn from(exec_fn: syn::ItemFn, integra8_path: &Path) -> Self {
         enum Asyncness {
             Async,
             Synchronous,
@@ -35,26 +35,22 @@ impl ExecFn {
         let delegate_expr = match (asyncness, parameters) {
             (Async, HasParameters) => {
                 parse_quote!(
-                    // TODO: observe injected paths
-                    integra8::components::delegates::Delegate::async_with_context(super:: #fn_name_ident)
+                    #integra8_path ::components::delegates::Delegate::async_with_context(super:: #fn_name_ident)
                 )
             }
             (Async, NoParameters) => {
                 parse_quote!(
-                    // TODO: observe injected paths
-                    integra8::components::delegates::Delegate::async_without_context(super:: #fn_name_ident)
+                    #integra8_path ::components::delegates::Delegate::async_without_context(super:: #fn_name_ident)
                 )
             }
             (Synchronous, HasParameters) => {
                 parse_quote!(
-                    // TODO: observe injected paths
-                    integra8::components::delegates::Delegate::sync_with_context(super:: #fn_name_ident)
+                    #integra8_path ::components::delegates::Delegate::sync_with_context(super:: #fn_name_ident)
                 )
             }
             (Synchronous, NoParameters) => {
                 parse_quote!(
-                    // TODO: observe injected paths
-                    integra8::components::delegates::Delegate::sync_without_context(super:: #fn_name_ident)
+                    #integra8_path ::components::delegates::Delegate::sync_without_context(super:: #fn_name_ident)
                 )
             }
         };

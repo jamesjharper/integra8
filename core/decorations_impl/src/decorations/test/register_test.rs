@@ -24,7 +24,7 @@ pub fn register_test(input_tokens: TokenStream) -> TokenStream {
     let concurrency_mode_expr = test_attr.take_concurrency_mode();
 
     // Fn
-    let mut test_fn = ExecFn::from(decorated_fn);
+    let mut test_fn = ExecFn::from(decorated_fn, &integra8_path);
     let test_method = test_fn.take_exec_fn();
     let delegate_expr = test_fn.take_delegate_expr();
 

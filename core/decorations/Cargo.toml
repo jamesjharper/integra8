@@ -18,3 +18,12 @@ indexmap = "1.7.0"
 [dependencies.integra8_components]
 version = "0.0.1-alpha"
 path = "../components"
+
+
+[dev-dependencies]
+structopt = "0.3"
+linkme = "0.2"
+
+[dev-dependencies.integra8_decorations_impl]
+version = "0.0.1-alpha"
+path = "../decorations_impl"

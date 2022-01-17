@@ -21,7 +21,7 @@ pub fn register_teardown(input_tokens: TokenStream) -> TokenStream {
     let critical_threshold_expr = test_attr.take_critical_threshold();
 
     // Fn
-    let mut teardown_fn = ExecFn::from(decorated_fn);
+    let mut teardown_fn = ExecFn::from(decorated_fn, &integra8_path);
     let teardown_method = teardown_fn.take_exec_fn();
     let delegate_expr = teardown_fn.take_delegate_expr();
 
@@ -79,7 +79,7 @@ pub fn register_setup(input_tokens: TokenStream) -> TokenStream {
     let critical_threshold_expr = test_attr.take_critical_threshold();
 
     // Fn
-    let mut setup_fn = ExecFn::from(decorated_fn);
+    let mut setup_fn = ExecFn::from(decorated_fn, &integra8_path);
     let setup_method = setup_fn.take_exec_fn();
     let delegate_expr = setup_fn.take_delegate_expr();
 

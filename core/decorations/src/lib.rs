@@ -40,31 +40,74 @@ impl<TParameters> ComponentDecoration<TParameters> {
     }
 }
 
-/*
+
+// Test rigging to replicate what main_test!() does, to allow decorations to to be used in unit tests.
+// must be in root!
+#[cfg(test)]
+use test_rigging::*;
+
+#[doc(hidden)]
+#[cfg(test)]
+mod test_rigging {
+
+    use structopt::StructOpt;
+
+    //#[cfg(test)]
+    //type ExecutionContext  = crate::runner::context::ExecutionContext<MockParameters>;
+
+
+    #[linkme::distributed_slice]
+    pub static REGISTERED_COMPONENTS: [fn() -> crate::ComponentDecoration<MockParameters>] = [..];
+
+
+    #[derive(Clone, Debug, StructOpt)]
+    #[structopt()]
+    pub struct MockParameters {}
+
+    pub type Parameters = MockParameters;
+
+    pub mod linkme {
+        pub use linkme::*;
+    }
+
+    pub mod components {
+        pub use integra8_components::*;
+    }
+
+    pub mod decorations {
+        pub use crate::*;
+    }
+
+
+}
 #[cfg(test)]
 mod tests {
     use super::*;
 
+    mod mock_app {
+        
+        pub use integra8_decorations_impl::*;
+    
+        #[integration_test]
+        #[integra8(crate = crate)]
+        pub fn test_c() { }
+    }
 
     #[test]
     fn can_build_test_groups_from_empty_tree() {
 
         // Act
-        let suites = RootSuite::from_decorated_components(
-            Vec::<ComponentDecoration<crate::MockParameters>>::new()
-        );
+        let group = ComponentHierarchy::from_decorated_components(
+            Vec::<ComponentDecoration<MockParameters>>::new()
+        ).into_component_groups();
 
-        // Act
-        assert_has_suite!(
-            suites[0],
-            suite => "root",
-            tests => [ ],
-        );
-
-        assert_eq!(0, suites[0].tests.len());
-        assert_eq!(0, suites[0].bookends.len());
+        // Assert
+        //assert_eq!(0, group.suite.len());
+        assert_eq!(0, group.tests.len());
+        assert_eq!(0, group.bookends.len());
+        assert_eq!(0, group.sub_groups.len());
     }
-    */
+}
 
 /*mod mock_test_app {
 
