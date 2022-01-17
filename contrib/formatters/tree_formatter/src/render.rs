@@ -73,14 +73,14 @@ pub fn render_node_attributes<W: Write>(
     let mut has_attributes = false;
     output_formatter.push(Prefix::with(&style.branch.attribute_indent));
 
-    if let Some(description) = report.description.description.as_ref() {
+    if let Some(description) = report.description.description() {
         render_attribute(output_formatter, style, "description", description)?;
         has_attributes = true;
     }
 
     // Don't write location for suites
-    if report.description.component_type != ComponentType::Suite {
-        if let Some(src) = report.description.location.as_ref() {
+    if report.description.component_type() != &ComponentType::Suite {
+        if let Some(src) = report.description.location() {
             render_attribute(output_formatter, style, "src", &src.hotlink_text())?;
             has_attributes = true;
         }

@@ -27,9 +27,9 @@ impl RunStateModel {
     ///
     pub fn get_status_token(&mut self, description: &ComponentDescription) -> ComponentStateToken {
         ComponentStateToken {
-            component_type: description.component_type.clone(),
-            self_token: self.get_token(&description.path),
-            parent_token: self.get_token(&description.parent_path),
+            component_type: description.component_type().clone(),
+            self_token: self.get_token(&description.path()),
+            parent_token: self.get_token(&description.parent_path()),
         }
     }
 

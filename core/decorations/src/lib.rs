@@ -167,24 +167,37 @@ mod tests {
 
         #[integration_test]
         #[integra8(crate = crate)]
+        #[name("Test A")]
+        #[description("the description of this test A")]
         #[critical_threshold_seconds(2)]
-        #[description("the description of this test")]
         #[warn_threshold_milliseconds(1000)]
         #[sequential]
         #[ignore()]
         #[allow_fail()]
         pub fn test_a_with_decorations() { }
+
+        #[setup]
+        #[integra8(crate = crate)]
+        pub fn step_up_a() { }
+
+        #[integration_test]
+        #[integra8(crate = crate)]
+        #[name("Setup A")]
+        #[description("the description of this setup A")]
+        #[critical_threshold_seconds(2)]
+        #[ignore()]
+        pub fn step_up_a_with_decorations() { }
     }
 
 
     #[macro_export]
     macro_rules! assert_is_root {
         ($root:expr) => {
-            assert_eq!("integra8_decorations", $root.description.path.as_str());
-            assert_eq!(0, $root.description.id.as_unique_number());
-            assert_eq!($root.description.id, $root.description.parent_id);
-            assert_eq!(None, $root.description.description);
-            assert_eq!(ComponentType::Suite, $root.description.component_type);
+            assert_eq!("integra8_decorations", $root.description.path().as_str());
+            assert_eq!(0, $root.description.id().as_unique_number());
+            assert_eq!($root.description.id(), $root.description.parent_id());
+            assert_eq!(None, $root.description.description());
+            assert_eq!(&ComponentType::Suite, $root.description.component_type());
         }
     }
 
@@ -231,11 +244,11 @@ mod tests {
 
         // Assert attributes/description was inherited from the Parameters
         let test1 = &root.tests[0];
-        assert_eq!(test1.description.path.as_str(), "integra8_decorations::tests::mock_app::test_a", );
-        assert_eq!(test1.description.id.as_unique_number(), 1 );
-        assert_eq!(test1.description.parent_id.as_unique_number(), 0);
-        assert_eq!(test1.description.description, None);
-        assert_eq!(test1.description.component_type, ComponentType::Test);
+        assert_eq!(test1.description.path().as_str(), "integra8_decorations::tests::mock_app::test_a", );
+        assert_eq!(test1.description.id().as_unique_number(), 1 );
+        assert_eq!(test1.description.parent_id().as_unique_number(), 0);
+        assert_eq!(test1.description.description(), None);
+        assert_eq!(test1.description.component_type(), &ComponentType::Test);
         assert_eq!(test1.attributes.allow_fail, false);
         assert_eq!(test1.attributes.ignore, false);
         assert_eq!(test1.attributes.critical_threshold.as_secs(), 30);
@@ -246,7 +259,6 @@ mod tests {
 
     #[test]
     fn test_decorations_should_override_parameters() {
-
         // Act
         let root = ComponentGroup::into_components(
             vec![mock_app::test_a_with_decorations::test_def()],
@@ -261,18 +273,51 @@ mod tests {
 
         // Assert attributes were inherited from the Parameters
         let test1 = &root.tests[0];
-        assert_eq!(test1.description.path.as_str(), "integra8_decorations::tests::mock_app::test_a_with_decorations", );
-        assert_eq!(test1.description.id.as_unique_number(), 1 );
-        assert_eq!(test1.description.parent_id.as_unique_number(), 0);
-        assert_eq!(test1.description.description, Some("the description of this test"));
-        assert_eq!(test1.description.component_type, ComponentType::Test);
+
+        assert_eq!(test1.description.path().as_str(), "integra8_decorations::tests::mock_app::test_a_with_decorations", );
+        assert_eq!(test1.description.relative_path(), "tests::mock_app::test_a_with_decorations", );
+        assert_eq!(test1.description.full_name(), "Test A", );
+        assert_eq!(test1.description.friendly_name(), "Test A", );
+        assert_eq!(test1.description.id().as_unique_number(), 1 );
+        assert_eq!(test1.description.parent_id().as_unique_number(), 0);
+        assert_eq!(test1.description.description(), Some("the description of this test A"));
+        assert_eq!(test1.description.component_type(), &ComponentType::Test);
         assert_eq!(test1.attributes.allow_fail, true);
         assert_eq!(test1.attributes.ignore, true);
         assert_eq!(test1.attributes.critical_threshold.as_secs(), 2);
         assert_eq!(test1.attributes.warn_threshold.as_secs(), 1);
         assert_eq!(test1.attributes.concurrency_mode, ConcurrencyMode::Serial);
-
     }
+
+    /*#[test]
+    fn components_from_single_setup() {
+
+        // Act
+        let root = ComponentGroup::into_components(
+            vec![mock_app::test_a::test_def()],
+            &Parameters::default()
+        );
+
+        // Assert
+        assert_eq!(root.tests.len(), 1);
+        assert_eq!(root.bookends.len(), 0);
+        assert_eq!(root.suites.len(), 0);
+        assert_is_root!(root);
+
+        // Assert attributes/description was inherited from the Parameters
+        let test1 = &root.tests[0];
+        assert_eq!(test1.description.path.as_str(), "integra8_decorations::tests::mock_app::test_a", );
+        assert_eq!(test1.description.id.as_unique_number(), 1 );
+        assert_eq!(test1.description.parent_id.as_unique_number(), 0);
+        assert_eq!(test1.description.description, None);
+        assert_eq!(test1.description.component_type, ComponentType::Test);
+        assert_eq!(test1.attributes.allow_fail, false);
+        assert_eq!(test1.attributes.ignore, false);
+        assert_eq!(test1.attributes.critical_threshold.as_secs(), 30);
+        assert_eq!(test1.attributes.warn_threshold.as_secs(), 40);
+        assert_eq!(test1.attributes.concurrency_mode, ConcurrencyMode::Parallel);
+
+    }*/
 }
 
 /*mod mock_test_app {

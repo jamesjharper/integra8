@@ -101,7 +101,7 @@ impl SuiteSummary {
     }
 
     pub fn push_report(&mut self, report: ComponentRunReport) {
-        match report.description.component_type {
+        match report.description.component_type() {
             ComponentType::Suite => self.suites.push_report(report),
             ComponentType::Test => self.tests.push_report(report),
             ComponentType::Setup => self.setups.push_report(report),
@@ -256,13 +256,13 @@ impl RunSummary {
     }
 
     pub fn push_report(&mut self, report: ComponentRunReport) {
-        if let ComponentType::Suite = report.description.component_type {
-            self.get_suite_mut(&report.description.path)
+        if let ComponentType::Suite = report.description.component_type() {
+            self.get_suite_mut(&report.description.path())
                 .push_suite_report(report.clone());
         }
 
         if !report.description.is_root() {
-            self.get_suite_mut(&report.description.parent_path)
+            self.get_suite_mut(&report.description.parent_path())
                 .push_report(report);
         }
     }

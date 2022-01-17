@@ -98,19 +98,19 @@ impl std::str::FromStr for ConcurrencyMode {
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct ComponentDescription {
     /// The identity of the bookend. Used for uniquely identify the bookend and displaying the test name to the end user.
-    pub path: ComponentPath,
+    path: ComponentPath,
 
-    pub id: ComponentId,
+    id: ComponentId,
 
-    pub parent_path: ComponentPath,
+    parent_path: ComponentPath,
 
-    pub parent_id: ComponentId,
+    parent_id: ComponentId,
 
-    pub description: Option<&'static str>,
+    description: Option<&'static str>,
 
-    pub component_type: ComponentType,
+    component_type: ComponentType,
 
-    pub location: Option<ComponentLocation>,
+    location: Option<ComponentLocation>,
 
     name: Option<&'static str>,
 }
@@ -156,6 +156,10 @@ impl ComponentDescription {
         }
     }
 
+    pub fn path(&self) -> &'_ ComponentPath {
+        &self.path
+    }
+
     pub fn relative_path(&self) -> String {
         if self.is_root() {
             return self.path.to_string();
@@ -169,6 +173,30 @@ impl ComponentDescription {
                 relative.trim_start_matches(':').to_string()
             })
             .unwrap_or_else(|| self.path.to_string())
+    }
+
+    pub fn id(&self) -> &'_ ComponentId {
+        &self.id
+    }
+
+    pub fn parent_path(&self) -> &'_ ComponentPath {
+        &self.parent_path
+    }
+
+    pub fn parent_id(&self) -> &'_ ComponentId {
+        &self.parent_id
+    }
+
+    pub fn description(&self) ->  Option<&'static str> {
+        self.description.clone()
+    }
+
+    pub fn component_type(&self) ->  &'_ ComponentType {
+        &self.component_type
+    }
+
+    pub fn location(&self) ->  Option<&'_ ComponentLocation> {
+        self.location.as_ref()
     }
 }
 

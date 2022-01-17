@@ -108,9 +108,9 @@ impl<TParameters: TestParameters> ComponentFixture<TParameters> {
 
     pub fn component_path(&self) -> ComponentPath {
         match self {
-            Self::Test { test, .. } => test.description.path.clone(),
-            Self::BookEnd { bookend, .. } => bookend.description.path.clone(),
-            Self::Suite { description, .. } => description.path.clone(),
+            Self::Test { test, .. } => test.description.path().clone(),
+            Self::BookEnd { bookend, .. } => bookend.description.path().clone(),
+            Self::Suite { description, .. } => description.path().clone(),
         }
     }
 

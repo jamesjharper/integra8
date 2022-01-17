@@ -64,7 +64,7 @@ impl TreeFormatter {
         }
 
         for suite_report in &suite_summary.suites.reports {
-            let suite_summary = state.get_suite(&suite_report.description.path).unwrap();
+            let suite_summary = state.get_suite(&suite_report.description.path()).unwrap();
             suite_node.add_child_node(self.get_node(state, suite_summary));
         }
 
@@ -146,7 +146,7 @@ impl OutputFormatter for TreeFormatter {
         &mut self,
         report: &ComponentRunReport,
     ) -> Result<(), Box<dyn Error>> {
-        if report.description.component_type == ComponentType::Suite {
+        if report.description.component_type() == &ComponentType::Suite {
             return Ok(());
         }
 

@@ -164,7 +164,7 @@ impl<TParameters: TestParameters> Suite<TParameters> {
     ) -> Suite<TParameters> {
         let id = id_gen.next();
         let (parent_path, parent_id) = parent
-            .map(|p| (p.1.path.clone(), p.1.id.clone()))
+            .map(|p| (p.1.path().clone(), p.1.id().clone()))
             // root nodes have themselves as their parent and an id of zero
             .unwrap_or_else(|| (ComponentPath::from(path), id.clone()));
 

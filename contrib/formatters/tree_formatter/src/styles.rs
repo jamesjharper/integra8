@@ -261,7 +261,7 @@ impl ComponentTypeStyle {
     }
 
     pub fn node_style<'a>(&'a self, report: &ComponentRunReport) -> &'a ComponentStyle {
-        match report.description.component_type {
+        match report.description.component_type() {
             ComponentType::Suite => &self.suite,
             ComponentType::Test => &self.test,
             ComponentType::Setup => &self.setup,

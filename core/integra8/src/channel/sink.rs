@@ -96,7 +96,7 @@ impl ResultsOutputWriterSink {
         &mut self,
         description: ComponentDescription,
     ) -> Result<(), Box<dyn Error>> {
-        match description.component_type {
+        match description.component_type() {
             ComponentType::Suite => self.output_writer.write_suite_start(&description),
             ComponentType::Test => self.output_writer.write_test_start(&description),
             ComponentType::Setup => self.output_writer.write_setup_start(&description),
@@ -110,7 +110,7 @@ impl ResultsOutputWriterSink {
         &mut self,
         description: ComponentDescription,
     ) -> Result<(), Box<dyn Error>> {
-        match description.component_type {
+        match description.component_type() {
             ComponentType::Suite => self.output_writer.write_suite_timeout(&description),
             ComponentType::Test => self.output_writer.write_test_timeout(&description),
             ComponentType::Setup => self.output_writer.write_setup_timeout(&description),
@@ -124,7 +124,7 @@ impl ResultsOutputWriterSink {
         &mut self,
         report: ComponentRunReport,
     ) -> Result<(), Box<dyn Error>> {
-        let result = match report.description.component_type {
+        let result = match report.description.component_type() {
             ComponentType::Suite => self.output_writer.write_suite_report(&report),
             ComponentType::Test => self.output_writer.write_test_report(&report),
             ComponentType::Setup => self.output_writer.write_setup_report(&report),
