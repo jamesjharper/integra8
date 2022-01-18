@@ -186,7 +186,6 @@ mod tests {
 
         // Tests
 
-
         #[integration_test]
         #[integra8(crate = crate)]
         pub fn test_a() {}
@@ -316,6 +315,64 @@ mod tests {
             #[ignore()]
             #[parallelizable]
             pub fn teardown_az_with_decorations() {}
+        }
+
+        #[suite]
+        #[integra8(crate = crate)] 
+
+        #[parallelize_test]
+        #[parallelizable]
+        #[allow_fail()]
+        #[ignore()]
+        #[tear_down_critical_threshold_seconds(11)]
+        #[setup_critical_threshold_seconds(12)]
+        #[test_critical_threshold_seconds(13)]
+        #[test_warn_threshold_seconds(14)]
+        pub mod nested_suite_y {
+
+            pub use integra8_decorations_impl::*;
+
+
+            #[integration_test]
+            #[integra8(crate = crate)]
+            pub fn test_ay() {}
+            
+            #[integration_test]
+            #[integra8(crate = crate)]
+            #[name("Test Ay")]
+            #[description("the description of this test Ay")]
+            #[critical_threshold_seconds(2)]
+            #[warn_threshold_milliseconds(1000)]
+            #[sequential]
+            #[ignore()]
+            #[allow_fail()]
+            pub fn test_ay_with_decorations() {}
+    
+            #[setup]
+            #[integra8(crate = crate)]
+            pub fn setup_ay() {}
+
+            #[setup]
+            #[integra8(crate = crate)]
+            #[name("Setup Ay")]
+            #[description("the description of this setup Ay")]
+            #[critical_threshold_seconds(2)]
+            #[ignore()]
+            #[parallelizable]
+            pub fn setup_ay_with_decorations() {}
+    
+            #[teardown]
+            #[integra8(crate = crate)]
+            pub fn teardown_ay() {}
+
+            #[teardown]
+            #[integra8(crate = crate)]
+            #[name("Teardown Ay")]
+            #[description("the description of this teardown Ay")]
+            #[critical_threshold_seconds(2)]
+            #[ignore()]
+            #[parallelizable]
+            pub fn teardown_ay_with_decorations() {}
         }
     }
 
@@ -950,7 +1007,7 @@ mod tests {
             assert_eq!(setup1.description.friendly_name(), "Setup Az",);
             assert_eq!(setup1.description.id().as_unique_number(), 2);
             assert_eq!(setup1.description.parent_id().as_unique_number(), 1);
-            
+
             assert_eq!(
                 setup1.description.description(),
                 Some("the description of this setup Az")

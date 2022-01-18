@@ -101,14 +101,14 @@ impl SuiteAttributes {
     }
 
     // looking for
-    // #[warn_threshold_seconds(1)]
-    // #[warn_threshold_milliseconds(1000)]
+    // #[test_warn_threshold_seconds(1)]
+    // #[test_warn_threshold_milliseconds(1000)]
     fn try_parse_warn_threshold_expr(&mut self, attr: &Attribute) -> bool {
-        if attr.path.is_ident("warn_threshold_seconds") {
+        if attr.path.is_ident("test_warn_threshold_seconds") {
             self.test_warn_threshold = self.parse_duration_from_sec(attr);
             return true;
         }
-        if attr.path.is_ident("warn_threshold_milliseconds") {
+        if attr.path.is_ident("test_warn_threshold_milliseconds") {
             self.test_warn_threshold = self.parse_duration_from_millis(attr);
             return true;
         }
@@ -116,14 +116,14 @@ impl SuiteAttributes {
     }
 
     // looking for
-    // #[critical_threshold_seconds(1)]
-    // #[critical_threshold_milliseconds(1000)]
+    // #[test_critical_threshold_seconds(1)]
+    // #[test_critical_threshold_milliseconds(1000)]
     fn try_parse_critical_threshold_expr(&mut self, attr: &Attribute) -> bool {
-        if attr.path.is_ident("critical_threshold_seconds") {
+        if attr.path.is_ident("test_critical_threshold_seconds") {
             self.test_critical_threshold = self.parse_duration_from_sec(attr);
             return true;
         }
-        if attr.path.is_ident("critical_threshold_milliseconds") {
+        if attr.path.is_ident("test_critical_threshold_milliseconds") {
             self.test_critical_threshold = self.parse_duration_from_millis(attr);
             return true;
         }
