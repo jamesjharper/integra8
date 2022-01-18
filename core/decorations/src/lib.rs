@@ -395,8 +395,6 @@ mod tests {
                 pub fn teardown_ax() {}
             }
         }
-
-
     }
 
     #[macro_export]
@@ -1544,10 +1542,147 @@ mod tests {
     }
 
 
+    #[test]
+    fn should_return_components_in_the_order_they_are_defined() {
+        // Act
+        let root = ComponentGroup::into_components(
+            vec![
+                // linkme will determine the exact order,
+                // but assuming this is the order it returns
+                // component order should match this
+                mock_app::setup_c::setup_def(),
+                mock_app::setup_b::setup_def(),
+                mock_app::setup_a::setup_def(),
 
-    // Should inherit parameters from parents parent suite when parent does not define its own values
-    // Should overwrite parameters and not inherit parent suite
-    // Should return components in the order the are found in there file
+                mock_app::test_c::test_def(),
+                mock_app::test_b::test_def(),
+                mock_app::test_a::test_def(),
 
-    // 
+                mock_app::nested_suite_z::__suite_def(),
+                mock_app::nested_suite_z::setup_az::setup_def(),
+                mock_app::nested_suite_z::test_az::test_def(),
+                mock_app::nested_suite_z::teardown_az::teardown_def(),
+
+                mock_app::nested_suite_y::__suite_def(),
+
+                mock_app::teardown_c::teardown_def(),
+                mock_app::teardown_b::teardown_def(),
+                mock_app::teardown_a::teardown_def(),
+
+
+            ], &Parameters::default());
+
+        // Assert
+        assert_eq!(root.tests.len(), 3);
+        assert_eq!(root.setups.len(), 3);
+        assert_eq!(root.tear_downs.len(), 3);
+        assert_eq!(root.suites.len(), 2);
+        
+
+        // Setups 
+
+        let setup1 = &root.setups[0];
+        assert_eq!(setup1.description.id().as_unique_number(), 1);
+        assert_eq!(
+            setup1.description.path().as_str(),
+            "integra8_decorations::tests::mock_app::setup_c"
+        );
+
+        let setup2 = &root.setups[1];
+        assert_eq!(setup2.description.id().as_unique_number(), 2);
+        assert_eq!(
+            setup2.description.path().as_str(),
+            "integra8_decorations::tests::mock_app::setup_b"
+        );
+
+        let setup3 = &root.setups[2];
+        assert_eq!(setup3.description.id().as_unique_number(), 3);
+        assert_eq!(
+            setup3.description.path().as_str(),
+            "integra8_decorations::tests::mock_app::setup_a"
+        );
+
+        // Tests 
+
+        let test1 = &root.tests[0];
+        assert_eq!(test1.description.id().as_unique_number(), 4);
+        assert_eq!(
+            test1.description.path().as_str(),
+            "integra8_decorations::tests::mock_app::test_c"
+        );
+
+        let test2 = &root.tests[1];
+        assert_eq!(test2.description.id().as_unique_number(), 5);
+        assert_eq!(
+            test2.description.path().as_str(),
+            "integra8_decorations::tests::mock_app::test_b"
+        );
+
+        let test3 = &root.tests[2];
+        assert_eq!(test3.description.id().as_unique_number(), 6);
+        assert_eq!(
+            test3.description.path().as_str(),
+            "integra8_decorations::tests::mock_app::test_a"
+        );
+
+        // Nested Suite 1
+        let suite1 = &root.suites[0];
+        assert_eq!(suite1.description.id().as_unique_number(), 7);
+        assert_eq!(
+            suite1.description.path().as_str(),
+            "integra8_decorations::tests::mock_app::nested_suite_z"
+        );
+
+        let setup11 = &suite1.setups[0];
+        assert_eq!(setup11.description.id().as_unique_number(), 8);
+        assert_eq!(
+            setup11.description.path().as_str(),
+            "integra8_decorations::tests::mock_app::nested_suite_z::setup_az"
+        );
+
+        let test11 = &suite1.tests[0];
+        assert_eq!(test11.description.id().as_unique_number(), 9);
+        assert_eq!(
+            test11.description.path().as_str(),
+            "integra8_decorations::tests::mock_app::nested_suite_z::test_az"
+        );
+
+        let teardown11 = &suite1.tear_downs[0];
+        assert_eq!(teardown11.description.id().as_unique_number(), 10);
+        assert_eq!(
+            teardown11.description.path().as_str(),
+            "integra8_decorations::tests::mock_app::nested_suite_z::teardown_az"
+        );
+
+        // Nested Suite 2
+        let suite2 = &root.suites[1];
+        assert_eq!(suite2.description.id().as_unique_number(), 11);
+        assert_eq!(
+            suite2.description.path().as_str(),
+            "integra8_decorations::tests::mock_app::nested_suite_y"
+        );
+
+        // Tear downs 
+
+        let tear_down1 = &root.tear_downs[0];
+        assert_eq!(tear_down1.description.id().as_unique_number(), 12);
+        assert_eq!(
+            tear_down1.description.path().as_str(),
+            "integra8_decorations::tests::mock_app::teardown_c"
+        );
+
+        let tear_down2 = &root.tear_downs[1];
+        assert_eq!(tear_down2.description.id().as_unique_number(), 13);
+        assert_eq!(
+            tear_down2.description.path().as_str(),
+            "integra8_decorations::tests::mock_app::teardown_b"
+        );
+
+        let tear_down3 = &root.tear_downs[2];
+        assert_eq!(tear_down3.description.id().as_unique_number(), 14);
+        assert_eq!(
+            tear_down3.description.path().as_str(),
+            "integra8_decorations::tests::mock_app::teardown_a"
+        );
+    }
 }
