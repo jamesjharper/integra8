@@ -318,7 +318,6 @@ mod tests {
 
         #[suite]
         #[integra8(crate = crate)] 
-
         #[sequential_tests]
         #[parallelizable]
         #[allow_fail()]
@@ -374,7 +373,30 @@ mod tests {
             #[ignore()]
             #[parallelizable]
             pub fn teardown_ay_with_decorations() {}
+
+
+            #[suite]
+            #[integra8(crate = crate)] 
+            pub mod nested_suite_x {
+    
+                pub use integra8_decorations_impl::*;
+    
+                #[integration_test]
+                #[integra8(crate = crate)]
+                pub fn test_ax() {}
+
+
+                #[setup]
+                #[integra8(crate = crate)]
+                pub fn setup_ax() {}
+    
+                #[teardown]
+                #[integra8(crate = crate)]
+                pub fn teardown_ax() {}
+            }
         }
+
+
     }
 
     #[macro_export]
@@ -1399,8 +1421,130 @@ mod tests {
         }
     }
 
+    mod should_inherit_parameter_defaults_set_on_nested_nested_suite {
+        use super::*;
 
-    // Should inherit parameters from parent suite
+        #[test]
+        fn for_test() {
+            // Act
+            let root = ComponentGroup::into_components(
+                vec![
+                    mock_app::nested_suite_y::__suite_def(),
+                    mock_app::nested_suite_y::nested_suite_x::__suite_def(),
+                    mock_app::nested_suite_y::nested_suite_x::test_ax::test_def()
+                ],
+                &Parameters::default(),
+            );
+
+            // Assert
+            assert_eq!(root.tests.len(), 0);
+            assert_eq!(root.setups.len(), 0);
+            assert_eq!(root.tear_downs.len(), 0);
+            assert_eq!(root.suites.len(), 1);
+            assert_is_root!(root);
+
+            // Assert attributes were inherited from the Parameters
+            let test1 = &root.suites[0].suites[0].tests[0];
+
+            assert_eq!(
+                test1.description.path().as_str(),
+                "integra8_decorations::tests::mock_app::nested_suite_y::nested_suite_x::test_ax",
+            );
+            assert_eq!(test1.description.relative_path(), "test_ax");
+            assert_eq!(test1.description.full_name(), "integra8_decorations::tests::mock_app::nested_suite_y::nested_suite_x::test_ax",);
+            assert_eq!(test1.description.friendly_name(), "test_ax",);
+            assert_eq!(test1.description.id().as_unique_number(), 3);
+            assert_eq!(test1.description.parent_id().as_unique_number(), 2);
+            assert_eq!(test1.description.description(), None );
+            assert_eq!(test1.description.component_type(), &ComponentType::Test);
+            assert_eq!(test1.attributes.allow_fail, false);
+            assert_eq!(test1.attributes.ignore, true);
+            assert_eq!(test1.attributes.critical_threshold.as_secs(), 13);
+            assert_eq!(test1.attributes.warn_threshold.as_secs(), 14);
+            assert_eq!(test1.attributes.concurrency_mode, ConcurrencyMode::Parallel);
+        }
+
+        #[test]
+        fn for_setup() {
+            // Act
+            let root = ComponentGroup::into_components(
+                vec![
+                    mock_app::nested_suite_y::__suite_def(),
+                    mock_app::nested_suite_y::nested_suite_x::__suite_def(),
+                    mock_app::nested_suite_y::nested_suite_x::setup_ax::setup_def()
+                ],
+                &Parameters::default(),
+            );
+
+            // Assert
+            assert_eq!(root.tests.len(), 0);
+            assert_eq!(root.setups.len(), 0);
+            assert_eq!(root.tear_downs.len(), 0);
+            assert_eq!(root.suites.len(), 1);
+            assert_is_root!(root);
+
+            // Assert attributes/description was inherited from the Parameters
+            let setup1 = &root.suites[0].suites[0].setups[0];
+            assert_eq!(
+                setup1.description.path().as_str(),
+                "integra8_decorations::tests::mock_app::nested_suite_y::nested_suite_x::setup_ax",
+            );
+            assert_eq!(setup1.description.relative_path(), "setup_ax",);
+            assert_eq!(setup1.description.full_name(), "integra8_decorations::tests::mock_app::nested_suite_y::nested_suite_x::setup_ax",);
+            assert_eq!(setup1.description.friendly_name(), "setup_ax",);
+            assert_eq!(setup1.description.id().as_unique_number(), 3);
+            assert_eq!(setup1.description.parent_id().as_unique_number(), 2);
+
+            assert_eq!(setup1.description.description(), None);
+            assert_eq!(setup1.description.component_type(), &ComponentType::Setup);
+            assert_eq!(setup1.attributes.ignore, true);
+            assert_eq!(setup1.attributes.critical_threshold.as_secs(), 12);
+            assert_eq!(setup1.attributes.concurrency_mode, ConcurrencyMode::Serial);
+        }
+
+        #[test]
+        fn for_tear_down() {
+            // Act
+            let root = ComponentGroup::into_components(
+                vec![
+                    mock_app::nested_suite_y::__suite_def(),
+                    mock_app::nested_suite_y::nested_suite_x::__suite_def(),
+                    mock_app::nested_suite_y::nested_suite_x::teardown_ax::teardown_def()
+                ],
+                &Parameters::default(),
+            );
+
+            // Assert
+            assert_eq!(root.tests.len(), 0);
+            assert_eq!(root.setups.len(), 0);
+            assert_eq!(root.tear_downs.len(), 0);
+            assert_eq!(root.suites.len(), 1);
+            assert_is_root!(root);
+
+            // Assert attributes/description was inherited from the Parameters
+            let teardown1 = &root.suites[0].suites[0].tear_downs[0];
+            assert_eq!(
+                teardown1.description.path().as_str(),
+                "integra8_decorations::tests::mock_app::nested_suite_y::nested_suite_x::teardown_ax"
+            );
+            assert_eq!(
+                teardown1.description.relative_path(),
+                "teardown_ax",
+            );
+            assert_eq!(teardown1.description.full_name(),  "integra8_decorations::tests::mock_app::nested_suite_y::nested_suite_x::teardown_ax");
+            assert_eq!(teardown1.description.friendly_name(), "teardown_ax",);
+            assert_eq!(teardown1.description.id().as_unique_number(), 3);
+            assert_eq!(teardown1.description.parent_id().as_unique_number(), 2);
+            assert_eq!(teardown1.description.description(), None);
+            assert_eq!(teardown1.description.component_type(), &ComponentType::TearDown);
+            assert_eq!(teardown1.attributes.ignore, true);
+            assert_eq!(teardown1.attributes.critical_threshold.as_secs(), 11);
+            assert_eq!(teardown1.attributes.concurrency_mode, ConcurrencyMode::Serial);
+        }
+    }
+
+
+
     // Should inherit parameters from parents parent suite when parent does not define its own values
     // Should overwrite parameters and not inherit parent suite
     // Should return components in the order the are found in there file
