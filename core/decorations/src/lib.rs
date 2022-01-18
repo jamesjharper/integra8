@@ -159,6 +159,33 @@ mod tests {
 
         pub use integra8_decorations_impl::*;
 
+        // Setups
+
+        #[setup]
+        #[integra8(crate = crate)]
+        pub fn setup_a() {}
+
+        #[setup]
+        #[integra8(crate = crate)]
+        #[name("Setup A")]
+        #[description("the description of this setup A")]
+        #[critical_threshold_seconds(2)]
+        #[ignore()]
+        #[parallelizable]
+        pub fn setup_a_with_decorations() {}
+
+        #[setup]
+        #[integra8(crate = crate)]
+        pub fn setup_b() {}
+
+        #[setup]
+        #[integra8(crate = crate)]
+        pub fn setup_c() {}
+
+
+        // Tests
+
+
         #[integration_test]
         #[integra8(crate = crate)]
         pub fn test_a() {}
@@ -174,19 +201,16 @@ mod tests {
         #[allow_fail()]
         pub fn test_a_with_decorations() {}
 
-        #[setup]
+        #[integration_test]
         #[integra8(crate = crate)]
-        pub fn setup_a() {}
+        pub fn test_b() {}
 
-        #[setup]
+                            
+        #[integration_test]
         #[integra8(crate = crate)]
-        #[name("Setup A")]
-        #[description("the description of this setup A")]
-        #[critical_threshold_seconds(2)]
-        #[ignore()]
-        #[parallelizable]
-        pub fn setup_a_with_decorations() {}
+        pub fn test_c() {}
 
+        // Tear downs
 
         #[teardown]
         #[integra8(crate = crate)]
@@ -200,6 +224,53 @@ mod tests {
         #[ignore()]
         #[parallelizable]
         pub fn teardown_a_with_decorations() {}
+
+
+
+
+
+        #[teardown]
+        #[integra8(crate = crate)]
+        pub fn teardown_b() {}
+
+    
+        #[teardown]
+        #[integra8(crate = crate)]
+        pub fn teardown_c() {}
+
+        pub mod nested_namespace {
+
+            pub use integra8_decorations_impl::*;
+
+            #[integration_test]
+            #[integra8(crate = crate)]
+            #[name("Test D")]
+            #[description("the description of this test D")]
+            #[critical_threshold_seconds(2)]
+            #[warn_threshold_milliseconds(1000)]
+            #[sequential]
+            #[ignore()]
+            #[allow_fail()]
+            pub fn test_d_nested_with_decorations() {}
+    
+            #[setup]
+            #[integra8(crate = crate)]
+            #[name("Setup D")]
+            #[description("the description of this setup D")]
+            #[critical_threshold_seconds(2)]
+            #[ignore()]
+            #[parallelizable]
+            pub fn setup_d_nested_with_decorations() {}
+    
+            #[teardown]
+            #[integra8(crate = crate)]
+            #[name("Teardown D")]
+            #[description("the description of this Teardown D")]
+            #[critical_threshold_seconds(2)]
+            #[ignore()]
+            #[parallelizable]
+            pub fn teardown_d_nested_with_decorations() {}
+        }
     }
 
     #[macro_export]
@@ -218,7 +289,7 @@ mod tests {
     }
 
     #[test]
-    fn components_from_no_decorations() {
+    fn should_initialize_from_no_components() {
         // Act
         let root = ComponentGroup::into_components(vec![], &Parameters::default());
 
@@ -246,634 +317,377 @@ mod tests {
         );
     }
 
-    #[test]
-    fn components_from_single_test() {
-        // Act
-        let root = ComponentGroup::into_components(
-            vec![mock_app::test_a::test_def()],
-            &Parameters::default(),
-        );
+    mod should_initialize_with_a_single_component {
+        use super::*;
 
-        // Assert
-        assert_eq!(root.tests.len(), 1);
-        assert_eq!(root.setups.len(), 0);
-        assert_eq!(root.tear_downs.len(), 0);
-        assert_eq!(root.suites.len(), 0);
-        assert_is_root!(root);
+        #[test]
+        fn for_test() {
+            // Act
+            let root = ComponentGroup::into_components(
+                vec![mock_app::test_a::test_def()],
+                &Parameters::default(),
+            );
 
-        // Assert attributes/description was inherited from the Parameters
-        let test1 = &root.tests[0];
-        assert_eq!(
-            test1.description.path().as_str(),
-            "integra8_decorations::tests::mock_app::test_a",
-        );
-        assert_eq!(test1.description.relative_path(), "tests::mock_app::test_a",);
-        assert_eq!(
-            test1.description.full_name(),
-            "integra8_decorations::tests::mock_app::test_a",
-        );
-        assert_eq!(test1.description.friendly_name(), "tests::mock_app::test_a",);
-        assert_eq!(test1.description.id().as_unique_number(), 1);
-        assert_eq!(test1.description.parent_id().as_unique_number(), 0);
-        assert_eq!(test1.description.description(), None);
-        assert_eq!(test1.description.component_type(), &ComponentType::Test);
-        assert_eq!(test1.attributes.allow_fail, false);
-        assert_eq!(test1.attributes.ignore, false);
-        assert_eq!(test1.attributes.critical_threshold.as_secs(), 30);
-        assert_eq!(test1.attributes.warn_threshold.as_secs(), 40);
-        assert_eq!(test1.attributes.concurrency_mode, ConcurrencyMode::Parallel);
-    }
+            // Assert
+            assert_eq!(root.tests.len(), 1);
+            assert_eq!(root.setups.len(), 0);
+            assert_eq!(root.tear_downs.len(), 0);
+            assert_eq!(root.suites.len(), 0);
+            assert_is_root!(root);
 
-    #[test]
-    fn test_decorations_should_override_parameters() {
-        // Act
-        let root = ComponentGroup::into_components(
-            vec![mock_app::test_a_with_decorations::test_def()],
-            &Parameters::default(),
-        );
-
-        // Assert
-        assert_eq!(root.tests.len(), 1);
-        assert_eq!(root.setups.len(), 0);
-        assert_eq!(root.tear_downs.len(), 0);
-        assert_eq!(root.suites.len(), 0);
-        assert_is_root!(root);
-
-        // Assert attributes were inherited from the Parameters
-        let test1 = &root.tests[0];
-
-        assert_eq!(
-            test1.description.path().as_str(),
-            "integra8_decorations::tests::mock_app::test_a_with_decorations",
-        );
-        assert_eq!(
-            test1.description.relative_path(),
-            "tests::mock_app::test_a_with_decorations",
-        );
-        assert_eq!(test1.description.full_name(), "Test A",);
-        assert_eq!(test1.description.friendly_name(), "Test A",);
-        assert_eq!(test1.description.id().as_unique_number(), 1);
-        assert_eq!(test1.description.parent_id().as_unique_number(), 0);
-        assert_eq!(
-            test1.description.description(),
-            Some("the description of this test A")
-        );
-        assert_eq!(test1.description.component_type(), &ComponentType::Test);
-        assert_eq!(test1.attributes.allow_fail, true);
-        assert_eq!(test1.attributes.ignore, true);
-        assert_eq!(test1.attributes.critical_threshold.as_secs(), 2);
-        assert_eq!(test1.attributes.warn_threshold.as_secs(), 1);
-        assert_eq!(test1.attributes.concurrency_mode, ConcurrencyMode::Serial);
-    }
-
-    #[test]
-    fn components_from_single_setup() {
-        // Act
-        let root = ComponentGroup::into_components(
-            vec![mock_app::setup_a::setup_def()],
-            &Parameters::default(),
-        );
-
-        // Assert
-        assert_eq!(root.tests.len(), 0);
-        assert_eq!(root.setups.len(), 1);
-        assert_eq!(root.tear_downs.len(), 0);
-        assert_eq!(root.suites.len(), 0);
-        assert_is_root!(root);
-
-        // Assert attributes/description was inherited from the Parameters
-        let setup1 = &root.setups[0].clone();
-        assert_eq!(
-            setup1.description.path().as_str(),
-            "integra8_decorations::tests::mock_app::setup_a",
-        );
-        assert_eq!(
-            setup1.description.relative_path(),
-            "tests::mock_app::setup_a",
-        );
-        assert_eq!(
-            setup1.description.full_name(),
-            "integra8_decorations::tests::mock_app::setup_a",
-        );
-        assert_eq!(
-            setup1.description.friendly_name(),
-            "tests::mock_app::setup_a",
-        );
-        assert_eq!(setup1.description.id().as_unique_number(), 1);
-        assert_eq!(setup1.description.parent_id().as_unique_number(), 0);
-        assert_eq!(setup1.description.description(), None);
-        assert_eq!(setup1.description.component_type(), &ComponentType::Setup);
-        assert_eq!(setup1.attributes.ignore, false);
-        assert_eq!(setup1.attributes.critical_threshold.as_secs(), 20);
-    }
-
-    #[test]
-    fn setup_decorations_should_override_parameters() {
-        // Act
-        let root = ComponentGroup::into_components(
-            vec![mock_app::setup_a_with_decorations::setup_def()],
-            &Parameters::default(),
-        );
-
-        // Assert
-        assert_eq!(root.tests.len(), 0);
-        assert_eq!(root.setups.len(), 1);
-        assert_eq!(root.tear_downs.len(), 0);
-        assert_eq!(root.suites.len(), 0);
-        assert_is_root!(root);
-
-        // Assert attributes/description was inherited from the Parameters
-        let setup1 = &root.setups[0].clone();
-        assert_eq!(
-            setup1.description.path().as_str(),
-            "integra8_decorations::tests::mock_app::setup_a_with_decorations",
-        );
-        assert_eq!(
-            setup1.description.relative_path(),
-            "tests::mock_app::setup_a_with_decorations",
-        );
-        assert_eq!(setup1.description.full_name(), "Setup A",);
-        assert_eq!(setup1.description.friendly_name(), "Setup A",);
-        assert_eq!(setup1.description.id().as_unique_number(), 1);
-        assert_eq!(setup1.description.parent_id().as_unique_number(), 0);
-        assert_eq!(
-            setup1.description.description(),
-            Some("the description of this setup A")
-        );
-        assert_eq!(setup1.description.component_type(), &ComponentType::Setup);
-        assert_eq!(setup1.attributes.ignore, true);
-        assert_eq!(setup1.attributes.critical_threshold.as_secs(), 2);
-        assert_eq!(setup1.attributes.concurrency_mode, ConcurrencyMode::Parallel);
-    }
-
-    #[test]
-    fn components_from_single_teardown() {
-        // Act
-        let root = ComponentGroup::into_components(
-            vec![mock_app::teardown_a::teardown_def()],
-            &Parameters::default(),
-        );
-
-        // Assert
-        assert_eq!(root.tests.len(), 0);
-        assert_eq!(root.setups.len(), 0);
-        assert_eq!(root.tear_downs.len(), 1);
-        assert_eq!(root.suites.len(), 0);
-        assert_is_root!(root);
-
-        // Assert attributes/description was inherited from the Parameters
-        let teardown1 = &root.tear_downs[0].clone();
-        assert_eq!(
-            teardown1.description.path().as_str(),
-            "integra8_decorations::tests::mock_app::teardown_a",
-        );
-        assert_eq!(
-            teardown1.description.relative_path(),
-            "tests::mock_app::teardown_a",
-        );
-        assert_eq!(
-            teardown1.description.full_name(),
-            "integra8_decorations::tests::mock_app::teardown_a",
-        );
-        assert_eq!(
-            teardown1.description.friendly_name(),
-            "tests::mock_app::teardown_a",
-        );
-        assert_eq!(teardown1.description.id().as_unique_number(), 1);
-        assert_eq!(teardown1.description.parent_id().as_unique_number(), 0);
-        assert_eq!(teardown1.description.description(), None);
-        assert_eq!(teardown1.description.component_type(), &ComponentType::TearDown);
-        assert_eq!(teardown1.attributes.ignore, false);
-        assert_eq!(teardown1.attributes.critical_threshold.as_secs(), 50);
-    }
-
-    #[test]
-    fn teardown_decorations_should_override_parameters() {
-        // Act
-        let root = ComponentGroup::into_components(
-            vec![mock_app::teardown_a_with_decorations::teardown_def()],
-            &Parameters::default(),
-        );
-
-        // Assert
-        assert_eq!(root.tests.len(), 0);
-        assert_eq!(root.setups.len(), 0);
-        assert_eq!(root.tear_downs.len(), 1);
-        assert_eq!(root.suites.len(), 0);
-        assert_is_root!(root);
-
-        // Assert attributes/description was inherited from the Parameters
-        let teardown1 = &root.tear_downs[0].clone();
-        assert_eq!(
-            teardown1.description.path().as_str(),
-            "integra8_decorations::tests::mock_app::teardown_a_with_decorations",
-        );
-        assert_eq!(
-            teardown1.description.relative_path(),
-            "tests::mock_app::teardown_a_with_decorations",
-        );
-        assert_eq!(teardown1.description.full_name(), "Teardown A",);
-        assert_eq!(teardown1.description.friendly_name(), "Teardown A",);
-        assert_eq!(teardown1.description.id().as_unique_number(), 1);
-        assert_eq!(teardown1.description.parent_id().as_unique_number(), 0);
-        assert_eq!(
-            teardown1.description.description(),
-            Some("the description of this Teardown A")
-        );
-        assert_eq!(teardown1.description.component_type(), &ComponentType::TearDown);
-        assert_eq!(teardown1.attributes.ignore, true);
-        assert_eq!(teardown1.attributes.critical_threshold.as_secs(), 2);
-        assert_eq!(teardown1.attributes.concurrency_mode, ConcurrencyMode::Parallel);
-    }
-}
-
-/*mod mock_test_app {
-
-    use integra8_impl::integration_test;
-    use integra8_impl::integration_suite;
-    use integra8_impl::teardown;
-    use integra8_impl::setup;
-
-    #[integration_test]
-    #[integra8(crate = crate)]
-    pub fn test_c() { }
-
-    #[integration_test]
-    #[integra8(crate = crate)]
-    pub fn test_b() { }
-
-    #[integration_test]
-    #[integra8(crate = crate)]
-    pub fn test_a() { }
-
-    #[integration_suite]
-    #[integra8(crate = crate)]
-    pub mod suite1 {
-        pub use super::*;
-
-        #[teardown]
-        #[integra8(crate = crate)]
-        fn teardown() { }
-
-        #[setup]
-        #[integra8(crate = crate)]
-        fn setup() { }
-
-        #[integration_test]
-        #[integra8(crate = crate)]
-        pub fn suite1_test_c() { }
-
-        #[integration_test]
-        #[integra8(crate = crate)]
-        pub fn suite1_test_b() { }
-
-        #[integration_test]
-        #[integra8(crate = crate)]
-        pub fn suite1_test_a() { }
-
-        pub mod nested_mod  {
-            pub use super::*;
-
-            #[teardown]
-            #[integra8(crate = crate)]
-            fn teardown() { }
-
-            #[setup]
-            #[integra8(crate = crate)]
-            fn setup() { }
-
-            #[integration_test]
-            #[integra8(crate = crate)]
-            pub fn suite1_nested_mod_test_d() { }
+            // Assert attributes/description was inherited from the Parameters
+            let test1 = &root.tests[0];
+            assert_eq!(
+                test1.description.path().as_str(),
+                "integra8_decorations::tests::mock_app::test_a",
+            );
+            assert_eq!(test1.description.relative_path(), "tests::mock_app::test_a",);
+            assert_eq!(
+                test1.description.full_name(),
+                "integra8_decorations::tests::mock_app::test_a",
+            );
+            assert_eq!(test1.description.friendly_name(), "tests::mock_app::test_a",);
+            assert_eq!(test1.description.id().as_unique_number(), 1);
+            assert_eq!(test1.description.parent_id().as_unique_number(), 0);
+            assert_eq!(test1.description.description(), None);
+            assert_eq!(test1.description.component_type(), &ComponentType::Test);
+            assert_eq!(test1.attributes.allow_fail, false);
+            assert_eq!(test1.attributes.ignore, false);
+            assert_eq!(test1.attributes.critical_threshold.as_secs(), 30);
+            assert_eq!(test1.attributes.warn_threshold.as_secs(), 40);
+            assert_eq!(test1.attributes.concurrency_mode, ConcurrencyMode::Parallel);
         }
 
-        #[integration_suite]
-        #[integra8(crate = crate)]
-        pub mod nested_suite_1a {
-            pub use super::*;
+        #[test]
+        fn for_setup() {
+            // Act
+            let root = ComponentGroup::into_components(
+                vec![mock_app::setup_a::setup_def()],
+                &Parameters::default(),
+            );
 
-            #[integration_test]
-            #[integra8(crate = crate)]
-            pub fn nested_suite_1a_test_d() { }
+            // Assert
+            assert_eq!(root.tests.len(), 0);
+            assert_eq!(root.setups.len(), 1);
+            assert_eq!(root.tear_downs.len(), 0);
+            assert_eq!(root.suites.len(), 0);
+            assert_is_root!(root);
+
+            // Assert attributes/description was inherited from the Parameters
+            let setup1 = &root.setups[0].clone();
+            assert_eq!(
+                setup1.description.path().as_str(),
+                "integra8_decorations::tests::mock_app::setup_a",
+            );
+            assert_eq!(
+                setup1.description.relative_path(),
+                "tests::mock_app::setup_a",
+            );
+            assert_eq!(
+                setup1.description.full_name(),
+                "integra8_decorations::tests::mock_app::setup_a",
+            );
+            assert_eq!(
+                setup1.description.friendly_name(),
+                "tests::mock_app::setup_a",
+            );
+            assert_eq!(setup1.description.id().as_unique_number(), 1);
+            assert_eq!(setup1.description.parent_id().as_unique_number(), 0);
+            assert_eq!(setup1.description.description(), None);
+            assert_eq!(setup1.description.component_type(), &ComponentType::Setup);
+            assert_eq!(setup1.attributes.ignore, false);
+            assert_eq!(setup1.attributes.critical_threshold.as_secs(), 20);
+        }
+
+        #[test]
+        fn for_tear_down() {
+            // Act
+            let root = ComponentGroup::into_components(
+                vec![mock_app::teardown_a::teardown_def()],
+                &Parameters::default(),
+            );
+
+            // Assert
+            assert_eq!(root.tests.len(), 0);
+            assert_eq!(root.setups.len(), 0);
+            assert_eq!(root.tear_downs.len(), 1);
+            assert_eq!(root.suites.len(), 0);
+            assert_is_root!(root);
+
+            // Assert attributes/description was inherited from the Parameters
+            let teardown1 = &root.tear_downs[0].clone();
+            assert_eq!(
+                teardown1.description.path().as_str(),
+                "integra8_decorations::tests::mock_app::teardown_a",
+            );
+            assert_eq!(
+                teardown1.description.relative_path(),
+                "tests::mock_app::teardown_a",
+            );
+            assert_eq!(
+                teardown1.description.full_name(),
+                "integra8_decorations::tests::mock_app::teardown_a",
+            );
+            assert_eq!(
+                teardown1.description.friendly_name(),
+                "tests::mock_app::teardown_a",
+            );
+            assert_eq!(teardown1.description.id().as_unique_number(), 1);
+            assert_eq!(teardown1.description.parent_id().as_unique_number(), 0);
+            assert_eq!(teardown1.description.description(), None);
+            assert_eq!(teardown1.description.component_type(), &ComponentType::TearDown);
+            assert_eq!(teardown1.attributes.ignore, false);
+            assert_eq!(teardown1.attributes.critical_threshold.as_secs(), 50);
         }
     }
 
-    #[integration_suite]
-    #[integra8(crate = crate)]
-    pub mod suite2 {
-        pub use super::*;
+    mod should_override_parameters {
+        use super::*;
 
-        #[integration_test]
-        #[integra8(crate = crate)]
-        pub fn suite2_test_c() { }
-
-        #[integration_test]
-        #[integra8(crate = crate)]
-        pub fn suite2_test_b() { }
-
-        #[integration_test]
-        #[integra8(crate = crate)]
-        pub fn suite2_test_a() { }
-    }
-}*/
-
-/*
-    #[macro_export]
-    macro_rules! assert_has_tests {
-        (
-            $tests:expr, $($test_name:expr), +,
-        ) => {
-            let mut _i = 0;
-            $(
-                assert_eq!($tests[_i].desc.name, $test_name);
-                _i = _i + 1;
-            )+
-            assert_eq!($tests.len(), _i);
+        #[test]
+        fn for_test() {
+            // Act
+            let root = ComponentGroup::into_components(
+                vec![mock_app::test_a_with_decorations::test_def()],
+                &Parameters::default(),
+            );
+    
+            // Assert
+            assert_eq!(root.tests.len(), 1);
+            assert_eq!(root.setups.len(), 0);
+            assert_eq!(root.tear_downs.len(), 0);
+            assert_eq!(root.suites.len(), 0);
+            assert_is_root!(root);
+    
+            // Assert attributes were inherited from the Parameters
+            let test1 = &root.tests[0];
+    
+            assert_eq!(
+                test1.description.path().as_str(),
+                "integra8_decorations::tests::mock_app::test_a_with_decorations",
+            );
+            assert_eq!(
+                test1.description.relative_path(),
+                "tests::mock_app::test_a_with_decorations",
+            );
+            assert_eq!(test1.description.full_name(), "Test A",);
+            assert_eq!(test1.description.friendly_name(), "Test A",);
+            assert_eq!(test1.description.id().as_unique_number(), 1);
+            assert_eq!(test1.description.parent_id().as_unique_number(), 0);
+            assert_eq!(
+                test1.description.description(),
+                Some("the description of this test A")
+            );
+            assert_eq!(test1.description.component_type(), &ComponentType::Test);
+            assert_eq!(test1.attributes.allow_fail, true);
+            assert_eq!(test1.attributes.ignore, true);
+            assert_eq!(test1.attributes.critical_threshold.as_secs(), 2);
+            assert_eq!(test1.attributes.warn_threshold.as_secs(), 1);
+            assert_eq!(test1.attributes.concurrency_mode, ConcurrencyMode::Serial);
+        }
+    
+        #[test]
+        fn for_setup() {
+            // Act
+            let root = ComponentGroup::into_components(
+                vec![mock_app::setup_a_with_decorations::setup_def()],
+                &Parameters::default(),
+            );
+    
+            // Assert
+            assert_eq!(root.tests.len(), 0);
+            assert_eq!(root.setups.len(), 1);
+            assert_eq!(root.tear_downs.len(), 0);
+            assert_eq!(root.suites.len(), 0);
+            assert_is_root!(root);
+    
+            // Assert attributes/description was inherited from the Parameters
+            let setup1 = &root.setups[0].clone();
+            assert_eq!(
+                setup1.description.path().as_str(),
+                "integra8_decorations::tests::mock_app::setup_a_with_decorations",
+            );
+            assert_eq!(
+                setup1.description.relative_path(),
+                "tests::mock_app::setup_a_with_decorations",
+            );
+            assert_eq!(setup1.description.full_name(), "Setup A",);
+            assert_eq!(setup1.description.friendly_name(), "Setup A",);
+            assert_eq!(setup1.description.id().as_unique_number(), 1);
+            assert_eq!(setup1.description.parent_id().as_unique_number(), 0);
+            assert_eq!(
+                setup1.description.description(),
+                Some("the description of this setup A")
+            );
+            assert_eq!(setup1.description.component_type(), &ComponentType::Setup);
+            assert_eq!(setup1.attributes.ignore, true);
+            assert_eq!(setup1.attributes.critical_threshold.as_secs(), 2);
+            assert_eq!(setup1.attributes.concurrency_mode, ConcurrencyMode::Parallel);
+        }
+    
+        #[test]
+        fn for_tear_down() {
+            // Act
+            let root = ComponentGroup::into_components(
+                vec![mock_app::teardown_a_with_decorations::teardown_def()],
+                &Parameters::default(),
+            );
+    
+            // Assert
+            assert_eq!(root.tests.len(), 0);
+            assert_eq!(root.setups.len(), 0);
+            assert_eq!(root.tear_downs.len(), 1);
+            assert_eq!(root.suites.len(), 0);
+            assert_is_root!(root);
+    
+            // Assert attributes/description was inherited from the Parameters
+            let teardown1 = &root.tear_downs[0].clone();
+            assert_eq!(
+                teardown1.description.path().as_str(),
+                "integra8_decorations::tests::mock_app::teardown_a_with_decorations",
+            );
+            assert_eq!(
+                teardown1.description.relative_path(),
+                "tests::mock_app::teardown_a_with_decorations",
+            );
+            assert_eq!(teardown1.description.full_name(), "Teardown A",);
+            assert_eq!(teardown1.description.friendly_name(), "Teardown A",);
+            assert_eq!(teardown1.description.id().as_unique_number(), 1);
+            assert_eq!(teardown1.description.parent_id().as_unique_number(), 0);
+            assert_eq!(
+                teardown1.description.description(),
+                Some("the description of this Teardown A")
+            );
+            assert_eq!(teardown1.description.component_type(), &ComponentType::TearDown);
+            assert_eq!(teardown1.attributes.ignore, true);
+            assert_eq!(teardown1.attributes.critical_threshold.as_secs(), 2);
+            assert_eq!(teardown1.attributes.concurrency_mode, ConcurrencyMode::Parallel);
         }
     }
 
-    #[macro_export]
-    macro_rules! assert_has_suite {
-        (
-            $opt_suite:expr, $suite_name:expr
-        ) => {
 
-            let suite = $opt_suite.as_ref().unwrap();
-            assert_eq!(suite.name, $suite_name);
+    mod should_override_parameters_event_when_nested {
+        use super::*;
+        
+        #[test]
+        fn for_test() {
+            // Act
+            let root = ComponentGroup::into_components(
+                vec![mock_app::nested_namespace::test_d_nested_with_decorations::test_def()],
+                &Parameters::default(),
+            );
+
+            // Assert
+            assert_eq!(root.tests.len(), 1);
+            assert_eq!(root.setups.len(), 0);
+            assert_eq!(root.tear_downs.len(), 0);
+            assert_eq!(root.suites.len(), 0);
+            assert_is_root!(root);
+
+            // Assert attributes were inherited from the Parameters
+            let test1 = &root.tests[0];
+
+            assert_eq!(
+                test1.description.path().as_str(),
+                "integra8_decorations::tests::mock_app::nested_namespace::test_d_nested_with_decorations",
+            );
+            assert_eq!(
+                test1.description.relative_path(),
+                "tests::mock_app::nested_namespace::test_d_nested_with_decorations",
+            );
+            assert_eq!(test1.description.full_name(), "Test D",);
+            assert_eq!(test1.description.friendly_name(), "Test D",);
+            assert_eq!(test1.description.id().as_unique_number(), 1);
+            assert_eq!(test1.description.parent_id().as_unique_number(), 0);
+            assert_eq!(
+                test1.description.description(),
+                Some("the description of this test D")
+            );
+            assert_eq!(test1.description.component_type(), &ComponentType::Test);
+            assert_eq!(test1.attributes.allow_fail, true);
+            assert_eq!(test1.attributes.ignore, true);
+            assert_eq!(test1.attributes.critical_threshold.as_secs(), 2);
+            assert_eq!(test1.attributes.warn_threshold.as_secs(), 1);
+            assert_eq!(test1.attributes.concurrency_mode, ConcurrencyMode::Serial);
         }
-    }
-#[macro_export]
-    macro_rules! assert_has_suite {
-        (
-            $suite:expr,
-            suite => $expected_suite_name:expr,
-            tests => [ $($test_name:expr), + ],
-        ) => {
-            let mut _i = 0;
-            $(
-                assert_eq!($suite.tests[_i].desc.name, $test_name);
-                _i = _i + 1;
-            )+
-            assert_eq!($suite.tests.len(), _i);
-            assert_eq!($expected_suite_name, $suite.desc.name);
-        };
 
-        (
-            $suite:expr,
-            suite => $expected_suite_name:expr,
-            tests => [ ],
-        ) => {
-            assert_eq!($suite.tests.len(), 0);
-            assert_eq!($expected_suite_name, $suite.desc.name);
-        };
-    }
+        #[test]
+        fn for_setup() {
+            // Act
+            let root = ComponentGroup::into_components(
+                vec![mock_app::nested_namespace::setup_d_nested_with_decorations::setup_def()],
+                &Parameters::default(),
+            );
 
+            // Assert
+            assert_eq!(root.tests.len(), 0);
+            assert_eq!(root.setups.len(), 1);
+            assert_eq!(root.tear_downs.len(), 0);
+            assert_eq!(root.suites.len(), 0);
+            assert_is_root!(root);
 
-    #[test]
-    fn can_build_test_groups_from_empty_tree() {
+            // Assert attributes/description was inherited from the Parameters
+            let setup1 = &root.setups[0].clone();
+            assert_eq!(
+                setup1.description.path().as_str(),
+                "integra8_decorations::tests::mock_app::nested_namespace::setup_d_nested_with_decorations",
+            );
+            assert_eq!(
+                setup1.description.relative_path(),
+                "tests::mock_app::nested_namespace::setup_d_nested_with_decorations",
+            );
+            assert_eq!(setup1.description.full_name(), "Setup D",);
+            assert_eq!(setup1.description.friendly_name(), "Setup D",);
+            assert_eq!(setup1.description.id().as_unique_number(), 1);
+            assert_eq!(setup1.description.parent_id().as_unique_number(), 0);
+            assert_eq!(
+                setup1.description.description(),
+                Some("the description of this setup D")
+            );
+            assert_eq!(setup1.description.component_type(), &ComponentType::Setup);
+            assert_eq!(setup1.attributes.ignore, true);
+            assert_eq!(setup1.attributes.critical_threshold.as_secs(), 2);
+            assert_eq!(setup1.attributes.concurrency_mode, ConcurrencyMode::Parallel);
+        }
 
-        // Act
-        let suites = RootSuite::from_decorated_components(
-            Vec::<ComponentDecoration<crate::MockParameters>>::new()
-        );
+        #[test]
+        fn for_tear_down() {
+            // Act
+            let root = ComponentGroup::into_components(
+                vec![mock_app::nested_namespace::teardown_d_nested_with_decorations::teardown_def()],
+                &Parameters::default(),
+            );
 
-        // Act
-        assert_has_suite!(
-            suites[0],
-            suite => "root",
-            tests => [ ],
-        );
+            // Assert
+            assert_eq!(root.tests.len(), 0);
+            assert_eq!(root.setups.len(), 0);
+            assert_eq!(root.tear_downs.len(), 1);
+            assert_eq!(root.suites.len(), 0);
+            assert_is_root!(root);
 
-        assert_eq!(0, suites[0].tests.len());
-        assert_eq!(0, suites[0].bookends.len());
-    }
-
-    #[test]
-    fn can_build_test_groups_from_root_level_only_test() {
-        // Act
-        let suites = RootSuite::from_decorated_components(
-            vec![
-                // Tests
-                mock_test_app::test_a::test_def()
-            ]
-        );
-
-        // Assert
-        assert_has_suite!(
-            suites[0],
-            suite => "root",
-            tests => [
-                "integra8::components::tests::mock_test_app::test_a"
-            ],
-        );
-    }
-
-
-    #[test]
-    fn should_return_test_in_the_order_they_are_defined() {
-          // Arrange
-        let suites = RootSuite::from_decorated_components(
-            vec![
-                // Tests
-                mock_test_app::test_c::test_def(),
-                mock_test_app::test_b::test_def(),
-                mock_test_app::test_a::test_def(),
-            ],
-        );
-
-        // Assert
-
-        // Should have tests in the expected order
-        assert_has_suite!(
-            suites[0],
-            suite => "root",
-            tests => [
-                "integra8::components::tests::mock_test_app::test_c",
-                "integra8::components::tests::mock_test_app::test_b",
-                "integra8::components::tests::mock_test_app::test_a"
-            ],
-        );
-
-    }
-
-    #[test]
-    fn can_build_test_groups_from_single_level_test_suite() {
-        // Act
-        let suites = RootSuite::from_decorated_components(
-            vec![
-                // Tests
-                mock_test_app::suite1::suite1_test_c::test_def(),
-                mock_test_app::suite1::suite1_test_b::test_def(),
-                mock_test_app::suite1::suite1_test_a::test_def(),
-
-                // Suites
-                mock_test_app::suite1::__suite_def(),
-            ]
-        );
-
-        // Assert
-        // Shouldn't have a suite, tests, or bookends in root
-        assert_has_suite!(
-            suites[0],
-            suite => "root",
-            tests => [ ],
-        );
-
-        // suite1
-        assert_has_suite!(
-            suites[1],
-            suite => "suite1",
-            tests => [
-                "integra8::components::tests::mock_test_app::suite1::suite1_test_c",
-                "integra8::components::tests::mock_test_app::suite1::suite1_test_b",
-                "integra8::components::tests::mock_test_app::suite1::suite1_test_a"
-            ],
-        );
-    }
-
-    #[test]
-    fn can_build_test_groups_from_two_root_level_test_suites() {
-
-        // Act
-        let suites = RootSuite::from_decorated_components(
-            vec![
-                // Tests
-                mock_test_app::suite1::suite1_test_c::test_def(),
-                mock_test_app::suite1::suite1_test_b::test_def(),
-                mock_test_app::suite1::suite1_test_a::test_def(),
-
-                mock_test_app::suite2::suite2_test_c::test_def(),
-                mock_test_app::suite2::suite2_test_b::test_def(),
-                mock_test_app::suite2::suite2_test_a::test_def(),
-
-                // Suites
-                mock_test_app::suite1::__suite_def(),
-                mock_test_app::suite2::__suite_def(),
-            ]
-        );
-
-        // Assert
-        // Shouldn't have a suite, tests, or bookends in root
-        assert_has_suite!(
-            suites[0],
-            suite => "root",
-            tests => [ ],
-        );
-
-        // suite1
-        assert_has_suite!(
-            suites[1],
-            suite => "suite1",
-            tests => [
-                "integra8::components::tests::mock_test_app::suite1::suite1_test_c",
-                "integra8::components::tests::mock_test_app::suite1::suite1_test_b",
-                "integra8::components::tests::mock_test_app::suite1::suite1_test_a"
-            ],
-        );
-
-        // suite2
-        assert_has_suite!(
-            suites[2],
-            suite => "suite2",
-            tests => [
-                "integra8::components::tests::mock_test_app::suite2::suite2_test_c",
-                "integra8::components::tests::mock_test_app::suite2::suite2_test_b",
-                "integra8::components::tests::mock_test_app::suite2::suite2_test_a"
-            ],
-        );
-    }
-
-    #[test]
-    fn can_build_test_groups_from_test_suite_with_nested_suite() {
-
-        // Act
-        let root_suite = RootSuite::from_decorated_components(
-             vec![
-                // suite1
-                mock_test_app::suite1::suite1_test_c::test_def(),
-                mock_test_app::suite1::suite1_test_b::test_def(),
-                mock_test_app::suite1::suite1_test_a::test_def(),
-
-                // nested_suite_1a
-                mock_test_app::suite1::nested_suite_1a::nested_suite_1a_test_d::test_def(),
-
-                // Suites
-                mock_test_app::suite1::__suite_def(),
-                mock_test_app::suite1::nested_suite_1a::__suite_def(),
-            ]
-        );
-
-
-        // Act
-        // should have a single test group
-        assert_eq!(2, root_suite.nested_suite.len());
-
-        // nested suite 1a
-        assert_has_tests!(
-            root_suite.nested_suite[0].tests,
-            "integra8::components::tests::mock_test_app::suite1::nested_suite_1a::nested_suite_1a_test_d",
-        );
-        assert_has_suite! (
-            groups[0].suite,
-            "nested_suite_1a"
-        );
-        assert_eq!(root_suite.nested_suite[0].bookends.is_empty(), true);
-
-        // Suite 1
-        assert_has_tests!(
-            groups[1].tests,
-            "integra8::components::tests::mock_test_app::suite1::suite1_test_c",
-            "integra8::components::tests::mock_test_app::suite1::suite1_test_b",
-            "integra8::components::tests::mock_test_app::suite1::suite1_test_a",
-        );
-        assert_has_suite! (
-            groups[1].suite,
-            "suite1"
-        );
-        assert_eq!(groups[1].bookends.is_empty(), true);
-
-    }
-
-    #[test]
-    fn can_build_test_groups_from_test_suite_with_nested_mod() {
-
-
-        // Assert
-        let sut = TestHierarchyTree::from_components(
-            vec![
-                // Tests
-                mock_test_app::suite1::suite1_test_c::test_def(),
-                mock_test_app::suite1::suite1_test_b::test_def(),
-                mock_test_app::suite1::suite1_test_a::test_def(),
-                mock_test_app::suite1::nested_mod::suite1_nested_mod_test_d::test_def(),
-
-                // Suites
-                mock_test_app::suite1::__suite_def(),
-            ]
-        );
-
-        // Arrange
-        let mut groups = sut.into_iter().collect::<Vec<TestExecutionGroup<crate::MockParameters>>>();
-
-        // Act
-        // should have a single test group
-        assert_eq!(1, groups.len());
-
-        // Suite 1
-        assert_has_tests!(
-            groups[0].tests,
-            "integra8::components::tests::mock_test_app::suite1::suite1_test_c",
-            "integra8::components::tests::mock_test_app::suite1::suite1_test_b",
-            "integra8::components::tests::mock_test_app::suite1::suite1_test_a",
-            "integra8::components::tests::mock_test_app::suite1::nested_mod::suite1_nested_mod_test_d",
-        );
-        assert_has_suite! (
-            groups[0].suite,
-            "suite1"
-        );
-        assert_eq!(groups[0].bookends.is_empty(), true);
-
+            // Assert attributes/description was inherited from the Parameters
+            let teardown1 = &root.tear_downs[0].clone();
+            assert_eq!(
+                teardown1.description.path().as_str(),
+                "integra8_decorations::tests::mock_app::nested_namespace::teardown_d_nested_with_decorations",
+            );
+            assert_eq!(
+                teardown1.description.relative_path(),
+                "tests::mock_app::nested_namespace::teardown_d_nested_with_decorations",
+            );
+            assert_eq!(teardown1.description.full_name(), "Teardown D",);
+            assert_eq!(teardown1.description.friendly_name(), "Teardown D",);
+            assert_eq!(teardown1.description.id().as_unique_number(), 1);
+            assert_eq!(teardown1.description.parent_id().as_unique_number(), 0);
+            assert_eq!(
+                teardown1.description.description(),
+                Some("the description of this Teardown D")
+            );
+            assert_eq!(teardown1.description.component_type(), &ComponentType::TearDown);
+            assert_eq!(teardown1.attributes.ignore, true);
+            assert_eq!(teardown1.attributes.critical_threshold.as_secs(), 2);
+            assert_eq!(teardown1.attributes.concurrency_mode, ConcurrencyMode::Parallel);
+        }
     }
 
 }
-    */
