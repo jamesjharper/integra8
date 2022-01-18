@@ -209,7 +209,7 @@ impl SuiteAttributes {
             return true;
         }
 
-        if attr.path.is_ident("sequence_tests") {
+        if attr.path.is_ident("sequential_tests") {
             self.suite_parallel_enabled = Some(false);
             return true;
         }

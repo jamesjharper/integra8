@@ -183,7 +183,6 @@ mod tests {
         #[integra8(crate = crate)]
         pub fn setup_c() {}
 
-
         // Tests
 
         #[integration_test]
@@ -320,10 +319,12 @@ mod tests {
         #[suite]
         #[integra8(crate = crate)] 
 
-        #[parallelize_test]
+        #[sequential_tests]
         #[parallelizable]
         #[allow_fail()]
         #[ignore()]
+        #[name("Nested Suite A")]
+        #[description("the description of this nested suite A")]
         #[tear_down_critical_threshold_seconds(11)]
         #[setup_critical_threshold_seconds(12)]
         #[test_critical_threshold_seconds(13)]
@@ -541,6 +542,48 @@ mod tests {
             assert_eq!(teardown1.description.component_type(), &ComponentType::TearDown);
             assert_eq!(teardown1.attributes.ignore, false);
             assert_eq!(teardown1.attributes.critical_threshold.as_secs(), 50);
+        }
+
+        #[test]
+        fn for_suite() {
+            // Act
+            let root = ComponentGroup::into_components(
+                vec![mock_app::nested_suite_z::__suite_def()],
+                &Parameters::default(),
+            );
+
+            // Assert
+            assert_eq!(root.tests.len(), 0);
+            assert_eq!(root.setups.len(), 0);
+            assert_eq!(root.tear_downs.len(), 0);
+            assert_eq!(root.suites.len(), 1);
+            assert_is_root!(root);
+
+            // Assert attributes/description was inherited from the Parameters
+            let suite1 = &root.suites[0];
+            assert_eq!(
+                suite1.description.path().as_str(),
+                "integra8_decorations::tests::mock_app::nested_suite_z",
+            );
+            assert_eq!(suite1.description.relative_path(), "tests::mock_app::nested_suite_z",);
+            assert_eq!(
+                suite1.description.full_name(),
+                "integra8_decorations::tests::mock_app::nested_suite_z",
+            );
+            assert_eq!(suite1.description.friendly_name(), "tests::mock_app::nested_suite_z",);
+            assert_eq!(suite1.description.id().as_unique_number(), 1);
+            assert_eq!(suite1.description.parent_id().as_unique_number(), 0);
+            assert_eq!(suite1.description.description(), None);
+            assert_eq!(suite1.description.component_type(), &ComponentType::Suite);
+            assert_eq!(suite1.attributes.ignore, false);
+            assert_eq!(suite1.attributes.allow_suite_fail, false);
+            assert_eq!(suite1.attributes.test_critical_threshold.as_secs(), 30);
+            assert_eq!(suite1.attributes.test_warn_threshold.as_secs(), 40);
+            assert_eq!(suite1.attributes.setup_critical_threshold.as_secs(), 20);
+            assert_eq!(suite1.attributes.tear_down_critical_threshold.as_secs(), 50);
+            assert_eq!(suite1.attributes.suite_concurrency_mode, ConcurrencyMode::Serial);
+            assert_eq!(suite1.attributes.test_concurrency_mode, ConcurrencyMode::Parallel);
+
         }
     }
 
@@ -800,6 +843,49 @@ mod tests {
             assert_eq!(teardown1.attributes.critical_threshold.as_secs(), 2);
             assert_eq!(teardown1.attributes.concurrency_mode, ConcurrencyMode::Parallel);
         }
+
+
+        #[test]
+        fn for_suite() {
+            // Act
+            let root = ComponentGroup::into_components(
+                vec![mock_app::nested_suite_y::__suite_def()],
+                &Parameters::default(),
+            );
+
+            // Assert
+            assert_eq!(root.tests.len(), 0);
+            assert_eq!(root.setups.len(), 0);
+            assert_eq!(root.tear_downs.len(), 0);
+            assert_eq!(root.suites.len(), 1);
+            assert_is_root!(root);
+
+            // Assert attributes/description was inherited from the Parameters
+            let suite1 = &root.suites[0];
+            assert_eq!(
+                suite1.description.path().as_str(),
+                "integra8_decorations::tests::mock_app::nested_suite_y",
+            );
+            assert_eq!(suite1.description.relative_path(), "tests::mock_app::nested_suite_y",);
+            assert_eq!(
+                suite1.description.full_name(),
+                "Nested Suite A",
+            );
+            assert_eq!(suite1.description.friendly_name(), "Nested Suite A",);
+            assert_eq!(suite1.description.id().as_unique_number(), 1);
+            assert_eq!(suite1.description.parent_id().as_unique_number(), 0);
+            assert_eq!(suite1.description.description(), Some("the description of this nested suite A"));
+            assert_eq!(suite1.description.component_type(), &ComponentType::Suite);
+            assert_eq!(suite1.attributes.ignore, true);
+            assert_eq!(suite1.attributes.allow_suite_fail, true);
+            assert_eq!(suite1.attributes.test_critical_threshold.as_secs(), 13);
+            assert_eq!(suite1.attributes.test_warn_threshold.as_secs(), 14);
+            assert_eq!(suite1.attributes.setup_critical_threshold.as_secs(), 12);
+            assert_eq!(suite1.attributes.tear_down_critical_threshold.as_secs(), 11);
+            assert_eq!(suite1.attributes.suite_concurrency_mode, ConcurrencyMode::Parallel);
+            assert_eq!(suite1.attributes.test_concurrency_mode, ConcurrencyMode::Parallel);
+
+        }
     }
 
     mod should_override_parameters_when_nested {
@@ -925,7 +1011,6 @@ mod tests {
             assert_eq!(teardown1.attributes.concurrency_mode, ConcurrencyMode::Parallel);
         }
     }
-
 
     mod should_override_parameters_when_nested_in_another_suite {
         use super::*;
@@ -1194,7 +1279,6 @@ mod tests {
             assert_eq!(teardown1.attributes.concurrency_mode, ConcurrencyMode::Parallel);
         }
     }
-
 
     mod should_inherit_parameter_defaults_set_on_nested_suite {
         use super::*;
