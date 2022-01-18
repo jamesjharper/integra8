@@ -16,7 +16,8 @@ pub enum ExecutionStrategy {
 
 pub trait TestParameters {
     // Parameter Projections
-    fn is_multi_threaded(&self) -> bool { // TODO: remove
+    fn is_multi_threaded(&self) -> bool {
+        // TODO: remove
         if self.max_concurrency() == 1 {
             return false;
         }

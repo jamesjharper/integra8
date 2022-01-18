@@ -40,7 +40,6 @@ impl<TParameters> ComponentDecoration<TParameters> {
     }
 }
 
-
 // Test rigging to replicate what main_test!() does, to allow decorations to to be used in unit tests.
 // must be in root!
 #[cfg(test)]
@@ -63,7 +62,7 @@ mod test_rigging {
         pub test_warn_threshold_seconds: u64,
         pub tear_down_critical_threshold_seconds: u64,
         pub test_concurrency: components::ConcurrencyMode,
-        pub suite_concurrency: components::ConcurrencyMode
+        pub suite_concurrency: components::ConcurrencyMode,
     }
 
     impl TestAppParameters {
@@ -75,7 +74,7 @@ mod test_rigging {
                 test_warn_threshold_seconds: 40,
                 tear_down_critical_threshold_seconds: 50,
                 test_concurrency: components::ConcurrencyMode::Parallel,
-                suite_concurrency: components::ConcurrencyMode::Serial,       
+                suite_concurrency: components::ConcurrencyMode::Serial,
             }
         }
     }
@@ -126,10 +125,10 @@ mod test_rigging {
         fn console_output_style(&self) -> &'_ str {
             ""
         }
-        fn console_output_detail_level(&self) -> &'_ str  {
+        fn console_output_detail_level(&self) -> &'_ str {
             ""
         }
-        fn console_output_encoding(&self) -> &'_ str  {
+        fn console_output_encoding(&self) -> &'_ str {
             ""
         }
         fn console_output_ansi_mode(&self) -> &'_ str {
@@ -150,21 +149,19 @@ mod test_rigging {
     pub mod decorations {
         pub use crate::*;
     }
-
-
 }
 #[cfg(test)]
 mod tests {
-    use super::*;
     use super::components::ConcurrencyMode;
+    use super::*;
 
     mod mock_app {
-        
+
         pub use integra8_decorations_impl::*;
-    
+
         #[integration_test]
         #[integra8(crate = crate)]
-        pub fn test_a() { }
+        pub fn test_a() {}
 
         #[integration_test]
         #[integra8(crate = crate)]
@@ -175,11 +172,11 @@ mod tests {
         #[sequential]
         #[ignore()]
         #[allow_fail()]
-        pub fn test_a_with_decorations() { }
+        pub fn test_a_with_decorations() {}
 
         #[setup]
         #[integra8(crate = crate)]
-        pub fn setup_a() { }
+        pub fn setup_a() {}
 
         #[setup]
         #[integra8(crate = crate)]
@@ -187,33 +184,28 @@ mod tests {
         #[description("the description of this setup A")]
         #[critical_threshold_seconds(2)]
         #[ignore()]
-        pub fn setup_a_with_decorations() { }
+        pub fn setup_a_with_decorations() {}
     }
-
 
     #[macro_export]
     macro_rules! assert_is_root {
         ($root:expr) => {
             assert_eq!($root.description.path().as_str(), "integra8_decorations");
-            assert_eq!($root.description.relative_path(), "integra8_decorations", );
-            assert_eq!($root.description.full_name(), "integra8_decorations", );
-            assert_eq!($root.description.friendly_name(), "integra8_decorations", );
+            assert_eq!($root.description.relative_path(), "integra8_decorations",);
+            assert_eq!($root.description.full_name(), "integra8_decorations",);
+            assert_eq!($root.description.friendly_name(), "integra8_decorations",);
             assert_eq!($root.description.is_root(), true);
             assert_eq!($root.description.id().as_unique_number(), 0);
             assert_eq!($root.description.id(), $root.description.parent_id());
             assert_eq!($root.description.description(), None);
             assert_eq!($root.description.component_type(), &ComponentType::Suite);
-        }
+        };
     }
 
     #[test]
     fn components_from_no_decorations() {
-
         // Act
-        let root = ComponentGroup::into_components(
-            vec![],
-            &Parameters::default()
-        );
+        let root = ComponentGroup::into_components(vec![], &Parameters::default());
 
         // Assert
         assert_eq!(root.tests.len(), 0);
@@ -229,17 +221,22 @@ mod tests {
         assert_eq!(root.attributes.test_critical_threshold.as_secs(), 30);
         assert_eq!(root.attributes.test_warn_threshold.as_secs(), 40);
         assert_eq!(root.attributes.tear_down_critical_threshold.as_secs(), 50);
-        assert_eq!(root.attributes.suite_concurrency_mode, ConcurrencyMode::Serial);
-        assert_eq!(root.attributes.test_concurrency_mode, ConcurrencyMode::Parallel);
+        assert_eq!(
+            root.attributes.suite_concurrency_mode,
+            ConcurrencyMode::Serial
+        );
+        assert_eq!(
+            root.attributes.test_concurrency_mode,
+            ConcurrencyMode::Parallel
+        );
     }
 
     #[test]
     fn components_from_single_test() {
-
         // Act
         let root = ComponentGroup::into_components(
             vec![mock_app::test_a::test_def()],
-            &Parameters::default()
+            &Parameters::default(),
         );
 
         // Assert
@@ -251,11 +248,17 @@ mod tests {
 
         // Assert attributes/description was inherited from the Parameters
         let test1 = &root.tests[0];
-        assert_eq!(test1.description.path().as_str(), "integra8_decorations::tests::mock_app::test_a", );
-        assert_eq!(test1.description.relative_path(), "tests::mock_app::test_a", );
-        assert_eq!(test1.description.full_name(), "integra8_decorations::tests::mock_app::test_a", );
-        assert_eq!(test1.description.friendly_name(), "tests::mock_app::test_a", );
-        assert_eq!(test1.description.id().as_unique_number(), 1 );
+        assert_eq!(
+            test1.description.path().as_str(),
+            "integra8_decorations::tests::mock_app::test_a",
+        );
+        assert_eq!(test1.description.relative_path(), "tests::mock_app::test_a",);
+        assert_eq!(
+            test1.description.full_name(),
+            "integra8_decorations::tests::mock_app::test_a",
+        );
+        assert_eq!(test1.description.friendly_name(), "tests::mock_app::test_a",);
+        assert_eq!(test1.description.id().as_unique_number(), 1);
         assert_eq!(test1.description.parent_id().as_unique_number(), 0);
         assert_eq!(test1.description.description(), None);
         assert_eq!(test1.description.component_type(), &ComponentType::Test);
@@ -264,7 +267,6 @@ mod tests {
         assert_eq!(test1.attributes.critical_threshold.as_secs(), 30);
         assert_eq!(test1.attributes.warn_threshold.as_secs(), 40);
         assert_eq!(test1.attributes.concurrency_mode, ConcurrencyMode::Parallel);
-
     }
 
     #[test]
@@ -272,7 +274,7 @@ mod tests {
         // Act
         let root = ComponentGroup::into_components(
             vec![mock_app::test_a_with_decorations::test_def()],
-            &Parameters::default()
+            &Parameters::default(),
         );
 
         // Assert
@@ -285,13 +287,22 @@ mod tests {
         // Assert attributes were inherited from the Parameters
         let test1 = &root.tests[0];
 
-        assert_eq!(test1.description.path().as_str(), "integra8_decorations::tests::mock_app::test_a_with_decorations", );
-        assert_eq!(test1.description.relative_path(), "tests::mock_app::test_a_with_decorations", );
-        assert_eq!(test1.description.full_name(), "Test A", );
-        assert_eq!(test1.description.friendly_name(), "Test A", );
-        assert_eq!(test1.description.id().as_unique_number(), 1 );
+        assert_eq!(
+            test1.description.path().as_str(),
+            "integra8_decorations::tests::mock_app::test_a_with_decorations",
+        );
+        assert_eq!(
+            test1.description.relative_path(),
+            "tests::mock_app::test_a_with_decorations",
+        );
+        assert_eq!(test1.description.full_name(), "Test A",);
+        assert_eq!(test1.description.friendly_name(), "Test A",);
+        assert_eq!(test1.description.id().as_unique_number(), 1);
         assert_eq!(test1.description.parent_id().as_unique_number(), 0);
-        assert_eq!(test1.description.description(), Some("the description of this test A"));
+        assert_eq!(
+            test1.description.description(),
+            Some("the description of this test A")
+        );
         assert_eq!(test1.description.component_type(), &ComponentType::Test);
         assert_eq!(test1.attributes.allow_fail, true);
         assert_eq!(test1.attributes.ignore, true);
@@ -302,11 +313,10 @@ mod tests {
 
     #[test]
     fn components_from_single_setup() {
-
         // Act
         let root = ComponentGroup::into_components(
             vec![mock_app::setup_a::setup_def()],
-            &Parameters::default()
+            &Parameters::default(),
         );
 
         // Assert
@@ -318,11 +328,23 @@ mod tests {
 
         // Assert attributes/description was inherited from the Parameters
         let setup1 = &root.setups[0].clone();
-        assert_eq!(setup1.description.path().as_str(), "integra8_decorations::tests::mock_app::setup_a", );
-        assert_eq!(setup1.description.relative_path(), "tests::mock_app::setup_a", );
-        assert_eq!(setup1.description.full_name(), "integra8_decorations::tests::mock_app::setup_a", );
-        assert_eq!(setup1.description.friendly_name(), "tests::mock_app::setup_a", );
-        assert_eq!(setup1.description.id().as_unique_number(), 1 );
+        assert_eq!(
+            setup1.description.path().as_str(),
+            "integra8_decorations::tests::mock_app::setup_a",
+        );
+        assert_eq!(
+            setup1.description.relative_path(),
+            "tests::mock_app::setup_a",
+        );
+        assert_eq!(
+            setup1.description.full_name(),
+            "integra8_decorations::tests::mock_app::setup_a",
+        );
+        assert_eq!(
+            setup1.description.friendly_name(),
+            "tests::mock_app::setup_a",
+        );
+        assert_eq!(setup1.description.id().as_unique_number(), 1);
         assert_eq!(setup1.description.parent_id().as_unique_number(), 0);
         assert_eq!(setup1.description.description(), None);
         assert_eq!(setup1.description.component_type(), &ComponentType::Setup);
@@ -332,11 +354,10 @@ mod tests {
 
     #[test]
     fn setup_decorations_should_override_parameters() {
-
         // Act
         let root = ComponentGroup::into_components(
             vec![mock_app::setup_a_with_decorations::setup_def()],
-            &Parameters::default()
+            &Parameters::default(),
         );
 
         // Assert
@@ -348,17 +369,25 @@ mod tests {
 
         // Assert attributes/description was inherited from the Parameters
         let setup1 = &root.setups[0].clone();
-        assert_eq!(setup1.description.path().as_str(), "integra8_decorations::tests::mock_app::setup_a_with_decorations", );
-        assert_eq!(setup1.description.relative_path(), "tests::mock_app::setup_a_with_decorations", );
-        assert_eq!(setup1.description.full_name(), "Setup A", );
-        assert_eq!(setup1.description.friendly_name(), "Setup A", );
-        assert_eq!(setup1.description.id().as_unique_number(), 1 );
+        assert_eq!(
+            setup1.description.path().as_str(),
+            "integra8_decorations::tests::mock_app::setup_a_with_decorations",
+        );
+        assert_eq!(
+            setup1.description.relative_path(),
+            "tests::mock_app::setup_a_with_decorations",
+        );
+        assert_eq!(setup1.description.full_name(), "Setup A",);
+        assert_eq!(setup1.description.friendly_name(), "Setup A",);
+        assert_eq!(setup1.description.id().as_unique_number(), 1);
         assert_eq!(setup1.description.parent_id().as_unique_number(), 0);
-        assert_eq!(setup1.description.description(), Some("the description of this setup A"));
+        assert_eq!(
+            setup1.description.description(),
+            Some("the description of this setup A")
+        );
         assert_eq!(setup1.description.component_type(), &ComponentType::Setup);
         assert_eq!(setup1.attributes.ignore, true);
         assert_eq!(setup1.attributes.critical_threshold.as_secs(), 2);
-
     }
 }
 

@@ -2,9 +2,8 @@ use std::time::Duration;
 
 use crate::{
     ComponentDescription, ComponentGeneratorId, ComponentLocation, ComponentPath, ComponentType,
-    Delegate, SuiteAttributes, ConcurrencyMode
+    ConcurrencyMode, Delegate, SuiteAttributes,
 };
-
 
 #[derive(Clone, Debug)]
 pub struct BookEndAttributes {
@@ -33,7 +32,7 @@ impl BookEndAttributes {
                 .map_or_else(|| parent_desc.setup_critical_threshold, |val| val),
 
             concurrency_mode: concurrency_mode
-                // Default Serial unless explicitly stated otherwise 
+                // Default Serial unless explicitly stated otherwise
                 .map_or_else(|| ConcurrencyMode::Serial, |val| val),
         }
     }
@@ -50,7 +49,7 @@ impl BookEndAttributes {
                 .map_or_else(|| parent_desc.tear_down_critical_threshold, |val| val),
 
             concurrency_mode: concurrency_mode
-                // Default Serial unless explicitly stated otherwise 
+                // Default Serial unless explicitly stated otherwise
                 .map_or_else(|| ConcurrencyMode::Serial, |val| val),
         }
     }
@@ -92,7 +91,7 @@ impl<TParameters> BookEnd<TParameters> {
                 parent_suite_attributes,
                 ignore,
                 critical_threshold,
-                concurrency_mode
+                concurrency_mode,
             ),
             bookend_fn: setup_fn,
         }

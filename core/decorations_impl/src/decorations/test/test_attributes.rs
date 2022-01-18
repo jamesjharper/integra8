@@ -4,7 +4,6 @@ use syn::{parse_quote, Attribute, Expr, Path, Token};
 
 use proc_macro::TokenStream;
 
-
 pub struct TestAttributes {
     pub integra8_path: Option<Path>,
     pub name: Option<Expr>,
@@ -216,14 +215,14 @@ impl TestAttributes {
         match mem::take(&mut self.parallel_enabled) {
             Some(true) => {
                 parse_quote!(Some(#integra8_path ::components::ConcurrencyMode::Parallel))
-            },
+            }
             Some(false) => {
                 parse_quote!(Some(#integra8_path ::components::ConcurrencyMode::Serial))
-            },
+            }
             None => {
                 parse_quote!(None)
-            },
-        }            
+            }
+        }
     }
 
     fn some_or_accumulate_error<T>(&mut self, result: Result<T>) -> Option<T> {

@@ -14,7 +14,7 @@ pub struct SuiteAttributes {
     pub test_critical_threshold: Option<Expr>,
     pub setup_critical_threshold: Option<Expr>,
     pub tear_down_critical_threshold: Option<Expr>,
-    
+
     pub suite_parallel_enabled: Option<bool>,
     pub test_parallel_enabled: Option<bool>,
     pub errors: Option<Error>,
@@ -283,28 +283,28 @@ impl SuiteAttributes {
         match mem::take(&mut self.suite_parallel_enabled) {
             Some(true) => {
                 parse_quote!(Some(#integra8_path ::components::ConcurrencyMode::Parallel))
-            },
+            }
             Some(false) => {
                 parse_quote!(Some(#integra8_path ::components::ConcurrencyMode::Serial))
-            },
+            }
             None => {
                 parse_quote!(None)
-            },
-        }         
+            }
+        }
     }
 
     pub fn take_test_concurrency_mode(&mut self, integra8_path: &Path) -> Expr {
         match mem::take(&mut self.test_parallel_enabled) {
             Some(true) => {
                 parse_quote!(Some(#integra8_path ::components::ConcurrencyMode::Parallel))
-            },
+            }
             Some(false) => {
                 parse_quote!(Some(#integra8_path ::components::ConcurrencyMode::Serial))
-            },
+            }
             None => {
                 parse_quote!(None)
-            },
-        }   
+            }
+        }
     }
 
     fn some_or_accumulate_error<T>(&mut self, result: Result<T>) -> Option<T> {

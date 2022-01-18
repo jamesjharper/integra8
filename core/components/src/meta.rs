@@ -187,15 +187,15 @@ impl ComponentDescription {
         &self.parent_id
     }
 
-    pub fn description(&self) ->  Option<&'static str> {
+    pub fn description(&self) -> Option<&'static str> {
         self.description.clone()
     }
 
-    pub fn component_type(&self) ->  &'_ ComponentType {
+    pub fn component_type(&self) -> &'_ ComponentType {
         &self.component_type
     }
 
-    pub fn location(&self) ->  Option<&'_ ComponentLocation> {
+    pub fn location(&self) -> Option<&'_ ComponentLocation> {
         self.location.as_ref()
     }
 }

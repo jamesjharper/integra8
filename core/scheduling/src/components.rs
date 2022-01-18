@@ -4,7 +4,8 @@ use std::vec::IntoIter;
 use crate::state_machine::{ParallelTaskNode, SerialTaskNode, TaskStateMachineNode};
 
 use integra8_components::{
-    BookEnd, ComponentDescription, ConcurrencyMode, Suite, SuiteAttributes, Test, TestParameters, ComponentType
+    BookEnd, ComponentDescription, ComponentType, ConcurrencyMode, Suite, SuiteAttributes, Test,
+    TestParameters,
 };
 
 #[derive(Clone, Debug)]
@@ -68,15 +69,11 @@ impl<TParameters: TestParameters> IntoTaskStateMachine<ScheduledComponent<TParam
     }
 }
 
-
 impl<TParameters: TestParameters> IntoTaskStateMachine<ScheduledComponent<TParameters>>
     for Vec<Test<TParameters>>
 {
     fn into_task_state_machine(self) -> TaskStateMachineNode<ScheduledComponent<TParameters>> {
-        IntoComponentTaskStepIterator::from(
-            self.into_iter()
-                .map(|x| TaskStepComponent::Test(x))
-            )
+        IntoComponentTaskStepIterator::from(self.into_iter().map(|x| TaskStepComponent::Test(x)))
             .fold(SerialTaskNode::new(), |mut seq, node| {
                 seq.enqueue(node);
                 seq
@@ -89,21 +86,18 @@ impl<TParameters: TestParameters> IntoTaskStateMachine<ScheduledComponent<TParam
     for Vec<BookEnd<TParameters>>
 {
     fn into_task_state_machine(self) -> TaskStateMachineNode<ScheduledComponent<TParameters>> {
-        IntoComponentTaskStepIterator::from(
-            self.into_iter()
-                .map(|x| {
-                    if x.description.component_type() == &ComponentType::Setup {
-                        TaskStepComponent::Setup(x)
-                    } else {
-                        TaskStepComponent::TearDown(x)
-                    }
-                }
-            ))
-            .fold(SerialTaskNode::new(), |mut seq, node| {
-                seq.enqueue(node);
-                seq
-            })
-            .into()
+        IntoComponentTaskStepIterator::from(self.into_iter().map(|x| {
+            if x.description.component_type() == &ComponentType::Setup {
+                TaskStepComponent::Setup(x)
+            } else {
+                TaskStepComponent::TearDown(x)
+            }
+        }))
+        .fold(SerialTaskNode::new(), |mut seq, node| {
+            seq.enqueue(node);
+            seq
+        })
+        .into()
     }
 }
 
@@ -131,14 +125,17 @@ impl<TParameters> TaskStepComponent<TParameters> {
     }
 }
 
-struct IntoComponentTaskStepIterator<TParameters, I> 
-    where I: Iterator<Item=TaskStepComponent<TParameters>> {
+struct IntoComponentTaskStepIterator<TParameters, I>
+where
+    I: Iterator<Item = TaskStepComponent<TParameters>>,
+{
     iter: Peekable<I>,
 }
 
-
-impl<TParameters: TestParameters, I> IntoComponentTaskStepIterator<TParameters, I> 
-where I: Iterator<Item=TaskStepComponent<TParameters>> {
+impl<TParameters: TestParameters, I> IntoComponentTaskStepIterator<TParameters, I>
+where
+    I: Iterator<Item = TaskStepComponent<TParameters>>,
+{
     pub fn from(iter: I) -> Self {
         Self {
             iter: iter.peekable(),
@@ -146,11 +143,10 @@ where I: Iterator<Item=TaskStepComponent<TParameters>> {
     }
 }
 
-impl<TParameters: TestParameters, I> Iterator for IntoComponentTaskStepIterator<TParameters, I> 
-    where 
-    I: Iterator<Item = TaskStepComponent<TParameters>> 
+impl<TParameters: TestParameters, I> Iterator for IntoComponentTaskStepIterator<TParameters, I>
+where
+    I: Iterator<Item = TaskStepComponent<TParameters>>,
 {
-
     type Item = TaskStateMachineNode<ScheduledComponent<TParameters>>;
 
     fn next(&mut self) -> Option<Self::Item> {

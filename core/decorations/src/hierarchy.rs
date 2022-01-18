@@ -1,9 +1,6 @@
 use indexmap::IndexMap;
 
-use crate::{
-    BookEndDecoration, ComponentDecoration, SuiteAttributesDecoration,
-    TestDecoration,
-};
+use crate::{BookEndDecoration, ComponentDecoration, SuiteAttributesDecoration, TestDecoration};
 
 use integra8_components::{
     ComponentDescription, ComponentGeneratorId, Suite, SuiteAttributes, TestParameters,
@@ -43,7 +40,7 @@ impl<TParameters: TestParameters> ComponentGroup<TParameters> {
 
         let mut suite = parent_suite_attributes.into_component(id_gen, parent, parameters);
 
-        // For a clean implementation, we want the id to accessed in approximate order of execution. 
+        // For a clean implementation, we want the id to accessed in approximate order of execution.
 
         // 1: Setups
         suite.setups = self
@@ -59,7 +56,7 @@ impl<TParameters: TestParameters> ComponentGroup<TParameters> {
             .map(|x| x.into_component(id_gen, &suite.description, &suite.attributes, parameters))
             .collect();
 
-        // 3: Nested Suites 
+        // 3: Nested Suites
         suite.suites = self
             .sub_groups
             .into_iter()
@@ -71,8 +68,8 @@ impl<TParameters: TestParameters> ComponentGroup<TParameters> {
                 )
             })
             .collect();
-        
-        // Tear downs 
+
+        // Tear downs
         suite.tear_downs = self
             .tear_downs
             .into_iter()
@@ -205,7 +202,6 @@ impl<TParameters> HierarchyNode<TParameters> {
         let mut setups = std::mem::take(&mut self.setups);
         let mut tear_downs = std::mem::take(&mut self.tear_downs);
 
-
         for (_, node) in self.nodes {
             let mut group = node.into_component_groups();
 
@@ -219,6 +215,12 @@ impl<TParameters> HierarchyNode<TParameters> {
             }
         }
 
-        return ComponentGroup { suite, tests, setups, tear_downs, sub_groups };
+        return ComponentGroup {
+            suite,
+            tests,
+            setups,
+            tear_downs,
+            sub_groups,
+        };
     }
 }
