@@ -10,6 +10,7 @@ pub struct BookendAttributes {
     pub name: Option<Expr>,
     pub description: Option<Expr>,
     pub critical_threshold: Option<Expr>,
+    pub parallel_enabled: Option<bool>,
     pub errors: Option<Error>,
 }
 
@@ -22,6 +23,7 @@ impl BookendAttributes {
             ignore: None,
             critical_threshold: None,
             errors: None,
+            parallel_enabled: None,
         };
 
         attrs.retain(|attr| {
@@ -32,6 +34,7 @@ impl BookendAttributes {
                     || builder.try_parse_description_expr(attr)
                     || builder.try_parse_ignore_expr(attr)
                     || builder.try_parse_critical_threshold_expr(attr)
+                    || builder.try_parse_concurrency_mode_expr(attr)
             )
         });
 
@@ -106,6 +109,23 @@ impl BookendAttributes {
         true
     }
 
+    // cascade failure
+    // looking for #[parallelizable]
+    // looking for #[sequential]
+    fn try_parse_concurrency_mode_expr(&mut self, attr: &Attribute) -> bool {
+        if attr.path.is_ident("parallelizable") {
+            self.parallel_enabled = Some(true);
+            return true;
+        }
+
+        if attr.path.is_ident("sequential") {
+            self.parallel_enabled = Some(false);
+            return true;
+        }
+
+        return false;
+    }
+
     fn parse_duration_from_sec(&mut self, attr: &Attribute) -> Option<Expr> {
         let result =
             attr.parse_args_with(|input: ParseStream| input.call(Expr::parse_without_eager_brace));
@@ -150,6 +170,20 @@ impl BookendAttributes {
 
     pub fn take_critical_threshold(&mut self) -> Expr {
         mem::take(&mut self.critical_threshold).unwrap_or_else(|| parse_quote!(None))
+    }
+
+    pub fn take_concurrency_mode(&mut self, integra8_path: &Path) -> Expr {
+        match mem::take(&mut self.parallel_enabled) {
+            Some(true) => {
+                parse_quote!(Some(#integra8_path ::components::ConcurrencyMode::Parallel))
+            },
+            Some(false) => {
+                parse_quote!(Some(#integra8_path ::components::ConcurrencyMode::Serial))
+            },
+            None => {
+                parse_quote!(None)
+            },
+        }            
     }
 
     fn some_or_accumulate_error<T>(&mut self, result: Result<T>) -> Option<T> {

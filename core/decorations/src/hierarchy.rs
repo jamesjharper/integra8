@@ -1,7 +1,7 @@
 use indexmap::IndexMap;
 
 use crate::{
-    BookEndDecoration, BookEndDecorationPair, ComponentDecoration, SuiteAttributesDecoration,
+    BookEndDecoration, ComponentDecoration, SuiteAttributesDecoration,
     TestDecoration,
 };
 

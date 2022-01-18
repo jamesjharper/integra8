@@ -1,59 +1,10 @@
 use std::time::Duration;
 
 use integra8_components::{
-    BookEnd, BookEnds, ComponentDescription, ComponentGeneratorId, ComponentLocation, Delegate,
-    SuiteAttributes, TestParameters,
+    BookEnd, ComponentDescription, ComponentGeneratorId, ComponentLocation, Delegate,
+    SuiteAttributes, TestParameters, ConcurrencyMode
 };
 
-#[derive(Clone, Debug)]
-pub struct BookEndDecorationPair<TParameters> {
-    pub setup: Option<BookEndDecoration<TParameters>>,
-    pub tear_down: Option<BookEndDecoration<TParameters>>,
-}
-
-impl<TParameters> BookEndDecorationPair<TParameters> {
-    pub fn new() -> Self {
-        Self {
-            setup: None,
-            tear_down: None,
-        }
-    }
-
-    pub fn has_any(&self) -> bool {
-        self.setup.is_some() || self.tear_down.is_some()
-    }
-}
-
-impl<TParameters: TestParameters> BookEndDecorationPair<TParameters> {
-    pub fn into_components(
-        self,
-        id_gen: &mut ComponentGeneratorId,
-        parent_suite_description: &ComponentDescription,
-        parent_suite_attributes: &SuiteAttributes,
-    ) -> BookEnds<TParameters> {
-        BookEnds {
-            setup: self.setup.map(|deco| {
-                deco.into_setup_component(id_gen, parent_suite_description, parent_suite_attributes)
-            }),
-            tear_down: self.tear_down.map(|deco| {
-                deco.into_tear_down_component(
-                    id_gen,
-                    parent_suite_description,
-                    parent_suite_attributes,
-                )
-            }),
-        }
-    }
-}
-
-impl<TParameters> Default for BookEndDecorationPair<TParameters> {
-    fn default() -> Self {
-        Self {
-            setup: None,
-            tear_down: None,
-        }
-    }
-}
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct BookEndAttributesDecoration {
@@ -74,6 +25,11 @@ pub struct BookEndAttributesDecoration {
 
     /// Describes the maximum duration a bookend can take before it is forcibly aborted
     pub critical_threshold: Option<Duration>,
+
+    /// The concurrency mode which this bookend will adhere to.
+    /// `ConcurrencyMode::Parallel` will allow this bookend for be run at the same time as other bookends within this suite
+    /// `ConcurrencyMode::Serial` will ensure that this bookend wont run at the same time as any other bookend from this suite
+    pub concurrency_mode: Option<ConcurrencyMode>,
 
 }
 
@@ -100,6 +56,7 @@ impl<TParameters: TestParameters> BookEndDecoration<TParameters> {
             self.desc.location,
             self.desc.ignore,
             self.desc.critical_threshold,
+            self.desc.concurrency_mode,
             self.bookend_fn,
         )
     }
@@ -120,6 +77,7 @@ impl<TParameters: TestParameters> BookEndDecoration<TParameters> {
             self.desc.location,
             self.desc.ignore,
             self.desc.critical_threshold,
+            self.desc.concurrency_mode,
             self.bookend_fn,
         )
     }

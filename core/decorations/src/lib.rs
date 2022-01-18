@@ -2,7 +2,7 @@ mod test;
 pub use test::{TestAttributesDecoration, TestDecoration};
 
 mod bookends;
-pub use bookends::{BookEndAttributesDecoration, BookEndDecoration, BookEndDecorationPair};
+pub use bookends::{BookEndAttributesDecoration, BookEndDecoration};
 
 mod suite;
 pub use suite::SuiteAttributesDecoration;

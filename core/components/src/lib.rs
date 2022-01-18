@@ -8,7 +8,7 @@ pub mod test;
 pub use test::{Test, TestAttributes};
 
 pub mod bookends;
-pub use bookends::{BookEnd, BookEndAttributes, BookEnds};
+pub use bookends::{BookEnd, BookEndAttributes};
 
 mod suite;
 pub use suite::{Suite, SuiteAttributes};
