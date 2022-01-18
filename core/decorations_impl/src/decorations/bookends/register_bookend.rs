@@ -30,10 +30,6 @@ pub fn register_teardown(input_tokens: TokenStream) -> TokenStream {
     let tokens = quote! {
         #teardown_method
 
-        // Prevent more then one tear down being defined with in the same mod
-        // TODO: change this so that there can be more then once tear down
-        static __ONE_TEAR_DOWN_PER_NAMESPACE: &'static str = "Teardown method can only be defined once per namespace";
-
         pub(crate) mod #teardown_name_ident {
 
             use crate::REGISTERED_COMPONENTS;
@@ -87,10 +83,6 @@ pub fn register_setup(input_tokens: TokenStream) -> TokenStream {
 
     let tokens = quote! {
         #setup_method
-
-        // Prevent more then one setup down being defined with in the same mod
-        // TODO: change this so that there can be more then once setup
-        static __ONE_SETUP_PER_NAMESPACE: &'static str = "Setup method can only be defined once per namespace";
 
         pub(crate) mod #setup_name_ident {
 

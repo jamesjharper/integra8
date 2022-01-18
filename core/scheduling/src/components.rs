@@ -32,9 +32,8 @@ impl<TParameters: TestParameters> IntoTaskStateMachine<ScheduledComponent<TParam
 
         // 1: Run all setup components in sequence
         root_node.enqueue_all(
-            self.bookends
-                .iter_mut()
-                .filter_map(|b| std::mem::take(&mut b.setup))
+            self.setups
+                .drain(..)
                 .map(|setup| ScheduledComponent::Setup(setup)),
         );
 
@@ -67,10 +66,9 @@ impl<TParameters: TestParameters> IntoTaskStateMachine<ScheduledComponent<TParam
         // 4: run all teardown components, in reverse order to
         // the setup components
         root_node.enqueue_all(
-            self.bookends
-                .iter_mut()
+            self.tear_downs
+                .drain(..)
                 .rev()
-                .filter_map(|b| std::mem::take(&mut b.tear_down))
                 .map(|tear_down| ScheduledComponent::TearDown(tear_down)),
         );
 

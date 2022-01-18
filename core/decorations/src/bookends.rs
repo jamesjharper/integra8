@@ -74,6 +74,7 @@ pub struct BookEndAttributesDecoration {
 
     /// Describes the maximum duration a bookend can take before it is forcibly aborted
     pub critical_threshold: Option<Duration>,
+
 }
 
 #[derive(Clone, Debug)]

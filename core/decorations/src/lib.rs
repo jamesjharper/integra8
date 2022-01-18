@@ -55,6 +55,7 @@ mod test_rigging {
     #[linkme::distributed_slice]
     pub static REGISTERED_COMPONENTS: [fn() -> crate::ComponentDecoration<Parameters>] = [..];
 
+    #[derive(Clone)]
     pub struct TestAppParameters {
         pub max_concurrency: usize,
         pub setup_critical_threshold_seconds: u64,
@@ -178,15 +179,15 @@ mod tests {
 
         #[setup]
         #[integra8(crate = crate)]
-        pub fn step_up_a() { }
+        pub fn setup_a() { }
 
-        #[integration_test]
+        #[setup]
         #[integra8(crate = crate)]
         #[name("Setup A")]
         #[description("the description of this setup A")]
         #[critical_threshold_seconds(2)]
         #[ignore()]
-        pub fn step_up_a_with_decorations() { }
+        pub fn setup_a_with_decorations() { }
     }
 
 
@@ -216,7 +217,8 @@ mod tests {
 
         // Assert
         assert_eq!(root.tests.len(), 0);
-        assert_eq!(root.bookends.len(), 0);
+        assert_eq!(root.setups.len(), 0);
+        assert_eq!(root.tear_downs.len(), 0);
         assert_eq!(root.suites.len(), 0);
         assert_is_root!(root);
 
@@ -242,7 +244,8 @@ mod tests {
 
         // Assert
         assert_eq!(root.tests.len(), 1);
-        assert_eq!(root.bookends.len(), 0);
+        assert_eq!(root.setups.len(), 0);
+        assert_eq!(root.tear_downs.len(), 0);
         assert_eq!(root.suites.len(), 0);
         assert_is_root!(root);
 
@@ -274,7 +277,8 @@ mod tests {
 
         // Assert
         assert_eq!(root.tests.len(), 1);
-        assert_eq!(root.bookends.len(), 0);
+        assert_eq!(root.setups.len(), 0);
+        assert_eq!(root.tear_downs.len(), 0);
         assert_eq!(root.suites.len(), 0);
         assert_is_root!(root);
 
@@ -296,35 +300,66 @@ mod tests {
         assert_eq!(test1.attributes.concurrency_mode, ConcurrencyMode::Serial);
     }
 
-    /*#[test]
+    #[test]
     fn components_from_single_setup() {
 
         // Act
         let root = ComponentGroup::into_components(
-            vec![mock_app::test_a::test_def()],
+            vec![mock_app::setup_a::setup_def()],
             &Parameters::default()
         );
 
         // Assert
-        assert_eq!(root.tests.len(), 1);
-        assert_eq!(root.bookends.len(), 0);
+        assert_eq!(root.tests.len(), 0);
+        assert_eq!(root.setups.len(), 1);
+        assert_eq!(root.tear_downs.len(), 0);
         assert_eq!(root.suites.len(), 0);
         assert_is_root!(root);
 
         // Assert attributes/description was inherited from the Parameters
-        let test1 = &root.tests[0];
-        assert_eq!(test1.description.path.as_str(), "integra8_decorations::tests::mock_app::test_a", );
-        assert_eq!(test1.description.id.as_unique_number(), 1 );
-        assert_eq!(test1.description.parent_id.as_unique_number(), 0);
-        assert_eq!(test1.description.description, None);
-        assert_eq!(test1.description.component_type, ComponentType::Test);
-        assert_eq!(test1.attributes.allow_fail, false);
-        assert_eq!(test1.attributes.ignore, false);
-        assert_eq!(test1.attributes.critical_threshold.as_secs(), 30);
-        assert_eq!(test1.attributes.warn_threshold.as_secs(), 40);
-        assert_eq!(test1.attributes.concurrency_mode, ConcurrencyMode::Parallel);
+        let setup1 = &root.setups[0].clone();
+        assert_eq!(setup1.description.path().as_str(), "integra8_decorations::tests::mock_app::setup_a", );
+        assert_eq!(setup1.description.relative_path(), "tests::mock_app::setup_a", );
+        assert_eq!(setup1.description.full_name(), "integra8_decorations::tests::mock_app::setup_a", );
+        assert_eq!(setup1.description.friendly_name(), "tests::mock_app::setup_a", );
+        assert_eq!(setup1.description.id().as_unique_number(), 1 );
+        assert_eq!(setup1.description.parent_id().as_unique_number(), 0);
+        assert_eq!(setup1.description.description(), None);
+        assert_eq!(setup1.description.component_type(), &ComponentType::Setup);
+        assert_eq!(setup1.attributes.ignore, false);
+        assert_eq!(setup1.attributes.critical_threshold.as_secs(), 20);
+    }
 
-    }*/
+    #[test]
+    fn setup_decorations_should_override_parameters() {
+
+        // Act
+        let root = ComponentGroup::into_components(
+            vec![mock_app::setup_a_with_decorations::setup_def()],
+            &Parameters::default()
+        );
+
+        // Assert
+        assert_eq!(root.tests.len(), 0);
+        assert_eq!(root.setups.len(), 1);
+        assert_eq!(root.tear_downs.len(), 0);
+        assert_eq!(root.suites.len(), 0);
+        assert_is_root!(root);
+
+        // Assert attributes/description was inherited from the Parameters
+        let setup1 = &root.setups[0].clone();
+        assert_eq!(setup1.description.path().as_str(), "integra8_decorations::tests::mock_app::setup_a_with_decorations", );
+        assert_eq!(setup1.description.relative_path(), "tests::mock_app::setup_a_with_decorations", );
+        assert_eq!(setup1.description.full_name(), "Setup A", );
+        assert_eq!(setup1.description.friendly_name(), "Setup A", );
+        assert_eq!(setup1.description.id().as_unique_number(), 1 );
+        assert_eq!(setup1.description.parent_id().as_unique_number(), 0);
+        assert_eq!(setup1.description.description(), Some("the description of this setup A"));
+        assert_eq!(setup1.description.component_type(), &ComponentType::Setup);
+        assert_eq!(setup1.attributes.ignore, true);
+        assert_eq!(setup1.attributes.critical_threshold.as_secs(), 2);
+
+    }
 }
 
 /*mod mock_test_app {

@@ -1,7 +1,7 @@
 use std::time::Duration;
 
 use crate::{
-    BookEnds, ComponentDescription, ComponentGeneratorId, ComponentLocation, ComponentPath,
+    BookEnd, ComponentDescription, ComponentGeneratorId, ComponentLocation, ComponentPath,
     ComponentType, ConcurrencyMode, Test, TestParameters,
 };
 
@@ -140,7 +140,8 @@ pub struct Suite<TParameters> {
     pub attributes: SuiteAttributes,
     pub description: ComponentDescription,
     pub tests: Vec<Test<TParameters>>,
-    pub bookends: Vec<BookEnds<TParameters>>,
+    pub setups: Vec<BookEnd<TParameters>>,
+    pub tear_downs: Vec<BookEnd<TParameters>>,
     pub suites: Vec<Suite<TParameters>>,
 }
 
@@ -192,7 +193,8 @@ impl<TParameters: TestParameters> Suite<TParameters> {
                 test_concurrency_mode,
             ),
             tests: Vec::new(),
-            bookends: Vec::new(),
+            setups: Vec::new(),
+            tear_downs: Vec::new(),
             suites: Vec::new(),
         }
     }

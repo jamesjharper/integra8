@@ -13,7 +13,8 @@ use integra8_components::{
 pub struct ComponentGroup<TParameters> {
     pub suite: Option<SuiteAttributesDecoration>,
     pub tests: Vec<TestDecoration<TParameters>>,
-    pub bookends: Vec<BookEndDecorationPair<TParameters>>,
+    pub setups: Vec<BookEndDecoration<TParameters>>,
+    pub tear_downs: Vec<BookEndDecoration<TParameters>>,
     pub sub_groups: Vec<ComponentGroup<TParameters>>,
 }
 
@@ -42,19 +43,23 @@ impl<TParameters: TestParameters> ComponentGroup<TParameters> {
 
         let mut suite = parent_suite_attributes.into_component(id_gen, parent, parameters);
 
+        // For a clean implementation, we want the id to accessed in approximate order of execution. 
+
+        // 1: Setups
+        suite.setups = self
+            .setups
+            .into_iter()
+            .map(|x| x.into_setup_component(id_gen, &suite.description, &suite.attributes))
+            .collect();
+
+        // 2: Tests
         suite.tests = self
             .tests
             .into_iter()
             .map(|x| x.into_component(id_gen, &suite.description, &suite.attributes, parameters))
             .collect();
 
-        suite.bookends = self
-            .bookends
-            .into_iter()
-            .filter(|x| x.has_any())
-            .map(|x| x.into_components(id_gen, &suite.description, &suite.attributes))
-            .collect();
-
+        // 3: Nested Suites 
         suite.suites = self
             .sub_groups
             .into_iter()
@@ -65,6 +70,13 @@ impl<TParameters: TestParameters> ComponentGroup<TParameters> {
                     parameters,
                 )
             })
+            .collect();
+        
+        // Tear downs 
+        suite.tear_downs = self
+            .tear_downs
+            .into_iter()
+            .map(|x| x.into_tear_down_component(id_gen, &suite.description, &suite.attributes))
             .collect();
 
         suite
@@ -106,7 +118,8 @@ impl<TParameters> ComponentHierarchy<TParameters> {
 pub struct HierarchyNode<TParameters> {
     suite: Option<SuiteAttributesDecoration>,
     tests: Vec<TestDecoration<TParameters>>,
-    bookends: BookEndDecorationPair<TParameters>,
+    setups: Vec<BookEndDecoration<TParameters>>,
+    tear_downs: Vec<BookEndDecoration<TParameters>>,
     nodes: IndexMap<String, HierarchyNode<TParameters>>,
 }
 
@@ -115,7 +128,8 @@ impl<TParameters> HierarchyNode<TParameters> {
         Self {
             suite: None,
             tests: Vec::<TestDecoration<TParameters>>::new(),
-            bookends: BookEndDecorationPair::new(),
+            setups: Vec::<BookEndDecoration<TParameters>>::new(),
+            tear_downs: Vec::<BookEndDecoration<TParameters>>::new(),
             nodes: IndexMap::new(),
         }
     }
@@ -148,15 +162,13 @@ impl<TParameters> HierarchyNode<TParameters> {
     }
 
     pub fn insert_setup(&mut self, setup: BookEndDecoration<TParameters>) {
-        let mut node = self.find_method_entry(&setup.desc.path);
-        // Should raise error when there is already a setup
-        node.bookends.setup = Some(setup);
+        let node = self.find_method_entry(&setup.desc.path);
+        node.setups.push(setup);
     }
 
     pub fn insert_teardown(&mut self, teardown: BookEndDecoration<TParameters>) {
-        let mut node = self.find_method_entry(&teardown.desc.path);
-        // Should raise error when there is already a tear down
-        node.bookends.tear_down = Some(teardown);
+        let node = self.find_method_entry(&teardown.desc.path);
+        node.tear_downs.push(teardown);
     }
 
     fn find_namespace_entry<'a>(&'a mut self, path: &str) -> &'a mut Self {
@@ -190,11 +202,9 @@ impl<TParameters> HierarchyNode<TParameters> {
         let mut sub_groups = vec![];
         let suite = std::mem::take(&mut self.suite);
         let mut tests = std::mem::take(&mut self.tests);
+        let mut setups = std::mem::take(&mut self.setups);
+        let mut tear_downs = std::mem::take(&mut self.tear_downs);
 
-        let mut bookends = match self.bookends.has_any() {
-            false => vec![],
-            true => vec![std::mem::take(&mut self.bookends)],
-        };
 
         for (_, node) in self.nodes {
             let mut group = node.into_component_groups();
@@ -203,16 +213,12 @@ impl<TParameters> HierarchyNode<TParameters> {
                 sub_groups.push(group);
             } else {
                 tests.append(&mut group.tests);
-                bookends.append(&mut group.bookends);
+                tear_downs.append(&mut group.tear_downs);
+                setups.append(&mut group.setups);
                 sub_groups.append(&mut group.sub_groups);
             }
         }
 
-        return ComponentGroup {
-            suite: suite,
-            tests: tests,
-            bookends: bookends,
-            sub_groups: sub_groups,
-        };
+        return ComponentGroup { suite, tests, setups, tear_downs, sub_groups };
     }
 }
