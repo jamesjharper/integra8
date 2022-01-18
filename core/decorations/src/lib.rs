@@ -184,7 +184,22 @@ mod tests {
         #[description("the description of this setup A")]
         #[critical_threshold_seconds(2)]
         #[ignore()]
+        #[parallelizable]
         pub fn setup_a_with_decorations() {}
+
+
+        #[teardown]
+        #[integra8(crate = crate)]
+        pub fn teardown_a() {}
+
+        #[teardown]
+        #[integra8(crate = crate)]
+        #[name("Teardown A")]
+        #[description("the description of this Teardown A")]
+        #[critical_threshold_seconds(2)]
+        #[ignore()]
+        #[parallelizable]
+        pub fn teardown_a_with_decorations() {}
     }
 
     #[macro_export]
@@ -388,6 +403,87 @@ mod tests {
         assert_eq!(setup1.description.component_type(), &ComponentType::Setup);
         assert_eq!(setup1.attributes.ignore, true);
         assert_eq!(setup1.attributes.critical_threshold.as_secs(), 2);
+        assert_eq!(setup1.attributes.concurrency_mode, ConcurrencyMode::Parallel);
+    }
+
+    #[test]
+    fn components_from_single_teardown() {
+        // Act
+        let root = ComponentGroup::into_components(
+            vec![mock_app::teardown_a::teardown_def()],
+            &Parameters::default(),
+        );
+
+        // Assert
+        assert_eq!(root.tests.len(), 0);
+        assert_eq!(root.setups.len(), 0);
+        assert_eq!(root.tear_downs.len(), 1);
+        assert_eq!(root.suites.len(), 0);
+        assert_is_root!(root);
+
+        // Assert attributes/description was inherited from the Parameters
+        let teardown1 = &root.tear_downs[0].clone();
+        assert_eq!(
+            teardown1.description.path().as_str(),
+            "integra8_decorations::tests::mock_app::teardown_a",
+        );
+        assert_eq!(
+            teardown1.description.relative_path(),
+            "tests::mock_app::teardown_a",
+        );
+        assert_eq!(
+            teardown1.description.full_name(),
+            "integra8_decorations::tests::mock_app::teardown_a",
+        );
+        assert_eq!(
+            teardown1.description.friendly_name(),
+            "tests::mock_app::teardown_a",
+        );
+        assert_eq!(teardown1.description.id().as_unique_number(), 1);
+        assert_eq!(teardown1.description.parent_id().as_unique_number(), 0);
+        assert_eq!(teardown1.description.description(), None);
+        assert_eq!(teardown1.description.component_type(), &ComponentType::TearDown);
+        assert_eq!(teardown1.attributes.ignore, false);
+        assert_eq!(teardown1.attributes.critical_threshold.as_secs(), 50);
+    }
+
+    #[test]
+    fn teardown_decorations_should_override_parameters() {
+        // Act
+        let root = ComponentGroup::into_components(
+            vec![mock_app::teardown_a_with_decorations::teardown_def()],
+            &Parameters::default(),
+        );
+
+        // Assert
+        assert_eq!(root.tests.len(), 0);
+        assert_eq!(root.setups.len(), 0);
+        assert_eq!(root.tear_downs.len(), 1);
+        assert_eq!(root.suites.len(), 0);
+        assert_is_root!(root);
+
+        // Assert attributes/description was inherited from the Parameters
+        let teardown1 = &root.tear_downs[0].clone();
+        assert_eq!(
+            teardown1.description.path().as_str(),
+            "integra8_decorations::tests::mock_app::teardown_a_with_decorations",
+        );
+        assert_eq!(
+            teardown1.description.relative_path(),
+            "tests::mock_app::teardown_a_with_decorations",
+        );
+        assert_eq!(teardown1.description.full_name(), "Teardown A",);
+        assert_eq!(teardown1.description.friendly_name(), "Teardown A",);
+        assert_eq!(teardown1.description.id().as_unique_number(), 1);
+        assert_eq!(teardown1.description.parent_id().as_unique_number(), 0);
+        assert_eq!(
+            teardown1.description.description(),
+            Some("the description of this Teardown A")
+        );
+        assert_eq!(teardown1.description.component_type(), &ComponentType::TearDown);
+        assert_eq!(teardown1.attributes.ignore, true);
+        assert_eq!(teardown1.attributes.critical_threshold.as_secs(), 2);
+        assert_eq!(teardown1.attributes.concurrency_mode, ConcurrencyMode::Parallel);
     }
 }
 

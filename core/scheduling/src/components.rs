@@ -1,5 +1,4 @@
 use std::iter::Peekable;
-use std::vec::IntoIter;
 
 use crate::state_machine::{ParallelTaskNode, SerialTaskNode, TaskStateMachineNode};
 
