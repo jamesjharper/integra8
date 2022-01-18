@@ -82,7 +82,7 @@ impl<TParameters> BookEnd<TParameters> {
                 name,
                 id_gen.next(),
                 parent_suite_description.path().clone(),
-                parent_suite_description.parent_id().clone(),
+                parent_suite_description.id().clone(),
                 description,
                 ComponentType::Setup,
                 src,

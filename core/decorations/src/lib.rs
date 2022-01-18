@@ -569,7 +569,7 @@ mod tests {
                 "setup_az",
             );
             assert_eq!(setup1.description.id().as_unique_number(), 2);
-            assert_eq!(setup1.description.parent_id().as_unique_number(), 0);
+            assert_eq!(setup1.description.parent_id().as_unique_number(), 1);
             assert_eq!(setup1.description.description(), None);
             assert_eq!(setup1.description.component_type(), &ComponentType::Setup);
             assert_eq!(setup1.attributes.ignore, false);
@@ -745,8 +745,7 @@ mod tests {
         }
     }
 
-
-    mod should_override_parameters_even_when_nested {
+    mod should_override_parameters_when_nested {
         use super::*;
 
         #[test]
@@ -870,8 +869,147 @@ mod tests {
         }
     }
 
-   /* mod should_override_parameters_even_when_nested_in_anther_suite {
-        // POPULATE
-    }*/
 
+    mod should_override_parameters_even_nested_in_another_suite {
+        use super::*;
+
+        #[test]
+        fn for_test() {
+            // Act
+            let root = ComponentGroup::into_components(
+                vec![
+                    mock_app::nested_suite_z::__suite_def(),
+                    mock_app::nested_suite_z::test_az_with_decorations::test_def()
+                ],
+                &Parameters::default(),
+            );
+
+            // Assert
+            assert_eq!(root.tests.len(), 0);
+            assert_eq!(root.setups.len(), 0);
+            assert_eq!(root.tear_downs.len(), 0);
+            assert_eq!(root.suites.len(), 1);
+            assert_is_root!(root);
+
+            // Assert attributes were inherited from the Parameters
+            let test1 = &root.suites[0].tests[0];
+
+            assert_eq!(
+                test1.description.path().as_str(),
+                "integra8_decorations::tests::mock_app::nested_suite_z::test_az_with_decorations",
+            );
+            assert_eq!(
+                test1.description.relative_path(),
+                "test_az_with_decorations",
+            );
+            assert_eq!(test1.description.full_name(), "Test Az",);
+            assert_eq!(test1.description.friendly_name(), "Test Az",);
+            assert_eq!(test1.description.id().as_unique_number(), 2);
+            assert_eq!(test1.description.parent_id().as_unique_number(), 1);
+            assert_eq!(
+                test1.description.description(),
+                Some("the description of this test Az")
+            );
+            assert_eq!(test1.description.component_type(), &ComponentType::Test);
+            assert_eq!(test1.attributes.allow_fail, true);
+            assert_eq!(test1.attributes.ignore, true);
+            assert_eq!(test1.attributes.critical_threshold.as_secs(), 2);
+            assert_eq!(test1.attributes.warn_threshold.as_secs(), 1);
+            assert_eq!(test1.attributes.concurrency_mode, ConcurrencyMode::Serial);
+        }
+
+        #[test]
+        fn for_setup() {
+            // Act
+            let root = ComponentGroup::into_components(
+                vec![
+                    mock_app::nested_suite_z::__suite_def(),
+                    mock_app::nested_suite_z::setup_az_with_decorations::setup_def()
+                ],
+                &Parameters::default(),
+            );
+
+            // Assert
+            assert_eq!(root.tests.len(), 0);
+            assert_eq!(root.setups.len(), 0);
+            assert_eq!(root.tear_downs.len(), 0);
+            assert_eq!(root.suites.len(), 1);
+            assert_is_root!(root);
+
+            // Assert attributes/description was inherited from the Parameters
+            let setup1 = &root.suites[0].setups[0];
+            assert_eq!(
+                setup1.description.path().as_str(),
+                "integra8_decorations::tests::mock_app::nested_suite_z::setup_az_with_decorations",
+            );
+            assert_eq!(
+                setup1.description.relative_path(),
+                "setup_az_with_decorations",
+            );
+            assert_eq!(setup1.description.full_name(), "Setup Az",);
+            assert_eq!(setup1.description.friendly_name(), "Setup Az",);
+            assert_eq!(setup1.description.id().as_unique_number(), 2);
+            assert_eq!(setup1.description.parent_id().as_unique_number(), 1);
+            
+            assert_eq!(
+                setup1.description.description(),
+                Some("the description of this setup Az")
+            );
+            assert_eq!(setup1.description.component_type(), &ComponentType::Setup);
+            assert_eq!(setup1.attributes.ignore, true);
+            assert_eq!(setup1.attributes.critical_threshold.as_secs(), 2);
+            assert_eq!(setup1.attributes.concurrency_mode, ConcurrencyMode::Parallel);
+        }
+
+        #[test]
+        fn for_tear_down() {
+            // Act
+            let root = ComponentGroup::into_components(
+                vec![
+                    mock_app::nested_suite_z::__suite_def(),
+                    mock_app::nested_suite_z::teardown_az_with_decorations::teardown_def()
+                ],
+                &Parameters::default(),
+            );
+
+            // Assert
+            assert_eq!(root.tests.len(), 0);
+            assert_eq!(root.setups.len(), 0);
+            assert_eq!(root.tear_downs.len(), 0);
+            assert_eq!(root.suites.len(), 1);
+            assert_is_root!(root);
+
+            // Assert attributes/description was inherited from the Parameters
+            let teardown1 = &root.suites[0].tear_downs[0];
+            assert_eq!(
+                teardown1.description.path().as_str(),
+                "integra8_decorations::tests::mock_app::nested_suite_z::teardown_az_with_decorations",
+            );
+            assert_eq!(
+                teardown1.description.relative_path(),
+                "teardown_az_with_decorations",
+            );
+            assert_eq!(teardown1.description.full_name(), "Teardown Az",);
+            assert_eq!(teardown1.description.friendly_name(), "Teardown Az",);
+            assert_eq!(teardown1.description.id().as_unique_number(), 2);
+            assert_eq!(teardown1.description.parent_id().as_unique_number(), 1);
+            assert_eq!(
+                teardown1.description.description(),
+                Some("the description of this teardown Az")
+            );
+            assert_eq!(teardown1.description.component_type(), &ComponentType::TearDown);
+            assert_eq!(teardown1.attributes.ignore, true);
+            assert_eq!(teardown1.attributes.critical_threshold.as_secs(), 2);
+            assert_eq!(teardown1.attributes.concurrency_mode, ConcurrencyMode::Parallel);
+        }
+    }
+
+
+
+    // Should inherit parameters from parent suite
+    // Should inherit parameters from parents parent suite when parent does not define its own values
+    // Should overwrite parameters and not inherit parent suite
+    // Should return components in the order the are found in there file
+
+    // 
 }
