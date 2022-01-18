@@ -10,7 +10,7 @@ pub fn integration_test(_args_tokens: TokenStream, input_tokens: TokenStream) ->
 }
 
 #[proc_macro_attribute]
-pub fn integration_suite(_args_tokens: TokenStream, input_tokens: TokenStream) -> TokenStream {
+pub fn suite(_args_tokens: TokenStream, input_tokens: TokenStream) -> TokenStream {
     decorations::suite::register_suite(input_tokens)
 }
 

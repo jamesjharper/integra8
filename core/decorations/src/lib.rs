@@ -162,6 +162,7 @@ mod tests {
         // Setups
 
         #[setup]
+        // redirect integra8 namespace to decorations_impl so code gen works correctly
         #[integra8(crate = crate)]
         pub fn setup_a() {}
 
@@ -219,15 +220,11 @@ mod tests {
         #[teardown]
         #[integra8(crate = crate)]
         #[name("Teardown A")]
-        #[description("the description of this Teardown A")]
+        #[description("the description of this teardown A")]
         #[critical_threshold_seconds(2)]
         #[ignore()]
         #[parallelizable]
         pub fn teardown_a_with_decorations() {}
-
-
-
-
 
         #[teardown]
         #[integra8(crate = crate)]
@@ -265,11 +262,60 @@ mod tests {
             #[teardown]
             #[integra8(crate = crate)]
             #[name("Teardown D")]
-            #[description("the description of this Teardown D")]
+            #[description("the description of this teardown D")]
             #[critical_threshold_seconds(2)]
             #[ignore()]
             #[parallelizable]
             pub fn teardown_d_nested_with_decorations() {}
+        }
+
+        #[suite]
+        #[integra8(crate = crate)] 
+        pub mod nested_suite_z {
+
+            pub use integra8_decorations_impl::*;
+
+
+            #[integration_test]
+            #[integra8(crate = crate)]
+            pub fn test_az() {}
+            
+            #[integration_test]
+            #[integra8(crate = crate)]
+            #[name("Test Az")]
+            #[description("the description of this test Az")]
+            #[critical_threshold_seconds(2)]
+            #[warn_threshold_milliseconds(1000)]
+            #[sequential]
+            #[ignore()]
+            #[allow_fail()]
+            pub fn test_az_with_decorations() {}
+    
+            #[setup]
+            #[integra8(crate = crate)]
+            pub fn setup_az() {}
+
+            #[setup]
+            #[integra8(crate = crate)]
+            #[name("Setup Az")]
+            #[description("the description of this setup Az")]
+            #[critical_threshold_seconds(2)]
+            #[ignore()]
+            #[parallelizable]
+            pub fn setup_az_with_decorations() {}
+    
+            #[teardown]
+            #[integra8(crate = crate)]
+            pub fn teardown_az() {}
+
+            #[teardown]
+            #[integra8(crate = crate)]
+            #[name("Teardown Az")]
+            #[description("the description of this teardown Az")]
+            #[critical_threshold_seconds(2)]
+            #[ignore()]
+            #[parallelizable]
+            pub fn teardown_az_with_decorations() {}
         }
     }
 
@@ -556,7 +602,7 @@ mod tests {
             assert_eq!(teardown1.description.parent_id().as_unique_number(), 0);
             assert_eq!(
                 teardown1.description.description(),
-                Some("the description of this Teardown A")
+                Some("the description of this teardown A")
             );
             assert_eq!(teardown1.description.component_type(), &ComponentType::TearDown);
             assert_eq!(teardown1.attributes.ignore, true);
@@ -566,9 +612,9 @@ mod tests {
     }
 
 
-    mod should_override_parameters_event_when_nested {
+    mod should_override_parameters_even_when_nested {
         use super::*;
-        
+
         #[test]
         fn for_test() {
             // Act
@@ -681,7 +727,7 @@ mod tests {
             assert_eq!(teardown1.description.parent_id().as_unique_number(), 0);
             assert_eq!(
                 teardown1.description.description(),
-                Some("the description of this Teardown D")
+                Some("the description of this teardown D")
             );
             assert_eq!(teardown1.description.component_type(), &ComponentType::TearDown);
             assert_eq!(teardown1.attributes.ignore, true);
@@ -689,5 +735,9 @@ mod tests {
             assert_eq!(teardown1.attributes.concurrency_mode, ConcurrencyMode::Parallel);
         }
     }
+
+   /* mod should_override_parameters_even_when_nested_in_anther_suite {
+        // POPULATE
+    }*/
 
 }

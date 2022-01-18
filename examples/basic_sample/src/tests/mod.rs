@@ -34,7 +34,7 @@ fn tear_down(_ctx: crate::ExecutionContext) {
     assert_eq!(true, true);
 }
 
-#[integration_suite]
+#[suite]
 #[name("custom named suite")]
 #[description("the suite description")]
 mod nested_test_suite {
@@ -50,7 +50,7 @@ mod nested_test_suite {
         //assert_eq!(true, false);
     }
 
-    #[integration_suite]
+    #[suite]
     mod another_nested_test_suite {
         use super::*;
         #[integration_test]
@@ -65,7 +65,7 @@ mod nested_test_suite {
             //assert_eq!(true, false);
         }
 
-        #[integration_suite]
+        #[suite]
         mod another_nested_test_suite {
             use super::*;
             #[integration_test]
@@ -92,7 +92,7 @@ mod nested_test_suite {
                 }
             }
 
-            #[integration_suite]
+            #[suite]
             mod suite_which_should_warning {
                 use super::*;
                 #[integration_test]
@@ -121,7 +121,7 @@ mod nested_test_suite {
                 }
             }
 
-            #[integration_suite]
+            #[suite]
             #[allow_fail]
             mod suite_should_fail {
                 use super::*;
@@ -155,7 +155,7 @@ mod nested_test_suite {
                 }
             }
 
-            #[integration_suite]
+            #[suite]
             mod suite_should_also_skipped {
                 use super::*;
                 #[integration_test]
