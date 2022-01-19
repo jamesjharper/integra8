@@ -1,0 +1,16 @@
+[package]
+name = "test_basics"
+version = "0.1.0"
+edition = "2018"
+
+[dependencies]
+async-std = { version = "1.10.0", optional = true}
+tokio = { version = "1.15.0",  features = ["time"], optional = true}
+
+integra8 = {path = "../../../core/integra8"}
+integra8_tree_formatter = {path = "../../../contrib/formatters/tree_formatter" }
+
+[features]
+async-std-runtime = ["async-std"]
+tokio-runtime = ["tokio"]
+

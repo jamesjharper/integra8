@@ -13,11 +13,8 @@ Work remaining before release,
 ```rust
 #[macro_use]
 pub extern crate integra8;
-use integra8::{integration_suite, integration_test, setup, teardown};
-use integra8::formatters::tree::TreeFormatter;
 
 main_test! {
-    console_output: TreeFormatter,
     settings : {
         #[structopt(long = "target-url", default_value = "https://httpbin.org/ip")]
         pub url: String,
@@ -34,8 +31,19 @@ mod sample_test_suite {
     }
 
     #[integration_test]
-    fn green_test() {
-        assert_eq!(true, true);
+    #[parallelizable]
+    #[critical_threshold_seconds(10)]
+    async fn response_test(ctx: crate::ExecutionContext) {
+        reqwest::get(&p.parameters.app_parameters.url)
+            .await.unwrap()
+            .json::<std::collections::HashMap<String, String>>()
+            .await.unwrap();
+    }
+
+    #[integration_test]
+    #[parallelizable]
+    fn another_test() {
+
     }
 
     #[integration_suite]
@@ -65,6 +73,42 @@ mod sample_test_suite {
     ├── ▼ - teardown
     └── ○ - sample_nested_suite
         └── ▧ - nested_failing_test - (allowed)
+```
+
+# How to guide:
+
+## Test Basics
+Hello world test for integr8.
+
+Each test application requires a `main_test! {}` to setup the application entrypoint and bootstrap the test framework,
+and tests are declared using the `#[integration_test]` decoration.
+
+```rust
+
+// Test main is required setup the application entrypoint and bootstrap the test framework
+main_test! {
+}
+
+// a test can be declared with the the `#[integration_test]` decoration.
+#[integration_test]
+fn hello_world_test() {
+    println!("Hello world!");
+}
+```
+
+Tests can have custom names assigned using the `#[name( )]` decorator.
+and can also have customer descriptions, which are displayed in the output when a test fails.
+
+```rust
+#[integration_test]
+#[name("Tests can have custom names")]
+#[description("
+And can have customer descriptions, which are displayed in the output when a test fails.
+")]
+fn a_test_with_a_name() {
+  
+}
+
 ```
 
 
