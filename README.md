@@ -22,7 +22,6 @@ pub extern crate integra8;
 main_test! {
 }
 
-/// a test can be declared with the the `#[integration_test]` decoration.
 #[integration_test]
 fn hello_world_test() {
     println!("Hello world!");
@@ -104,7 +103,7 @@ fn this_test_wont_even_run() {
 
 ## Duration warning threshold
 A test can be decorated with `#[warn_threshold_milliseconds( )]`
-or `#[warn_threshold_seconds(1)]` to indicate the duration threshold 
+or `#[warn_threshold_seconds( )]` to indicate the duration threshold 
 for warning result.
 
 ```rust
@@ -117,7 +116,7 @@ fn this_test_will_show_a_timeout_warning() {
 
 ## Critical duration threshold
 A test can be decorated with `#[critical_threshold_milliseconds( )]`
-or `#[critical_threshold_seconds(1)]` to indicate the max duration 
+or `#[critical_threshold_seconds( )]` to indicate the max duration 
 before a test is aborted.
 
 ```rust
@@ -128,6 +127,39 @@ fn this_test_will_show_a_timeout_error() {
 }
 ```
 
+## Setup and Teardown
+A setup or teardown can be declared with the  `#[setup]` and `#[teardown]` decoration. 
+- Every Setups will run _once_ at the start of the test run.
+- Every Tear down is _guaranteed_ to run regardless if a test fails or another tear down or setup fails.
+
+```rust
+#[setup]
+async fn setup() {
+    println!("Setup is run first");
+}
+
+#[integration_test]
+async fn test_1() {
+    println!("And then test 1 runs, but fails");
+    assert!(false, "Test 1 fails")
+}
+
+#[integration_test]
+async fn test_2() {
+    println!("As test 1 failed, test 2 is never called ");
+}
+
+#[teardown]
+fn teardown_1() {
+    println!("However teardown 1 is run regardless of the failure");
+}
+
+#[teardown]
+async fn teardown_2() {
+    println!("And also teardown 2 is run regardless of the failure");
+}
+
+```
 
 # Special Notes:
 Mac Build for 1.56 and above, seem seems to broken dues to open issue with linkme crate, used to auto detect tests

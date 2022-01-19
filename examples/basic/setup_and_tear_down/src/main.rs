@@ -6,6 +6,11 @@ main_test! {
     console_output: integra8_tree_formatter::TreeFormatter,
 }
 
+
+/// # Setup and Teardown
+/// a setup and teardown can be declared with the  `#[setup]` and `#[teardown]` decoration. 
+/// - Setups will run _once_ before tests are run,
+/// - Every Tear down is _guaranteed_ to run regardless if a test fails or another tear down or setup fails.
 #[setup]
 async fn setup() {
     println!("Setup is called first");
