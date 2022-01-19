@@ -9,7 +9,8 @@ EXAMPLES_ROOT="./examples"
 echo "Build Examples"
 pushd "${EXAMPLES_ROOT}"
 #cargo clean
-cargo build
+#cargo build --features="integra8/tokio-runtime"
+cargo build --features="integra8/async-std-runtime"
 popd
 
 echo "Running Examples"

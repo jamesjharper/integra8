@@ -6,7 +6,7 @@ edition = "2018"
 
 [dependencies]
 async-process = "1.2.0"
-
-integra8 = {path = "../../core/integra8", features = ["tokio-runtime"] }
+# features = ["tokio-runtime"]
+integra8 = {path = "../../core/integra8" } 
 integra8_tree_formatter = {path = "../../contrib/formatters/tree_formatter" }
 

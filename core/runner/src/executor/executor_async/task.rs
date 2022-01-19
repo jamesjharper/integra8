@@ -62,6 +62,15 @@ impl<
                 Err(_timeout) => {
                     report_builder.rejected_result();
                 }
+                // TODO: look for away to get panic details from std-runtime
+                #[cfg(feature = "async-std-runtime")]
+                Ok(Err(panic)) => {
+                    report_builder.with_artifacts(ComponentRunArtifacts {
+                        stdio: TestResultStdio::from_panic(&panic),
+                    });
+                    report_builder.rejected_result();
+                }
+                #[cfg(feature = "tokio-runtime")]
                 Ok(Ok(Err(panic))) => {
                     report_builder.with_artifacts(ComponentRunArtifacts {
                         stdio: TestResultStdio::from_panic(&panic),

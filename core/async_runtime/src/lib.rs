@@ -14,8 +14,10 @@ mod channel_impl {
 
 #[cfg(feature = "async-std-runtime")]
 mod channel_impl {
-    pub use async_std::sync::channel;
-    pub use async_std::sync::{Receiver, Sender};
+    pub use async_std::channel::{bounded, Receiver, Sender};
+    pub fn channel<T>(size: usize) -> (Sender<T>, Receiver<T>) {
+        bounded::<T>(size)
+    }
 }
 
 #[cfg(feature = "sync")]
@@ -50,7 +52,7 @@ pub async fn timeout<F, T>(
     future: F,
 ) -> Result<T, async_std::future::TimeoutError>
 where
-    F: futures::Future<Output = T>,
+    F: std::future::Future<Output = T>,
 {
     async_std::future::timeout(duration, future).await
 }
@@ -58,7 +60,7 @@ where
 #[cfg(feature = "async-std-runtime")]
 pub fn spawn<F, T>(future: F) -> async_std::task::JoinHandle<T>
 where
-    F: futures::Future<Output = T> + Send + 'static,
+    F: std::future::Future<Output = T> + Send + 'static,
     T: Send + 'static,
 {
     async_std::task::spawn(future)

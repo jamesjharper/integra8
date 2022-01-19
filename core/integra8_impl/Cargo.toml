@@ -23,6 +23,6 @@ proc-macro2 = "1.0.32"
 
 
 [features]
-default = ["tokio-runtime"]
+
 async-std-runtime = []
 tokio-runtime = []

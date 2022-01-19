@@ -58,7 +58,6 @@ version = "0.0.1-alpha"
 path = "../async_runtime"
 
 [features]
-default = ["tokio-runtime"]
 sync = []
 async = []
 

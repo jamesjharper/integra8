@@ -35,7 +35,7 @@ impl MainDefinitionValue {
                         // we set std::process::exit(exit_code); rather then
                         // returning an error
                         let exit_code = integra8::async_runtime::block_on(async {
-                            run_tests!(Parameters::from_command_line());
+                            run_tests!(Parameters::from_command_line())
                         });
                         std::process::exit(exit_code);
                     }
