@@ -1,5 +1,5 @@
 [workspace]
 members = [
-#  "basic_sample",
-  "test_examples",
+  "simple_test",
+  "validate_examples",
 ]

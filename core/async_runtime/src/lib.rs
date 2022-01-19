@@ -1,3 +1,11 @@
+
+
+#[cfg(feature = "tokio-runtime")]
+pub use tokio::runtime::Runtime;
+
+#[cfg(feature = "async-std-runtime")]
+pub use async_std::task::block_on;
+
 #[cfg(feature = "tokio-runtime")]
 mod channel_impl {
     pub use tokio::sync::mpsc::channel;

@@ -34,7 +34,7 @@ impl MainDefinitionValue {
                         // To get a clean exit without any additional logging
                         // we set std::process::exit(exit_code); rather then
                         // returning an error
-                        let exit_code = async_std::task::block_on(async {
+                        let exit_code = integra8::async_runtime::block_on(async {
                             run_tests!(Parameters::from_command_line());
                         });
                         std::process::exit(exit_code);
@@ -44,7 +44,7 @@ impl MainDefinitionValue {
             Self::Tokio => {
                 parse_quote!(
                     fn main() {
-                        let mut rt = tokio::runtime::Runtime::new().unwrap();
+                        let mut rt = integra8::async_runtime::Runtime::new().unwrap();
                         // To get a clean exit without any additional logging
                         // we set std::process::exit(exit_code); rather then
                         // returning an error

@@ -30,6 +30,10 @@ pub mod runner {
     pub use integra8_runner::*;
 }
 
+pub mod async_runtime {
+    pub use integra8_async_runtime::*;
+}
+
 #[doc(hidden)]
 pub mod linkme {
     pub use linkme::*;

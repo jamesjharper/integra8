@@ -1,12 +1,11 @@
 [package]
-name = "test_examples"
+name = "validate_examples"
 version = "0.1.0"
 edition = "2018"
 
 
 [dependencies]
 async-process = "1.2.0"
-tokio = { version = "1.10.0", features = ["full"] }
 
 integra8 = {path = "../../core/integra8", features = ["tokio-runtime"] }
 integra8_tree_formatter = {path = "../../contrib/formatters/tree_formatter" }
