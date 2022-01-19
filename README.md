@@ -78,14 +78,12 @@ mod sample_test_suite {
 # How to guide:
 
 ## Test Basics
-Hello world test for integr8.
 
-Each test application requires a `main_test! {}` to setup the application entrypoint and bootstrap the test framework,
-and tests are declared using the `#[integration_test]` decoration.
+### Hello world test for integr8.
 
 ```rust
 
-// Test main is required setup the application entrypoint and bootstrap the test framework
+// Test main is required to setup the application entrypoint and bootstrap the test framework
 main_test! {
 }
 
@@ -96,8 +94,7 @@ fn hello_world_test() {
 }
 ```
 
-Tests can have custom names assigned using the `#[name( )]` decorator.
-and can also have customer descriptions, which are displayed in the output when a test fails.
+### Tests with custom names and descriptions
 
 ```rust
 #[integration_test]
@@ -111,6 +108,54 @@ fn a_test_with_a_name() {
 
 ```
 
+### Async / Sync tests
+
+```rust
+#[integration_test]
+#[description("
+Integra8 has native support both tokio and async-std runtimes.
+So test can be declared `async` and your runtime of choice
+can be enabled via the \"tokio-runtime\" or \"async-std-runtime\" feature flag.
+
+Integra8 internally requires an async runtime, so if you do not need to use async functionality, 
+you will still need to enable ether the \"tokio-runtime\" or \"async-std-runtime\" feature flag for 
+Integra8 to compile.
+")]
+async fn async_test() {
+    #[cfg(feature = "integra8/tokio-runtime")]
+    tokio::time::sleep(std::time::Duration::from_millis(10)).await;
+
+    #[cfg(feature = "integra8/async-std-runtime")]
+    async_std::task::sleep(std::time::Duration::from_millis(10)).await;
+}
+```
+
+### Allow Fail Tests
+
+```rust
+#[integration_test]
+#[allow_fail]
+#[description("
+Using the `#[allow_fail]` decoration, tests can be allowed to fail.
+")]
+fn this_test_is_sus() {
+    assert!(false, "You shall not pass!")
+}
+```
+
+### Ignore Tests
+
+```rust
+#[integration_test]
+#[ignore]
+#[description("
+Using the `#[ignore]` decoration, tests can skipped altogether.
+")]
+fn this_test_wont_even_run() {
+    assert!(false, "you will never fail if you don't try")
+}
+
+```
 
 # Special Notes:
 Mac Build for 1.56 and above, seem seems to broken dues to open issue with linkme crate, used to auto detect tests
