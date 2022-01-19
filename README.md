@@ -12,26 +12,24 @@ Work remaining before release,
 
 # How to guide:
 
-## Test Basics
-
-### Hello world test for integr8.
+## Hello world test for integr8.
 
 ```rust
 #[macro_use]
 pub extern crate integra8;
 
-// Test main is required to setup the application entrypoint and bootstrap the test framework
+/// Test main is required to setup the application entrypoint and bootstrap the test framework
 main_test! {
 }
 
-// a test can be declared with the the `#[integration_test]` decoration.
+/// a test can be declared with the the `#[integration_test]` decoration.
 #[integration_test]
 fn hello_world_test() {
     println!("Hello world!");
 }
 ```
 
-### Tests with custom names and descriptions
+## Tests with custom names and descriptions
 Tests can have a human friendly name assigned, as well as description for documentation of the test.
 Name and description are shown in test outputs when the test fails to help give quick feedback.
 
@@ -46,13 +44,14 @@ fn a_test_with_a_name() {
 }
 
 ```
-Sample output:
+Output from `./test_basics`
 
 ```
 ● - test_basics
 └── ■ - A concise name that tells anyone what this test is doing
           description:
-            A description which can be useful for adding exact details, assumptions or context behind why this test exists
+            A description which can be useful for adding exact details, assumptions 
+            or context behind why this test exists
           src: basic/test_basics/src/main.rs:14:1
           stderr:
             thread 'async-std/runtime' panicked at 'You shall not pass!', basic/test_basics/src/main.rs:20:3
@@ -60,10 +59,10 @@ Sample output:
 
 ```
 
-### Async / Sync tests
-Integra8 has native support both tokio and async-std runtimes.
-So test can be declared `async` and your runtime of choice
-can be enabled via the \"tokio-runtime\" or \"async-std-runtime\" feature flag.
+## Async / Sync tests
+Integra8 has native support both `tokio` and `async-std` runtimes.
+Tests can be declared `async` and your runtime of choice can be enabled 
+via the \"tokio-runtime\" or \"async-std-runtime\" feature flag.
 
 Integra8 internally requires an async runtime, so if you do not need to use async functionality, 
 you will still need to enable ether the "tokio-runtime" or "async-std-runtime" feature flag for 
@@ -80,7 +79,7 @@ async fn async_test() {
 }
 ```
 
-### Allow Fail Tests
+## Allow Fail Tests
 Using the `#[allow_fail]` decoration, tests can be allowed to fail.
 
 ```rust
@@ -91,7 +90,7 @@ fn this_test_is_sus() {
 }
 ```
 
-### Ignore Tests
+## Ignore Tests
 Using the `#[ignore]` decoration, tests can skipped altogether.
 
 ```rust
@@ -102,6 +101,33 @@ fn this_test_wont_even_run() {
 }
 
 ```
+
+## Duration warning threshold
+A test can be decorated with `#[warn_threshold_milliseconds( )]`
+or `#[warn_threshold_seconds(1)]` to indicate the duration threshold 
+for warning result.
+
+```rust
+#[integration_test]
+#[warn_threshold_milliseconds(10)]
+fn this_test_will_show_a_timeout_warning() {
+    std::thread::sleep(std::time::Duration::from_millis(100));
+}
+```
+
+## Critical duration threshold
+A test can be decorated with `#[critical_threshold_milliseconds( )]`
+or `#[critical_threshold_seconds(1)]` to indicate the max duration 
+before a test is aborted.
+
+```rust
+#[integration_test]
+#[critical_threshold_milliseconds(10)]
+fn this_test_will_show_a_timeout_error() {
+    std::thread::sleep(std::time::Duration::from_millis(100));
+}
+```
+
 
 # Special Notes:
 Mac Build for 1.56 and above, seem seems to broken dues to open issue with linkme crate, used to auto detect tests

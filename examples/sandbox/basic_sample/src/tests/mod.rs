@@ -100,7 +100,7 @@ mod nested_test_suite {
                 fn first() {}
 
                 #[integration_test]
-                #[warn_threshold_seconds(1)]
+                
                 fn should_have_time_warning() {
                    thread::sleep(time::Duration::from_millis(1100));
                 }

@@ -1,6 +1,7 @@
 [workspace]
 members = [
   "basic/test_basics",
+  "basic/test_timing",
   "basic/setup_and_tear_down",
   "basic/setup_and_tear_down_on_failure",
   "validate_examples",

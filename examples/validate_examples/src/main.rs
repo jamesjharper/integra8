@@ -53,7 +53,7 @@ macro_rules! assert_test_passes {
     }
 }
 
-macro_rules! assert_test_failed {
+macro_rules! assert_test_fails {
     ($exe_name:expr) => {
         match run_tests!($exe_name).status.code() {
             Some(1) => {
@@ -73,7 +73,11 @@ mod basic_examples {
     async fn simple_test() {
         assert_test_passes!("./test_basics");
     }
-    
+    #[integration_test]
+    async fn test_timing() {
+        assert_test_fails!("./test_timing");
+    }
+
     #[integration_test]
     async fn setup_and_tear_down() {
         assert_test_passes!("./setup_and_tear_down");
@@ -81,7 +85,7 @@ mod basic_examples {
     
     #[integration_test]
     async fn setup_and_tear_down_on_failure() {
-        assert_test_failed!("./setup_and_tear_down_on_failure");
+        assert_test_fails!("./setup_and_tear_down_on_failure");
     }
 }
 
