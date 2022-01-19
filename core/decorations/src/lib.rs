@@ -40,7 +40,8 @@ impl<TParameters> ComponentDecoration<TParameters> {
     }
 }
 
-// Test rigging to replicate what main_test!() does, to allow decorations to to be used in unit tests.
+// Test rigging to replicate what main_test!() does, 
+// to allow decorations to to be used in unit tests.
 // must be in root!
 #[cfg(test)]
 use test_rigging::*;
@@ -48,8 +49,6 @@ use test_rigging::*;
 #[doc(hidden)]
 #[cfg(test)]
 mod test_rigging {
-
-    //type ExecutionContext  = crate::runner::context::ExecutionContext<Parameters>;
 
     #[linkme::distributed_slice]
     pub static REGISTERED_COMPONENTS: [fn() -> crate::ComponentDecoration<Parameters>] = [..];

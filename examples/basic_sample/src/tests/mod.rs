@@ -30,7 +30,7 @@ fn test3() {
 #[teardown]
 #[name("custom named for tear down")]
 #[description("the tear down description")]
-fn tear_down(_ctx: crate::ExecutionContext) {
+fn tear_down(_ctx: crate::ExecutionContext<'_>) {
     assert_eq!(true, true);
 }
 

@@ -1,11 +1,12 @@
 use std::time::Duration;
+use std::sync::Arc;
 
 use crate::{ComponentDescription, ConcurrencyMode};
 
 #[derive(Clone, Debug)]
-pub struct ExecutionContext<'a, TParameters> {
-    pub parameters: &'a TParameters,
-    pub description: &'a ComponentDescription,
+pub struct ExecutionContext<TParameters> {
+    pub parameters: Arc<TParameters>,
+    pub description: ComponentDescription,
 }
 
 #[derive(Clone)]

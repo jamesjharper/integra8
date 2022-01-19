@@ -97,6 +97,10 @@ impl std::str::FromStr for ConcurrencyMode {
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct ComponentDescription {
+
+    // Note: this object is cloned often. To insure this remains preformat 
+    // the implementation should favor using `static or Arc when every possible 
+
     /// The identity of the bookend. Used for uniquely identify the bookend and displaying the test name to the end user.
     path: ComponentPath,
 

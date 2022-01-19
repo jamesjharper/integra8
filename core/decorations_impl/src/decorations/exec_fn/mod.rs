@@ -1,5 +1,5 @@
 use std::mem;
-use syn::{parse_quote, Expr, ItemFn, Path};
+use syn::{parse_quote, Expr, ItemFn, FnArg, Path};
 
 pub struct ExecFn {
     exec_fn: Option<ItemFn>,
@@ -34,13 +34,47 @@ impl ExecFn {
         let fn_name_ident = &exec_fn.sig.ident;
         let delegate_expr = match (asyncness, parameters) {
             (Async, HasParameters) => {
-                parse_quote!(
-                    #integra8_path ::components::delegates::Delegate::async_with_context(super:: #fn_name_ident)
-                )
+                match exec_fn.sig.inputs.first().unwrap() {
+                    FnArg::Receiver(_) => {
+                // This obviously wont work, but should produce a some what meaningful error
+                /*
+                      7 | #[integration_test]
+                        | ^^^^^^^^^^^^^^^^^^^ incorrect number of function parameters
+                        |
+                        = note: expected fn pointer `fn(integra8::components::ExecutionContext<BaseParameters<EmptySettingsExtension, TreeFormatterParameters>>) -> Pin<_>`
+                                        found fn item `fn() -> Pin<_> {test2::test_def::wrap_pin}`
+                */
+                        parse_quote!(
+                            {
+                                fn #fn_name_ident () -> std::pin::Pin<Box<dyn std::future::Future<Output = ()> + Send + 'static>> {
+                                    Box::pin(super:: #fn_name_ident ())
+                                }
+                                #integra8_path ::components::delegates::Delegate::async_with_context(#fn_name_ident)
+                            }
+                        )
+                    }, 
+                    FnArg::Typed(p) => {
+                        let ty = &p.ty;
+                        parse_quote!(
+                            {
+                                fn #fn_name_ident (ctx : #ty) -> std::pin::Pin<Box<dyn std::future::Future<Output = ()> + Send + 'static>> {
+                                    Box::pin(super:: #fn_name_ident (ctx))
+                                }
+                                #integra8_path ::components::delegates::Delegate::async_with_context(#fn_name_ident )
+                            }
+                        )
+                    },
+                }
             }
             (Async, NoParameters) => {
                 parse_quote!(
-                    #integra8_path ::components::delegates::Delegate::async_without_context(super:: #fn_name_ident)
+                    {
+                        fn wrap_pin() -> std::pin::Pin<Box<dyn std::future::Future<Output = ()> + Send + 'static>> {
+                            Box::pin(super:: #fn_name_ident ())
+                        }
+            
+                        #integra8_path ::components::delegates::Delegate::async_without_context(wrap_pin)
+                    }
                 )
             }
             (Synchronous, HasParameters) => {

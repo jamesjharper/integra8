@@ -21,20 +21,3 @@ pub use meta::{
     ComponentDescription, ComponentGeneratorId, ComponentId, ComponentLocation, ComponentPath,
     ComponentType, ConcurrencyMode,
 };
-
-//use integra8_decorations::ComponentDecoration;
-
-/*
-pub struct RootSuite();
-
-impl RootSuite {
-    pub fn from_decorated_components<ComponentsIterator, TParameters: TestParameters>(
-        components: ComponentsIterator,
-        parameters: &TParameters,
-    ) -> Suite<TParameters>
-    where
-        ComponentsIterator: IntoIterator<Item = ComponentDecoration<TParameters>>,
-    {
-        Suite::<TParameters>::from_decorated_components(components, parameters)
-    }
-}*/

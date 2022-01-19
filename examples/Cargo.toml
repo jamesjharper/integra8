@@ -1,4 +1,5 @@
 [workspace]
 members = [
-  "basic_sample",
+#  "basic_sample",
+  "test_examples",
 ]

@@ -15,7 +15,7 @@ popd
 echo "Running Examples"
 pushd "${EXAMPLES_ROOT}/target/debug"
 
-./basic_sample_tests
+./test_examples
 popd
 
 

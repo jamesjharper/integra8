@@ -60,7 +60,7 @@ pub fn main_test(input_tokens: TokenStream) -> TokenStream {
             #formatter_settings_type
         >;
 
-        type ExecutionContext<'a> = #integra8_path ::components::ExecutionContext<'a, Parameters>;
+        type ExecutionContext  = #integra8_path ::components::ExecutionContext<Parameters>;
 
         pub mod command_line {
             use super::*;

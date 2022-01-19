@@ -51,28 +51,40 @@ impl<TParameters: TestParameters> ComponentFixture<TParameters> {
     pub async fn run(&self) {
         match self {
             Self::Test {
-                test, parameters, ..
+                test, ..
             } => {
-                let ctx = ExecutionContext {
-                    parameters: parameters.as_ref(),
-                    description: self.description(),
-                };
-                test.test_fn.run_async(ctx).await
+                match test.test_fn.requires_parameters()  {
+                    true => {
+                        test.test_fn.run_async(self.execution_context()).await
+                    },
+                    false => {
+                        test.test_fn.run_async_without_parameters().await
+                    }
+                }
             }
             Self::BookEnd {
-                bookend,
-                parameters,
-                ..
+                bookend, ..
             } => {
-                let ctx = ExecutionContext {
-                    parameters: parameters.as_ref(),
-                    description: self.description(),
-                };
-                bookend.bookend_fn.run_async(ctx).await
+
+                match bookend.bookend_fn.requires_parameters()  {
+                    true => {
+                        bookend.bookend_fn.run_async(self.execution_context()).await
+                    },
+                    false => {
+                        bookend.bookend_fn.run_async_without_parameters().await
+                    }
+                }
             }
             Self::Suite { .. } => {
                 // Can not run
             }
+        }
+    }
+
+    pub fn execution_context(&self) -> ExecutionContext<TParameters> {
+        ExecutionContext {
+            parameters: self.parameters(),
+            description: self.description().clone(),
         }
     }
 
@@ -94,6 +106,20 @@ impl<TParameters: TestParameters> ComponentFixture<TParameters> {
             }
             Self::Suite { description, .. } => {
                 return &description;
+            }
+        }
+    }
+
+    pub fn parameters(&self) -> Arc<TParameters> {
+        match self {
+            Self::Test { parameters, .. } => {
+                return parameters.clone();
+            }
+            Self::BookEnd { parameters, .. } => {
+                return parameters.clone();
+            }
+            Self::Suite { parameters, .. } => {
+                return parameters.clone();
             }
         }
     }
