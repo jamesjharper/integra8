@@ -74,11 +74,11 @@ A `Suites` can be declared with the `#[Suite]` decoration.
 `Suites` are a groupings of `tests`, `setups`, `tear downs` and other `suites`, which 
 can be used to influence execution, failure, and concurrency behavior.
 
-Within Integra8, the execution order is
-1. Setups
-2. Tests
-3. Suites *(recursively with the same order)*
-4. Tear downs
+Within Integra8, the component execution order is
+1. `Setups`
+2. `Tests`
+3. `Suites` *(recursively with the same order)*
+4. `Tear downs`
 
 ```rust
 
@@ -164,19 +164,13 @@ fn teardown() {
 Using the `#[parallelizable]` or `#[sequential]` decoration on `Tests` `Setups` `Tear downs` and `Suites` can influence concurrency behavior. 
 
 Any component will be scheduled to run at the same time if it is,
-1. Of the same type 
+1. Of the same type (`Test` `Setup` `Tear down` or `Suite`) 
 2. decorated `#[parallelizable]`
 3. Sharing the same parent Suite.
 
 Within Integra8, the concurrent execution order is
-1. *Parallelizable* Setups 
-2. *Sequential* Setups 
-3. *Parallelizable* Tests
-4. *Sequential* Tests
-5. *Parallelizable* Suites *(recursively with the same order)*
-6. *Sequential* Suites *(recursively with the same order)*
-7. *Parallelizable* Tear downs
-8. *Sequential* Tear downs
+1. `Parallelizable` components
+2. `Sequential` components
 
 > By default all `Tests` `Setups` `Tear downs` and `Suites` are assumed to be `sequential` unless overridden using parameters or inherited. See TODO: add link to documentation here
 ```rust
