@@ -166,7 +166,10 @@ impl OutputFormatter for TreeFormatter {
     }
 
     fn write_run_complete(&mut self, state: &RunSummary) -> Result<(), Box<dyn Error>> {
-        writeln!(self.writer, "\ntest result: ")?;
+
+        // TODO: Reinstate this, temporally remove because somethings very wrong with the results counts
+        // Will fix when adding unit tests
+        /*writeln!(self.writer, "\ntest result: ")?;
 
         match state.run_result() {
             ComponentResult::Pass(_) => write!(self.writer, "ok")?,
@@ -193,7 +196,9 @@ impl OutputFormatter for TreeFormatter {
                 state.tests_not_run().count()
             )?;
         };
-        writeln!(self.writer, "")?;
+        writeln!(self.writer, "")?;*/
+
+
         // Just the detail level to capture most relevant details in relation to the result
         let detail_level = match (&self.detail_level, state.run_result()) {
             // If there are no errors or warnings, downgrade Error level
