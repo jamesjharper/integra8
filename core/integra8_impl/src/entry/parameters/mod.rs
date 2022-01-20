@@ -134,7 +134,7 @@ impl ApplicationParameters {
     }
 
     pub fn take_settings_extensions(&mut self) -> StructoptStruct {
-        self.take_structopt_struct("settings")
+        self.take_structopt_struct("parameters")
             .unwrap_or_else(|| {
                 // Detected no custom type
                 StructoptStructValue::Unit {

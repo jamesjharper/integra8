@@ -1,0 +1,16 @@
+[package]
+name = "custom_parameters"
+version = "0.1.0"
+edition = "2018"
+
+[dependencies]
+reqwest = { version = "0.11"}
+structopt = "0.3"
+
+integra8 = {path = "../../../core/integra8"}
+integra8_tree_formatter = {path = "../../../contrib/formatters/tree_formatter" }
+
+
+[features]
+async-std-runtime = ["reqwest/blocking"]
+tokio-runtime = []

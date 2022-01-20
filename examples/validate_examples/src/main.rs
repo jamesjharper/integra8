@@ -7,7 +7,7 @@ main_test! {
     // TODO: this should be automatically detected as default
     console_output: integra8_tree_formatter::TreeFormatter,
     //console_output_ansi_mode: Auto,
-    console_output_level: Verbose,
+    console_output_level: StopWatch,
     //use_child_process: false,
     suite_concurrency: Parallel,
     test_concurrency: Parallel,
@@ -86,6 +86,27 @@ mod basic_examples {
     #[integration_test]
     async fn setup_and_tear_down_on_failure() {
         assert_test_fails!("./setup_and_tear_down_on_failure");
+    }
+
+    #[integration_test]
+    async fn parallelizable_and_sequential() {
+        assert_test_passes!("./parallelizable_and_sequential");
+    }
+    
+}
+
+
+#[suite]
+mod execution_context {
+
+    #[integration_test]
+    async fn custom_parameters() {
+        assert_test_passes!("./custom_parameters");
+    }
+
+    #[integration_test]
+    async fn generate_test_data() {
+        assert_test_passes!("./generate_test_data");
     }
 }
 

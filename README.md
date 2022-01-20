@@ -39,13 +39,12 @@ You should consider Integra8 for these types of use
 - Running many tests at the same time
 - Anything with long running blocking IO
 
-
 ## Why not Integra8?
 Integra8 does not aim to replace Rusts existing inbuilt libtest framework. libtest is great, and many of Integra8's features can be replicated with whats already available in the community. 
 
 > TLDR: Integra8 is kind of like what Robot is for python but with without gherkin style syntax (for now ...) 
 
-# How to guide:
+# Quick Guide:
 
 ## Async / Sync
 Integra8 has native support both `tokio` and `async-std` runtimes.
@@ -72,7 +71,7 @@ async fn async_test() {
 ## Suites
 A `Suites` can be declared with the `#[Suite]` decoration.
 `Suites` are a groupings of `tests`, `setups`, `tear downs` and other `suites`, which 
-can be used to influence execution, failure, and concurrency behavior.
+can be used to change execution, failure, and concurrency behavior.
 
 Within Integra8, the component execution order is
 1. `Setups`
@@ -86,7 +85,7 @@ Within Integra8, the component execution order is
 /// are at part of the "root" suite, and are run first. 
 #[integration_test]
 fn first_test() {
-    println!("");
+    println!("This test before any suites");
 }
 
 #[suite]
@@ -165,16 +164,16 @@ Using the `#[parallelizable]` or `#[sequential]` decoration on `Tests` `Setups` 
 
 Any component will be scheduled to run at the same time if it is,
 1. Of the same type (`Test` `Setup` `Tear down` or `Suite`) 
-2. decorated `#[parallelizable]`
+2. Decorated `#[parallelizable]`
 3. Sharing the same parent Suite.
 
-Within Integra8, the concurrent execution order is
+Within Integra8, the concurrent modes can be mixed. The execution order is
 1. `Parallelizable` components
 2. `Sequential` components
 
 > By default all `Tests` `Setups` `Tear downs` and `Suites` are assumed to be `sequential` unless overridden using parameters or inherited. See TODO: add link to documentation here
-```rust
 
+```rust
 #[integration_test]
 #[parallelizable]
 fn test_1() {
@@ -213,6 +212,30 @@ mod second_suite {
 
 ```
 
+## Test Context
+Integra8 supports a concept of context which can be used for managing state between tests and forwarding command line parameters within a test applications.
+
+```rust
+use reqwest;
+
+#[macro_use]
+pub extern crate integra8;
+
+main_test! {
+    settings : {
+        #[structopt(long = "target-url", default_value = "https://httpbin.org/ip")]
+        pub url: String,
+    }
+}
+
+
+#[integration_test]
+async fn make_async_request_test(ctx : crate::TestContext) {
+    reqwest::get(&ctx.parameters.app_parameters.url)).await.unwrap()
+}
+
+```
+
 ## Custom names and descriptions
 `Suites`, `Tests`, `Setups` and `Tear downs` can all have a human friendly name assigned, as well as description for documentation.
 Name and description are shown in test outputs when the test fails to help give quick feedback.
@@ -245,8 +268,9 @@ Output from `./test_basics`
 
 ```
 
-## Allow Fail Tests 
+## Allow Failure 
 Using the `#[allow_fail]` decoration, `Tests` and `Suites` can be allowed to fail.
+
 
 ```rust
 #[integration_test]
@@ -256,7 +280,7 @@ fn this_test_is_sus() {
 }
 ```
 
-## Ignore Tests
+## Ignore Component
 Using the `#[ignore]` decoration, `Suites`, `Tests`, `Setups` and `Tear downs` can skipped altogether.
 
 ```rust

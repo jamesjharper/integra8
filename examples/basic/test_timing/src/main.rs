@@ -1,8 +1,6 @@
 #[macro_use]
 pub extern crate integra8;
 
-/// # Test main
-/// Test main is required to setup the application entrypoint and bootstrap the test framework
 main_test! {
     console_output: integra8_tree_formatter::TreeFormatter,
 }

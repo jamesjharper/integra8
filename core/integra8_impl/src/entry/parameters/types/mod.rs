@@ -37,7 +37,7 @@ impl Parse for Parameter {
             | "console_output_encoding"
             | "console_output_ansi_mode"
             | "use_child_process" => input.call(ParameterValue::parse_string_parameter)?,
-            "settings" => input.call(|s| ParameterValue::parse_settings_structopt_struct(s))?,
+            "parameters" => input.call(|s| ParameterValue::parse_settings_structopt_struct(s))?,
             "console_output" => input.call(|s| ParameterValue::parse_formatter_output_type(s))?,
             other => abort!("unexpected parameter `{}`", other),
         };

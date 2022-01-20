@@ -52,11 +52,12 @@ fn a_test_with_a_name() {
 /// Integra8 to compile
 #[integration_test]
 async fn async_test() {
-    #[cfg(feature = "integra8/tokio-runtime")]
+    #[cfg(feature = "tokio-runtime")]
     tokio::time::sleep(std::time::Duration::from_millis(10)).await;
 
-    #[cfg(feature = "integra8/async-std-runtime")]
+    #[cfg(feature = "async-std-runtime")]
     async_std::task::sleep(std::time::Duration::from_millis(10)).await;
+
 }
 
 
