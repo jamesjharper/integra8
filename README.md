@@ -69,40 +69,6 @@ async fn async_test() {
 }
 ```
 
-## Setup and Teardown
-A `Setup` or `Teardown` can be declared with the `#[setup]` and `#[teardown]` decoration and also can be `async`.
-Different test frameworks can have variations in how setup's and teardown's work.
-
-Within Integra8
-
-- Every `Setup` will run _once_ at the start of the test run, (ie once per _suite_, not once per _test_)
-- Every `Tear down` is _guaranteed_ to run regardless if a `test`, `setup` or `tear down` fails.
-    *Except if they belong to a suite which was never run*
-
-```rust
-#[setup]
-async fn setup() {
-    println!("Setup is run first");
-}
-
-#[integration_test]
-async fn test_1() {
-    println!("And then test 1 runs, but fails");
-    assert!(false, "Test 1 fails")
-}
-
-#[integration_test]
-async fn test_2() {
-    println!("As test 1 failed, test 2 is never called ");
-}
-
-#[teardown]
-fn teardown() {
-    println!("However this teardown is run regardless of the failure");
-}
-
-```
-
 ## Suites
 A `Suites` can be declared with the `#[Suite]` decoration.
 `Suites` are a groupings of `tests`, `setups`, `tear downs` and other `suites`, which 
@@ -155,6 +121,40 @@ mod second_suite {
     fn test1() {
         println!("Then finally 1 is called");
     }
+}
+
+```
+
+## Setup and Teardown
+A `Setup` or `Teardown` can be declared with the `#[setup]` and `#[teardown]` decoration and also can be `async`.
+Different test frameworks can have variations in how setup's and teardown's work.
+
+Within Integra8
+
+- Every `Setup` will run _once_ at the start of the test run, (ie once per _suite_, not once per _test_)
+- Every `Tear down` is _guaranteed_ to run regardless if a `test`, `setup` or `tear down` fails.
+    *Except if they belong to a suite which was never run*
+
+```rust
+#[setup]
+async fn setup() {
+    println!("Setup is run first");
+}
+
+#[integration_test]
+async fn test_1() {
+    println!("And then test 1 runs, but fails");
+    assert!(false, "Test 1 fails")
+}
+
+#[integration_test]
+async fn test_2() {
+    println!("As test 1 failed, test 2 is never called ");
+}
+
+#[teardown]
+fn teardown() {
+    println!("However this teardown is run regardless of the failure");
 }
 
 ```
