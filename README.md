@@ -75,7 +75,7 @@ Different test frameworks can have variations in how setup's and teardown's work
 
 Within Integra8
 
-- Every `Setup` will run _once_ at the start of the test run, (ie once _suite_, not once per _test_)
+- Every `Setup` will run _once_ at the start of the test run, (ie once per _suite_, not once per _test_)
 - Every `Tear down` is _guaranteed_ to run regardless if a `test`, `setup` or `tear down` fails.
     *Except if they belong to a suite which was never run*
 
@@ -109,10 +109,10 @@ A `Suites` can be declared with the `#[Suite]` decoration.
 can be used to influence execution, failure, and concurrency behavior.
 
 Within Integra8, the execution order is
-    1: Setups
-    2: Tests
-    3: Suites *(recursively with the same order)*
-    4: Tear downs
+1. Setups
+2. Tests
+3. Suites *(recursively with the same order)*
+4. Tear downs
 
 ```rust
 
