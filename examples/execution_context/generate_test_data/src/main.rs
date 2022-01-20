@@ -5,6 +5,7 @@ main_test! {
     console_output: integra8_tree_formatter::TreeFormatter,
 }
 
+#[suite]
 mod test_some_user_actions {
 
     fn suite_user_name(ctx : &crate::ExecutionContext) -> String {

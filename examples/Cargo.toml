@@ -5,6 +5,7 @@ members = [
   "basic/setup_and_tear_down",
   "basic/setup_and_tear_down_on_failure",
   "basic/parallelizable_and_sequential",
+  "suites/suites_basics",
   "execution_context/custom_parameters",
   "execution_context/generate_test_data",
   "validate_examples",
