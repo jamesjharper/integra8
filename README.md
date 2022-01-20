@@ -10,8 +10,7 @@ Work remaining before release,
 - [ ] Write examples
 - [ ] Validate against Mac, Windows and Linux
 
-
-# Say Hello world to integr8.
+# Say Hello world to Integra8.
 
 ```rust
 #[macro_use]
@@ -27,22 +26,24 @@ fn hello_world_test() {
 }
 ```
 
-# Why Inter8?
+# Why Integra8?
 Thanks to its thriving community, Rust is increasingly finding more and more uses across the tech stack. With this growth comes the need for new tools to meet its new demands.
-While Rust has great inbuilt support for Continuos Integration Testing, Inter8's goal is to bring that same experience to the Continuos Deployment side of testing.
+
+Rust has great inbuilt support for Continuos Integration Testing, Inter8's goal is to bring that same experience to the Continuos Deployment side of testing.
 
 You should consider Inter8 for these types of use
 - Web service testing
-- Web fount end testing
+- Web frontend testing
 - Blue/Green Cloud deployments
 - Certifications for multiple for environments 
 - Running many tests at the same time
 - Anything with long running blocking IO
 
-# Why not to Inter8?
+
+# Why not Integra8?
 Inter8 does not aim to replace Rusts existing inbuilt libtest framework. libtest is great, and many of Inter8's features can be replicated with whats already available in the community. 
 
-> TLDR: Inter8 is kind of like what Robot is for python but with without gherkin style syntax (for now ...) 
+> TLDR: Integra8 is kind of like what Robot is for python but with without gherkin style syntax (for now ...) 
 
 ### How to guide:
 
