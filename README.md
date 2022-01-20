@@ -62,10 +62,10 @@ via the `tokio-runtime` or `async-std-runtime` feature flag.
 #[integration_test]
 async fn async_test() {
     #[cfg(feature = "integra8/tokio-runtime")]
-    tokio::time::sleep(std::time::Duration::from_millis(10)).await;
+    tokio::time::sleep(Duration::from_millis(10)).await;
 
     #[cfg(feature = "integra8/async-std-runtime")]
-    async_std::task::sleep(std::time::Duration::from_millis(10)).await;
+    async_std::task::sleep(Duration::from_millis(10)).await;
 }
 ```
 
@@ -167,6 +167,16 @@ Any component will be scheduled to run at the same time if it is,
 1. Of the same type 
 2. decorated `#[parallelizable]`
 3. Sharing the same parent Suite.
+
+Within Integra8, the concurrent execution order is
+1. *Parallelizable* Setups 
+2. *Sequential* Setups 
+3. *Parallelizable* Tests
+4. *Sequential* Tests
+5. *Parallelizable* Suites *(recursively with the same order)*
+6. *Sequential* Suites *(recursively with the same order)*
+7. *Parallelizable* Tear downs
+8. *Sequential* Tear downs
 
 > By default all `Tests` `Setups` `Tear downs` and `Suites` are assumed to be `sequential` unless overridden using parameters or inherited. See TODO: add link to documentation here
 ```rust
