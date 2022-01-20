@@ -103,7 +103,7 @@ mod first_suite {
 
     #[teardown]
     fn teardown() {
-        println!("And teardown is called");
+        println!("And teardown is called (but after nested_suite)");
     }
 
     #[suite]
@@ -111,6 +111,7 @@ mod first_suite {
         #[integration_test]
         fn nested_test() {
             println!("Suites can be nested indefinitely!");
+            println!("and will be run before any parents tear down");
         }
     }
 }
@@ -160,12 +161,12 @@ fn teardown() {
 ```
 
 ## Concurrency
-Using the `#[parallelizable]` or `#[sequential]` decoration on `Tests` `Setups` `Tear downs` and `Suites` can influence execution concurrency behavior. 
+Using the `#[parallelizable]` or `#[sequential]` decoration on `Tests` `Setups` `Tear downs` and `Suites` can influence concurrency behavior. 
 
 Any component will be scheduled to run at the same time if it is,
- 1: Of the same type 
- 2: decorated `#[parallelizable]`
- 3: Sharing the same parent Suite.
+1. Of the same type 
+2. decorated `#[parallelizable]`
+3. Sharing the same parent Suite.
 
 > By default all `Tests` `Setups` `Tear downs` and `Suites` are assumed to be `sequential` unless overridden using parameters or inherited. See TODO: add link to documentation here
 ```rust
