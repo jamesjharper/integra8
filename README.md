@@ -22,11 +22,11 @@ main_test! {
 
 #[integration_test]
 fn hello_world_test() {
-    println!("Hello integr8!");
+    println!("Hello integra8!");
 }
 ```
 
-# Why Integra8?
+## Why Integra8?
 Thanks to its thriving community, Rust is increasingly finding more and more uses across the tech stack. With this growth comes the need for new tools to meet its new demands.
 
 Rust has great inbuilt support for Continuos Integration Testing, Inter8's goal is to bring that same experience to the Continuos Deployment side of testing.
@@ -40,12 +40,12 @@ You should consider Inter8 for these types of use
 - Anything with long running blocking IO
 
 
-# Why not Integra8?
-Inter8 does not aim to replace Rusts existing inbuilt libtest framework. libtest is great, and many of Inter8's features can be replicated with whats already available in the community. 
+## Why not Integra8?
+Integra8 does not aim to replace Rusts existing inbuilt libtest framework. libtest is great, and many of Integra8's features can be replicated with whats already available in the community. 
 
 > TLDR: Integra8 is kind of like what Robot is for python but with without gherkin style syntax (for now ...) 
 
-### How to guide:
+# How to guide:
 
 ## Async / Sync
 Integra8 has native support both `tokio` and `async-std` runtimes.
