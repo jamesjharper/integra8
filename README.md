@@ -29,9 +29,9 @@ fn hello_world_test() {
 ## Why Integra8?
 Thanks to its thriving community, Rust is increasingly finding more and more uses across the tech stack. With this growth comes the need for new tools to meet its new demands.
 
-Rust has great inbuilt support for Continuos Integration Testing, Inter8's goal is to bring that same experience to the Continuos Deployment side of testing.
+Rust has great inbuilt support for Continuos Integration Testing, Integra8's goal is to bring that same experience to the Continuos Deployment side of testing.
 
-You should consider Inter8 for these types of use
+You should consider Integra8 for these types of use
 - Web service testing
 - Web frontend testing
 - Blue/Green Cloud deployments
@@ -56,7 +56,7 @@ via the `tokio-runtime` or `async-std-runtime` feature flag.
 > you will still need to enable ether the `tokio-runtime` or `async-std-runtime` feature flag for 
 > Integra8 to compile.
 >
-> Using async for anything with long running blocking IO is highly recommended as Integra8 is optimized to take advantage of futures.
+> Using `async` for long running blocking IO is highly recommended as Integra8 is optimized for this
 
 ```rust
 #[integration_test]
@@ -70,13 +70,13 @@ async fn async_test() {
 ```
 
 ## Setup and Teardown
-A `Setup` or `Teardown` can be declared with the `#[setup]` and `#[teardown]` decoration and also can be async.
+A `Setup` or `Teardown` can be declared with the `#[setup]` and `#[teardown]` decoration and also can be `async`.
 Different test frameworks can have variations in how setup's and teardown's work.
 
-In Integra8
+Within Integra8
 
-- Every Setups will run _once_ at the start of the test run, (ie not once _suite_, not once per _test_)
-- Every Tear down is _guaranteed_ to run regardless if a test, setup or tear down fails.
+- Every `Setup` will run _once_ at the start of the test run, (ie once _suite_, not once per _test_)
+- Every `Tear down` is _guaranteed_ to run regardless if a `test`, `setup` or `tear down` fails.
     *Except if they belong to a suite which was never run*
 
 ```rust
@@ -103,6 +103,111 @@ fn teardown() {
 
 ```
 
+## Suites
+A `Suites` can be declared with the `#[Suite]` decoration.
+`Suites` are a groupings of `tests`, `setups`, `tear downs` and other `suites`, which 
+can be used to influence execution, failure, and concurrency behavior.
+
+Within Integra8, the execution order is
+    1: Setups
+    2: Tests
+    3: Suites *(recursively with the same order)*
+    4: Tear downs
+
+```rust
+
+/// `Tests`, `Setups`, `Tear downs` not belonging to a suite
+/// are at part of the "root" suite, and are run first. 
+#[integration_test]
+fn first_test() {
+    println!("");
+}
+
+#[suite]
+mod first_suite {
+    #[setup]
+    fn setup() {
+        println!("Setup is called first in this suite");
+    }
+
+    #[integration_test]
+    fn test1() {
+        println!("Then test 1 is called");
+    }
+
+    #[teardown]
+    fn teardown() {
+        println!("And teardown is called");
+    }
+
+    #[suite]
+    mod nested_suite {
+        #[integration_test]
+        fn nested_test() {
+            println!("Suites can be nested indefinitely!");
+        }
+    }
+}
+
+#[suite]
+mod second_suite {
+    #[integration_test]
+    fn test1() {
+        println!("Then finally 1 is called");
+    }
+}
+
+```
+
+## Concurrency
+Using the `#[parallelizable]` or `#[sequential]` decoration on `Tests` `Setups` `Tear downs` and `Suites` can influence execution concurrency behavior. 
+
+Any component will be scheduled to run at the same time if it is,
+ 1: Of the same type 
+ 2: decorated `#[parallelizable]`
+ 3: Sharing the same parent Suite.
+
+> By default all `Tests` `Setups` `Tear downs` and `Suites` are assumed to be `sequential` unless overridden using parameters or inherited. See TODO: add link to documentation here
+```rust
+
+#[integration_test]
+#[parallelizable]
+fn test_1() {
+    println!("Test 2 could be running now");
+}
+
+#[integration_test]
+#[parallelizable]
+fn test_2() {
+    println!("Test 1 could be running now");
+}
+
+#[suite]
+#[parallelizable]
+mod first_suite {
+    #[integration_test]
+    fn test1() {
+        println!("Anything in second_suite could be running now, but test");
+    }
+
+    #[integration_test]
+    fn test1() {
+        println!("Anything in second_suite could be running now");
+    }
+}
+
+#[suite]
+#[parallelizable]
+mod second_suite {
+    #[integration_test]
+    fn test1() {
+        println!("Anything in first_suite could be running now");
+    }
+    
+}
+
+```
+
 ## Custom names and descriptions
 `Suites`, `Tests`, `Setups` and `Tear downs` can all have a human friendly name assigned, as well as description for documentation.
 Name and description are shown in test outputs when the test fails to help give quick feedback.
@@ -111,7 +216,9 @@ Name and description are shown in test outputs when the test fails to help give 
 #[integration_test]
 #[name("A concise name that tells anyone what this test is doing")]
 #[description("
-A description which can be useful for adding exact details, assumptions or context behind why this test exists
+A description which can be useful for adding 
+exact details, assumptions or context behind 
+why this test exists
 ")]
 fn a_test_with_a_name() {
 
@@ -165,7 +272,7 @@ for warning result.
 #[integration_test]
 #[warn_threshold_milliseconds(10)]
 fn this_test_will_show_a_timeout_warning() {
-    std::thread::sleep(std::time::Duration::from_millis(100));
+    sleep(Duration::from_millis(100));
 }
 ```
 
@@ -178,20 +285,13 @@ before it is aborted.
 #[integration_test]
 #[critical_threshold_milliseconds(10)]
 fn this_test_will_show_a_timeout_error() {
-    std::thread::sleep(std::time::Duration::from_millis(100));
+    sleep(Duration::from_millis(100));
 }
 ```
 
 
 
-# Whats on Offer
 
-- Test Suites, Tests, Setup and Tear downs
-- Granular control over parallel / series suite and test execution 
-- Baked in support for `tokio` and `async-std` async runtimes
-- Customizable and extendable test output
-- Test timeout and warning thresholds 
-- `libtest` like capture of `stdout` and `stderr`
 
 # Special Notes:
 Mac Build for 1.56 and above, seem seems to broken dues to open issue with linkme crate, used to auto detect tests
