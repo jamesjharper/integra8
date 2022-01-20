@@ -184,10 +184,10 @@ impl SuiteAttributes {
     }
 
     // Suite concurrency mode
-    // looking for #[parallelizable]
+    // looking for #[parallel]
     // looking for #[sequential]
     fn try_parse_concurrency_mode_expr(&mut self, attr: &Attribute) -> bool {
-        if attr.path.is_ident("parallelizable") {
+        if attr.path.is_ident("parallel") {
             self.suite_parallel_enabled = Some(true);
             return true;
         }

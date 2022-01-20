@@ -160,34 +160,34 @@ fn teardown() {
 ```
 
 ## Concurrency
-Using the `#[parallelizable]` or `#[sequential]` decoration on `Tests` `Setups` `Tear downs` and `Suites` can influence concurrency behavior. 
+Using the `#[parallel]` or `#[sequential]` decoration on `Tests` `Setups` `Tear downs` and `Suites` can influence concurrency behavior. 
 
 Any component will be scheduled to run at the same time if it is,
 1. Of the same type (`Test` `Setup` `Tear down` or `Suite`) 
-2. Decorated `#[parallelizable]`
+2. Decorated `#[parallel]`
 3. Sharing the same parent Suite.
 
 Within Integra8, the concurrent modes can be mixed. The execution order is
-1. `Parallelizable` components
+1. `parallel` components
 2. `Sequential` components
 
 > By default all `Tests` `Setups` `Tear downs` and `Suites` are assumed to be `sequential` unless overridden using parameters or inherited. See TODO: add link to documentation here
 
 ```rust
 #[integration_test]
-#[parallelizable]
+#[parallel]
 fn test_1() {
     println!("Test 2 could be running now");
 }
 
 #[integration_test]
-#[parallelizable]
+#[parallel]
 fn test_2() {
     println!("Test 1 could be running now");
 }
 
 #[suite]
-#[parallelizable]
+#[parallel]
 mod first_suite {
     #[integration_test]
     fn test1() {
@@ -201,7 +201,7 @@ mod first_suite {
 }
 
 #[suite]
-#[parallelizable]
+#[parallel]
 mod second_suite {
     #[integration_test]
     fn test1() {

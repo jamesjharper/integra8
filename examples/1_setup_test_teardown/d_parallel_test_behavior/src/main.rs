@@ -8,15 +8,15 @@ main_test! {
 
 
 #[integration_test]
-#[parallelizable]
-async fn parallelizable_test_1() {
-    println!("parallelizable_setup_2 could run at the same time as this test");
+#[parallel]
+async fn parallel_test_1() {
+    println!("parallel_setup_2 could run at the same time as this test");
 }
 
 #[integration_test]
-#[parallelizable]
-async fn parallelizable_test_2() {
-    println!("parallelizable_setup_1 could run at the same time as this test");
+#[parallel]
+async fn parallel_test_2() {
+    println!("parallel_setup_1 could run at the same time as this test");
 }
 
 #[integration_test]

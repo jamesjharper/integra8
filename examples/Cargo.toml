@@ -1,12 +1,22 @@
 [workspace]
 members = [
-  "basic/test_basics",
-  "basic/test_timing",
-  "basic/setup_and_tear_down",
-  "basic/setup_and_tear_down_on_failure",
-  "basic/parallelizable_and_sequential",
-  "suites/suites_basics",
-  "execution_context/custom_parameters",
-  "execution_context/generate_test_data",
+  "1_setup_test_teardown/a_test_basics",
+  "1_setup_test_teardown/b_setup_and_tear_down_basics",
+  "1_setup_test_teardown/c_setup_and_tear_down_failure_behavior",
+  "1_setup_test_teardown/d_parallel_test_behavior",
+  "1_setup_test_teardown/e_timeout_behavior",
+
+  "2_suites/a_suites_basics",
+  "2_suites/b_cascading_failure_behavior",
+  "2_suites/c_parallel_suite_behavior",
+
+  "3_test_main/a_global_settings",
+  "3_test_main/b_custom_parameters",
+  "3_test_main/c_generate_test_data",
+
+  "4_pitfalls/a_use_child_process",
+  "4_pitfalls/b_nested_sequential_behavior",
+  "4_pitfalls/c_timeout_limitations",
+
   "validate_examples",
 ]

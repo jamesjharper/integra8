@@ -9,14 +9,17 @@ pub use components::{IntoTaskStateMachine, ScheduledComponent};
 mod scheduler;
 pub use scheduler::TaskScheduler;
 
+//use num_cpus;
 
-
+pub fn recommended_max_concurrency() -> usize {
+    std::cmp::max(1, num_cpus::get().saturating_sub(1))
+}
 /*
 ### example:
 
 ```       
  ● root
- ├── ● Parallelizable tests (run at same time)
+ ├── ● parallel tests (run at same time)
  │   ├── ■ test 3
  │   └── ■ test 4
  │
@@ -24,7 +27,7 @@ pub use scheduler::TaskScheduler;
  │   ├── ■ test 1
  │   └── ■ test 2
  │
- ├── ● Parallelizable suites (run at same time)
+ ├── ● parallel suites (run at same time)
  │   ├── ● Suite 1
  │   │   └── ... recursive behavior 
  │   └── ● Suite 2

@@ -151,22 +151,22 @@ where
     fn next(&mut self) -> Option<Self::Item> {
         let next = self.iter.next()?;
 
-        // If this test isn't parallelizable then,
+        // If this test isn't parallel then,
         // yield an array of a single test
         if next.concurrency_mode() == &ConcurrencyMode::Serial {
             return Some(next.into_scheduled_component().into());
         }
 
         // Yield sequences of tests which can be executed in parallel
-        let mut parallelizable_group = ParallelTaskNode::new();
-        parallelizable_group.append(next.into_scheduled_component());
+        let mut parallel_group = ParallelTaskNode::new();
+        parallel_group.append(next.into_scheduled_component());
 
         while let Some(next) = self
             .iter
             .next_if(|x| x.concurrency_mode() == &ConcurrencyMode::Parallel)
         {
-            parallelizable_group.append(next.into_scheduled_component());
+            parallel_group.append(next.into_scheduled_component());
         }
-        Some(parallelizable_group.into())
+        Some(parallel_group.into())
     }
 }

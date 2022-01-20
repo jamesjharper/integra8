@@ -1,5 +1,5 @@
 [package]
-name = "test_timing"
+name = "timeout_behavior"
 version = "0.1.0"
 edition = "2018"
 

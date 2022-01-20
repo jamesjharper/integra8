@@ -1,5 +1,5 @@
 [package]
-name = "setup_and_tear_down_on_failure"
+name = "parallel_suite_behavior"
 version = "0.1.0"
 edition = "2018"
 

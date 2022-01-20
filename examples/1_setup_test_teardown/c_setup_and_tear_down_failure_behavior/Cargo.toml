@@ -1,0 +1,10 @@
+[package]
+name = "setup_and_tear_down_failure_behavior"
+version = "0.1.0"
+edition = "2018"
+
+
+[dependencies]
+integra8 = {path = "../../../core/integra8"}
+integra8_tree_formatter = {path = "../../../contrib/formatters/tree_formatter" }
+

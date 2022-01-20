@@ -1,5 +1,5 @@
 [package]
-name = "parallelizable_and_sequential"
+name = "setup_and_tear_down_basics"
 version = "0.1.0"
 edition = "2018"
 

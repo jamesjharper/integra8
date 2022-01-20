@@ -171,7 +171,7 @@ mod tests {
         #[description("the description of this setup A")]
         #[critical_threshold_seconds(2)]
         #[ignore()]
-        #[parallelizable]
+        #[parallel]
         pub fn setup_a_with_decorations() {}
 
         #[setup]
@@ -220,7 +220,7 @@ mod tests {
         #[description("the description of this teardown A")]
         #[critical_threshold_seconds(2)]
         #[ignore()]
-        #[parallelizable]
+        #[parallel]
         pub fn teardown_a_with_decorations() {}
 
         #[teardown]
@@ -253,7 +253,7 @@ mod tests {
             #[description("the description of this setup D")]
             #[critical_threshold_seconds(2)]
             #[ignore()]
-            #[parallelizable]
+            #[parallel]
             pub fn setup_d_nested_with_decorations() {}
     
             #[teardown]
@@ -262,7 +262,7 @@ mod tests {
             #[description("the description of this teardown D")]
             #[critical_threshold_seconds(2)]
             #[ignore()]
-            #[parallelizable]
+            #[parallel]
             pub fn teardown_d_nested_with_decorations() {}
         }
 
@@ -298,7 +298,7 @@ mod tests {
             #[description("the description of this setup Az")]
             #[critical_threshold_seconds(2)]
             #[ignore()]
-            #[parallelizable]
+            #[parallel]
             pub fn setup_az_with_decorations() {}
     
             #[teardown]
@@ -311,14 +311,14 @@ mod tests {
             #[description("the description of this teardown Az")]
             #[critical_threshold_seconds(2)]
             #[ignore()]
-            #[parallelizable]
+            #[parallel]
             pub fn teardown_az_with_decorations() {}
         }
 
         #[suite]
         #[integra8(crate = crate)] 
         #[sequential_tests]
-        #[parallelizable]
+        #[parallel]
         #[allow_fail()]
         #[ignore()]
         #[name("Nested Suite A")]
@@ -357,7 +357,7 @@ mod tests {
             #[description("the description of this setup Ay")]
             #[critical_threshold_seconds(2)]
             #[ignore()]
-            #[parallelizable]
+            #[parallel]
             pub fn setup_ay_with_decorations() {}
     
             #[teardown]
@@ -370,7 +370,7 @@ mod tests {
             #[description("the description of this teardown Ay")]
             #[critical_threshold_seconds(2)]
             #[ignore()]
-            #[parallelizable]
+            #[parallel]
             pub fn teardown_ay_with_decorations() {}
 
 

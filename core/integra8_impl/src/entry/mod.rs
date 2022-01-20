@@ -197,7 +197,7 @@ pub fn main_test(input_tokens: TokenStream) -> TokenStream {
                         .multiple(false)
                         .required(false)
                         .validator(|s| {
-                            if s == "Auto" {
+                            if s == "Auto" || s == "Max" {
                                 Ok(())
                             } else {
                                 ::std::str::FromStr::from_str(s.as_str())
@@ -308,7 +308,12 @@ pub fn main_test(input_tokens: TokenStream) -> TokenStream {
                             .value_of("framework:max-concurrency")
                             .map(|s| {
                                 if s == "Auto" {
-                                    0
+                                    #integra8_path ::scheduling::recommended_max_concurrency()
+                                } else if s == "Max" {
+                                    // Zero indicates that there will be
+                                    // no limit will be placed on the 
+                                    // number of  components running concurrently 
+                                    0 
                                 } else {
                                     ::std::str::FromStr::from_str(s).unwrap()
                                 }

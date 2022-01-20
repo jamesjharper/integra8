@@ -110,10 +110,10 @@ impl BookendAttributes {
     }
 
     // cascade failure
-    // looking for #[parallelizable]
+    // looking for #[parallel]
     // looking for #[sequential]
     fn try_parse_concurrency_mode_expr(&mut self, attr: &Attribute) -> bool {
-        if attr.path.is_ident("parallelizable") {
+        if attr.path.is_ident("parallel") {
             self.parallel_enabled = Some(true);
             return true;
         }
