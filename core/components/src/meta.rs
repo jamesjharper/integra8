@@ -89,7 +89,7 @@ impl std::str::FromStr for ConcurrencyMode {
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
             "Parallel" => Ok(ConcurrencyMode::Parallel),
-            "Serial" => Ok(ConcurrencyMode::Serial),
+            "Sequential" => Ok(ConcurrencyMode::Sequential),
             _ => Err(format!("{} was not a valid concurrency mode. Valid values are either \"Parallel\" or \"Serial\".", s))
         }
     }

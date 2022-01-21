@@ -15,7 +15,7 @@ pub struct BookEndAttributes {
 
     /// The concurrency mode which this bookend will adhere to.
     /// `ConcurrencyMode::Parallel` will allow this bookend for be run at the same time as other bookends within this suite
-    /// `ConcurrencyMode::Serial` will ensure that this bookend wont run at the same time as any other bookend from this suite
+    /// `ConcurrencyMode::Sequential` will ensure that this bookend wont run at the same time as any other bookend from this suite
     pub concurrency_mode: ConcurrencyMode,
 }
 
@@ -33,7 +33,7 @@ impl BookEndAttributes {
 
             concurrency_mode: concurrency_mode
                 // Default Serial unless explicitly stated otherwise
-                .map_or_else(|| ConcurrencyMode::Serial, |val| val),
+                .map_or_else(|| ConcurrencyMode::Sequential, |val| val),
         }
     }
 
@@ -50,7 +50,7 @@ impl BookEndAttributes {
 
             concurrency_mode: concurrency_mode
                 // Default Serial unless explicitly stated otherwise
-                .map_or_else(|| ConcurrencyMode::Serial, |val| val),
+                .map_or_else(|| ConcurrencyMode::Sequential, |val| val),
         }
     }
 }

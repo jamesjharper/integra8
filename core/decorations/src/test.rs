@@ -35,7 +35,7 @@ pub struct TestAttributesDecoration {
 
     /// The concurrency mode which this test will adhere to.
     /// `ConcurrencyMode::Parallel` will allow this test for be run at the same time as other tests within this tests suite
-    /// `ConcurrencyMode::Serial` will ensure that this test wont run at the same time as any other test from this suite
+    /// `ConcurrencyMode::Sequential` will ensure that this test wont run at the same time as any other test from this suite
     pub concurrency_mode: Option<ConcurrencyMode>,
 }
 

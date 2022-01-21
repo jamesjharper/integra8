@@ -1,14 +1,8 @@
 # integra8
-Integra8 rust integration test framework Rust with a focus on productivity, extensibility, and speed.
+Integra8 a test framework for Rust with a focus on productivity, extensibility, and speed.
 
 | This repo is in a "work in progress" state, and is not yet available as a crate via crates.io.
 
-Work remaining before release,
-- [ ] Finalize formatter design
-- [ ] Reinstate Unit tests
-- [ ] Compete documentation
-- [ ] Write examples
-- [ ] Validate against Mac, Windows and Linux
 
 # Say Hello world to Integra8.
 

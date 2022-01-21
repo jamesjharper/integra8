@@ -204,7 +204,7 @@ impl SuiteAttributes {
     // looking for #[parallelize_test]
     // looking for #[sequence_tests]
     fn try_parse_test_concurrency_mode_expr(&mut self, attr: &Attribute) -> bool {
-        if attr.path.is_ident("parallelize_tests") {
+        if attr.path.is_ident("parallel_tests") {
             self.test_parallel_enabled = Some(true);
             return true;
         }
@@ -285,7 +285,7 @@ impl SuiteAttributes {
                 parse_quote!(Some(#integra8_path ::components::ConcurrencyMode::Parallel))
             }
             Some(false) => {
-                parse_quote!(Some(#integra8_path ::components::ConcurrencyMode::Serial))
+                parse_quote!(Some(#integra8_path ::components::ConcurrencyMode::Sequential))
             }
             None => {
                 parse_quote!(None)
@@ -299,7 +299,7 @@ impl SuiteAttributes {
                 parse_quote!(Some(#integra8_path ::components::ConcurrencyMode::Parallel))
             }
             Some(false) => {
-                parse_quote!(Some(#integra8_path ::components::ConcurrencyMode::Serial))
+                parse_quote!(Some(#integra8_path ::components::ConcurrencyMode::Sequential))
             }
             None => {
                 parse_quote!(None)

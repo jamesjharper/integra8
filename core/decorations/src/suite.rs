@@ -43,12 +43,12 @@ pub struct SuiteAttributesDecoration {
 
     /// The concurrency model used when executing this suite of tests.
     /// `ConcurrencyMode::Parallel` will allow this suite to be run at the same time as other suites.
-    /// `ConcurrencyMode::Serial` will ensure this suite is only run on its own
+    /// `ConcurrencyMode::Sequential` will ensure this suite is only run on its own
     pub suite_concurrency_mode: Option<ConcurrencyMode>,
 
     /// Tests which are a part of this suite, that do not advertize a concurrency model will inherit this value
     /// `ConcurrencyMode::Parallel` will allow multiple tests to run at the same time
-    /// `ConcurrencyMode::Serial` will ensure that only one test from this suite is run at the same time
+    /// `ConcurrencyMode::Sequential` will ensure that only one test from this suite is run at the same time
     pub test_concurrency_mode: Option<ConcurrencyMode>,
 }
 

@@ -27,7 +27,7 @@ pub struct BookEndAttributesDecoration {
 
     /// The concurrency mode which this bookend will adhere to.
     /// `ConcurrencyMode::Parallel` will allow this bookend for be run at the same time as other bookends within this suite
-    /// `ConcurrencyMode::Serial` will ensure that this bookend wont run at the same time as any other bookend from this suite
+    /// `ConcurrencyMode::Sequential` will ensure that this bookend wont run at the same time as any other bookend from this suite
     pub concurrency_mode: Option<ConcurrencyMode>,
 }
 

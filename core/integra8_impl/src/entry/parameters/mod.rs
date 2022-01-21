@@ -42,13 +42,13 @@ impl ApplicationParameters {
     pub fn take_test_concurrency(&mut self) -> TokenStream {
         self.take_string_parameter("test_concurrency")
             .map(|x| x.render_tokens())
-            .unwrap_or_else(|| parse_quote!("Parallel"))
+            .unwrap_or_else(|| parse_quote!("Sequential"))
     }
 
     pub fn take_suite_concurrency(&mut self) -> TokenStream {
         self.take_string_parameter("suite_concurrency")
             .map(|x| x.render_tokens())
-            .unwrap_or_else(|| parse_quote!("Parallel"))
+            .unwrap_or_else(|| parse_quote!("Sequential"))
     }
 
     pub fn take_setup_critical_threshold_seconds(&mut self) -> TokenStream {
@@ -72,7 +72,7 @@ impl ApplicationParameters {
     pub fn take_test_warn_threshold_seconds(&mut self) -> TokenStream {
         self.take_string_parameter("test_warn_time_limit_seconds")
             .map(|x| x.render_tokens())
-            .unwrap_or_else(|| parse_quote!("10"))
+            .unwrap_or_else(|| parse_quote!("30"))
     }
 
     pub fn take_console_output_style(

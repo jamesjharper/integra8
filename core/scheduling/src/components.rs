@@ -45,7 +45,7 @@ impl<TParameters: TestParameters> IntoTaskStateMachine<ScheduledComponent<TParam
         self.suites
             .drain(..)
             .for_each(|suite| match suite.attributes.suite_concurrency_mode {
-                ConcurrencyMode::Serial => {
+                ConcurrencyMode::Sequential => {
                     serial_suites.enqueue(suite.into_task_state_machine());
                 }
                 ConcurrencyMode::Parallel => {
@@ -153,7 +153,7 @@ where
 
         // If this test isn't parallel then,
         // yield an array of a single test
-        if next.concurrency_mode() == &ConcurrencyMode::Serial {
+        if next.concurrency_mode() == &ConcurrencyMode::Sequential {
             return Some(next.into_scheduled_component().into());
         }
 

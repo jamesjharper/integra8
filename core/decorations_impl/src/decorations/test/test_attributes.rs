@@ -217,7 +217,7 @@ impl TestAttributes {
                 parse_quote!(Some(#integra8_path ::components::ConcurrencyMode::Parallel))
             }
             Some(false) => {
-                parse_quote!(Some(#integra8_path ::components::ConcurrencyMode::Serial))
+                parse_quote!(Some(#integra8_path ::components::ConcurrencyMode::Sequential))
             }
             None => {
                 parse_quote!(None)

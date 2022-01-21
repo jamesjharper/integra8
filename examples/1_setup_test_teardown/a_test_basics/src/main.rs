@@ -57,9 +57,7 @@ async fn async_test() {
 
     #[cfg(feature = "async-std-runtime")]
     async_std::task::sleep(std::time::Duration::from_millis(10)).await;
-
 }
-
 
 /// # Allow Fail Tests
 /// Using the `#[allow_fail]` decoration, tests can be allowed to fail.
