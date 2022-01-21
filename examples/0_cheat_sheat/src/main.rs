@@ -82,8 +82,6 @@ mod suite1 {
     }
 
 
-
-
     #[teardown]
     #[parallel]
     fn teardown() {

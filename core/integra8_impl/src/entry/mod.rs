@@ -260,7 +260,7 @@ pub fn main_test(input_tokens: TokenStream) -> TokenStream {
                     .arg(Arg::with_name("default:test-concurrency")
                         .takes_value(true)
                         .multiple(false)
-                        .possible_values(&["Serial", "Parallel"])
+                        .possible_values(&["Sequential", "Parallel"])
                         .required(false)
                         .validator(|s| {
                             ::std::str::FromStr::from_str(s.as_str())
@@ -273,7 +273,7 @@ pub fn main_test(input_tokens: TokenStream) -> TokenStream {
                         .takes_value(true)
                         .multiple(false)
                         .required(false)
-                        .possible_values(&["Serial", "Parallel"])
+                        .possible_values(&["Sequential", "Parallel"])
                         .validator(|s| {
                             ::std::str::FromStr::from_str(s.as_str())
                                 .map(|_: #integra8_path ::components::ConcurrencyMode| ())

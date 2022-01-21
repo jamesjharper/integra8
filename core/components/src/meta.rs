@@ -81,7 +81,7 @@ impl ComponentType {
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub enum ConcurrencyMode {
     Parallel,
-    Serial,
+    Sequential,
 }
 
 impl std::str::FromStr for ConcurrencyMode {
@@ -90,7 +90,7 @@ impl std::str::FromStr for ConcurrencyMode {
         match s {
             "Parallel" => Ok(ConcurrencyMode::Parallel),
             "Sequential" => Ok(ConcurrencyMode::Sequential),
-            _ => Err(format!("{} was not a valid concurrency mode. Valid values are either \"Parallel\" or \"Serial\".", s))
+            _ => Err(format!("{} was not a valid concurrency mode. Valid values are either \"Parallel\" or \"Sequential\".", s))
         }
     }
 }
