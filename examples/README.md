@@ -28,9 +28,9 @@ fn hello_world_test() {
 10. [Nested Suites](#Nested-Suites)
 11. [Cascading Suite Failure Behavior](#Cascading-Suite-Failure-Behavior)
 12. [Suite Concurrency](#Suite-Concurrency)
-13: [Global Settings](#Global-Settings)
-14: [Custom Command Line Parameters](#Custom-Command-Line-Parameters)
-15: [Generating Test Data](#Generating-Test-Data)
+13. [Global Settings](#Global-Settings)
+14. [Custom Command Line Parameters](#Custom-Command-Line-Parameters)
+15. [Generating Test Data](#Generating-Test-Data)
 
 # Async / Sync
 Integra8 has native support both `tokio` and `async-std` runtimes.
@@ -551,74 +551,74 @@ mod suite_2 {
 Integra8 supports a number of settings which can be configured globally via `test_main` or mutated via command line parameters.
 
 ## Max Concurrency: 
-__description:__   Limits the number of components which can run at the same time
-__test_main:__     `max_concurrency` 
-__Command line:__  `--framework:max-concurrency` 
-__Default:__       `"Auto"`
-__Possible Values:__ 
+ - __description:__   Limits the number of components which can run at the same time
+ - __test_main:__     `max_concurrency` 
+ - __Command line:__  `--framework:max-concurrency` 
+ - __Default:__       `"Auto"`
+ - __Possible Values:__ 
     - `Auto`    : Will limit to the number of system cores available 
     - `Max`     : Limit is determined by the test schedule (can be faster for tests with a lot async blocking calls)
     - `1`       : Forces all test to run Sequentially
     - `{usize}` : You choose your own destiny 
 
 ## Child Process 
-__description:__   When enabled, all test run in their own process. This is required for a clean log output.
-__test_main:__     `use_child_process` 
-__Command line:__  `--framework:use-child-process` 
-__Default:__       `true`
-__Possible Values:__ 
+ - __description:__   When enabled, all test run in their own process. This is required for a clean log output.
+ - __test_main:__     `use_child_process` 
+ - __Command line:__  `--framework:use-child-process` 
+ - __Default:__       `true`
+ - __Possible Values:__ 
     - `true`    : All components run in their own process 
     - `false`   : All components run internal to the test application
 
 ## Default Suite Concurrency Mode
-__description:__   Global default concurrency mode for suites
-__test_main:__     `suite_concurrency` 
-__Command line:__  `--default:suite-concurrency` 
-__Default:__       `Sequential`
-__Possible Values:__ 
+ - __description:__   Global default concurrency mode for suites
+ - __test_main:__     `suite_concurrency` 
+ - __Command line:__  `--default:suite-concurrency` 
+ - __Default:__       `Sequential`
+ - __Possible Values:__ 
     - `Sequential` : All suites run as `Sequential` unless explicitly decorated 
     - `Parallel`   : All suites run as `Parallel` unless explicitly decorated 
 
 ## Default Test Concurrency Mode
-__description:__   Global default concurrency mode for tests
-__test_main:__     `test_concurrency` 
-__Command line:__  `--default:test-concurrency` 
-__Default:__       `Sequential`
-__Possible Values:__ 
+ - __description:__   Global default concurrency mode for tests
+ - __test_main:__     `test_concurrency` 
+ - __Command line:__  `--default:test-concurrency` 
+ - __Default:__       `Sequential`
+ - __Possible Values:__ 
     - `Sequential` : All suites run as `Sequential` unless explicitly decorated 
     - `Parallel`   : All suites run as `Parallel` unless explicitly decorated 
 
 ## Default Setup Timeout
-__description:__   Global default time out for setups
-__test_main:__     `default_setup_time_limit` 
-__Command line:__  `--default:setup-time-limit` 
-__Default:__       `30`
-__Possible Values:__ 
+ - __description:__   Global default time out for setups
+ - __test_main:__     `default_setup_time_limit` 
+ - __Command line:__  `--default:setup-time-limit` 
+ - __Default:__       `30`
+ - __Possible Values:__ 
     - `{usize}` : Any number of seconds
 
 ## Default Tear Down Timeout
-__description:__   Global default time out for tear downs
-__test_main:__     `default_tear_down_time_limit` 
-__Command line:__  `--default:tear-down-time-limit` 
-__Default:__       `30`
-__Possible Values:__ 
+ - __description:__   Global default time out for tear downs
+ - __test_main:__     `default_tear_down_time_limit` 
+ - __Command line:__  `--default:tear-down-time-limit` 
+ - __Default:__       `30`
+ - __Possible Values:__ 
     - `{usize}` : Any number of seconds
 
 ## Default Test Timeout
-__description:__   Global default time out for tests
-__test_main:__     `default_test_time_limit` 
-__Command line:__  `--default:test-time-limit` 
-__Default:__       `30`
-__Possible Values:__ 
+ - __description:__   Global default time out for tests
+ - __test_main:__     `default_test_time_limit` 
+ - __Command line:__  `--default:test-time-limit` 
+ - __Default:__       `30`
+ - __Possible Values:__ 
     - `{usize}` : Any number of seconds
 
 
 ## Default Test Warning Timeout
-__description:__   Global default warning time out for tests
-__test_main:__     `default_test_warning_time_threshold_seconds` 
-__Command line:__  `--default:test-warn-time-threshold` 
-__Default:__       `30`
-__Possible Values:__ 
+ - __description:__   Global default warning time out for tests
+ - __test_main:__     `default_test_warning_time_threshold_seconds` 
+ - __Command line:__  `--default:test-warn-time-threshold` 
+ - __Default:__       `30`
+ - __Possible Values:__ 
     - `{usize}` : Any number of seconds
 
 
