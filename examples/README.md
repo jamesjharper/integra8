@@ -1,8 +1,6 @@
 # Guide
 
-## 1: Setup ➞ Test ➞ Teardown
-
-### Tests
+## Say Hello world to Integra8.
 
 ```rust
 #[macro_use]
@@ -20,7 +18,7 @@ fn hello_world_test() {
 }
 ```
 
-#### Async / Sync
+## Async / Sync
 Integra8 has native support both `tokio` and `async-std` runtimes.
 Tests can be declared `async` and your runtime of choice can be enabled 
 via the `tokio-runtime` or `async-std-runtime` feature flag.
@@ -42,7 +40,7 @@ async fn async_test() {
 }
 ```
 
-#### Custom names and descriptions
+## Custom names and descriptions
 `Suites`, `Tests`, `Setups` and `Tear downs` can all have a human friendly name assigned, as well as description for documentation.
 Name and description are shown in test outputs when the test fails to help give quick feedback.
 
@@ -74,7 +72,7 @@ Output from `./test_basics`
 
 ```
 
-#### Allow Failure 
+## Allow Failure 
 Using the `#[allow_fail]` decoration, `Tests` and `Suites` can be allowed to fail.
 
 
@@ -86,7 +84,7 @@ fn this_test_is_sus() {
 }
 ```
 
-#### Ignore Component
+## Ignore Component
 Using the `#[ignore]` decoration, `Suites`, `Tests`, `Setups` and `Tear downs` can skipped altogether.
 
 ```rust
@@ -98,7 +96,7 @@ fn this_test_wont_even_run() {
 
 ```
 
-### Setup and Teardown
+## Setup and Teardown
 
 A `Setup` or `Teardown` can be declared with the `#[setup]` and `#[teardown]` decoration and also can be `async`.
 Different test frameworks can have variations in how setup's and teardown's work.
@@ -149,18 +147,12 @@ async fn teardown_3() {
 ```
 
 
-### Concurrency
+## Concurrency
 
 Using the `#[parallel]` or `#[sequential]` decoration on `Tests` `Setups` `Tear downs` and `Suites` can influence concurrency behavior. 
 
-Any component will be scheduled to run at the same time if it is,
-1. Of the same type (`Test` `Setup` `Tear down` or `Suite`) 
-2. Decorated `#[parallel]`
-3. Sharing the same parent Suite.
-
-Within Integra8, the concurrent modes can be mixed. The execution order is
-1. `parallel` components
-2. `Sequential` components
+Integra8 always honors the component order in code, which allows the Concurrency modes to mixed in unique ways.
+Exact implementation details can be found [here](./../core/scheduling/src/component.rs)
 
 > By default all `Tests` `Setups` `Tear downs` and `Suites` are assumed to be `sequential` unless overridden using parameters or inherited. See [main.rs](./3_test_main/a_global_settings/src/main.rs) 
 
@@ -199,6 +191,9 @@ fn test_4() {
 
 // 3: test_5 and test_6 can be executed at the same time
 // but only after test_4 has completes
+//
+// This is because Integra8 is honoring the order
+// which each component is defined in the test fie
 #[integration_test]
 #[parallel]
 fn test_5() { 
@@ -213,7 +208,7 @@ fn test_6() {
 
 ```
 
-### Timeout Behavior
+## Timeout Behavior
 
 #### Duration warning threshold
 `Tests` can be decorated with `#[warn_threshold_milliseconds( )]`
@@ -253,12 +248,12 @@ fn this_test_will_show_a_timeout_error() {
 
 
 
-## 2: Suites
+## Suites
 A `Suites` can be declared with the `#[Suite]` decoration.
 `Suites` are a groupings of `tests`, `setups`, `tear downs` and other `suites`, which 
 can be used to change execution, failure, and concurrency behavior.
 
-### Suite Execution Order
+### Execution Order
 Within Integra8, the component execution order is
 1. `Setups`
 2. `Tests`
@@ -309,8 +304,8 @@ mod another_suite {
 
 ```
 
-### Nested Suites
-`Suites` can be nested within another suite to produce complex test behaviors
+## Nested Suites
+`Suites` can be nested within each other to produce complex test behaviors
 such as multi step tests, grouping by function or scenario, or given then when type tests.
 
 ```rust
@@ -343,10 +338,10 @@ mod matryoshka_suite {
 }
 ```
 
-### Cascading Failure Behavior
-`Suite` failures cascaded up to the root suite, causing execution of parent suite to abort as the failure bubbles up.
-Failure bubbling can be stopped with the use of `#[allow_fail]` decoration. This cause the failure to 
-bubble as a warning and prevent the abortion from cascading above the component with the `#[allow_fail]` decoration
+## Cascading Suites Failure Behavior
+`Suite` failures cascaded up to the root suite, causing execution of parent suites to abort as the failure bubbles up.
+Failure bubbling can be stopped with the use of `#[allow_fail]` decoration. This will cause the failure to 
+bubble as a warning and prevent further abortion to parent suites.
 
 ```rust
 
@@ -411,6 +406,11 @@ mod suite_which_will_fail {
 
 
 ```
+
+
+
+
+## Suite Concurrency
 
 ## Test Context
 Integra8 supports a concept of context which can be used for managing state between tests and forwarding command line parameters within a test applications.

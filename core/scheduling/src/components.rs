@@ -25,20 +25,23 @@ impl<TParameters: TestParameters> IntoTaskStateMachine<ScheduledComponent<TParam
     fn into_task_state_machine(mut self) -> TaskStateMachineNode<ScheduledComponent<TParameters>> {
         let mut root_node = SerialTaskNode::new();
 
+        // Schedule Suite Component before we start running this suites components. 
+        // Suites don't have anything to execute, however the runner will still publish a start when it 
+        // encountered this component, as well as checking to see if is this suite and its children should be
+        // aborted due to its parent failing.
         root_node.enqueue(ScheduledComponent::Suite(
             self.description.clone(),
             self.attributes.clone(),
         ));
 
-        // 1: Run all setup components in sequence
+        // 1: Run all setup components in the order they appear
         root_node.enqueue(self.setups.into_task_state_machine());
 
-        // 2: Run all test belonging to this suite
+        // 2: Run all test components in the order they appear
         root_node.enqueue(self.tests.into_task_state_machine());
 
-        // 3: Run all child suites of this suite, and queue, depending on
-        // each child suites concurrency mode
-
+        // 3: Run all child suites of this suite.
+        // Queue in groups, depending on the child suites concurrency mode
         let mut parallel_suites = ParallelTaskNode::new();
         let mut serial_suites = SerialTaskNode::new();
 
@@ -62,7 +65,11 @@ impl<TParameters: TestParameters> IntoTaskStateMachine<ScheduledComponent<TParam
         // 4: run all teardown components,
         root_node.enqueue(self.tear_downs.into_task_state_machine());
 
-        root_node.enqueue(ScheduledComponent::Suite(self.description, self.attributes));
+        // Schedule Component for the second time, so that the runner can finalize the suites results
+        root_node.enqueue(ScheduledComponent::Suite(
+            self.description, 
+            self.attributes
+        ));
 
         root_node.into()
     }

@@ -6,6 +6,7 @@ main_test! {
     console_output: integra8_tree_formatter::TreeFormatter,
 }
 
+// exact implementation details can be found at ./core/scheduling/src/component.rs
 
 // 1: test_1 and test_2 are executed at the same time
 #[integration_test]
