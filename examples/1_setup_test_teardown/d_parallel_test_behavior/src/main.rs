@@ -7,26 +7,45 @@ main_test! {
 }
 
 
+// 1: test_1 and test_2 are executed at the same time
 #[integration_test]
 #[parallel]
-async fn parallel_test_1() {
-    println!("parallel_setup_2 could run at the same time as this test");
+fn test_1() { 
+
 }
 
 #[integration_test]
 #[parallel]
-async fn parallel_test_2() {
-    println!("parallel_setup_1 could run at the same time as this test");
+fn test_2() { 
+
 }
+
+// 2: test_3 can only be executed after test 1 and test 2 completes
 
 #[integration_test]
 // #[sequential] By default all `Tests` `Setups` `Tear downs` and `Suites` are assumed to be `sequential` unless overridden using parameters or inherited
-async fn sequential_test_1() {
-    println!("This test will not run at the same time as any other test");
+fn test_3() { 
+
 }
+
+// 2: test_4 can only be executed after test 3 completes
 
 #[integration_test]
 // #[sequential] By default all `Tests` `Setups` `Tear downs` and `Suites` are assumed to be `sequential` unless overridden using parameters or inherited
-async fn sequential_test_2() {
-    println!("This test will only run after sequential_test_1 has completed");
+fn test_4() { 
+
+}
+
+// 3: test_5 and test_6 can be executed at the same time
+// but only after test_4 has completes
+#[integration_test]
+#[parallel]
+fn test_5() { 
+
+}
+
+#[integration_test]
+#[parallel]
+fn test_6() { 
+
 }

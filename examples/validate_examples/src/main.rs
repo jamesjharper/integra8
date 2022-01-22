@@ -5,7 +5,7 @@ pub extern crate integra8;
 
 main_test! {
     // TODO: this should be automatically detected as default
-    max_concurrency: Auto, // [Auto, 1, any]
+    max_concurrency: 1, //Auto, // [Auto, 1, any]
     console_output: integra8_tree_formatter::TreeFormatter,
     //console_output_ansi_mode: Auto,
     //console_output_level: Error,

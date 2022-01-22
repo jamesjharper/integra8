@@ -15,6 +15,22 @@ fn hello_world_test() {
     println!("Hello world!");
 }
 
+/// # Sync / Async 
+/// Integra8 has native support both tokio and async-std runtimes.
+/// Test can be declared `async` and your runtime of choice
+/// can be enabled via the \"tokio-runtime\" or \"async-std-runtime\" feature flag.
+/// Integra8 internally requires an async runtime, so if you do not need to use async functionality, 
+/// you will still need to enable ether the \"tokio-runtime\" or \"async-std-runtime\" feature flag for 
+/// Integra8 to compile
+#[integration_test]
+async fn async_test() {
+    #[cfg(feature = "tokio-runtime")]
+    tokio::time::sleep(std::time::Duration::from_millis(10)).await;
+
+    #[cfg(feature = "async-std-runtime")]
+    async_std::task::sleep(std::time::Duration::from_millis(10)).await;
+}
+
 /// # Tests with custom names and descriptions
 /// Tests can have a human friendly name assigned, as well as description for documentation of the test.
 /// Name and description are shown in test outputs when the test fails to help give quick feedback.
@@ -43,21 +59,6 @@ fn a_test_with_a_name() {
 
 }
 
-/// # Sync / Async 
-/// Integra8 has native support both tokio and async-std runtimes.
-/// Test can be declared `async` and your runtime of choice
-/// can be enabled via the \"tokio-runtime\" or \"async-std-runtime\" feature flag.
-/// Integra8 internally requires an async runtime, so if you do not need to use async functionality, 
-/// you will still need to enable ether the \"tokio-runtime\" or \"async-std-runtime\" feature flag for 
-/// Integra8 to compile
-#[integration_test]
-async fn async_test() {
-    #[cfg(feature = "tokio-runtime")]
-    tokio::time::sleep(std::time::Duration::from_millis(10)).await;
-
-    #[cfg(feature = "async-std-runtime")]
-    async_std::task::sleep(std::time::Duration::from_millis(10)).await;
-}
 
 /// # Allow Fail Tests
 /// Using the `#[allow_fail]` decoration, tests can be allowed to fail.

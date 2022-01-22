@@ -7,7 +7,6 @@ main_test! {
 }
 
 
-
 #[suite]
 #[parallel]
 mod suite_with_mixed_concurrently_modes {
