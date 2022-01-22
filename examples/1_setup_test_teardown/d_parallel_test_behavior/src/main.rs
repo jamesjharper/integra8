@@ -8,6 +8,32 @@ main_test! {
 
 // exact implementation details can be found at ./core/scheduling/src/component.rs
 
+/*
+# Graphical representation of test order in this example
+
+              start
+                :
+                │
+        ┌───────┴────────┐
+        │                │
+    [test_1]         [test_2]
+        │                │
+        └───────┬────────┘
+                │
+             [test_3]
+                │
+             [test_4]
+                │
+        ┌───────┴────────┐
+        │                │
+    [test_5]          [test_6] 
+        │                │
+        └───────┬────────┘
+                │
+                :
+               end
+*/
+
 // 1: test_1 and test_2 are executed at the same time
 #[integration_test]
 #[parallel]

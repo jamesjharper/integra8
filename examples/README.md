@@ -16,17 +16,19 @@ fn hello_world_test() {
 ```
 
 ## Table of Contents
-1.  [Async / Sync](#Async-/-Sync)
-2.  [Names and Descriptions](#Names-and-Descriptions)
-3.  [Allow Failure](#Allow-Failure)
-4.  [Ignore Component](#Ignore-Component)
-5.  [Setup and Teardown](#Setup-and-Teardown)
-6.  [Concurrency](#Concurrency)
-7.  [Timing-out](#Timing-out)
-8.  [Setup and Teardown](#Setup-and-Teardown)
-9.  [Suites](#Suites)
-10. [Nested Suites](#Nested-Suites)
-11. [Suite Concurrency](#Suite-Concurrency)
+1. [Setup → Test → Tear Down](#Say-Hello-world-to-Integra8.)
+    1.  [Async / Sync](#Async-/-Sync)
+    2.  [Names and Descriptions](#Names-and-Descriptions)
+    3.  [Allow Failure](#Allow-Failure)
+    4.  [Ignore Component](#Ignore-Component)
+    5.  [Setup and Teardown](#Setup-and-Teardown)
+    6.  [Concurrency](#Concurrency)
+    7.  [Timing-out](#Timing-out)
+    8.  [Setup and Teardown](#Setup-and-Teardown)
+2.  [Suites](#Suites)
+    1. [Nested Suites](#Nested-Suites)
+    2. [Cascading Suite Failure Behavior](#Cascading-Suite-Failure-Behavior)
+    3. [Suite Concurrency](#Suite-Concurrency)
  
 
 # Async / Sync
@@ -39,6 +41,8 @@ via the `tokio-runtime` or `async-std-runtime` feature flag.
 > Integra8 to compile.
 >
 > Using `async` for long running blocking IO is highly recommended as Integra8 is optimized for this
+
+## Example 
 
 ```rust
 #[integration_test]
@@ -55,6 +59,7 @@ async fn async_test() {
 `Suites`, `Tests`, `Setups` and `Tear downs` can all have a human friendly name assigned, as well as description for documentation.
 Name and description are shown in test outputs when the test fails to help give quick feedback.
 
+## Example 
 ```rust
 #[integration_test]
 #[name("A concise name that tells anyone what this test is doing")]
@@ -86,7 +91,7 @@ Output from `./test_basics`
 # Allow Failure 
 Using the `#[allow_fail]` decoration, `Tests` and `Suites` can be allowed to fail.
 
-
+## Example 
 ```rust
 #[integration_test]
 #[allow_fail]
@@ -98,6 +103,7 @@ fn this_test_is_sus() {
 # Ignore Component
 Using the `#[ignore]` decoration, `Suites`, `Tests`, `Setups` and `Tear downs` can skipped altogether.
 
+## Example 
 ```rust
 #[integration_test]
 #[ignore]
@@ -170,27 +176,27 @@ Exact implementation details for scheduling can be found [here](./../core/schedu
 
 ## Example 
 ```
-              start
-                :
-                │
-        ┌───────┴────────┐
-        │                │
-     (test_1)         (test_2) 
-        │                │
-        └───────┬────────┘
-                │
-             (test_3)
-                │
-             (test_4)
-                │
-        ┌───────┴────────┐
-        │                │
-     (test_5)         (test_6) 
-        │                │
-        └───────┬────────┘
-                │
-                :
-               end
+                  start
+                    :
+                    │
+            ┌───────┴────────┐
+            │                │
+         [test_1]         [test_2]
+            │                │
+            └───────┬────────┘
+                    │
+                 [test_3]
+                    │
+                 [test_4]
+                    │
+            ┌───────┴────────┐
+            │                │
+         [test_5]         [test_6] 
+            │                │
+            └───────┬────────┘
+                    │
+                    :
+                   end
 ```
 
 ```rust
@@ -253,6 +259,7 @@ fn test_6() {
 or `#[warn_threshold_seconds( )]` to indicate the duration threshold 
 for warning result.
 
+### Example 
 ```rust
 #[integration_test]
 #[warn_threshold_milliseconds(10)]
@@ -266,6 +273,7 @@ fn this_test_will_show_a_timeout_warning() {
 or `#[critical_threshold_seconds( )]` to indicate the max duration 
 before it is aborted.
 
+### Example 
 ```rust
 #[integration_test]
 #[critical_threshold_milliseconds(10)]
@@ -274,30 +282,20 @@ fn this_test_will_show_a_timeout_error() {
 }
 ```
 
-
-
-
-
-
-
-
-
-
-
-
-
 # Suites
 A `Suites` can be declared with the `#[Suite]` decoration.
 `Suites` are a groupings of `tests`, `setups`, `tear downs` and other `suites`, which 
 can be used to change execution, failure, and concurrency behavior.
 
-### Execution Order
+## Suite Execution Order
 Within Integra8, the component execution order is
 1. `Setups`
 2. `Tests`
 3. `Suites` *(recursively with the same order)*
 4. `Tear downs`
 
+
+### Example 
 ```rust
 
 /// `Tests`, `Setups`, `Tear downs` not belonging to a suite
@@ -346,8 +344,9 @@ mod another_suite {
 `Suites` can be nested within each other to produce complex test behaviors
 such as multi step tests, grouping by function or scenario, or given then when type tests.
 
-```rust
+### Example 
 
+```rust
 #[suite]
 mod matryoshka_suite {
  
@@ -446,9 +445,106 @@ mod suite_which_will_fail {
 ```
 
 
-
-
 # Suite Concurrency
+Using the `#[parallel]` or `#[sequential]` decoration on `Tests` `Setups` `Tear downs` and `Suites` can influence concurrency behavior. 
+
+Integra8 always honors the component order in code for all components _except_ suites. 
+
+Instead Integra8, favors running parallel suites over serial onces, and will prioritizes running as many suites at once. The intent is, 
+by running as many suites upfront the scheduler will remain busy longer, and increases the chances we fail sooner, 
+rather then later.
+
+Suites follow the following rules 
+ - Suites are are group by concurrent mode (`parallel` or `sequential`)
+ - `parallel` grouped suites are run first
+ - `sequential` suites are run in the order they appear in the schedule order.
+
+Exact implementation details for scheduling can be found [here](./../core/scheduling/src/components.rs)
+
+
+### Example 
+
+```
+                 start
+                   :
+                   │
+         ┌─────────┴──────────┐
+         │                    │
+   ╔═════╧══════╗       ╔═════╧══════╗
+   ║  suite_2   ║       ║   suite_3  ║
+   ╟─────┬──────╢       ╟─────┬──────╢ 
+   ║     │      ║       ║     │      ║
+   ║  [test_1]  ║       ║  [test_1]  ║
+   ║     │      ║       ║     │      ║
+   ║  [test_2]  ║       ║  [test_2]  ║
+   ║     │      ║       ║     │      ║
+   ╚═════╪══════╝       ╚═════╪══════╝  
+         │                    │
+         └─────────┬──────────┘
+                   │
+             ╔═════╧══════╗
+             ║  suite_1   ║
+             ╟─────┬──────╢
+             ║     │      ║
+             ║  [test_1]  ║
+             ║     │      ║
+             ║  [test_2]  ║
+             ║     │      ║
+             ╚═════╪══════╝
+                   │
+                   :
+                  end
+```
+
+``` rust 
+
+#[suite]
+#[sequential]
+mod suite_1 {
+
+    #[integration_test]
+    fn test_1() { 
+        println!("Nothing but suite_1::test_1 will run right now")
+    }
+
+    #[integration_test]
+    fn test_2() { 
+        println!("Nothing but suite_1::test_2 will run right now")
+    }
+}
+
+#[suite]
+#[parallel]
+mod suite_2 {
+
+    #[integration_test]
+    fn test_1() { 
+        println!("Any thing in suite 3 could be running right now")
+    }
+
+    #[integration_test]
+    fn test_2() { 
+        println!("Any thing in suite 3 could be running right now")
+    }
+}
+
+#[suite]
+#[parallel]
+mod suite_2 {
+
+    #[integration_test]
+    fn test_1() { 
+        println!("Any thing in suite 2 could be running right now")
+    }
+
+    #[integration_test]
+    fn test_2() { 
+        println!("Any thing in suite 2 could be running right now")
+    }
+}
+
+```
+
 
 # Test Context
 Integra8 supports a notion of context, which can be used for managing state between tests and forwarding command line parameters within a test applications.
