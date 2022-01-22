@@ -38,7 +38,7 @@ impl TestAttributes {
                     || builder.try_parse_name_expr(attr)
                     || builder.try_parse_description_expr(attr)
                     || builder.try_parse_ignore_test_expr(attr)
-                    || builder.try_parse_warn_threshold_expr(attr)
+                    || builder.try_parse_warn_test_time_limit_expr(attr)
                     || builder.try_parse_critical_threshold_expr(attr)
                     || builder.try_parse_concurrency_mode_expr(attr)
             )
@@ -93,7 +93,7 @@ impl TestAttributes {
     // looking for
     // #[warn_threshold_seconds(1)]
     // #[warn_threshold_milliseconds(1000)]
-    fn try_parse_warn_threshold_expr(&mut self, attr: &Attribute) -> bool {
+    fn try_parse_warn_test_time_limit_expr(&mut self, attr: &Attribute) -> bool {
         if attr.path.is_ident("warn_threshold_seconds") {
             self.warn_threshold = self.parse_duration_from_sec(attr);
             return true;

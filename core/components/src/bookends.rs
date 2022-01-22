@@ -29,7 +29,7 @@ impl BookEndAttributes {
         Self {
             ignore: ignore.unwrap_or_else(|| parent_desc.ignore),
             critical_threshold: critical_threshold
-                .map_or_else(|| parent_desc.setup_critical_threshold, |val| val),
+                .map_or_else(|| parent_desc.setup_time_limit, |val| val),
 
             concurrency_mode: concurrency_mode
                 // Default Serial unless explicitly stated otherwise
@@ -46,7 +46,7 @@ impl BookEndAttributes {
         Self {
             ignore: ignore.unwrap_or_else(|| parent_desc.ignore),
             critical_threshold: critical_threshold
-                .map_or_else(|| parent_desc.tear_down_critical_threshold, |val| val),
+                .map_or_else(|| parent_desc.tear_down_time_limit, |val| val),
 
             concurrency_mode: concurrency_mode
                 // Default Serial unless explicitly stated otherwise

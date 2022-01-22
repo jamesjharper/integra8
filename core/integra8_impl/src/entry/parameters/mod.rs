@@ -40,37 +40,37 @@ impl ApplicationParameters {
     }
 
     pub fn take_test_concurrency(&mut self) -> TokenStream {
-        self.take_string_parameter("test_concurrency")
+        self.take_string_parameter("default_test_concurrency")
             .map(|x| x.render_tokens())
             .unwrap_or_else(|| parse_quote!("Sequential"))
     }
 
     pub fn take_suite_concurrency(&mut self) -> TokenStream {
-        self.take_string_parameter("suite_concurrency")
+        self.take_string_parameter("default_suite_concurrency")
             .map(|x| x.render_tokens())
             .unwrap_or_else(|| parse_quote!("Sequential"))
     }
 
-    pub fn take_setup_critical_threshold_seconds(&mut self) -> TokenStream {
-        self.take_string_parameter("setup_time_limit_seconds")
+    pub fn take_default_setup_time_limit(&mut self) -> TokenStream {
+        self.take_string_parameter("default_setup_time_limit_seconds")
             .map(|x| x.render_tokens())
             .unwrap_or_else(|| parse_quote!("30"))
     }
 
-    pub fn take_tear_down_critical_threshold_seconds(&mut self) -> TokenStream {
-        self.take_string_parameter("tear_down_time_limit_seconds")
+    pub fn take_tear_down_time_limit_seconds(&mut self) -> TokenStream {
+        self.take_string_parameter("default_tear_down_time_limit_seconds")
             .map(|x| x.render_tokens())
             .unwrap_or_else(|| parse_quote!("30"))
     }
 
-    pub fn take_test_critical_threshold_seconds(&mut self) -> TokenStream {
-        self.take_string_parameter("test_time_limit_seconds")
+    pub fn take_test_time_limit_seconds(&mut self) -> TokenStream {
+        self.take_string_parameter("default_test_time_limit_seconds")
             .map(|x| x.render_tokens())
             .unwrap_or_else(|| parse_quote!("30"))
     }
 
-    pub fn take_test_warn_threshold_seconds(&mut self) -> TokenStream {
-        self.take_string_parameter("test_warn_time_limit_seconds")
+    pub fn take_test_warning_time_threshold_seconds(&mut self) -> TokenStream {
+        self.take_string_parameter("default_test_warning_time_threshold_seconds")
             .map(|x| x.render_tokens())
             .unwrap_or_else(|| parse_quote!("30"))
     }

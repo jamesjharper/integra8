@@ -15,11 +15,11 @@ pub fn main_test(input_tokens: TokenStream) -> TokenStream {
 
     let max_concurrency_expr = global_attr.take_max_concurrency_expr();
 
-    let setup_critical_threshold_seconds_expr = global_attr.take_setup_critical_threshold_seconds();
-    let tear_down_critical_threshold_seconds_expr =
-        global_attr.take_tear_down_critical_threshold_seconds();
-    let test_critical_threshold_seconds_expr = global_attr.take_test_critical_threshold_seconds();
-    let test_warn_threshold_seconds_expr = global_attr.take_test_warn_threshold_seconds();
+    let default_setup_time_limit_expr = global_attr.take_default_setup_time_limit();
+    let tear_down_time_limit_seconds_expr =
+        global_attr.take_tear_down_time_limit_seconds();
+    let test_time_limit_seconds_expr = global_attr.take_test_time_limit_seconds();
+    let test_warning_time_threshold_seconds_expr = global_attr.take_test_warning_time_threshold_seconds();
 
     let test_concurrency_expr = global_attr.take_test_concurrency();
     let suite_concurrency_expr = global_attr.take_suite_concurrency();
@@ -75,7 +75,7 @@ pub fn main_test(input_tokens: TokenStream) -> TokenStream {
                 TParametersExtendFormatter : #structopt_path ::StructOptInternal
             > {
                 pub test_parameters: TestParameters,
-                pub app_parameters : TParametersExtend,
+                pub app : TParametersExtend,
                 pub console_output_parameters_ext : TParametersExtendFormatter,
                 pub console_output_parameters: ConsoleOutputParameters
             }
@@ -96,7 +96,7 @@ pub fn main_test(input_tokens: TokenStream) -> TokenStream {
                 fn from_clap(matches: &#structopt_path ::clap::ArgMatches) -> Self {
                     BaseParameters {
                         test_parameters: #structopt_path ::StructOpt::from_clap(matches),
-                        app_parameters: #structopt_path ::StructOpt::from_clap(matches),
+                        app: #structopt_path ::StructOpt::from_clap(matches),
                         console_output_parameters: #structopt_path ::StructOpt::from_clap(matches),
                         console_output_parameters_ext: #structopt_path ::StructOpt::from_clap(matches),
                     }
@@ -153,10 +153,10 @@ pub fn main_test(input_tokens: TokenStream) -> TokenStream {
 
                 pub child_process_target: Option<String>,
                 pub max_concurrency: usize,
-                pub setup_critical_threshold_seconds: u64,
-                pub test_critical_threshold_seconds: u64,
-                pub test_warn_threshold_seconds: u64,
-                pub tear_down_critical_threshold_seconds: u64,
+                pub default_setup_time_limit: u64,
+                pub test_time_limit_seconds: u64,
+                pub test_warning_time_threshold_seconds: u64,
+                pub tear_down_time_limit_seconds: u64,
 
                 pub test_concurrency: #integra8_path ::components::ConcurrencyMode,
                 pub suite_concurrency: #integra8_path ::components::ConcurrencyMode
@@ -218,7 +218,7 @@ pub fn main_test(input_tokens: TokenStream) -> TokenStream {
                                 .map_err(|e| e.to_string())
                         })
                         .long("default:setup-time-limit")
-                        .default_value(#setup_critical_threshold_seconds_expr),
+                        .default_value(#default_setup_time_limit_expr),
                     )
 
                     .arg(Arg::with_name("default:tear-down-time-limit")
@@ -231,7 +231,7 @@ pub fn main_test(input_tokens: TokenStream) -> TokenStream {
                                 .map_err(|e| e.to_string())
                         })
                         .long("default:tear-down-time-limit")
-                        .default_value(#tear_down_critical_threshold_seconds_expr),
+                        .default_value(#tear_down_time_limit_seconds_expr),
                     )
                     .arg(Arg::with_name("default:test-time-limit")
                         .takes_value(true)
@@ -243,7 +243,7 @@ pub fn main_test(input_tokens: TokenStream) -> TokenStream {
                                 .map_err(|e| e.to_string())
                         })
                         .long("default:test-time-limit")
-                        .default_value(#test_critical_threshold_seconds_expr),
+                        .default_value(#test_time_limit_seconds_expr),
                     )
                     .arg(Arg::with_name("default:test-warn-time-limit")
                         .takes_value(true)
@@ -254,8 +254,8 @@ pub fn main_test(input_tokens: TokenStream) -> TokenStream {
                                 .map(|_: u64| ())
                                 .map_err(|e| e.to_string())
                         })
-                        .long("default:test-warn-time-limit")
-                        .default_value(#test_warn_threshold_seconds_expr),
+                        .long("default:test-warn-time-threshold")
+                        .default_value(#test_warning_time_threshold_seconds_expr),
                     )
                     .arg(Arg::with_name("default:test-concurrency")
                         .takes_value(true)
@@ -319,19 +319,19 @@ pub fn main_test(input_tokens: TokenStream) -> TokenStream {
                                 }
                             })
                             .unwrap(),
-                        setup_critical_threshold_seconds: matches
+                        default_setup_time_limit: matches
                             .value_of("default:setup-time-limit")
                             .map(|s| ::std::str::FromStr::from_str(s).unwrap())
                             .unwrap(),
-                        tear_down_critical_threshold_seconds: matches
+                        tear_down_time_limit_seconds: matches
                             .value_of("default:tear-down-time-limit")
                             .map(|s| ::std::str::FromStr::from_str(s).unwrap())
                             .unwrap(),
-                        test_critical_threshold_seconds: matches
+                        test_time_limit_seconds: matches
                             .value_of("default:test-time-limit")
                             .map(|s| ::std::str::FromStr::from_str(s).unwrap())
                             .unwrap(),
-                        test_warn_threshold_seconds: matches
+                        test_warning_time_threshold_seconds: matches
                             .value_of("default:test-warn-time-limit")
                             .map(|s| ::std::str::FromStr::from_str(s).unwrap())
                             .unwrap(),
@@ -480,19 +480,19 @@ pub fn main_test(input_tokens: TokenStream) -> TokenStream {
                     self.test_parameters.suite_concurrency.clone()
                 }
 
-                fn setup_critical_threshold_seconds(&self) -> u64 {
-                    self.test_parameters.setup_critical_threshold_seconds
+                fn default_setup_time_limit(&self) -> u64 {
+                    self.test_parameters.default_setup_time_limit
                 }
-                fn tear_down_critical_threshold_seconds(&self) -> u64 {
-                    self.test_parameters.tear_down_critical_threshold_seconds
-                }
-
-                fn test_critical_threshold_seconds(&self) -> u64 {
-                    self.test_parameters.test_critical_threshold_seconds
+                fn tear_down_time_limit_seconds(&self) -> u64 {
+                    self.test_parameters.tear_down_time_limit_seconds
                 }
 
-                fn test_warn_threshold_seconds(&self) -> u64 {
-                    self.test_parameters.test_warn_threshold_seconds
+                fn test_time_limit_seconds(&self) -> u64 {
+                    self.test_parameters.test_time_limit_seconds
+                }
+
+                fn test_warning_time_threshold_seconds(&self) -> u64 {
+                    self.test_parameters.test_warning_time_threshold_seconds
                 }
 
                 fn root_namespace(&self) -> &'static str {

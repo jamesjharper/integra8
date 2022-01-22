@@ -21,17 +21,18 @@ pub struct Parameter {
 
 impl Parse for Parameter {
     fn parse(input: ParseStream) -> Result<Self> {
-        let key = input.parse::<Ident>()?.to_string();
+        let ident = input.parse::<Ident>()?;
+        let key = ident.to_string();
         input.parse::<Token![:]>()?;
 
         let value = match key.as_str() {
             "max_concurrency"
-            | "setup_critical_threshold_seconds"
-            | "tear_down_critical_threshold_seconds"
-            | "test_critical_threshold_seconds"
-            | "test_warn_threshold_seconds"
-            | "test_concurrency"
-            | "suite_concurrency"
+            | "default_setup_time_limit"
+            | "default_tear_down_time_limit_seconds"
+            | "default_test_time_limit_seconds"
+            | "default_test_warning_time_threshold_seconds"
+            | "default_test_concurrency"
+            | "default_suite_concurrency"
             | "console_output_level"
             | "console_output_style"
             | "console_output_encoding"
@@ -39,7 +40,7 @@ impl Parse for Parameter {
             | "use_child_process" => input.call(ParameterValue::parse_string_parameter)?,
             "parameters" => input.call(|s| ParameterValue::parse_settings_structopt_struct(s))?,
             "console_output" => input.call(|s| ParameterValue::parse_formatter_output_type(s))?,
-            other => abort!("unexpected parameter `{}`", other),
+            _ => abort!(ident.span(), "unexpected parameter"),
         };
 
         Ok(Parameter {

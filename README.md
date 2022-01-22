@@ -225,7 +225,7 @@ main_test! {
 
 #[integration_test]
 async fn make_async_request_test(ctx : crate::TestContext) {
-    reqwest::get(&ctx.parameters.app_parameters.url)).await.unwrap()
+    reqwest::get(&ctx.parameters.app.url)).await.unwrap()
 }
 
 ```

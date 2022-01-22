@@ -10,8 +10,8 @@ main_test! {
     //console_output_ansi_mode: Auto,
     //console_output_level: Error,
     //use_child_process: false,
-    suite_concurrency: Parallel,
-    test_concurrency: Parallel,
+    default_suite_concurrency: Parallel,
+    default_test_concurrency: Parallel,
 }
 
 macro_rules! run_tests {

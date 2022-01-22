@@ -19,31 +19,31 @@ main_test! {
 
     // Global default concurrency mode for suites
     // Default values = Sequential
-    suite_concurrency: Parallel,
+    default_suite_concurrency: Parallel,
 
     // Global default concurrency mode for testes
     // Default values = Sequential
-    test_concurrency: Parallel,
+    default_test_concurrency: Parallel,
 
     // Global default time out for setups
     // Default values = 30
-    setup_critical_threshold_seconds: 20,
+    default_setup_time_limit: 20,
 
     // Global default time out for tear downs
     // Default values = 30
-    tear_down_critical_threshold_seconds: 20,
+    default_tear_down_time_limit_seconds: 20,
 
     // Global default warning threshold for tests
     // Default values = 30
-    test_warn_threshold_seconds: 30,
+    default_test_warning_time_threshold_seconds: 30,
 
     // default time out for tests
     // Default values = 30
-    test_critical_threshold_seconds: 30,
+    default_test_time_limit_seconds: 30,
 
 
     // TODO: this should be automatically detected as default
-    console_output: integra8_tree_formatter::TreeFormatter,
+    console_output: integra8_tree_formatter::TreeFormatter
 
     // Console output parameters will be documented once 
     // the design is finalized 

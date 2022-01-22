@@ -10,10 +10,10 @@ pub struct SuiteAttributes {
     pub description: Option<Expr>,
     pub ignore: Option<Expr>,
     pub allow_fail: Option<Expr>,
-    pub test_warn_threshold: Option<Expr>,
-    pub test_critical_threshold: Option<Expr>,
-    pub setup_critical_threshold: Option<Expr>,
-    pub tear_down_critical_threshold: Option<Expr>,
+    pub test_warning_time_limit: Option<Expr>,
+    pub test_time_limit: Option<Expr>,
+    pub setup_time_limit: Option<Expr>,
+    pub tear_down_time_limit: Option<Expr>,
 
     pub suite_parallel_enabled: Option<bool>,
     pub test_parallel_enabled: Option<bool>,
@@ -28,10 +28,10 @@ impl SuiteAttributes {
             description: None,
             ignore: None,
             allow_fail: None,
-            test_warn_threshold: None,
-            test_critical_threshold: None,
-            setup_critical_threshold: None,
-            tear_down_critical_threshold: None,
+            test_warning_time_limit: None,
+            test_time_limit: None,
+            setup_time_limit: None,
+            tear_down_time_limit: None,
             suite_parallel_enabled: None,
             test_parallel_enabled: None,
             errors: None,
@@ -47,10 +47,10 @@ impl SuiteAttributes {
                     || builder.try_parse_concurrency_mode_expr(attr)
                     || builder.try_parse_test_concurrency_mode_expr(attr)
                     || builder.try_parse_ignore_expr(attr)
-                    || builder.try_parse_warn_threshold_expr(attr)
+                    || builder.try_parse_warn_test_time_limit_expr(attr)
                     || builder.try_parse_critical_threshold_expr(attr)
-                    || builder.try_parse_setup_critical_threshold_expr(attr)
-                    || builder.try_parse_tear_down_critical_threshold_expr(attr)
+                    || builder.try_parse_setup_critical_time_limit_expr(attr)
+                    || builder.try_parse_tear_down_time_limit_expr(attr)
             )
         });
 
@@ -101,63 +101,63 @@ impl SuiteAttributes {
     }
 
     // looking for
-    // #[test_warn_threshold_seconds(1)]
-    // #[test_warn_threshold_milliseconds(1000)]
-    fn try_parse_warn_threshold_expr(&mut self, attr: &Attribute) -> bool {
-        if attr.path.is_ident("test_warn_threshold_seconds") {
-            self.test_warn_threshold = self.parse_duration_from_sec(attr);
+    // #[test_warning_time_threshold_seconds(1)]
+    // #[test_warning_time_limit_milliseconds(1000)]
+    fn try_parse_warn_test_time_limit_expr(&mut self, attr: &Attribute) -> bool {
+        if attr.path.is_ident("test_warning_time_threshold_seconds") {
+            self.test_warning_time_limit = self.parse_duration_from_sec(attr);
             return true;
         }
-        if attr.path.is_ident("test_warn_threshold_milliseconds") {
-            self.test_warn_threshold = self.parse_duration_from_millis(attr);
+        if attr.path.is_ident("test_warning_time_limit_milliseconds") {
+            self.test_warning_time_limit = self.parse_duration_from_millis(attr);
             return true;
         }
         return false;
     }
 
     // looking for
-    // #[test_critical_threshold_seconds(1)]
-    // #[test_critical_threshold_milliseconds(1000)]
+    // #[test_time_limit_seconds(1)]
+    // #[test_time_limit_milliseconds(1000)]
     fn try_parse_critical_threshold_expr(&mut self, attr: &Attribute) -> bool {
-        if attr.path.is_ident("test_critical_threshold_seconds") {
-            self.test_critical_threshold = self.parse_duration_from_sec(attr);
+        if attr.path.is_ident("test_time_limit_seconds") {
+            self.test_time_limit = self.parse_duration_from_sec(attr);
             return true;
         }
-        if attr.path.is_ident("test_critical_threshold_milliseconds") {
-            self.test_critical_threshold = self.parse_duration_from_millis(attr);
-            return true;
-        }
-        return false;
-    }
-
-    // looking for
-    // #[setup_critical_threshold_seconds(1)]
-    // #[setup_critical_threshold_milliseconds(1000)]
-    fn try_parse_setup_critical_threshold_expr(&mut self, attr: &Attribute) -> bool {
-        if attr.path.is_ident("setup_critical_threshold_seconds") {
-            self.setup_critical_threshold = self.parse_duration_from_sec(attr);
-            return true;
-        }
-        if attr.path.is_ident("setup_critical_threshold_milliseconds") {
-            self.setup_critical_threshold = self.parse_duration_from_millis(attr);
+        if attr.path.is_ident("test_time_limit_milliseconds") {
+            self.test_time_limit = self.parse_duration_from_millis(attr);
             return true;
         }
         return false;
     }
 
     // looking for
-    // #[tear_down_critical_threshold_seconds(1)]
-    // #[tear_down_critical_threshold_milliseconds(1000)]
-    fn try_parse_tear_down_critical_threshold_expr(&mut self, attr: &Attribute) -> bool {
-        if attr.path.is_ident("tear_down_critical_threshold_seconds") {
-            self.tear_down_critical_threshold = self.parse_duration_from_sec(attr);
+    // #[setup_time_limit_seconds(1)]
+    // #[setup_time_limit_milliseconds(1000)]
+    fn try_parse_setup_critical_time_limit_expr(&mut self, attr: &Attribute) -> bool {
+        if attr.path.is_ident("setup_time_limit_seconds") {
+            self.setup_time_limit = self.parse_duration_from_sec(attr);
+            return true;
+        }
+        if attr.path.is_ident("setup_time_limit_milliseconds") {
+            self.setup_time_limit = self.parse_duration_from_millis(attr);
+            return true;
+        }
+        return false;
+    }
+
+    // looking for
+    // #[tear_down_time_limit_seconds(1)]
+    // #[tear_down_time_limit_milliseconds(1000)]
+    fn try_parse_tear_down_time_limit_expr(&mut self, attr: &Attribute) -> bool {
+        if attr.path.is_ident("tear_down_time_limit_seconds") {
+            self.tear_down_time_limit = self.parse_duration_from_sec(attr);
             return true;
         }
         if attr
             .path
-            .is_ident("tear_down_critical_threshold_milliseconds")
+            .is_ident("tear_down_time_limit_milliseconds")
         {
-            self.tear_down_critical_threshold = self.parse_duration_from_millis(attr);
+            self.tear_down_time_limit = self.parse_duration_from_millis(attr);
             return true;
         }
         return false;
@@ -263,20 +263,20 @@ impl SuiteAttributes {
         mem::take(&mut self.allow_fail).unwrap_or_else(|| parse_quote!(None))
     }
 
-    pub fn take_test_warn_threshold(&mut self) -> Expr {
-        mem::take(&mut self.test_warn_threshold).unwrap_or_else(|| parse_quote!(None))
+    pub fn take_test_warning_time_limit(&mut self) -> Expr {
+        mem::take(&mut self.test_warning_time_limit).unwrap_or_else(|| parse_quote!(None))
     }
 
-    pub fn take_test_critical_threshold(&mut self) -> Expr {
-        mem::take(&mut self.test_critical_threshold).unwrap_or_else(|| parse_quote!(None))
+    pub fn take_test_time_limit(&mut self) -> Expr {
+        mem::take(&mut self.test_time_limit).unwrap_or_else(|| parse_quote!(None))
     }
 
-    pub fn take_setup_critical_threshold(&mut self) -> Expr {
-        mem::take(&mut self.setup_critical_threshold).unwrap_or_else(|| parse_quote!(None))
+    pub fn take_setup_time_limit(&mut self) -> Expr {
+        mem::take(&mut self.setup_time_limit).unwrap_or_else(|| parse_quote!(None))
     }
 
-    pub fn take_tear_down_critical_threshold(&mut self) -> Expr {
-        mem::take(&mut self.tear_down_critical_threshold).unwrap_or_else(|| parse_quote!(None))
+    pub fn take_tear_down_time_limit(&mut self) -> Expr {
+        mem::take(&mut self.tear_down_time_limit).unwrap_or_else(|| parse_quote!(None))
     }
 
     pub fn take_suite_concurrency_mode(&mut self, integra8_path: &Path) -> Expr {

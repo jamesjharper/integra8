@@ -72,7 +72,7 @@ mod suite_2 {
 
 #[suite]
 #[parallel]
-mod suite_2 {
+mod suite_3 {
 
     #[integration_test]
     fn test_1() { 

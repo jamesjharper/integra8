@@ -27,19 +27,19 @@ pub struct SuiteAttributesDecoration {
 
     /// Describes the the default duration after which a test is flag as exceeded is expected duration.
     /// Tests which are a part of this suite, that do not advertize a warning threshold will inherit this value.
-    pub test_warn_threshold: Option<Duration>,
+    pub test_warning_time_limit: Option<Duration>,
 
     /// Describes the maximum duration a test can take before it is forcibly aborted.
     /// Tests which are a part of this suite, that do not advertize a critical threshold will inherit this value
-    pub test_critical_threshold: Option<Duration>,
+    pub test_time_limit: Option<Duration>,
 
     /// Describes the maximum duration a setup can take before it is forcibly aborted.
     /// Setups which are a part of this suite, that do not advertize a critical threshold will inherit this value
-    pub setup_critical_threshold: Option<Duration>,
+    pub setup_time_limit: Option<Duration>,
 
     /// Describes the maximum duration a tear down can take before it is forcibly aborted.
     /// Tear downs which are a part of this suite, that do not advertize a critical threshold will inherit this value
-    pub tear_down_critical_threshold: Option<Duration>,
+    pub tear_down_time_limit: Option<Duration>,
 
     /// The concurrency model used when executing this suite of tests.
     /// `ConcurrencyMode::Parallel` will allow this suite to be run at the same time as other suites.
@@ -61,10 +61,10 @@ impl SuiteAttributesDecoration {
             location: None,
             ignore: None,
             allow_suite_fail: None,
-            test_warn_threshold: None,
-            test_critical_threshold: None,
-            setup_critical_threshold: None,
-            tear_down_critical_threshold: None,
+            test_warning_time_limit: None,
+            test_time_limit: None,
+            setup_time_limit: None,
+            tear_down_time_limit: None,
             suite_concurrency_mode: None,
             test_concurrency_mode: None,
         }
@@ -86,10 +86,10 @@ impl SuiteAttributesDecoration {
             self.ignore,
             self.location,
             self.allow_suite_fail,
-            self.test_warn_threshold,
-            self.test_critical_threshold,
-            self.setup_critical_threshold,
-            self.tear_down_critical_threshold,
+            self.test_warning_time_limit,
+            self.test_time_limit,
+            self.setup_time_limit,
+            self.tear_down_time_limit,
             self.suite_concurrency_mode,
             self.test_concurrency_mode,
         )

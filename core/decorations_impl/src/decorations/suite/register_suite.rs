@@ -17,10 +17,10 @@ pub fn register_suite(input_tokens: TokenStream) -> TokenStream {
     let name_expr = test_attr.take_name();
     let description_expr = test_attr.take_description();
     let allow_fail_expr = test_attr.take_allow_fail();
-    let test_warn_threshold_expr = test_attr.take_test_warn_threshold();
-    let test_critical_threshold_expr = test_attr.take_test_critical_threshold();
-    let setup_critical_threshold_expr = test_attr.take_setup_critical_threshold();
-    let tear_down_critical_threshold_expr = test_attr.take_tear_down_critical_threshold();
+    let test_warning_time_limit_expr = test_attr.take_test_warning_time_limit();
+    let test_time_limit_expr = test_attr.take_test_time_limit();
+    let setup_time_limit_expr = test_attr.take_setup_time_limit();
+    let tear_down_time_limit_expr = test_attr.take_tear_down_time_limit();
     let suite_concurrency_mode_expr = test_attr.take_suite_concurrency_mode(&integra8_path);
     let test_concurrency_mode_expr = test_attr.take_test_concurrency_mode(&integra8_path);
 
@@ -50,10 +50,10 @@ pub fn register_suite(input_tokens: TokenStream) -> TokenStream {
                         location: Some(#integra8_path ::components::src_loc!()),
                         ignore: #ignore_expr,
                         allow_suite_fail: #allow_fail_expr,
-                        test_warn_threshold: #test_warn_threshold_expr,
-                        test_critical_threshold: #test_critical_threshold_expr,
-                        setup_critical_threshold: #setup_critical_threshold_expr,
-                        tear_down_critical_threshold: #tear_down_critical_threshold_expr,
+                        test_warning_time_limit: #test_warning_time_limit_expr,
+                        test_time_limit: #test_time_limit_expr,
+                        setup_time_limit: #setup_time_limit_expr,
+                        tear_down_time_limit: #tear_down_time_limit_expr,
                         suite_concurrency_mode:  #suite_concurrency_mode_expr,
                         test_concurrency_mode:  #test_concurrency_mode_expr,
                     }

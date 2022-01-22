@@ -25,20 +25,20 @@ pub trait TestParameters {
         true
     }
 
-    fn setup_critical_threshold_duration(&self) -> Duration {
-        Duration::from_secs(self.setup_critical_threshold_seconds())
+    fn setup_time_limit_duration(&self) -> Duration {
+        Duration::from_secs(self.default_setup_time_limit())
     }
 
-    fn tear_down_critical_threshold_duration(&self) -> Duration {
-        Duration::from_secs(self.tear_down_critical_threshold_seconds())
+    fn tear_down_time_limit_duration(&self) -> Duration {
+        Duration::from_secs(self.tear_down_time_limit_seconds())
     }
 
-    fn test_critical_threshold_duration(&self) -> Duration {
-        Duration::from_secs(self.test_critical_threshold_seconds())
+    fn test_time_limit_duration(&self) -> Duration {
+        Duration::from_secs(self.test_time_limit_seconds())
     }
 
-    fn test_warn_threshold_duration(&self) -> Duration {
-        Duration::from_secs(self.test_warn_threshold_seconds())
+    fn test_warning_time_limit_duration(&self) -> Duration {
+        Duration::from_secs(self.test_warning_time_threshold_seconds())
     }
 
     fn is_child_process(&self) -> bool {
@@ -64,10 +64,10 @@ pub trait TestParameters {
 
     // User defined
 
-    fn setup_critical_threshold_seconds(&self) -> u64;
-    fn tear_down_critical_threshold_seconds(&self) -> u64;
-    fn test_critical_threshold_seconds(&self) -> u64;
-    fn test_warn_threshold_seconds(&self) -> u64;
+    fn default_setup_time_limit(&self) -> u64;
+    fn tear_down_time_limit_seconds(&self) -> u64;
+    fn test_time_limit_seconds(&self) -> u64;
+    fn test_warning_time_threshold_seconds(&self) -> u64;
     fn test_concurrency(&self) -> ConcurrencyMode;
     fn suite_concurrency(&self) -> ConcurrencyMode;
     fn child_process_target(&self) -> Option<&'_ str>;

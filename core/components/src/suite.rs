@@ -15,19 +15,19 @@ pub struct SuiteAttributes {
 
     /// Describes the the default duration after which a test is flag as exceeded is expected duration.
     /// Tests which are a part of this suite, that do not advertize a warning threshold will inherit this value.
-    pub test_warn_threshold: Duration,
+    pub test_warning_time_limit: Duration,
 
     /// Describes the maximum duration a test can take before it is forcibly aborted.
     /// Tests which are a part of this suite, that do not advertize a critical threshold will inherit this value
-    pub test_critical_threshold: Duration,
+    pub test_time_limit: Duration,
 
     /// Describes the maximum duration a setup can take before it is forcibly aborted.
     /// Setups which are a part of this suite, that do not advertize a critical threshold will inherit this value
-    pub setup_critical_threshold: Duration,
+    pub setup_time_limit: Duration,
 
     /// Describes the maximum duration a tear down can take before it is forcibly aborted.
     /// Tear downs which are a part of this suite, that do not advertize a critical threshold will inherit this value
-    pub tear_down_critical_threshold: Duration,
+    pub tear_down_time_limit: Duration,
 
     /// The concurrency model used when executing this suite of tests.
     /// `ConcurrencyMode::Parallel` will allow this suite to be run at the same time as other suites.
@@ -46,10 +46,10 @@ impl SuiteAttributes {
         parameters: &TParameters,
         ignore: Option<bool>,
         allow_suite_fail: Option<bool>,
-        test_warn_threshold: Option<Duration>,
-        test_critical_threshold: Option<Duration>,
-        setup_critical_threshold: Option<Duration>,
-        tear_down_critical_threshold: Option<Duration>,
+        test_warning_time_limit: Option<Duration>,
+        test_time_limit: Option<Duration>,
+        setup_time_limit: Option<Duration>,
+        tear_down_time_limit: Option<Duration>,
         suite_concurrency_mode: Option<ConcurrencyMode>,
         test_concurrency_mode: Option<ConcurrencyMode>,
     ) -> Self {
@@ -59,41 +59,41 @@ impl SuiteAttributes {
             allow_suite_fail: allow_suite_fail
                 .unwrap_or_else(|| parent_desc.map_or(false, |p| p.allow_suite_fail)),
 
-            test_warn_threshold: test_warn_threshold.map_or_else(
+            test_warning_time_limit: test_warning_time_limit.map_or_else(
                 || {
                     parent_desc.map_or_else(
-                        || parameters.test_warn_threshold_duration(), // root value
-                        |p| p.test_warn_threshold,
+                        || parameters.test_warning_time_limit_duration(), // root value
+                        |p| p.test_warning_time_limit,
                     )
                 },
                 |val| val.clone(),
             ),
 
-            test_critical_threshold: test_critical_threshold.map_or_else(
+            test_time_limit: test_time_limit.map_or_else(
                 || {
                     parent_desc.map_or_else(
-                        || parameters.test_critical_threshold_duration(), // root value
-                        |p| p.test_critical_threshold,
+                        || parameters.test_time_limit_duration(), // root value
+                        |p| p.test_time_limit,
                     )
                 },
                 |val| val.clone(),
             ),
 
-            setup_critical_threshold: setup_critical_threshold.map_or_else(
+            setup_time_limit: setup_time_limit.map_or_else(
                 || {
                     parent_desc.map_or_else(
-                        || parameters.setup_critical_threshold_duration(), // root value
-                        |p| p.setup_critical_threshold,
+                        || parameters.setup_time_limit_duration(), // root value
+                        |p| p.setup_time_limit,
                     )
                 },
                 |val| val.clone(),
             ),
 
-            tear_down_critical_threshold: tear_down_critical_threshold.map_or_else(
+            tear_down_time_limit: tear_down_time_limit.map_or_else(
                 || {
                     parent_desc.map_or_else(
-                        || parameters.tear_down_critical_threshold_duration(), // root value
-                        |p| p.tear_down_critical_threshold,
+                        || parameters.tear_down_time_limit_duration(), // root value
+                        |p| p.tear_down_time_limit,
                     )
                 },
                 |val| val.clone(),
@@ -156,10 +156,10 @@ impl<TParameters: TestParameters> Suite<TParameters> {
         ignore: Option<bool>,
         src: Option<ComponentLocation>,
         allow_suite_fail: Option<bool>,
-        test_warn_threshold: Option<Duration>,
-        test_critical_threshold: Option<Duration>,
-        setup_critical_threshold: Option<Duration>,
-        tear_down_critical_threshold: Option<Duration>,
+        test_warning_time_limit: Option<Duration>,
+        test_time_limit: Option<Duration>,
+        setup_time_limit: Option<Duration>,
+        tear_down_time_limit: Option<Duration>,
         suite_concurrency_mode: Option<ConcurrencyMode>,
         test_concurrency_mode: Option<ConcurrencyMode>,
     ) -> Suite<TParameters> {
@@ -185,10 +185,10 @@ impl<TParameters: TestParameters> Suite<TParameters> {
                 parameters,
                 ignore,
                 allow_suite_fail,
-                test_warn_threshold,
-                test_critical_threshold,
-                setup_critical_threshold,
-                tear_down_critical_threshold,
+                test_warning_time_limit,
+                test_time_limit,
+                setup_time_limit,
+                tear_down_time_limit,
                 suite_concurrency_mode,
                 test_concurrency_mode,
             ),

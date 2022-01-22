@@ -56,10 +56,10 @@ mod test_rigging {
     #[derive(Clone)]
     pub struct TestAppParameters {
         pub max_concurrency: usize,
-        pub setup_critical_threshold_seconds: u64,
-        pub test_critical_threshold_seconds: u64,
-        pub test_warn_threshold_seconds: u64,
-        pub tear_down_critical_threshold_seconds: u64,
+        pub default_setup_time_limit: u64,
+        pub test_time_limit_seconds: u64,
+        pub test_warning_time_threshold_seconds: u64,
+        pub tear_down_time_limit_seconds: u64,
         pub test_concurrency: components::ConcurrencyMode,
         pub suite_concurrency: components::ConcurrencyMode,
     }
@@ -68,10 +68,10 @@ mod test_rigging {
         pub fn default() -> Self {
             Self {
                 max_concurrency: 10,
-                setup_critical_threshold_seconds: 20,
-                test_critical_threshold_seconds: 30,
-                test_warn_threshold_seconds: 40,
-                tear_down_critical_threshold_seconds: 50,
+                default_setup_time_limit: 20,
+                test_time_limit_seconds: 30,
+                test_warning_time_threshold_seconds: 40,
+                tear_down_time_limit_seconds: 50,
                 test_concurrency: components::ConcurrencyMode::Parallel,
                 suite_concurrency: components::ConcurrencyMode::Sequential,
             }
@@ -99,19 +99,19 @@ mod test_rigging {
             self.suite_concurrency.clone()
         }
 
-        fn setup_critical_threshold_seconds(&self) -> u64 {
-            self.setup_critical_threshold_seconds
+        fn default_setup_time_limit(&self) -> u64 {
+            self.default_setup_time_limit
         }
-        fn tear_down_critical_threshold_seconds(&self) -> u64 {
-            self.tear_down_critical_threshold_seconds
-        }
-
-        fn test_critical_threshold_seconds(&self) -> u64 {
-            self.test_critical_threshold_seconds
+        fn tear_down_time_limit_seconds(&self) -> u64 {
+            self.tear_down_time_limit_seconds
         }
 
-        fn test_warn_threshold_seconds(&self) -> u64 {
-            self.test_warn_threshold_seconds
+        fn test_time_limit_seconds(&self) -> u64 {
+            self.test_time_limit_seconds
+        }
+
+        fn test_warning_time_threshold_seconds(&self) -> u64 {
+            self.test_warning_time_threshold_seconds
         }
 
         // Find somewhere else for this
@@ -323,10 +323,10 @@ mod tests {
         #[ignore()]
         #[name("Nested Suite A")]
         #[description("the description of this nested suite A")]
-        #[tear_down_critical_threshold_seconds(11)]
-        #[setup_critical_threshold_seconds(12)]
-        #[test_critical_threshold_seconds(13)]
-        #[test_warn_threshold_seconds(14)]
+        #[tear_down_time_limit_seconds(11)]
+        #[default_setup_time_limit(12)]
+        #[test_time_limit_seconds(13)]
+        #[test_warning_time_threshold_seconds(14)]
         pub mod nested_suite_y {
 
             pub use integra8_decorations_impl::*;
@@ -426,10 +426,10 @@ mod tests {
         // Assert attributes/description was inherited from the Parameters
         assert_eq!(root.attributes.ignore, false);
         assert_eq!(root.attributes.allow_suite_fail, false);
-        assert_eq!(root.attributes.setup_critical_threshold.as_secs(), 20);
-        assert_eq!(root.attributes.test_critical_threshold.as_secs(), 30);
-        assert_eq!(root.attributes.test_warn_threshold.as_secs(), 40);
-        assert_eq!(root.attributes.tear_down_critical_threshold.as_secs(), 50);
+        assert_eq!(root.attributes.setup_time_limit.as_secs(), 20);
+        assert_eq!(root.attributes.test_time_limit.as_secs(), 30);
+        assert_eq!(root.attributes.test_warning_time_limit.as_secs(), 40);
+        assert_eq!(root.attributes.tear_down_time_limit.as_secs(), 50);
         assert_eq!(
             root.attributes.suite_concurrency_mode,
             ConcurrencyMode::Sequential
@@ -596,10 +596,10 @@ mod tests {
             assert_eq!(suite1.description.component_type(), &ComponentType::Suite);
             assert_eq!(suite1.attributes.ignore, false);
             assert_eq!(suite1.attributes.allow_suite_fail, false);
-            assert_eq!(suite1.attributes.test_critical_threshold.as_secs(), 30);
-            assert_eq!(suite1.attributes.test_warn_threshold.as_secs(), 40);
-            assert_eq!(suite1.attributes.setup_critical_threshold.as_secs(), 20);
-            assert_eq!(suite1.attributes.tear_down_critical_threshold.as_secs(), 50);
+            assert_eq!(suite1.attributes.test_time_limit.as_secs(), 30);
+            assert_eq!(suite1.attributes.test_warning_time_limit.as_secs(), 40);
+            assert_eq!(suite1.attributes.setup_time_limit.as_secs(), 20);
+            assert_eq!(suite1.attributes.tear_down_time_limit.as_secs(), 50);
             assert_eq!(suite1.attributes.suite_concurrency_mode, ConcurrencyMode::Sequential);
             assert_eq!(suite1.attributes.test_concurrency_mode, ConcurrencyMode::Parallel);
 
@@ -897,10 +897,10 @@ mod tests {
             assert_eq!(suite1.description.component_type(), &ComponentType::Suite);
             assert_eq!(suite1.attributes.ignore, true);
             assert_eq!(suite1.attributes.allow_suite_fail, true);
-            assert_eq!(suite1.attributes.test_critical_threshold.as_secs(), 13);
-            assert_eq!(suite1.attributes.test_warn_threshold.as_secs(), 14);
-            assert_eq!(suite1.attributes.setup_critical_threshold.as_secs(), 12);
-            assert_eq!(suite1.attributes.tear_down_critical_threshold.as_secs(), 11);
+            assert_eq!(suite1.attributes.test_time_limit.as_secs(), 13);
+            assert_eq!(suite1.attributes.test_warning_time_limit.as_secs(), 14);
+            assert_eq!(suite1.attributes.setup_time_limit.as_secs(), 12);
+            assert_eq!(suite1.attributes.tear_down_time_limit.as_secs(), 11);
             assert_eq!(suite1.attributes.suite_concurrency_mode, ConcurrencyMode::Parallel);
             assert_eq!(suite1.attributes.test_concurrency_mode, ConcurrencyMode::Parallel);
 

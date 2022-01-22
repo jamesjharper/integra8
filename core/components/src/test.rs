@@ -48,10 +48,10 @@ impl TestAttributes {
             ignore: ignore.unwrap_or_else(|| parent_desc.ignore),
 
             warn_threshold: warn_threshold
-                .map_or_else(|| parent_desc.test_warn_threshold, |val| val),
+                .map_or_else(|| parent_desc.test_warning_time_limit, |val| val),
 
             critical_threshold: critical_threshold
-                .map_or_else(|| parent_desc.test_critical_threshold, |val| val),
+                .map_or_else(|| parent_desc.test_time_limit, |val| val),
 
             concurrency_mode: concurrency_mode
                 .map_or_else(|| parent_desc.test_concurrency_mode.clone(), |val| val),

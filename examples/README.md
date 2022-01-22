@@ -16,20 +16,21 @@ fn hello_world_test() {
 ```
 
 ## Table of Contents
-1. [Setup → Test → Tear Down](#Say-Hello-world-to-Integra8.)
-    1.  [Async / Sync](#Async-/-Sync)
-    2.  [Names and Descriptions](#Names-and-Descriptions)
-    3.  [Allow Failure](#Allow-Failure)
-    4.  [Ignore Component](#Ignore-Component)
-    5.  [Setup and Teardown](#Setup-and-Teardown)
-    6.  [Concurrency](#Concurrency)
-    7.  [Timing-out](#Timing-out)
-    8.  [Setup and Teardown](#Setup-and-Teardown)
-2.  [Suites](#Suites)
-    1. [Nested Suites](#Nested-Suites)
-    2. [Cascading Suite Failure Behavior](#Cascading-Suite-Failure-Behavior)
-    3. [Suite Concurrency](#Suite-Concurrency)
- 
+1.  [Async / Sync](#Async-/-Sync)
+2.  [Names and Descriptions](#Names-and-Descriptions)
+3.  [Allow Failure](#Allow-Failure)
+4.  [Ignore Component](#Ignore-Component)
+5.  [Setup and Teardown](#Setup-and-Teardown)
+6.  [Concurrency](#Concurrency)
+7.  [Timing-out](#Timing-out)
+8.  [Setup and Teardown](#Setup-and-Teardown)
+9.  [Suites](#Suites)
+10. [Nested Suites](#Nested-Suites)
+11. [Cascading Suite Failure Behavior](#Cascading-Suite-Failure-Behavior)
+12. [Suite Concurrency](#Suite-Concurrency)
+13: [Global Settings](#Global-Settings)
+14: [Custom Command Line Parameters](#Custom-Command-Line-Parameters)
+15: [Generating Test Data](#Generating-Test-Data)
 
 # Async / Sync
 Integra8 has native support both `tokio` and `async-std` runtimes.
@@ -546,8 +547,141 @@ mod suite_2 {
 ```
 
 
-# Test Context
-Integra8 supports a notion of context, which can be used for managing state between tests and forwarding command line parameters within a test applications.
+# Global Settings
+Integra8 supports a number of settings which can be configured globally via `test_main` or mutated via command line parameters.
+
+## Max Concurrency: 
+__description:__   Limits the number of components which can run at the same time
+__test_main:__     `max_concurrency` 
+__Command line:__  `--framework:max-concurrency` 
+__Default:__       `"Auto"`
+__Possible Values:__ 
+    - `Auto`    : Will limit to the number of system cores available 
+    - `Max`     : Limit is determined by the test schedule (can be faster for tests with a lot async blocking calls)
+    - `1`       : Forces all test to run Sequentially
+    - `{usize}` : You choose your own destiny 
+
+## Child Process 
+__description:__   When enabled, all test run in their own process. This is required for a clean log output.
+__test_main:__     `use_child_process` 
+__Command line:__  `--framework:use-child-process` 
+__Default:__       `true`
+__Possible Values:__ 
+    - `true`    : All components run in their own process 
+    - `false`   : All components run internal to the test application
+
+## Default Suite Concurrency Mode
+__description:__   Global default concurrency mode for suites
+__test_main:__     `suite_concurrency` 
+__Command line:__  `--default:suite-concurrency` 
+__Default:__       `Sequential`
+__Possible Values:__ 
+    - `Sequential` : All suites run as `Sequential` unless explicitly decorated 
+    - `Parallel`   : All suites run as `Parallel` unless explicitly decorated 
+
+## Default Test Concurrency Mode
+__description:__   Global default concurrency mode for tests
+__test_main:__     `test_concurrency` 
+__Command line:__  `--default:test-concurrency` 
+__Default:__       `Sequential`
+__Possible Values:__ 
+    - `Sequential` : All suites run as `Sequential` unless explicitly decorated 
+    - `Parallel`   : All suites run as `Parallel` unless explicitly decorated 
+
+## Default Setup Timeout
+__description:__   Global default time out for setups
+__test_main:__     `default_setup_time_limit` 
+__Command line:__  `--default:setup-time-limit` 
+__Default:__       `30`
+__Possible Values:__ 
+    - `{usize}` : Any number of seconds
+
+## Default Tear Down Timeout
+__description:__   Global default time out for tear downs
+__test_main:__     `default_tear_down_time_limit` 
+__Command line:__  `--default:tear-down-time-limit` 
+__Default:__       `30`
+__Possible Values:__ 
+    - `{usize}` : Any number of seconds
+
+## Default Test Timeout
+__description:__   Global default time out for tests
+__test_main:__     `default_test_time_limit` 
+__Command line:__  `--default:test-time-limit` 
+__Default:__       `30`
+__Possible Values:__ 
+    - `{usize}` : Any number of seconds
+
+
+## Default Test Warning Timeout
+__description:__   Global default warning time out for tests
+__test_main:__     `default_test_warning_time_threshold_seconds` 
+__Command line:__  `--default:test-warn-time-threshold` 
+__Default:__       `30`
+__Possible Values:__ 
+    - `{usize}` : Any number of seconds
+
+
+### Example 
+
+```rust
+
+#[macro_use]
+pub extern crate integra8;
+
+main_test! {
+
+    // Limit the number of components which can run at the same time;
+    max_concurrency: 1, 
+
+    // When enabled, all test run in their own process.
+    // This is required for a clean log output,
+    use_child_process: false,
+
+    // Global default concurrency mode for suites
+    suite_concurrency: Parallel,
+
+    // Global default concurrency mode for testes
+    test_concurrency: Parallel,
+
+    // Global default time out for setups
+    default_setup_time_limit: 20,
+
+    // Global default time out for tear downs
+    tear_down_time_limit_seconds: 20,
+
+    // Global default warning threshold for tests
+    test_warning_time_threshold_seconds: 30,
+
+    // default time out for tests
+    test_time_limit_seconds: 30,
+}
+
+#[integration_test]
+fn global_defaults() {
+
+}
+
+#[integration_test]
+#[sequential]
+#[warn_threshold_milliseconds(10)]
+#[critical_threshold_milliseconds(10)]
+fn override_global_defaults() {
+
+}
+```
+
+# Custom Command Line Parameters
+Integra8 supports a concept of *test context*, which can be used for managing state between 
+tests and forwarding command line parameters within a test applications.
+
+Internally, Integra8 leverages [structopt](https://docs.rs/structopt/latest/structopt/) for managing 
+command line parameters. This can be extended with `main_test{ parameters : ... }` which takes 
+either an inline struct definition or externally defined Type with implements the `structopt` trait.
+
+> Note, your toml file must include `structopt` in order for the marco to be able to find it.
+
+### Example 
 
 ```rust
 use reqwest;
@@ -556,7 +690,7 @@ use reqwest;
 pub extern crate integra8;
 
 main_test! {
-    settings : {
+    parameters : {
         #[structopt(long = "target-url", default_value = "https://httpbin.org/ip")]
         pub url: String,
     }
@@ -564,12 +698,25 @@ main_test! {
 
 
 #[integration_test]
-async fn make_async_request_test(ctx : crate::TestContext) {
-    reqwest::get(&ctx.parameters.app_parameters.url)).await.unwrap()
+async fn httpbin_should_reply_200_ok(ctx : crate::ExecutionContext) {
+
+    #[cfg(feature = "tokio-runtime")]
+    let response = reqwest::get(&ctx.parameters.app.url).await.unwrap();
+
+    // reqwest does not support async-std, so blocking must be used instead.
+    // Its recommended to use async for these types of tests, as 
+    // integra8 will run other tests while this test waits for a response 
+    #[cfg(feature = "async-std-runtime")]
+    let response = reqwest::blocking::get(&ctx.parameters.app.url).unwrap();
+
+    println!("{:#?}", response);
+    assert_eq!(response.status(), 200, "Expected http 200 response");
 }
+
 
 ```
 
+# Generating Test Data
 
 
 
