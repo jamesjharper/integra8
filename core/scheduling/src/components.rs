@@ -159,12 +159,12 @@ where
         let next = self.iter.next()?;
 
         // If this test isn't parallel then,
-        // yield an array of a single test
+        // yield an array of a single component 
         if next.concurrency_mode() == &ConcurrencyMode::Sequential {
             return Some(next.into_scheduled_component().into());
         }
 
-        // Yield sequences of tests which can be executed in parallel
+        // Yield sequences of component which can be executed in parallel
         let mut parallel_group = ParallelTaskNode::new();
         parallel_group.append(next.into_scheduled_component());
 

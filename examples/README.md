@@ -1,19 +1,4 @@
 # Say Hello world to Integra8.
-
-# Table of Contents
-1.  [Async / Sync](#Async-/-Sync)
-2.  [Names and Descriptions](#Names-and-Descriptions)
-3.  [Allow Failure](#Allow-Failure)
-4.  [Ignore Component](#Ignore-Component)
-5.  [Setup and Teardown](#Setup-and-Teardown)
-6.  [Concurrency](#Concurrency)
-7.  [Timing-out](#Timing-out)
-8.  [Setup and Teardown](#Setup-and-Teardown)
-9.  [Suites](#Suites)
-10. [Nested Suites](#Nested-Suites)
-11. [Suite Concurrency](#Suite-Concurrency)
- 
-
 ```rust
 #[macro_use]
 pub extern crate integra8;
@@ -29,6 +14,20 @@ fn hello_world_test() {
     println!("Hello integra8!");
 }
 ```
+
+## Table of Contents
+1.  [Async / Sync](#Async-/-Sync)
+2.  [Names and Descriptions](#Names-and-Descriptions)
+3.  [Allow Failure](#Allow-Failure)
+4.  [Ignore Component](#Ignore-Component)
+5.  [Setup and Teardown](#Setup-and-Teardown)
+6.  [Concurrency](#Concurrency)
+7.  [Timing-out](#Timing-out)
+8.  [Setup and Teardown](#Setup-and-Teardown)
+9.  [Suites](#Suites)
+10. [Nested Suites](#Nested-Suites)
+11. [Suite Concurrency](#Suite-Concurrency)
+ 
 
 # Async / Sync
 Integra8 has native support both `tokio` and `async-std` runtimes.
@@ -119,6 +118,7 @@ Within Integra8
 - Every `Tear down` is _guaranteed_ to run regardless if a `test`, `setup` or `tear down` fails.
     *Except if they belong to a suite which was never run*
 
+## Example 
 ```rust
 #[setup]
 fn setup() {
@@ -164,10 +164,34 @@ async fn teardown_3() {
 Using the `#[parallel]` or `#[sequential]` decoration on `Tests` `Setups` `Tear downs` and `Suites` can influence concurrency behavior. 
 
 Integra8 always honors the component order in code. As a result, components are only run concurrently, when the are adjacent to other concurrent components in the schedule order.
-This design allows ordered tests to co-exist with a notion of concurrency, while also enabling concurrency modes to mixed in unique ways that may not be immediately intuitive.
+This design allows ordered tests to co-exist with a notion of concurrency, while also enabling concurrency modes to combine in unique ways that may not be immediately intuitive.
 
 Exact implementation details for scheduling can be found [here](./../core/scheduling/src/components.rs)
 
+## Example 
+```
+              start
+                :
+                │
+        ┌───────┴────────┐
+        │                │
+     (test_1)         (test_2) 
+        │                │
+        └───────┬────────┘
+                │
+             (test_3)
+                │
+             (test_4)
+                │
+        ┌───────┴────────┐
+        │                │
+     (test_5)         (test_6) 
+        │                │
+        └───────┬────────┘
+                │
+                :
+               end
+```
 
 ```rust
 
@@ -176,13 +200,13 @@ Exact implementation details for scheduling can be found [here](./../core/schedu
 #[integration_test]
 #[parallel]
 fn test_1() { 
-
+    println!("Order 1");
 }
 
 #[integration_test]
 #[parallel]
 fn test_2() { 
-
+    println!("Order 1");
 }
 
 // 2: test_3 can only be executed after test 1 and test 2 completes
@@ -192,7 +216,7 @@ fn test_2() {
 // #[sequential] By default all `Tests` `Setups` `Tear downs` and `Suites`
 // are assumed to be `sequential` unless overridden using parameters or inherited
 fn test_3() { 
-
+    println!("Order 2");
 }
 
 // 2: test_4 can only be executed after test 3 completes.
@@ -201,7 +225,7 @@ fn test_3() {
 // #[sequential] By default all `Tests` `Setups` `Tear downs` and `Suites` are assumed 
 // to be `sequential` unless overridden using parameters or inherited
 fn test_4() { 
-
+    println!("Order 3");
 }
 
 // 3: test_5 and test_6 can be executed at the same time
@@ -209,13 +233,13 @@ fn test_4() {
 #[integration_test]
 #[parallel]
 fn test_5() { 
-
+    println!("Order 4");
 }
 
 #[integration_test]
 #[parallel]
 fn test_6() { 
-
+    println!("Order 6");
 }
 
 ```
