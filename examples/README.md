@@ -1,5 +1,19 @@
 # Say Hello world to Integra8.
 
+# Table of Contents
+1.  [Async / Sync](#Async-/-Sync)
+2.  [Names and Descriptions](#Names-and-Descriptions)
+3.  [Allow Failure](#Allow-Failure)
+4.  [Ignore Component](#Ignore-Component)
+5.  [Setup and Teardown](#Setup-and-Teardown)
+6.  [Concurrency](#Concurrency)
+7.  [Timing-out](#Timing-out)
+8.  [Setup and Teardown](#Setup-and-Teardown)
+9.  [Suites](#Suites)
+10. [Nested Suites](#Nested-Suites)
+11. [Suite Concurrency](#Suite-Concurrency)
+ 
+
 ```rust
 #[macro_use]
 pub extern crate integra8;
@@ -38,7 +52,7 @@ async fn async_test() {
 }
 ```
 
-# Custom names and descriptions
+# Names and Descriptions
 `Suites`, `Tests`, `Setups` and `Tear downs` can all have a human friendly name assigned, as well as description for documentation.
 Name and description are shown in test outputs when the test fails to help give quick feedback.
 
@@ -208,9 +222,9 @@ fn test_6() {
 
 ** *By default all `Tests` `Setups` `Tear downs` and `Suites` are assumed to be `sequential` unless overridden using parameters or inherited. See [main.rs](./3_test_main/a_global_settings/src/main.rs)*
 
-# Timeout Behavior
+# Timing-out
 
-#### Duration warning threshold
+## Duration warning threshold
 `Tests` can be decorated with `#[warn_threshold_milliseconds( )]`
 or `#[warn_threshold_seconds( )]` to indicate the duration threshold 
 for warning result.
@@ -223,7 +237,7 @@ fn this_test_will_show_a_timeout_warning() {
 }
 ```
 
-#### Critical duration threshold
+## Critical duration threshold
 `Tests`, `Setups` and `Tear downs` can all be decorated with `#[critical_threshold_milliseconds( )]`
 or `#[critical_threshold_seconds( )]` to indicate the max duration 
 before it is aborted.
