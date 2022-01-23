@@ -18,7 +18,7 @@ impl OutputFormatterFactory for NoOutputFormatter {
 
     fn create<T>(
         _formatter_parameters: &Self::FormatterParameters,
-        _test_parameters: &T,
+        _framework: &T,
     ) -> Box<dyn OutputFormatter> {
         Box::new(NoOutputFormatter::new())
     }

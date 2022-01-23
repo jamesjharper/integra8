@@ -9,7 +9,7 @@ pub fn register_suite(input_tokens: TokenStream) -> TokenStream {
 
     let mut test_attr = match SuiteAttributes::take_from(&mut decorated_mod.attrs) {
         Ok(test_attr) => test_attr,
-        Err(err) => return err,
+        Err(err) => return syn::Error::into_compile_error(err).into(),
     };
 
     let integra8_path = test_attr.take_integra8_path();

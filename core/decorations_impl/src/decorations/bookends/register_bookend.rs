@@ -10,7 +10,7 @@ pub fn register_teardown(input_tokens: TokenStream) -> TokenStream {
 
     let mut test_attr = match BookendAttributes::take_from(&mut decorated_fn.attrs) {
         Ok(test_attr) => test_attr,
-        Err(err) => return err,
+        Err(err) => return syn::Error::into_compile_error(err).into(),
     };
 
     // Attributes
@@ -18,8 +18,8 @@ pub fn register_teardown(input_tokens: TokenStream) -> TokenStream {
     let name_expr = test_attr.take_name();
     let description_expr = test_attr.take_description();
     let ignore_expr = test_attr.take_ignore();
-    let critical_threshold_expr = test_attr.take_critical_threshold();
-    let concurrency_mode = test_attr.take_concurrency_mode(&integra8_path);
+    let time_limit_expr = test_attr.take_time_limit();
+    let concurrency_mode_expr = test_attr.take_concurrency_mode(&integra8_path);
 
     // Fn
     let mut teardown_fn = ExecFn::from(decorated_fn, &integra8_path);
@@ -48,8 +48,8 @@ pub fn register_teardown(input_tokens: TokenStream) -> TokenStream {
                             path: module_path!(),
                             location: Some(#integra8_path ::components::src_loc!()),
                             ignore: #ignore_expr,
-                            critical_threshold: #critical_threshold_expr,
-                            concurrency_mode: #concurrency_mode,
+                            critical_threshold: #time_limit_expr,
+                            concurrency_mode: #concurrency_mode_expr,
                         },
                         bookend_fn: #delegate_expr,
                     }
@@ -66,7 +66,7 @@ pub fn register_setup(input_tokens: TokenStream) -> TokenStream {
 
     let mut test_attr = match BookendAttributes::take_from(&mut decorated_fn.attrs) {
         Ok(test_attr) => test_attr,
-        Err(err) => return err,
+        Err(err) => return syn::Error::into_compile_error(err).into(),
     };
 
     // Attributes
@@ -74,8 +74,8 @@ pub fn register_setup(input_tokens: TokenStream) -> TokenStream {
     let name_expr = test_attr.take_name();
     let description_expr = test_attr.take_description();
     let ignore_expr = test_attr.take_ignore();
-    let critical_threshold_expr = test_attr.take_critical_threshold();
-    let concurrency_mode = test_attr.take_concurrency_mode(&integra8_path);
+    let time_limit_expr = test_attr.take_time_limit();
+    let concurrency_mode_expr = test_attr.take_concurrency_mode(&integra8_path);
 
     // Fn
     let mut setup_fn = ExecFn::from(decorated_fn, &integra8_path);
@@ -104,8 +104,8 @@ pub fn register_setup(input_tokens: TokenStream) -> TokenStream {
                             path: module_path!(),
                             location: Some(#integra8_path ::components::src_loc!()),
                             ignore: #ignore_expr,
-                            critical_threshold: #critical_threshold_expr,
-                            concurrency_mode: #concurrency_mode,
+                            critical_threshold: #time_limit_expr,
+                            concurrency_mode: #concurrency_mode_expr,
                         },
                         bookend_fn: #delegate_expr,
                     }

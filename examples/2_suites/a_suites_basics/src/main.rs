@@ -6,20 +6,20 @@ main_test! {
     console_output: integra8_tree_formatter::TreeFormatter,
 }
 
-/// `Tests`, `Setups`, `Tear downs` not belonging to a suite
-/// are at part of the "root" suite, and are run first. 
+// `Tests`, `Setups`, `Tear downs` not belonging to a suite
+// are at part of the "root" suite, and are run first. 
 #[integration_test]
 fn first_test() {
     println!("This test before any suites");
 }
 
-/// Suites at the root level, are run after 
-/// root tests have completed
+// Suites at the root level, are run after 
+// root tests have completed
 #[suite]
 mod first_suite {
 
-    /// Same execution order applies inside a suite 
-    /// Setup ➞ Test ➞ Suites  ➞ Teardown
+    // Same execution order applies inside a suite 
+    // Setup ➞ Test ➞ Suites  ➞ Teardown
     #[setup]
     fn setup() {
         println!("first_suite::setup is called first");
@@ -36,7 +36,7 @@ mod first_suite {
     }
 }
 
-/// Suites are run in the order they appear within file.
+// Suites are run in the order they appear within file.
 #[suite]
 mod another_suite {
  

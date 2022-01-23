@@ -74,7 +74,7 @@ pub fn main_test(input_tokens: TokenStream) -> TokenStream {
                 TParametersExtend : #structopt_path ::StructOptInternal,
                 TParametersExtendFormatter : #structopt_path ::StructOptInternal
             > {
-                pub test_parameters: TestParameters,
+                pub framework: TestParameters,
                 pub app : TParametersExtend,
                 pub console_output_parameters_ext : TParametersExtendFormatter,
                 pub console_output_parameters: ConsoleOutputParameters
@@ -95,7 +95,7 @@ pub fn main_test(input_tokens: TokenStream) -> TokenStream {
 
                 fn from_clap(matches: &#structopt_path ::clap::ArgMatches) -> Self {
                     BaseParameters {
-                        test_parameters: #structopt_path ::StructOpt::from_clap(matches),
+                        framework: #structopt_path ::StructOpt::from_clap(matches),
                         app: #structopt_path ::StructOpt::from_clap(matches),
                         console_output_parameters: #structopt_path ::StructOpt::from_clap(matches),
                         console_output_parameters_ext: #structopt_path ::StructOpt::from_clap(matches),
@@ -461,38 +461,38 @@ pub fn main_test(input_tokens: TokenStream) -> TokenStream {
             > {
 
                 fn child_process_target(&self) -> Option<&'_ str> {
-                    self.test_parameters.child_process_target.as_ref().map(String::as_ref)
+                    self.framework.child_process_target.as_ref().map(String::as_ref)
                 }
 
                 fn use_child_processes(&self) -> bool {
-                    self.test_parameters.use_child_processes
+                    self.framework.use_child_processes
                 }
 
                 fn max_concurrency(&self) -> usize {
-                    self.test_parameters.max_concurrency
+                    self.framework.max_concurrency
                 }
 
                 fn test_concurrency(&self) -> #integra8_path ::components::ConcurrencyMode {
-                    self.test_parameters.test_concurrency.clone()
+                    self.framework.test_concurrency.clone()
                 }
 
                 fn suite_concurrency(&self) -> #integra8_path ::components::ConcurrencyMode {
-                    self.test_parameters.suite_concurrency.clone()
+                    self.framework.suite_concurrency.clone()
                 }
 
                 fn default_setup_time_limit(&self) -> u64 {
-                    self.test_parameters.default_setup_time_limit
+                    self.framework.default_setup_time_limit
                 }
                 fn tear_down_time_limit_seconds(&self) -> u64 {
-                    self.test_parameters.tear_down_time_limit_seconds
+                    self.framework.tear_down_time_limit_seconds
                 }
 
                 fn test_time_limit_seconds(&self) -> u64 {
-                    self.test_parameters.test_time_limit_seconds
+                    self.framework.test_time_limit_seconds
                 }
 
                 fn test_warning_time_threshold_seconds(&self) -> u64 {
-                    self.test_parameters.test_warning_time_threshold_seconds
+                    self.framework.test_warning_time_threshold_seconds
                 }
 
                 fn root_namespace(&self) -> &'static str {

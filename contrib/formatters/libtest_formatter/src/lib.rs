@@ -231,7 +231,7 @@ impl OutputFormatterFactory for PrettyFormatter {
     type FormatterParameters = PrettyFormatterParameters;
     fn create<T>(
         _formatter_parameters: &Self::FormatterParameters,
-        _test_parameters: &T,
+        _framework: &T,
     ) -> Box<dyn OutputFormatter> {
         let formatter = PrettyFormatter::new(
             match term::stdout() {

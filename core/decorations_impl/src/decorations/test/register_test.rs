@@ -10,17 +10,17 @@ pub fn register_test(input_tokens: TokenStream) -> TokenStream {
 
     let mut test_attr = match TestAttributes::take_from(&mut decorated_fn.attrs) {
         Ok(test_attr) => test_attr,
-        Err(err) => return err,
+        Err(err) => return syn::Error::into_compile_error(err).into(),
     };
 
     // Attributes
     let integra8_path = test_attr.take_integra8_path();
-    let ignore_test_expr = test_attr.take_ignore_test();
+    let ignore_expr = test_attr.take_ignore();
     let name_expr = test_attr.take_name();
     let description_expr = test_attr.take_description();
     let allow_fail_expr = test_attr.take_allow_fail();
-    let warn_threshold_expr = test_attr.take_warn_threshold();
-    let critical_threshold_expr = test_attr.take_critical_threshold();
+    let warn_time_limit_expr = test_attr.take_warn_time_limit();
+    let time_limit_expr = test_attr.take_time_limit();
     let concurrency_mode_expr = test_attr.take_concurrency_mode(&integra8_path);
 
     // Fn
@@ -48,10 +48,10 @@ pub fn register_test(input_tokens: TokenStream) -> TokenStream {
                            path: module_path!(),
                            description: #description_expr,
                            location: Some(#integra8_path ::components::src_loc!()),
-                           ignore: #ignore_test_expr,
+                           ignore: #ignore_expr,
                            allow_fail: #allow_fail_expr,
-                           warn_threshold: #warn_threshold_expr,
-                           critical_threshold: #critical_threshold_expr,
+                           warn_threshold: #warn_time_limit_expr,
+                           critical_threshold: #time_limit_expr,
                            concurrency_mode: #concurrency_mode_expr,
                         },
                         test_fn: #delegate_expr,

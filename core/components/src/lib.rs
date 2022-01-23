@@ -16,6 +16,8 @@ pub use suite::{Suite, SuiteAttributes};
 mod acceptance_criteria;
 pub use acceptance_criteria::{AcceptanceCriteria, TimingAcceptanceCriteria};
 
+pub mod macros;
+
 mod meta;
 pub use meta::{
     ComponentDescription, ComponentGeneratorId, ComponentId, ComponentLocation, ComponentPath,

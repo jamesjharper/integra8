@@ -64,7 +64,7 @@ fn global_defaults() {
 
 #[integration_test]
 #[sequential]
-#[warn_threshold_milliseconds(10)]
-#[critical_threshold_milliseconds(10)]
+#[warning_time_limit = "10 ms"]
+#[time_limit = "10 ms"]
 fn override_global_defaults() {
 }

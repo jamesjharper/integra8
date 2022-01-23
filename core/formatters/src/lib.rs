@@ -22,7 +22,7 @@ pub trait OutputFormatterFactory {
     type FormatterParameters;
     fn create<T: TestParameters>(
         formatter_parameters: &Self::FormatterParameters,
-        test_parameters: &T,
+        framework: &T,
     ) -> Box<dyn OutputFormatter>;
 
     fn default_style() -> &'static str {
