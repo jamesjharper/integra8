@@ -17,7 +17,7 @@ categories = ["development-tools" ]
 structopt = "0.3"
 term = "0.5"
 linkme = "0.2"
-
+humantime = "2.1.0"
 
 async-process = "1.2.0"
 futures = "0.3.17"

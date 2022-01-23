@@ -24,7 +24,27 @@ mod introducing {
     }
 }
 
+
 ```
+
+
+## Why Integra8?
+Thanks to its thriving community, Rust is increasingly finding more and more uses across the tech stack. With this growth comes the need for new tools to meet its new demands.
+
+Rust has great inbuilt support for Continuos Integration Testing, Integra8's goal is to bring that same experience to the Continuos Deployment side of testing.
+
+You should consider Integra8 for these types of use
+- Web service testing
+- Web frontend testing
+- Blue/Green Cloud deployments
+- Certifications for multiple for environments 
+- Running many tests at the same time
+- Anything with long running blocking IO
+
+## Why not Integra8?
+Integra8 does not aim to replace Rusts existing inbuilt libtest framework. libtest is great, and many of Integra8's features can be replicated with whats already available in the community. 
+
+> TLDR: Integra8 is kind of like what Robot is for python but with without gherkin style syntax (for now ...) 
 
 ## Table of Contents
 1.  [Async / Sync](#Async-/-Sync)
@@ -70,7 +90,7 @@ async fn async_test() {
 ```
 
 # Human Friendly Names and Descriptions
-Code for humans first and robots second!
+Code for humans first, robots second!
 `Suites`, `Tests`, `Setups` and `Tear downs` can all have a human friendly name assigned, as well as description for documentation.
 Name and description are shown in test outputs when the test fails to help give quick feedback.
 
@@ -116,7 +136,7 @@ fn this_test_is_sus() {
 ```
 
 # Ignore Component
-Use the `#[ignore]` decoration on `Suites`, `Tests`, `Setups` and `Tear downs` to indicate they should should be skipped.
+Use the `#[ignore]` decoration on `Suites`, `Tests`, `Setups` and `Tear downs` to indicate they should be skipped.
 
 ## Example 
 ```rust
@@ -129,7 +149,8 @@ fn this_test_wont_even_run() {
 ```
 
 # Setup and Teardown
-A `Setup` or `Teardown` can be declared with the `#[setup]` and `#[teardown]` decorator and also can be `async`.
+Use the `#[setup]` and `#[teardown]` decorator indicate a `Setup` or `Teardown`.
+
 Different frameworks have variations in how setup's and teardown's work.
 
 Within Integra8
@@ -179,7 +200,7 @@ async fn teardown_3() {
 
 
 # Concurrency
-Use the `#[parallel]` or `#[sequential]` decorator on `Suites`, `Tests`, `Setups` and `Tear downs` to indicate there concurrency behavior.
+Use the `#[parallel]` or `#[sequential]` decorator on `Suites`, `Tests`, `Setups` and `Tear downs` to indicate concurrency behavior.
 
 > Integra8 has a pure `async`  implementation. It does not create threads, and instead leaves this to you async runtime of choice.
 > TODO: add link to section which explains the pros vs cons on this design choice
@@ -269,37 +290,40 @@ fn test_6() {
 # Timing-out
 
 ## Duration warning threshold
-`Tests` can be decorated with `#[warning_time_limit_milliseconds( )]`
-or `#[warning_time_limit_seconds( )]` to indicate the duration threshold 
-for warning result.
+
+Use the `#[warning_time_limit = "x secs /mins/ hours/ days"]` decorator on `tests` to indicate 
+the maximin duration this test can run before this test is flagged with a warning. 
+
+This can be used to give early warnings before a test exceeds some critical threshold.
+For example, a HTTP request time out, lambda time out, etc.
 
 ### Example 
 ```rust
 #[integration_test]
-#[warning_time_limit_milliseconds(10)]
+#[warning_time_limit = "1min 10 seconds"]
 fn this_test_will_show_a_timeout_warning() {
-    sleep(Duration::from_millis(100));
+    sleep(Duration::from_secs(70));
 }
 ```
 
 ## Critical duration threshold
-`Tests`, `Setups` and `Tear downs` can all be decorated with `#[time_limit_milliseconds( )]`
-or `#[time_limit_seconds( )]` to indicate the max duration 
-before it is aborted.
+Use the `#[time_limit = "x secs /mins/ hours/ days"]` decorator 
+on `Tests`, `Setups` and `Tear downs` to indicate  can all be decorated with 
+the maximum duration this component can run before it is forcibly aborted.
 
 ### Example 
 ```rust
 #[integration_test]
-#[time_limit_milliseconds(10)]
+#[time_limit = "10ms"]
 fn this_test_will_show_a_timeout_error() {
     sleep(Duration::from_millis(100));
 }
 ```
 
 # Suites
-A `Suites` can be declared with the `#[Suite]` decorator.
+Use the `#[suite]` decorator indicate a `Suite`.
 `Suites` are a groupings of `tests`, `setups`, `tear downs` and other `suites`, which 
-can be used to change execution, failure, and concurrency behavior.
+can be used to change group execution, failure, and concurrency behaviors.
 
 ## Suite Execution Order
 Within Integra8, the component execution order is
@@ -307,7 +331,6 @@ Within Integra8, the component execution order is
 2. `Tests`
 3. `Suites` *(recursively with the same order)*
 4. `Tear downs`
-
 
 ### Example 
 ```rust
@@ -356,7 +379,7 @@ mod another_suite {
 
 # Nested Suites
 `Suites` can be nested within each other to produce complex test behaviors
-such as multi step tests, grouping by function or scenario, or given then when type tests.
+such as multi step tests, grouping by function/scenario, or given then when type tests.
 
 ### Example 
 
@@ -390,8 +413,8 @@ mod matryoshka_suite {
 ```
 
 # Cascading Suite Failure Behavior
-`Suite` failures cascaded up to the root suite, causing execution of parent suites to abort as the failure bubbles up.
-Failure bubbling can be stopped with the use of `#[allow_fail]` decorator. This will cause the failure to 
+`Suite` failures cascaded upwards to the root suite, causing execution of parent suites to abort as the failure bubbles up.
+Failure bubbling can be halted with the use of `#[allow_fail]` decorator. This will cause the failure to 
 bubble as a warning and prevent further abortion to parent suites.
 
 ```rust
@@ -460,8 +483,6 @@ mod suite_which_will_fail {
 
 
 # Suite Concurrency
-Using the `#[parallel]` or `#[sequential]` decorator on `Tests` `Setups` `Tear downs` and `Suites` can influence concurrency behavior. 
-
 Integra8 always honors the component order in code for all components _except_ suites. 
 
 Instead Integra8, favors running parallel suites over serial onces, and will prioritizes running as many suites at once. The intent is, 
@@ -497,8 +518,8 @@ Exact implementation details for scheduling can be found [here](./../core/schedu
          └─────────┬──────────┘
                    │
              ╔═════╧══════╗
-             ║  suite_1   ║
-             ╟─────┬──────╢
+             ║  suite_1   ║ <-- suite 1 runs last as its `sequential`
+             ╟─────┬──────╢     despite it being defined first
              ║     │      ║
              ║  [test_1]  ║
              ║     │      ║

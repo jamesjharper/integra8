@@ -52,27 +52,27 @@ impl ApplicationParameters {
     }
 
     pub fn take_default_setup_time_limit(&mut self) -> TokenStream {
-        self.take_string_parameter("default_setup_time_limit_seconds")
+        self.take_string_parameter("default_setup_time_limit")
             .map(|x| x.render_tokens())
-            .unwrap_or_else(|| parse_quote!("30"))
+            .unwrap_or_else(|| parse_quote!("30s"))
     }
 
     pub fn take_tear_down_time_limit_seconds(&mut self) -> TokenStream {
-        self.take_string_parameter("default_tear_down_time_limit_seconds")
+        self.take_string_parameter("default_tear_down_time_limit")
             .map(|x| x.render_tokens())
-            .unwrap_or_else(|| parse_quote!("30"))
+            .unwrap_or_else(|| parse_quote!("30s"))
     }
 
     pub fn take_test_time_limit_seconds(&mut self) -> TokenStream {
-        self.take_string_parameter("default_test_time_limit_seconds")
+        self.take_string_parameter("default_test_time_limit")
             .map(|x| x.render_tokens())
-            .unwrap_or_else(|| parse_quote!("30"))
+            .unwrap_or_else(|| parse_quote!("30s"))
     }
 
     pub fn take_test_warning_time_threshold_seconds(&mut self) -> TokenStream {
-        self.take_string_parameter("default_test_warning_time_threshold_seconds")
+        self.take_string_parameter("default_test_warning_time_limit")
             .map(|x| x.render_tokens())
-            .unwrap_or_else(|| parse_quote!("30"))
+            .unwrap_or_else(|| parse_quote!("30s"))
     }
 
     pub fn take_console_output_style(

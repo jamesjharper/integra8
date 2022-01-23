@@ -28,9 +28,9 @@ impl Parse for Parameter {
         let value = match key.as_str() {
             "max_concurrency"
             | "default_setup_time_limit"
-            | "default_tear_down_time_limit_seconds"
-            | "default_test_time_limit_seconds"
-            | "default_test_warning_time_threshold_seconds"
+            | "default_tear_down_time_limit"
+            | "default_test_time_limit"
+            | "default_test_warning_time_limit"
             | "default_test_concurrency"
             | "default_suite_concurrency"
             | "console_output_level"

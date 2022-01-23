@@ -19,28 +19,27 @@ main_test! {
 
     // Global default concurrency mode for suites
     // Default values = Sequential
-    default_suite_concurrency: Parallel,
+    default_suite_concurrency: "Parallel",
 
     // Global default concurrency mode for testes
     // Default values = Sequential
-    default_test_concurrency: Parallel,
+    default_test_concurrency: "Parallel",
 
     // Global default time out for setups
-    // Default values = 30
-    default_setup_time_limit: 20,
+    // Default values = "30 seconds"
+    default_setup_time_limit: "20 seconds",
 
     // Global default time out for tear downs
-    // Default values = 30
-    default_tear_down_time_limit_seconds: 20,
+    // Default values = "30 seconds"
+    default_tear_down_time_limit: "20 seconds",
 
     // Global default warning threshold for tests
-    // Default values = 30
-    default_test_warning_time_threshold_seconds: 30,
+    // Default values = "30 seconds"
+    default_test_warning_time_limit: "30 seconds",
 
     // default time out for tests
-    // Default values = 30
-    default_test_time_limit_seconds: 30,
-
+    // Default values = "30 seconds"
+    default_test_time_limit: "30 seconds",
 
     // TODO: this should be automatically detected as default
     console_output: integra8_tree_formatter::TreeFormatter

@@ -44,6 +44,10 @@ pub mod structopt {
     pub use structopt::*;
 }
 
+pub mod humantime {
+    pub use humantime::parse_duration;
+}
+
 #[macro_export]
 macro_rules! run_tests {
     ($parameters:expr) => {

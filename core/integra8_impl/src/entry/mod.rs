@@ -153,14 +153,15 @@ pub fn main_test(input_tokens: TokenStream) -> TokenStream {
 
                 pub child_process_target: Option<String>,
                 pub max_concurrency: usize,
-                pub default_setup_time_limit: u64,
-                pub test_time_limit_seconds: u64,
-                pub test_warning_time_threshold_seconds: u64,
-                pub tear_down_time_limit_seconds: u64,
+                pub default_setup_time_limit: std::time::Duration,
+                pub test_time_limit: std::time::Duration,
+                pub test_warning_time_limit: std::time::Duration,
+                pub tear_down_time_limit: std::time::Duration,
 
                 pub test_concurrency: #integra8_path ::components::ConcurrencyMode,
                 pub suite_concurrency: #integra8_path ::components::ConcurrencyMode
             }
+
 
             impl #structopt_path ::StructOptInternal for TestParameters {
                 fn augment_clap<'a, 'b>(
@@ -213,8 +214,8 @@ pub fn main_test(input_tokens: TokenStream) -> TokenStream {
                         .multiple(false)
                         .required(false)
                         .validator(|s| {
-                            ::std::str::FromStr::from_str(s.as_str())
-                                .map(|_: u64| ())
+                            #integra8_path ::humantime::parse_duration(s.as_str())
+                                .map(|_| ())
                                 .map_err(|e| e.to_string())
                         })
                         .long("default:setup-time-limit")
@@ -226,8 +227,8 @@ pub fn main_test(input_tokens: TokenStream) -> TokenStream {
                         .multiple(false)
                         .required(false)
                         .validator(|s| {
-                            ::std::str::FromStr::from_str(s.as_str())
-                                .map(|_: u64| ())
+                            #integra8_path ::humantime::parse_duration(s.as_str())
+                                .map(|_| ())
                                 .map_err(|e| e.to_string())
                         })
                         .long("default:tear-down-time-limit")
@@ -238,8 +239,8 @@ pub fn main_test(input_tokens: TokenStream) -> TokenStream {
                         .multiple(false)
                         .required(false)
                         .validator(|s| {
-                            ::std::str::FromStr::from_str(s.as_str())
-                                .map(|_: u64| ())
+                            #integra8_path ::humantime::parse_duration(s.as_str())
+                                .map(|_| ())
                                 .map_err(|e| e.to_string())
                         })
                         .long("default:test-time-limit")
@@ -250,8 +251,8 @@ pub fn main_test(input_tokens: TokenStream) -> TokenStream {
                         .multiple(false)
                         .required(false)
                         .validator(|s| {
-                            ::std::str::FromStr::from_str(s.as_str())
-                                .map(|_: u64| ())
+                            #integra8_path ::humantime::parse_duration(s.as_str())
+                                .map(|_| ())
                                 .map_err(|e| e.to_string())
                         })
                         .long("default:test-warn-time-threshold")
@@ -321,19 +322,19 @@ pub fn main_test(input_tokens: TokenStream) -> TokenStream {
                             .unwrap(),
                         default_setup_time_limit: matches
                             .value_of("default:setup-time-limit")
-                            .map(|s| ::std::str::FromStr::from_str(s).unwrap())
+                            .map(|s| #integra8_path ::humantime::parse_duration(s).unwrap())
                             .unwrap(),
-                        tear_down_time_limit_seconds: matches
+                        tear_down_time_limit: matches
                             .value_of("default:tear-down-time-limit")
-                            .map(|s| ::std::str::FromStr::from_str(s).unwrap())
+                            .map(|s| #integra8_path ::humantime::parse_duration(s).unwrap())
                             .unwrap(),
-                        test_time_limit_seconds: matches
+                        test_time_limit: matches
                             .value_of("default:test-time-limit")
-                            .map(|s| ::std::str::FromStr::from_str(s).unwrap())
+                            .map(|s| #integra8_path ::humantime::parse_duration(s).unwrap())
                             .unwrap(),
-                        test_warning_time_threshold_seconds: matches
+                            test_warning_time_limit: matches
                             .value_of("default:test-warn-time-limit")
-                            .map(|s| ::std::str::FromStr::from_str(s).unwrap())
+                            .map(|s| #integra8_path ::humantime::parse_duration(s).unwrap())
                             .unwrap(),
                         test_concurrency: matches
                             .value_of("default:test-concurrency")
@@ -346,8 +347,6 @@ pub fn main_test(input_tokens: TokenStream) -> TokenStream {
                     }
                 }
             }
-
-
 
             // Test Parameters
 
@@ -480,21 +479,22 @@ pub fn main_test(input_tokens: TokenStream) -> TokenStream {
                     self.framework.suite_concurrency.clone()
                 }
 
-                fn default_setup_time_limit(&self) -> u64 {
+                fn setup_time_limit_duration(&self) -> std::time::Duration {
                     self.framework.default_setup_time_limit
                 }
-                fn tear_down_time_limit_seconds(&self) -> u64 {
-                    self.framework.tear_down_time_limit_seconds
-                }
 
-                fn test_time_limit_seconds(&self) -> u64 {
-                    self.framework.test_time_limit_seconds
+                fn tear_down_time_limit_duration(&self) -> std::time::Duration {
+                    self.framework.tear_down_time_limit
                 }
-
-                fn test_warning_time_threshold_seconds(&self) -> u64 {
-                    self.framework.test_warning_time_threshold_seconds
+            
+                fn test_time_limit_duration(&self) -> std::time::Duration {
+                    self.framework.test_time_limit
                 }
-
+            
+                fn test_warning_time_limit_duration(&self) -> std::time::Duration {
+                    self.framework.test_warning_time_limit
+                }
+            
                 fn root_namespace(&self) -> &'static str {
                     super::__ROOT_NAMESPACE
                 }
