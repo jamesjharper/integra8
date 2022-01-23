@@ -62,8 +62,8 @@ impl ComponentReportBuilder {
     }
 
     pub fn time_until_deadline(&self, duration: Duration) -> Option<Duration> {
-        match self.acceptance_criteria.timing.critical_threshold {
-            Some(critical_threshold) => Some(critical_threshold.saturating_sub(duration)),
+        match self.acceptance_criteria.timing.time_limit {
+            Some(time_limit) => Some(time_limit.saturating_sub(duration)),
             None => None,
         }
     }
@@ -71,8 +71,8 @@ impl ComponentReportBuilder {
     pub fn time_taken(&mut self, duration: Duration) {
         self.timing = Some(ComponentTimeResult::new(
             duration,
-            self.acceptance_criteria.timing.warn_threshold.clone(),
-            self.acceptance_criteria.timing.critical_threshold.clone(),
+            self.acceptance_criteria.timing.warning_time_limit.clone(),
+            self.acceptance_criteria.timing.time_limit.clone(),
         ));
     }
 

@@ -13,20 +13,22 @@ pub struct SuiteAttributes {
     /// Indicates that this suite should be run, but failures should be ignored and do not cascade.
     pub allow_suite_fail: bool,
 
-    /// Describes the the default duration after which a test is flag as exceeded is expected duration.
-    /// Tests which are a part of this suite, that do not advertize a warning threshold will inherit this value.
+    /// The duration after which a test is flagged as exceeded is expected duration.
+    /// This can be used to give early warnings before a test exceeds some critical threshold.
+    /// For example, a HTTP request time out.
+    /// Tests which are a part of this suite, that do not advertize a warning time limit will inherit this value.
     pub test_warning_time_limit: Duration,
 
-    /// Describes the maximum duration a test can take before it is forcibly aborted.
-    /// Tests which are a part of this suite, that do not advertize a critical threshold will inherit this value
+    /// The maximum duration a test can take before it is forcibly aborted.
+    /// Tests which are a part of this suite, that do not advertize a time limit will inherit this value
     pub test_time_limit: Duration,
 
-    /// Describes the maximum duration a setup can take before it is forcibly aborted.
-    /// Setups which are a part of this suite, that do not advertize a critical threshold will inherit this value
+    /// The maximum duration a setup can take before it is forcibly aborted.
+    /// Setups which are a part of this suite, that do not advertize a time limit will inherit this value
     pub setup_time_limit: Duration,
 
-    /// Describes the maximum duration a tear down can take before it is forcibly aborted.
-    /// Tear downs which are a part of this suite, that do not advertize a critical threshold will inherit this value
+    /// The maximum duration a tear down can take before it is forcibly aborted.
+    /// Tear downs which are a part of this suite, that do not advertize a time limit will inherit this value
     pub tear_down_time_limit: Duration,
 
     /// The concurrency model used when executing this suite of tests.

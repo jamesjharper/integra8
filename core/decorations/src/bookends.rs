@@ -23,7 +23,7 @@ pub struct BookEndAttributesDecoration {
     pub ignore: Option<bool>,
 
     /// Describes the maximum duration a bookend can take before it is forcibly aborted
-    pub critical_threshold: Option<Duration>,
+    pub time_limit: Option<Duration>,
 
     /// The concurrency mode which this bookend will adhere to.
     /// `ConcurrencyMode::Parallel` will allow this bookend for be run at the same time as other bookends within this suite
@@ -53,7 +53,7 @@ impl<TParameters: TestParameters> BookEndDecoration<TParameters> {
             self.desc.path,
             self.desc.location,
             self.desc.ignore,
-            self.desc.critical_threshold,
+            self.desc.time_limit,
             self.desc.concurrency_mode,
             self.bookend_fn,
         )
@@ -74,7 +74,7 @@ impl<TParameters: TestParameters> BookEndDecoration<TParameters> {
             self.desc.path,
             self.desc.location,
             self.desc.ignore,
-            self.desc.critical_threshold,
+            self.desc.time_limit,
             self.desc.concurrency_mode,
             self.bookend_fn,
         )

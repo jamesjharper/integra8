@@ -115,7 +115,7 @@ mod nested_test_suite {
                 fn first() {}
 
                 #[integration_test]
-                #[critical_threshold_seconds(1)]
+                #[time_limit_seconds(1)]
                 fn should_have_time_error() {
                     //thread::sleep(time::Duration::from_millis(1100));
                 }

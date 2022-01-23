@@ -2,24 +2,28 @@ extern crate proc_macro;
 extern crate syn;
 use proc_macro::TokenStream;
 
-mod decorations;
+mod bookends;
+mod exec_fn;
+mod suite;
+mod test;
+mod parse;
 
 #[proc_macro_attribute]
 pub fn integration_test(_args_tokens: TokenStream, input_tokens: TokenStream) -> TokenStream {
-    decorations::test::register_test(input_tokens)
+    test::register_test(input_tokens)
 }
 
 #[proc_macro_attribute]
 pub fn suite(_args_tokens: TokenStream, input_tokens: TokenStream) -> TokenStream {
-    decorations::suite::register_suite(input_tokens)
+    suite::register_suite(input_tokens)
 }
 
 #[proc_macro_attribute]
 pub fn teardown(_args_tokens: TokenStream, input_tokens: TokenStream) -> TokenStream {
-    decorations::bookends::register_teardown(input_tokens)
+    bookends::register_teardown(input_tokens)
 }
 
 #[proc_macro_attribute]
 pub fn setup(_args_tokens: TokenStream, input_tokens: TokenStream) -> TokenStream {
-    decorations::bookends::register_setup(input_tokens)
+    bookends::register_setup(input_tokens)
 }

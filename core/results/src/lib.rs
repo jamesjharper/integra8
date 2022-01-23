@@ -116,49 +116,49 @@ impl ComponentResult {
 #[derive(Clone, PartialEq, Debug)]
 pub struct ComponentTimeResult {
     pub time_taken: Duration,
-    pub warn_threshold: Option<Duration>,
-    pub critical_threshold: Option<Duration>,
+    pub warning_time_limit: Option<Duration>,
+    pub time_limit: Option<Duration>,
 }
 
 impl ComponentTimeResult {
     pub fn zero() -> Self {
         Self {
             time_taken: Duration::from_secs(0),
-            warn_threshold: None,
-            critical_threshold: None,
+            warning_time_limit: None,
+            time_limit: None,
         }
     }
 
     pub fn from_time(t: Duration) -> Self {
         Self {
             time_taken: t,
-            warn_threshold: None,
-            critical_threshold: None,
+            warning_time_limit: None,
+            time_limit: None,
         }
     }
 
     pub fn new(
         t: Duration,
-        warn_threshold: Option<Duration>,
-        critical_threshold: Option<Duration>,
+        warning_time_limit: Option<Duration>,
+        time_limit: Option<Duration>,
     ) -> Self {
         Self {
             time_taken: t,
-            warn_threshold: warn_threshold,
-            critical_threshold: critical_threshold,
+            warning_time_limit: warning_time_limit,
+            time_limit: time_limit,
         }
     }
 
     pub fn is_warn(&self) -> bool {
-        match self.warn_threshold {
-            Some(warn_threshold) => warn_threshold < self.duration(),
+        match self.warning_time_limit {
+            Some(warning_time_limit) => warning_time_limit < self.duration(),
             None => false,
         }
     }
 
     pub fn is_critical(&self) -> bool {
-        match self.critical_threshold {
-            Some(critical_threshold) => critical_threshold < self.duration(),
+        match self.time_limit {
+            Some(time_limit) => time_limit < self.duration(),
             None => false,
         }
     }

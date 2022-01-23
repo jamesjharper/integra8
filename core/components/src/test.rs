@@ -13,13 +13,13 @@ pub struct TestAttributes {
     /// Indicates that test should not be run.
     pub ignore: bool,
 
-    /// Describes the the duration after which a test is flag as exceeded is expected duration.
-    /// This can be used to give early warnings that a test is going to exceed some critical threshold.
+    /// The the duration after which a test is flagged as exceeded is expected duration.
+    /// This can be used to give early warnings before a test exceeds some critical threshold.
     /// For example, a HTTP request time out.
-    pub warn_threshold: Duration,
+    pub warning_time_limit: Duration,
 
     /// Describes the maximum duration a test can take before it is forcibly aborted
-    pub critical_threshold: Duration,
+    pub time_limit: Duration,
 
     /// The concurrency mode which this test will adhere to.
     /// `ConcurrencyMode::Parallel` will allow this test for be run at the same time as other tests within this tests suite
@@ -33,8 +33,8 @@ impl TestAttributes {
         parameters: &TParameters,
         ignore: Option<bool>,
         allow_fail: Option<bool>,
-        warn_threshold: Option<Duration>,
-        critical_threshold: Option<Duration>,
+        warning_time_limit: Option<Duration>,
+        time_limit: Option<Duration>,
         concurrency_mode: Option<ConcurrencyMode>,
     ) -> Self {
         Self {
@@ -47,10 +47,10 @@ impl TestAttributes {
             },
             ignore: ignore.unwrap_or_else(|| parent_desc.ignore),
 
-            warn_threshold: warn_threshold
+            warning_time_limit: warning_time_limit
                 .map_or_else(|| parent_desc.test_warning_time_limit, |val| val),
 
-            critical_threshold: critical_threshold
+            time_limit: time_limit
                 .map_or_else(|| parent_desc.test_time_limit, |val| val),
 
             concurrency_mode: concurrency_mode
@@ -78,8 +78,8 @@ impl<TParameters: TestParameters> Test<TParameters> {
         src: Option<ComponentLocation>,
         ignore: Option<bool>,
         allow_fail: Option<bool>,
-        warn_threshold: Option<Duration>,
-        critical_threshold: Option<Duration>,
+        warning_time_limit: Option<Duration>,
+        time_limit: Option<Duration>,
         concurrency_mode: Option<ConcurrencyMode>,
         test_fn: Delegate<TParameters>,
     ) -> Self {
@@ -99,8 +99,8 @@ impl<TParameters: TestParameters> Test<TParameters> {
                 parameters,
                 ignore,
                 allow_fail,
-                warn_threshold,
-                critical_threshold,
+                warning_time_limit,
+                time_limit,
                 concurrency_mode,
             ),
             test_fn: test_fn,

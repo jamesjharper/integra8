@@ -1,4 +1,4 @@
-use crate::decorations::suite::suite_attributes::SuiteAttributes;
+use crate::suite::suite_attributes::SuiteAttributes;
 
 use proc_macro::TokenStream;
 use quote::quote;

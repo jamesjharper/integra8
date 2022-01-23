@@ -31,29 +31,29 @@ impl AcceptanceCriteria {
 }
 
 pub struct TimingAcceptanceCriteria {
-    pub warn_threshold: Option<Duration>,
-    pub critical_threshold: Option<Duration>,
+    pub warning_time_limit: Option<Duration>,
+    pub time_limit: Option<Duration>,
 }
 
 impl TimingAcceptanceCriteria {
     pub fn for_test(attributes: &TestAttributes) -> Self {
         Self {
-            warn_threshold: Some(attributes.warn_threshold.clone()),
-            critical_threshold: Some(attributes.critical_threshold.clone()),
+            warning_time_limit: Some(attributes.warning_time_limit.clone()),
+            time_limit: Some(attributes.time_limit.clone()),
         }
     }
 
     pub fn for_bookend(attributes: &BookEndAttributes) -> Self {
         Self {
-            warn_threshold: Some(attributes.critical_threshold.clone()),
-            critical_threshold: Some(attributes.critical_threshold.clone()),
+            warning_time_limit: Some(attributes.time_limit.clone()),
+            time_limit: Some(attributes.time_limit.clone()),
         }
     }
 
     pub fn for_suite(_attributes: &SuiteAttributes) -> Self {
         Self {
-            warn_threshold: None,
-            critical_threshold: None,
+            warning_time_limit: None,
+            time_limit: None,
         }
     }
 }

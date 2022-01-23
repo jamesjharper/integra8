@@ -25,13 +25,13 @@ pub struct TestAttributesDecoration {
     /// Indicates that test should not be run.
     pub ignore: Option<bool>,
 
-    /// Describes the the duration after which a test is flag as exceeded is expected duration.
-    /// This can be used to give early warnings that a test is going to exceed some critical threshold.
+    /// The the duration after which a test is flagged as exceeded is expected duration.
+    /// This can be used to give early warnings before a test exceeds some critical threshold.
     /// For example, a HTTP request time out.
-    pub warn_threshold: Option<Duration>,
+    pub warning_time_limit: Option<Duration>,
 
-    /// Describes the maximum duration a test can take before it is forcibly aborted
-    pub critical_threshold: Option<Duration>,
+    /// The maximum duration a test can take before it is forcibly aborted
+    pub time_limit: Option<Duration>,
 
     /// The concurrency mode which this test will adhere to.
     /// `ConcurrencyMode::Parallel` will allow this test for be run at the same time as other tests within this tests suite
@@ -64,8 +64,8 @@ impl<TParameters: TestParameters> TestDecoration<TParameters> {
             self.desc.location,
             self.desc.ignore,
             self.desc.allow_fail,
-            self.desc.warn_threshold,
-            self.desc.critical_threshold,
+            self.desc.warning_time_limit,
+            self.desc.time_limit,
             self.desc.concurrency_mode,
             self.test_fn,
         )

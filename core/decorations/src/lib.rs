@@ -169,7 +169,7 @@ mod tests {
         #[integra8(crate = crate)]
         #[name("Setup A")]
         #[description("the description of this setup A")]
-        #[critical_threshold_seconds(2)]
+        #[time_limit_seconds(2)]
         #[ignore()]
         #[parallel]
         pub fn setup_a_with_decorations() {}
@@ -192,8 +192,8 @@ mod tests {
         #[integra8(crate = crate)]
         #[name("Test A")]
         #[description("the description of this test A")]
-        #[critical_threshold_seconds(2)]
-        #[warn_threshold_milliseconds(1000)]
+        #[time_limit_seconds(2)]
+        #[warning_time_limit_milliseconds(1000)]
         #[sequential]
         #[ignore()]
         #[allow_fail()]
@@ -218,7 +218,7 @@ mod tests {
         #[integra8(crate = crate)]
         #[name("Teardown A")]
         #[description("the description of this teardown A")]
-        #[critical_threshold_seconds(2)]
+        #[time_limit_seconds(2)]
         #[ignore()]
         #[parallel]
         pub fn teardown_a_with_decorations() {}
@@ -240,8 +240,8 @@ mod tests {
             #[integra8(crate = crate)]
             #[name("Test D")]
             #[description("the description of this test D")]
-            #[critical_threshold_seconds(2)]
-            #[warn_threshold_milliseconds(1000)]
+            #[time_limit_seconds(2)]
+            #[warning_time_limit_milliseconds(1000)]
             #[sequential]
             #[ignore()]
             #[allow_fail()]
@@ -251,7 +251,7 @@ mod tests {
             #[integra8(crate = crate)]
             #[name("Setup D")]
             #[description("the description of this setup D")]
-            #[critical_threshold_seconds(2)]
+            #[time_limit_seconds(2)]
             #[ignore()]
             #[parallel]
             pub fn setup_d_nested_with_decorations() {}
@@ -260,7 +260,7 @@ mod tests {
             #[integra8(crate = crate)]
             #[name("Teardown D")]
             #[description("the description of this teardown D")]
-            #[critical_threshold_seconds(2)]
+            #[time_limit_seconds(2)]
             #[ignore()]
             #[parallel]
             pub fn teardown_d_nested_with_decorations() {}
@@ -281,8 +281,8 @@ mod tests {
             #[integra8(crate = crate)]
             #[name("Test Az")]
             #[description("the description of this test Az")]
-            #[critical_threshold_seconds(2)]
-            #[warn_threshold_milliseconds(1000)]
+            #[time_limit_seconds(2)]
+            #[warning_time_limit_milliseconds(1000)]
             #[sequential]
             #[ignore()]
             #[allow_fail()]
@@ -296,7 +296,7 @@ mod tests {
             #[integra8(crate = crate)]
             #[name("Setup Az")]
             #[description("the description of this setup Az")]
-            #[critical_threshold_seconds(2)]
+            #[time_limit_seconds(2)]
             #[ignore()]
             #[parallel]
             pub fn setup_az_with_decorations() {}
@@ -309,7 +309,7 @@ mod tests {
             #[integra8(crate = crate)]
             #[name("Teardown Az")]
             #[description("the description of this teardown Az")]
-            #[critical_threshold_seconds(2)]
+            #[time_limit_seconds(2)]
             #[ignore()]
             #[parallel]
             pub fn teardown_az_with_decorations() {}
@@ -340,8 +340,8 @@ mod tests {
             #[integra8(crate = crate)]
             #[name("Test Ay")]
             #[description("the description of this test Ay")]
-            #[critical_threshold_seconds(2)]
-            #[warn_threshold_milliseconds(1000)]
+            #[time_limit_seconds(2)]
+            #[warning_time_limit_milliseconds(1000)]
             #[sequential]
             #[ignore()]
             #[allow_fail()]
@@ -355,7 +355,7 @@ mod tests {
             #[integra8(crate = crate)]
             #[name("Setup Ay")]
             #[description("the description of this setup Ay")]
-            #[critical_threshold_seconds(2)]
+            #[time_limit_seconds(2)]
             #[ignore()]
             #[parallel]
             pub fn setup_ay_with_decorations() {}
@@ -368,7 +368,7 @@ mod tests {
             #[integra8(crate = crate)]
             #[name("Teardown Ay")]
             #[description("the description of this teardown Ay")]
-            #[critical_threshold_seconds(2)]
+            #[time_limit_seconds(2)]
             #[ignore()]
             #[parallel]
             pub fn teardown_ay_with_decorations() {}
@@ -476,8 +476,8 @@ mod tests {
             assert_eq!(test1.description.component_type(), &ComponentType::Test);
             assert_eq!(test1.attributes.allow_fail, false);
             assert_eq!(test1.attributes.ignore, false);
-            assert_eq!(test1.attributes.critical_threshold.as_secs(), 30);
-            assert_eq!(test1.attributes.warn_threshold.as_secs(), 40);
+            assert_eq!(test1.attributes.time_limit.as_secs(), 30);
+            assert_eq!(test1.attributes.warning_time_limit.as_secs(), 40);
             assert_eq!(test1.attributes.concurrency_mode, ConcurrencyMode::Parallel);
         }
 
@@ -519,7 +519,7 @@ mod tests {
             assert_eq!(setup1.description.description(), None);
             assert_eq!(setup1.description.component_type(), &ComponentType::Setup);
             assert_eq!(setup1.attributes.ignore, false);
-            assert_eq!(setup1.attributes.critical_threshold.as_secs(), 20);
+            assert_eq!(setup1.attributes.time_limit.as_secs(), 20);
         }
 
         #[test]
@@ -560,7 +560,7 @@ mod tests {
             assert_eq!(teardown1.description.description(), None);
             assert_eq!(teardown1.description.component_type(), &ComponentType::TearDown);
             assert_eq!(teardown1.attributes.ignore, false);
-            assert_eq!(teardown1.attributes.critical_threshold.as_secs(), 50);
+            assert_eq!(teardown1.attributes.time_limit.as_secs(), 50);
         }
 
         #[test]
@@ -646,8 +646,8 @@ mod tests {
             assert_eq!(test1.description.component_type(), &ComponentType::Test);
             assert_eq!(test1.attributes.allow_fail, false);
             assert_eq!(test1.attributes.ignore, false);
-            assert_eq!(test1.attributes.critical_threshold.as_secs(), 30);
-            assert_eq!(test1.attributes.warn_threshold.as_secs(), 40);
+            assert_eq!(test1.attributes.time_limit.as_secs(), 30);
+            assert_eq!(test1.attributes.warning_time_limit.as_secs(), 40);
             assert_eq!(test1.attributes.concurrency_mode, ConcurrencyMode::Parallel);
         }
 
@@ -692,7 +692,7 @@ mod tests {
             assert_eq!(setup1.description.description(), None);
             assert_eq!(setup1.description.component_type(), &ComponentType::Setup);
             assert_eq!(setup1.attributes.ignore, false);
-            assert_eq!(setup1.attributes.critical_threshold.as_secs(), 20);
+            assert_eq!(setup1.attributes.time_limit.as_secs(), 20);
         }
 
         #[test]
@@ -736,7 +736,7 @@ mod tests {
             assert_eq!(teardown1.description.description(), None);
             assert_eq!(teardown1.description.component_type(), &ComponentType::TearDown);
             assert_eq!(teardown1.attributes.ignore, false);
-            assert_eq!(teardown1.attributes.critical_threshold.as_secs(), 50);
+            assert_eq!(teardown1.attributes.time_limit.as_secs(), 50);
         }
     }
 
@@ -780,8 +780,8 @@ mod tests {
             assert_eq!(test1.description.component_type(), &ComponentType::Test);
             assert_eq!(test1.attributes.allow_fail, true);
             assert_eq!(test1.attributes.ignore, true);
-            assert_eq!(test1.attributes.critical_threshold.as_secs(), 2);
-            assert_eq!(test1.attributes.warn_threshold.as_secs(), 1);
+            assert_eq!(test1.attributes.time_limit.as_secs(), 2);
+            assert_eq!(test1.attributes.warning_time_limit.as_secs(), 1);
             assert_eq!(test1.attributes.concurrency_mode, ConcurrencyMode::Sequential);
         }
     
@@ -820,7 +820,7 @@ mod tests {
             );
             assert_eq!(setup1.description.component_type(), &ComponentType::Setup);
             assert_eq!(setup1.attributes.ignore, true);
-            assert_eq!(setup1.attributes.critical_threshold.as_secs(), 2);
+            assert_eq!(setup1.attributes.time_limit.as_secs(), 2);
             assert_eq!(setup1.attributes.concurrency_mode, ConcurrencyMode::Parallel);
         }
     
@@ -859,7 +859,7 @@ mod tests {
             );
             assert_eq!(teardown1.description.component_type(), &ComponentType::TearDown);
             assert_eq!(teardown1.attributes.ignore, true);
-            assert_eq!(teardown1.attributes.critical_threshold.as_secs(), 2);
+            assert_eq!(teardown1.attributes.time_limit.as_secs(), 2);
             assert_eq!(teardown1.attributes.concurrency_mode, ConcurrencyMode::Parallel);
         }
 
@@ -947,8 +947,8 @@ mod tests {
             assert_eq!(test1.description.component_type(), &ComponentType::Test);
             assert_eq!(test1.attributes.allow_fail, true);
             assert_eq!(test1.attributes.ignore, true);
-            assert_eq!(test1.attributes.critical_threshold.as_secs(), 2);
-            assert_eq!(test1.attributes.warn_threshold.as_secs(), 1);
+            assert_eq!(test1.attributes.time_limit.as_secs(), 2);
+            assert_eq!(test1.attributes.warning_time_limit.as_secs(), 1);
             assert_eq!(test1.attributes.concurrency_mode, ConcurrencyMode::Sequential);
         }
 
@@ -987,7 +987,7 @@ mod tests {
             );
             assert_eq!(setup1.description.component_type(), &ComponentType::Setup);
             assert_eq!(setup1.attributes.ignore, true);
-            assert_eq!(setup1.attributes.critical_threshold.as_secs(), 2);
+            assert_eq!(setup1.attributes.time_limit.as_secs(), 2);
             assert_eq!(setup1.attributes.concurrency_mode, ConcurrencyMode::Parallel);
         }
 
@@ -1026,7 +1026,7 @@ mod tests {
             );
             assert_eq!(teardown1.description.component_type(), &ComponentType::TearDown);
             assert_eq!(teardown1.attributes.ignore, true);
-            assert_eq!(teardown1.attributes.critical_threshold.as_secs(), 2);
+            assert_eq!(teardown1.attributes.time_limit.as_secs(), 2);
             assert_eq!(teardown1.attributes.concurrency_mode, ConcurrencyMode::Parallel);
         }
     }
@@ -1074,8 +1074,8 @@ mod tests {
             assert_eq!(test1.description.component_type(), &ComponentType::Test);
             assert_eq!(test1.attributes.allow_fail, true);
             assert_eq!(test1.attributes.ignore, true);
-            assert_eq!(test1.attributes.critical_threshold.as_secs(), 2);
-            assert_eq!(test1.attributes.warn_threshold.as_secs(), 1);
+            assert_eq!(test1.attributes.time_limit.as_secs(), 2);
+            assert_eq!(test1.attributes.warning_time_limit.as_secs(), 1);
             assert_eq!(test1.attributes.concurrency_mode, ConcurrencyMode::Sequential);
         }
 
@@ -1118,7 +1118,7 @@ mod tests {
             );
             assert_eq!(setup1.description.component_type(), &ComponentType::Setup);
             assert_eq!(setup1.attributes.ignore, true);
-            assert_eq!(setup1.attributes.critical_threshold.as_secs(), 2);
+            assert_eq!(setup1.attributes.time_limit.as_secs(), 2);
             assert_eq!(setup1.attributes.concurrency_mode, ConcurrencyMode::Parallel);
         }
 
@@ -1160,7 +1160,7 @@ mod tests {
             );
             assert_eq!(teardown1.description.component_type(), &ComponentType::TearDown);
             assert_eq!(teardown1.attributes.ignore, true);
-            assert_eq!(teardown1.attributes.critical_threshold.as_secs(), 2);
+            assert_eq!(teardown1.attributes.time_limit.as_secs(), 2);
             assert_eq!(teardown1.attributes.concurrency_mode, ConcurrencyMode::Parallel);
         }
     }
@@ -1208,8 +1208,8 @@ mod tests {
             assert_eq!(test1.description.component_type(), &ComponentType::Test);
             assert_eq!(test1.attributes.allow_fail, true);
             assert_eq!(test1.attributes.ignore, true);
-            assert_eq!(test1.attributes.critical_threshold.as_secs(), 2);
-            assert_eq!(test1.attributes.warn_threshold.as_secs(), 1);
+            assert_eq!(test1.attributes.time_limit.as_secs(), 2);
+            assert_eq!(test1.attributes.warning_time_limit.as_secs(), 1);
             assert_eq!(test1.attributes.concurrency_mode, ConcurrencyMode::Sequential);
         }
 
@@ -1252,7 +1252,7 @@ mod tests {
             );
             assert_eq!(setup1.description.component_type(), &ComponentType::Setup);
             assert_eq!(setup1.attributes.ignore, true);
-            assert_eq!(setup1.attributes.critical_threshold.as_secs(), 2);
+            assert_eq!(setup1.attributes.time_limit.as_secs(), 2);
             assert_eq!(setup1.attributes.concurrency_mode, ConcurrencyMode::Parallel);
         }
 
@@ -1294,7 +1294,7 @@ mod tests {
             );
             assert_eq!(teardown1.description.component_type(), &ComponentType::TearDown);
             assert_eq!(teardown1.attributes.ignore, true);
-            assert_eq!(teardown1.attributes.critical_threshold.as_secs(), 2);
+            assert_eq!(teardown1.attributes.time_limit.as_secs(), 2);
             assert_eq!(teardown1.attributes.concurrency_mode, ConcurrencyMode::Parallel);
         }
     }
@@ -1336,8 +1336,8 @@ mod tests {
             assert_eq!(test1.description.component_type(), &ComponentType::Test);
             assert_eq!(test1.attributes.allow_fail, false);
             assert_eq!(test1.attributes.ignore, true);
-            assert_eq!(test1.attributes.critical_threshold.as_secs(), 13);
-            assert_eq!(test1.attributes.warn_threshold.as_secs(), 14);
+            assert_eq!(test1.attributes.time_limit.as_secs(), 13);
+            assert_eq!(test1.attributes.warning_time_limit.as_secs(), 14);
             assert_eq!(test1.attributes.concurrency_mode, ConcurrencyMode::Parallel);
         }
 
@@ -1374,7 +1374,7 @@ mod tests {
             assert_eq!(setup1.description.description(), None);
             assert_eq!(setup1.description.component_type(), &ComponentType::Setup);
             assert_eq!(setup1.attributes.ignore, true);
-            assert_eq!(setup1.attributes.critical_threshold.as_secs(), 12);
+            assert_eq!(setup1.attributes.time_limit.as_secs(), 12);
             assert_eq!(setup1.attributes.concurrency_mode, ConcurrencyMode::Sequential);
         }
 
@@ -1413,7 +1413,7 @@ mod tests {
             assert_eq!(teardown1.description.description(), None);
             assert_eq!(teardown1.description.component_type(), &ComponentType::TearDown);
             assert_eq!(teardown1.attributes.ignore, true);
-            assert_eq!(teardown1.attributes.critical_threshold.as_secs(), 11);
+            assert_eq!(teardown1.attributes.time_limit.as_secs(), 11);
             assert_eq!(teardown1.attributes.concurrency_mode, ConcurrencyMode::Sequential);
         }
     }
@@ -1456,8 +1456,8 @@ mod tests {
             assert_eq!(test1.description.component_type(), &ComponentType::Test);
             assert_eq!(test1.attributes.allow_fail, false);
             assert_eq!(test1.attributes.ignore, true);
-            assert_eq!(test1.attributes.critical_threshold.as_secs(), 13);
-            assert_eq!(test1.attributes.warn_threshold.as_secs(), 14);
+            assert_eq!(test1.attributes.time_limit.as_secs(), 13);
+            assert_eq!(test1.attributes.warning_time_limit.as_secs(), 14);
             assert_eq!(test1.attributes.concurrency_mode, ConcurrencyMode::Parallel);
         }
 
@@ -1495,7 +1495,7 @@ mod tests {
             assert_eq!(setup1.description.description(), None);
             assert_eq!(setup1.description.component_type(), &ComponentType::Setup);
             assert_eq!(setup1.attributes.ignore, true);
-            assert_eq!(setup1.attributes.critical_threshold.as_secs(), 12);
+            assert_eq!(setup1.attributes.time_limit.as_secs(), 12);
             assert_eq!(setup1.attributes.concurrency_mode, ConcurrencyMode::Sequential);
         }
 
@@ -1535,7 +1535,7 @@ mod tests {
             assert_eq!(teardown1.description.description(), None);
             assert_eq!(teardown1.description.component_type(), &ComponentType::TearDown);
             assert_eq!(teardown1.attributes.ignore, true);
-            assert_eq!(teardown1.attributes.critical_threshold.as_secs(), 11);
+            assert_eq!(teardown1.attributes.time_limit.as_secs(), 11);
             assert_eq!(teardown1.attributes.concurrency_mode, ConcurrencyMode::Sequential);
         }
     }

@@ -287,26 +287,26 @@ fn this_test_wont_even_run() {
 ```
 
 ## Duration warning threshold
-`Tests` can be decorated with `#[warn_threshold_milliseconds( )]`
-or `#[warn_threshold_seconds( )]` to indicate the duration threshold 
+`Tests` can be decorated with `#[warning_time_limit_milliseconds( )]`
+or `#[warning_time_limit_seconds( )]` to indicate the duration threshold 
 for warning result.
 
 ```rust
 #[integration_test]
-#[warn_threshold_milliseconds(10)]
+#[warning_time_limit_milliseconds(10)]
 fn this_test_will_show_a_timeout_warning() {
     sleep(Duration::from_millis(100));
 }
 ```
 
 ## Critical duration threshold
-`Tests`, `Setups` and `Tear downs` can all be decorated with `#[critical_threshold_milliseconds( )]`
-or `#[critical_threshold_seconds( )]` to indicate the max duration 
+`Tests`, `Setups` and `Tear downs` can all be decorated with `#[time_limit_milliseconds( )]`
+or `#[time_limit_seconds( )]` to indicate the max duration 
 before it is aborted.
 
 ```rust
 #[integration_test]
-#[critical_threshold_milliseconds(10)]
+#[time_limit_milliseconds(10)]
 fn this_test_will_show_a_timeout_error() {
     sleep(Duration::from_millis(100));
 }

@@ -3,7 +3,7 @@ use std::time::Duration;
 
 use syn::parse::Error;
 use syn::{parse_quote, Attribute, Expr, Path, Lit, Result};
-use crate::decorations::parse;
+use crate::parse;
 
 pub struct TestAttributes {
     integra8_path: Option<Path>,

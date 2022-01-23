@@ -1,5 +1,5 @@
-use crate::decorations::exec_fn::ExecFn;
-use crate::decorations::test::test_attributes::TestAttributes;
+use crate::exec_fn::ExecFn;
+use crate::test::test_attributes::TestAttributes;
 
 use proc_macro::TokenStream;
 use quote::quote;
@@ -50,8 +50,8 @@ pub fn register_test(input_tokens: TokenStream) -> TokenStream {
                            location: Some(#integra8_path ::components::src_loc!()),
                            ignore: #ignore_expr,
                            allow_fail: #allow_fail_expr,
-                           warn_threshold: #warn_time_limit_expr,
-                           critical_threshold: #time_limit_expr,
+                           warning_time_limit: #warn_time_limit_expr,
+                           time_limit: #time_limit_expr,
                            concurrency_mode: #concurrency_mode_expr,
                         },
                         test_fn: #delegate_expr,

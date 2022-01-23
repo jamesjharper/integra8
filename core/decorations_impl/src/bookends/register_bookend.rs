@@ -1,5 +1,5 @@
-use crate::decorations::bookends::bookend_attributes::BookendAttributes;
-use crate::decorations::exec_fn::ExecFn;
+use crate::bookends::bookend_attributes::BookendAttributes;
+use crate::exec_fn::ExecFn;
 
 use proc_macro::TokenStream;
 use quote::quote;
@@ -48,7 +48,7 @@ pub fn register_teardown(input_tokens: TokenStream) -> TokenStream {
                             path: module_path!(),
                             location: Some(#integra8_path ::components::src_loc!()),
                             ignore: #ignore_expr,
-                            critical_threshold: #time_limit_expr,
+                            time_limit: #time_limit_expr,
                             concurrency_mode: #concurrency_mode_expr,
                         },
                         bookend_fn: #delegate_expr,
@@ -104,7 +104,7 @@ pub fn register_setup(input_tokens: TokenStream) -> TokenStream {
                             path: module_path!(),
                             location: Some(#integra8_path ::components::src_loc!()),
                             ignore: #ignore_expr,
-                            critical_threshold: #time_limit_expr,
+                            time_limit: #time_limit_expr,
                             concurrency_mode: #concurrency_mode_expr,
                         },
                         bookend_fn: #delegate_expr,

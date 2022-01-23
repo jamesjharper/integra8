@@ -11,7 +11,7 @@ pub struct BookEndAttributes {
     pub ignore: bool,
 
     /// Describes the maximum duration a bookend can take before it is forcibly aborted
-    pub critical_threshold: Duration,
+    pub time_limit: Duration,
 
     /// The concurrency mode which this bookend will adhere to.
     /// `ConcurrencyMode::Parallel` will allow this bookend for be run at the same time as other bookends within this suite
@@ -23,12 +23,12 @@ impl BookEndAttributes {
     pub fn new_setup(
         parent_desc: &SuiteAttributes,
         ignore: Option<bool>,
-        critical_threshold: Option<Duration>,
+        time_limit: Option<Duration>,
         concurrency_mode: Option<ConcurrencyMode>,
     ) -> Self {
         Self {
             ignore: ignore.unwrap_or_else(|| parent_desc.ignore),
-            critical_threshold: critical_threshold
+            time_limit: time_limit
                 .map_or_else(|| parent_desc.setup_time_limit, |val| val),
 
             concurrency_mode: concurrency_mode
@@ -40,12 +40,12 @@ impl BookEndAttributes {
     pub fn new_tear_down(
         parent_desc: &SuiteAttributes,
         ignore: Option<bool>,
-        critical_threshold: Option<Duration>,
+        time_limit: Option<Duration>,
         concurrency_mode: Option<ConcurrencyMode>,
     ) -> Self {
         Self {
             ignore: ignore.unwrap_or_else(|| parent_desc.ignore),
-            critical_threshold: critical_threshold
+            time_limit: time_limit
                 .map_or_else(|| parent_desc.tear_down_time_limit, |val| val),
 
             concurrency_mode: concurrency_mode
@@ -72,7 +72,7 @@ impl<TParameters> BookEnd<TParameters> {
         path: &'static str,
         src: Option<ComponentLocation>,
         ignore: Option<bool>,
-        critical_threshold: Option<Duration>,
+        time_limit: Option<Duration>,
         concurrency_mode: Option<ConcurrencyMode>,
         setup_fn: Delegate<TParameters>,
     ) -> Self {
@@ -90,7 +90,7 @@ impl<TParameters> BookEnd<TParameters> {
             attributes: BookEndAttributes::new_setup(
                 parent_suite_attributes,
                 ignore,
-                critical_threshold,
+                time_limit,
                 concurrency_mode,
             ),
             bookend_fn: setup_fn,
@@ -106,7 +106,7 @@ impl<TParameters> BookEnd<TParameters> {
         path: &'static str,
         src: Option<ComponentLocation>,
         ignore: Option<bool>,
-        critical_threshold: Option<Duration>,
+        time_limit: Option<Duration>,
         concurrency_mode: Option<ConcurrencyMode>,
         setup_fn: Delegate<TParameters>,
     ) -> Self {
@@ -124,7 +124,7 @@ impl<TParameters> BookEnd<TParameters> {
             attributes: BookEndAttributes::new_tear_down(
                 parent_suite_attributes,
                 ignore,
-                critical_threshold,
+                time_limit,
                 concurrency_mode,
             ),
             bookend_fn: setup_fn,

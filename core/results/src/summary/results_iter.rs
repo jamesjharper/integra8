@@ -209,7 +209,7 @@ impl<'a> WarningResults<'a> {
     /// ```rust,ignore
     /// #[integration_test]
     /// #[allow_fail]
-    /// #[warning_critical_threshold_seconds(1)]
+    /// #[warning_time_limit_seconds(1)]
     /// fn this_test_will_be_aborted_after_1_second_but_will_still_be_accepted() {
     ///    std::thread::sleep(std::time::Duration::from_millis(1100));
     /// }
@@ -373,7 +373,7 @@ impl<'a> FailedResults<'a> {
     ///
     /// ```rust,ignore
     /// #[integration_test]
-    /// #[critical_threshold_seconds(1)]
+    /// #[time_limit_seconds(1)]
     /// fn this_test_will_be_aborted_after_1_second() {
     ///    std::thread::sleep(std::time::Duration::from_millis(1100));
     /// }
