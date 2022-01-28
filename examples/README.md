@@ -32,7 +32,7 @@ Thanks to its thriving community, Rust is increasingly finding more and more use
 
 Rust has great inbuilt support for Continuos Integration Testing, Integra8's goal is to bring that same experience to the Continuos Deployment side of testing.
 
-You should consider Integra8 for these types of use
+You should consider Integra8 for the follow use cases
 - Web service testing
 - Web frontend testing
 - Blue/Green Cloud deployments
@@ -83,6 +83,16 @@ of choice can be enabled via the `tokio-runtime` or `async-std-runtime` feature 
 > Using `async` for long running blocking IO is highly recommended as Integra8 is optimized for this.
 
 ### Example 
+
+```toml
+# use tokio
+integra8 = { version = "0.0.1-alpha", features = ["tokio-runtime"] } 
+```
+
+```toml
+# use async-std
+integra8 = { version = "0.0.1-alpha", features = ["async-std-runtime"] } 
+```
 
 ```rust
 #[integration_test]
