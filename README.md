@@ -311,12 +311,3 @@ fn this_test_will_show_a_timeout_error() {
     sleep(Duration::from_millis(100));
 }
 ```
-
-
-
-
-
-# Special Notes:
-Mac Build for 1.56 and above, seem seems to broken dues to open issue with linkme crate, used to auto detect tests
-https://github.com/dtolnay/linkme/issues/41
-https://github.com/CodeChain-io/intertrait/issues/6

@@ -27,7 +27,6 @@ mod introducing {
 
 ```
 
-
 ## Why Integra8?
 Thanks to its thriving community, Rust is increasingly finding more and more uses across the tech stack. With this growth comes the need for new tools to meet its new demands.
 
@@ -42,11 +41,10 @@ You should consider Integra8 for these types of use
 - Anything with long running blocking IO
 
 ## Why not Integra8?
-Integra8 does not aim to replace Rusts existing inbuilt libtest framework. libtest is great, and many of Integra8's features can be replicated with whats already available in the community. 
-
-> TLDR: Integra8 is kind of like what Robot is for python but with without gherkin style syntax (for now ...) 
+Integra8 does not aim to replace Rusts existing inbuilt `libtest` framework. `libtest` is great, and many of Integra8's features can be replicated with whats already available in the community. 
 
 ## Table of Contents
+### Fundaments 
 1.  [Async / Sync](#Async-/-Sync)
 2.  [Human Friendly Names and Descriptions](#Human-Friendly-Names-and-Descriptions)
 3.  [Allow Failure](#Allow-Failure)
@@ -55,17 +53,25 @@ Integra8 does not aim to replace Rusts existing inbuilt libtest framework. libte
 6.  [Concurrency](#Concurrency)
 7.  [Timing-out](#Timing-out)
 8.  [Setup and Teardown](#Setup-and-Teardown)
-9.  [Suites](#Suites)
-10. [Nested Suites](#Nested-Suites)
-11. [Cascading Suite Failure Behavior](#Cascading-Suite-Failure-Behavior)
-12. [Suite Concurrency](#Suite-Concurrency)
-13. [Global Settings](#Global-Settings)
-14. [Component Context ](#Component-Context)
-15. [Generating Context Data](#Generating-Test-Data)
-16. [Custom Command Line Parameters](#Custom-Command-Line-Parameters)
+
+### Suites
+1. [Suite Execution Order](#Suite-Execution-Order)
+2  [Nested Suites](#Nested-Suites)
+3. [Cascading Suite Failure Behavior](#Cascading-Suite-Failure-Behavior)
+4. [Suite Concurrency](#Suite-Concurrency)
+
+### Settings and Context
+1. [Global Settings](#Global-Settings)
+2. [Component Context](#Component-Context)
+4. [Custom Command Line Parameters](#Custom-Command-Line-Parameters)
+
+### Pitfalls
+1. [Stdout Capture + Child Processes](#Stdout-Capture-+-Child-Processes)
+2. [Async Timeout limitations](#Async-+-Timeout-limitations)
 
 
-# Async / Sync
+# Fundaments 
+## Async / Sync
 Integra8 has native support both `tokio` and `async-std` runtimes.
 `Tests`, `Setups` and `Tear downs` can all be declared `async` and your runtime 
 of choice can be enabled via the `tokio-runtime` or `async-std-runtime` feature flag.
@@ -74,35 +80,32 @@ of choice can be enabled via the `tokio-runtime` or `async-std-runtime` feature 
 > you will still need to enable ether the `tokio-runtime` or `async-std-runtime` feature flag for 
 > Integra8 to compile.
 >
-> Using `async` for long running blocking IO is highly recommended as Integra8 is optimized for this
+> Using `async` for long running blocking IO is highly recommended as Integra8 is optimized for this.
 
-## Example 
+### Example 
 
 ```rust
 #[integration_test]
 async fn async_test() {
-    #[cfg(feature = "integra8/tokio-runtime")]
     tokio::time::sleep(Duration::from_millis(10)).await;
-
-    #[cfg(feature = "integra8/async-std-runtime")]
-    async_std::task::sleep(Duration::from_millis(10)).await;
 }
 ```
 
-# Human Friendly Names and Descriptions
+## Human Friendly Names and Descriptions
 Code for humans first, robots second!
+
 `Suites`, `Tests`, `Setups` and `Tear downs` can all have a human friendly name assigned, as well as description for documentation.
 Name and description are shown in test outputs when the test fails to help give quick feedback.
 
-## Example 
+### Example 
 ```rust
 #[integration_test]
-#[name("A concise name that tells anyone what this test is doing")]
-#[description("
-A description which can be useful for adding 
+#[name = "A concise name that tells anyone what this test is doing"]
+#[description =
+"A description which can be useful for adding 
 exact details, assumptions or context behind 
-why this test exists
-")]
+why this test exists"
+]
 fn can_shutdown_hal_9000() {
     assert!(false, "I'm Afraid I Can't Do That, Dave");
 }
@@ -123,10 +126,10 @@ Output from `./test_basics`
 
 ```
 
-# Allow Failure 
+## Allow Failure 
 Use the `#[allow_fail]` decoration on `Tests` and `Suites` to indicate they are allowed to fail.
 
-## Example 
+### Example 
 ```rust
 #[integration_test]
 #[allow_fail]
@@ -135,10 +138,10 @@ fn this_test_is_sus() {
 }
 ```
 
-# Ignore Component
+## Ignore Component
 Use the `#[ignore]` decoration on `Suites`, `Tests`, `Setups` and `Tear downs` to indicate they should be skipped.
 
-## Example 
+### Example 
 ```rust
 #[integration_test]
 #[ignore]
@@ -148,7 +151,7 @@ fn this_test_wont_even_run() {
 
 ```
 
-# Setup and Teardown
+## Setup and Teardown
 Use the `#[setup]` and `#[teardown]` decorator indicate a `Setup` or `Teardown`.
 
 Different frameworks have variations in how setup's and teardown's work.
@@ -158,7 +161,7 @@ Within Integra8
 - Every `Setup` will run _once_ at the start of the test run, (ie once per _suite_, not once per _test_)
 - Every `Tear down` is _guaranteed_ to run regardless if a `test`, `setup` or `tear down` fails.
 
-## Example 
+### Example 
 ```rust
 #[setup]
 fn setup() {
@@ -199,20 +202,20 @@ async fn teardown_3() {
 ```
 
 
-# Concurrency
+## Concurrency
 Use the `#[parallel]` or `#[sequential]` decorator on `Suites`, `Tests`, `Setups` and `Tear downs` to indicate concurrency behavior.
 
-> Integra8 has a pure `async`  implementation. It does not create threads, and instead leaves this to you async runtime of choice.
-> TODO: add link to section which explains the pros vs cons on this design choice
+> Integra8 has a pure `async` implementation. It does not create threads, and instead leaves this to you async runtime of choice.
 
-## Concurrency Ordering behavior  
+### Concurrency Ordering behavior  
 Integra8 always honors the component order in code. 
-Due to this, components are only run concurrently, when they are *adjacent* to other concurrent components in the schedule order.
+Because of this, components are only run concurrently, when they are *adjacent* to other concurrent components in the schedule order.
 
 This design allows ordered tests to co-exist with a concept of concurrency, while also enabling concurrency modes to combine in unique ways that may not be immediately intuitive.
+
 Exact implementation details for scheduling can be found [here](./../core/scheduling/src/components.rs)
 
-## Example 
+### Example 
 ```
           start
             :
@@ -287,17 +290,17 @@ fn test_6() {
 
 ** *By default all `Tests` `Setups` `Tear downs` and `Suites` are assumed to be `sequential` unless overridden using parameters or inherited. See [main.rs](./3_test_main/a_global_settings/src/main.rs)*
 
-# Timing-out
+## Timing-out
 
-## Duration warning threshold
+### Warning Timeout threshold
 
-Use the `#[warning_time_limit = "x secs /mins/ hours/ days"]` decorator on `tests` to indicate 
+Use the `#[warning_time_limit = "x secs/mins/hours/days"]` decorator on `tests` to indicate 
 the maximin duration this test can run before this test is flagged with a warning. 
 
 This can be used to give early warnings before a test exceeds some critical threshold.
 For example, a HTTP request time out, lambda time out, etc.
 
-### Example 
+#### Example 
 ```rust
 #[integration_test]
 #[warning_time_limit = "1min 10 seconds"]
@@ -306,12 +309,12 @@ fn this_test_will_show_a_timeout_warning() {
 }
 ```
 
-## Critical duration threshold
+### Critical Timeout threshold
 Use the `#[time_limit = "x secs /mins/ hours/ days"]` decorator 
 on `Tests`, `Setups` and `Tear downs` to indicate  can all be decorated with 
 the maximum duration this component can run before it is forcibly aborted.
 
-### Example 
+#### Example 
 ```rust
 #[integration_test]
 #[time_limit = "10ms"]
@@ -377,7 +380,7 @@ mod another_suite {
 
 ```
 
-# Nested Suites
+## Nested Suites
 `Suites` can be nested within each other to produce complex test behaviors
 such as multi step tests, grouping by function/scenario, or given then when type tests.
 
@@ -412,7 +415,7 @@ mod matryoshka_suite {
 }
 ```
 
-# Cascading Suite Failure Behavior
+## Cascading Suite Failure Behavior
 `Suite` failures cascaded upwards to the root suite, causing execution of parent suites to abort as the failure bubbles up.
 Failure bubbling can be halted with the use of `#[allow_fail]` decorator. This will cause the failure to 
 bubble as a warning and prevent further abortion to parent suites.
@@ -482,7 +485,7 @@ mod suite_which_will_fail {
 ```
 
 
-# Suite Concurrency
+## Suite Concurrency
 Integra8 always honors the component order in code for all components _except_ suites. 
 
 Instead Integra8, favors running parallel suites over serial onces, and will prioritizes running as many suites at once. The intent is, 
@@ -554,37 +557,38 @@ mod suite_2 {
 
     #[integration_test]
     fn test_1() { 
-        println!("Any thing in suite 3 could be running right now")
+        println!("Any thing in suite_3 could be running right now")
     }
 
     #[integration_test]
     fn test_2() { 
-        println!("Any thing in suite 3 could be running right now")
+        println!("Any thing in suite_3 could be running right now")
     }
 }
 
 #[suite]
 #[parallel]
-mod suite_2 {
+mod suite_3 {
 
     #[integration_test]
     fn test_1() { 
-        println!("Any thing in suite 2 could be running right now")
+        println!("Any thing in suite_2 could be running right now")
     }
 
     #[integration_test]
     fn test_2() { 
-        println!("Any thing in suite 2 could be running right now")
+        println!("Any thing in suite_2 could be running right now")
     }
 }
 
 ```
 
+# Settings and Context
 
-# Global Settings
+## Global Settings
 Integra8 supports a number of settings which can be configured globally via `test_main` or mutated via command line parameters.
 
-## Max Concurrency: 
+### Max Concurrency: 
  - __description:__   Limits the number of components which can run at the same time
  - __test_main:__     `max_concurrency` 
  - __Command line:__  `--framework:max-concurrency` 
@@ -595,7 +599,7 @@ Integra8 supports a number of settings which can be configured globally via `tes
     - `1`       : Forces all test to run Sequentially
     - `{usize}` : You choose your own destiny 
 
-## Child Process 
+### Child Process 
  - __description:__   When enabled, all test run in their own process. This is required for a clean log output.
  - __test_main:__     `use_child_process` 
  - __Command line:__  `--framework:use-child-process` 
@@ -604,7 +608,7 @@ Integra8 supports a number of settings which can be configured globally via `tes
     - `true`    : All components run in their own process 
     - `false`   : All components run internal to the test application
 
-## Default Suite Concurrency Mode
+### Default Suite Concurrency Mode
  - __description:__   Global default concurrency mode for suites
  - __test_main:__     `suite_concurrency` 
  - __Command line:__  `--default:suite-concurrency` 
@@ -613,7 +617,7 @@ Integra8 supports a number of settings which can be configured globally via `tes
     - `Sequential` : All suites run as `Sequential` unless explicitly decorated 
     - `Parallel`   : All suites run as `Parallel` unless explicitly decorated 
 
-## Default Test Concurrency Mode
+### Default Test Concurrency Mode
  - __description:__   Global default concurrency mode for tests
  - __test_main:__     `test_concurrency` 
  - __Command line:__  `--default:test-concurrency` 
@@ -622,36 +626,35 @@ Integra8 supports a number of settings which can be configured globally via `tes
     - `Sequential` : All suites run as `Sequential` unless explicitly decorated 
     - `Parallel`   : All suites run as `Parallel` unless explicitly decorated 
 
-## Default Setup Timeout
+### Default Setup Timeout
  - __description:__   Global default time out for setups
  - __test_main:__     `default_setup_time_limit` 
  - __Command line:__  `--default:setup-time-limit` 
- - __Default:__       `30`
+ - __Default:__       `30s`
  - __Possible Values:__ 
     - `{usize}` : Any number of seconds
 
-## Default Tear Down Timeout
+### Default Tear Down Timeout
  - __description:__   Global default time out for tear downs
  - __test_main:__     `default_tear_down_time_limit` 
  - __Command line:__  `--default:tear-down-time-limit` 
- - __Default:__       `30`
+ - __Default:__       `30s`
  - __Possible Values:__ 
     - `{usize}` : Any number of seconds
 
-## Default Test Timeout
+### Default Test Timeout
  - __description:__   Global default time out for tests
  - __test_main:__     `default_test_time_limit` 
  - __Command line:__  `--default:test-time-limit` 
- - __Default:__       `30`
+ - __Default:__       `30s`
  - __Possible Values:__ 
     - `{usize}` : Any number of seconds
 
-
-## Default Test Warning Timeout
+### Default Test Warning Timeout
  - __description:__   Global default warning time out for tests
  - __test_main:__     `default_test_warning_time_threshold_seconds` 
  - __Command line:__  `--default:test-warn-time-threshold` 
- - __Default:__       `30`
+ - __Default:__       `30s`
  - __Possible Values:__ 
     - `{usize}` : Any number of seconds
 
@@ -679,16 +682,16 @@ main_test! {
     test_concurrency: Parallel,
 
     // Global default time out for setups
-    default_setup_time_limit: 20,
+    default_setup_time_limit: "20 seconds",
 
     // Global default time out for tear downs
-    tear_down_time_limit_seconds: 20,
+    tear_down_time_limit_seconds: "20 seconds",
 
     // Global default warning threshold for tests
-    test_warning_time_threshold_seconds: 30,
+    test_warning_time_threshold_seconds: "20 seconds",
 
     // default time out for tests
-    test_time_limit_seconds: 30,
+    test_time_limit_seconds: "20 seconds",
 }
 
 #[integration_test]
@@ -705,78 +708,52 @@ fn override_global_defaults() {
 }
 ```
 
-# Component Context 
-Integra8 supports a concept of *test context*, which is used for forward state and context data to executing components.
-The context can be accessed by by adding a parameter `ctx : &crate::ExecutionContext` to the test signature.
+## Component Context 
+Integra8 supports a concept of *context*, which is used for forward state and context data to executing components.
+Context can be accessed by adding a parameter `&crate::ExecutionContext` to the test signature.
 
 ```rust
 
 #[integration_test]
 fn access_context(ctx : crate::ExecutionContext) {
     // Use context struct for generating test data, managing state and accessing command line parameters.
+    // These will likely be extended in later releases.
 
-    // The name assigned via #[name(..)]. 
+    // The components order id.
+    // this will always be a number which is unique to all other tests
+    // TODO: Double check that works correctly with child processes tests (Nope, its broken)!
+    println!("id: {}", ctx.description.id().as_unique_number());
+
+    // The components parents order id.
+    // this will always be a number which is unique to all other tests
+    // TODO: Double check that works correctly with child processes tests (Nope, its broken)!
+    println!("id: {}", ctx.description.id().as_unique_number());
+
+    // The name assigned via #[name = "..."]
     // If no name is assigned then the components path
-    println!(ctx.description.full_name());
+    println!("full_name: {}", ctx.description.full_name());
 
-    // The name assigned via #[name(..)]. 
-    // If no name is assigned then the components relative path
-    println!(ctx.description.friendly_name());
+    // The name assigned via #[name = "..."]
+    // If no name is assigned then the components *relative* path
+    println!("friendly_name: {}", ctx.description.friendly_name());
 
-    // The description assigned via #[description(..)].
-    //  If no  description assigned is assigned, then `None`
-    println!(ctx.description.description());
-
-
+    // The description assigned via #[description = "..."]
+    // If no  description assigned is assigned, then `None`
+    println!("description: {}", ctx.description.description());
 
     // The full path of this component 
-    println!(ctx.description.path());
+    println!("path: {}",ctx.description.path());
 
     // The path of this component relative to its parent 
-    println!(ctx.description.relative_path());
+    println!("relative_path: {}",ctx.description.relative_path());
+
+    // The file name this component was defined
+    println!("file_name: {}", ctx.description.location().file_name);
 }
 ```
 
-The maybe extended in the future, at this time, the key element's
-```json
-{
-    "description": {
-        // Paths
-        "path": "The components path",
-        "relative_path": "The components path relative to its parent  suite",
 
-        // Naming
-        "full_name": "The name assigned via #[name(..)]. If no name is assigned then the components path",
-        "friendly_name": "The name assigned via #[name(..)]. If no name is assigned then the components relative path",
-
-        // description
-        "description": "The description assigned via #[description(..)]. If no  description assigned is assigned, then `None`",
-
-        // Identifiers 
-        "id": "The order number assigned to component. This will be unique to all other components",
-        "parent_id": "The order number of the parent of this component.",
-        
-        // code meta data  
-        "location": {
-            "file_name": "the file this component is defined",
-            "line": "the line this component is defined",
-            "column": "the colum this component is defined"
-        }
-    },
-    "parameters" {
-        "framework": {
-            // Settings used by the test framework
-        },
-        "app" : {
-            // Users defined parameters 
-        },
-    }
-}
-```
-
-# Generating Context Data
-
-### Example 
+### Generating Context Data Example 
 
 ```rust
 
@@ -826,7 +803,7 @@ mod test_some_user_actions {
 ```
 
 
-# Custom Command Line Parameters
+## Custom Command Line Parameters
 Integra8 supports a concept of *test context*, which can be used for managing state between 
 tests and forwarding command line parameters within a test applications.
 
@@ -874,7 +851,117 @@ async fn httpbin_should_reply_200_ok(ctx : crate::ExecutionContext) {
 ```
 
 
-# Special Notes:
-Mac Build for 1.56 and above, seem seems to broken dues to open issue with linkme crate, used to auto detect tests
-https://github.com/dtolnay/linkme/issues/41
-https://github.com/CodeChain-io/intertrait/issues/6
+# Pitfalls
+
+## Stdout Capture + Child Processes
+Rust's inbuilt test framework makes use of `std::io::stdio::set_output_capture` to capture `stdout` outputs. 
+This API is unstable, and therefore Integra8 does not make use of it. To provide comparable functionality,
+Integra8 starts all `Tests`, `Setups` and `Tear downs` in their own individual process.
+
+While this can be perfectly acceptable most uses cases, it does undermine the async runtime's ability to 
+schedule optimally and might impact any custom global state managed added by a test author.
+
+This behavior can be disabled with the used of the `use_child_process` setting or `--framework:use-child-process` command line parameter, 
+however this will also disable log stdout capture, resulting in an potential log interleaving when running tests. 
+
+When disabling `use_child_process`, its recommended to install your own file based logging solution to better manage log output.
+
+
+```rust
+
+#[macro_use]
+pub extern crate integra8;
+
+main_test! {
+    // When disabled, all test run in this process.
+    use_child_process: false,
+}
+
+#[integration_test]
+fn chaos_logging() {
+    println!("This will show immediately in the console output");
+}
+```
+
+## Async + Timeout limitations 
+Integra8 does not create its own threads, and instead relies on the async runtime to manage multi tasking.
+While this does offer performance benefits, it unfortunately has its drawbacks.
+
+### Timeout Detection 
+The current timeout implementation can only detect a timeout and abort when a task is paused.
+Long running non async operations are not detected, and instead execution will continue until the task
+its either paused or complete.
+
+```rust
+
+#[integration_test]
+#[time_limit = "1 s"]
+fn bad_test_design() {
+    // `std::thread::sleep`, puts the thread to sleep, but not the task.
+    // The runtime and Integra8 can not intervene here and this test will wait 
+    // 10 seconds, and then fail with a timeout error
+    std::thread::sleep(std::time::Duration::from_seconds(10));
+}
+
+#[integration_test]
+#[time_limit = "1 s"]
+async fn good_test_design() {
+    // `tokio::time::sleep`, puts the task to sleep, but not the thread.
+    // This thread will go and something else useful while we wait.
+    // The runtime will alow Integra8 to intervene some time after 
+    // 1 second has elapsed and abort this test.  
+    tokio::time::sleep(std::time::Duration::from_seconds(10)).await;
+}
+
+#[integration_test]
+async fn reqwest() {
+
+    // tokio is preferable if you are also using reqwest
+    #[cfg(feature = "tokio-runtime")]
+    let response = reqwest::get("https://httpbin.org/ip").await.unwrap();
+
+    // reqwest does not support async-std, so using `blocking` this recommended 
+    #[cfg(feature = "async-std-runtime")]
+    let response = reqwest::blocking::get("https://httpbin.org/ip").unwrap();
+
+    assert_eq!(response.status(), 200, "Expected http 200 response");
+}
+
+#[integration_test]
+#[time_limit = "1 s"]
+fn running_with_a_loaded_shotgun() {
+    // This test will never complete, and the process will not close.
+    loop {
+        println!("Hope you have access to your build server...");
+    }        
+}
+
+
+```
+
+### Timeout Accuracy  
+The runtime async runtime can not guarantee that Tasks are resumed immediately after a operation has completed. 
+This results in a degree of variability in to test run times, which in turn, limits the timeout resolution.
+Because of this, it is recommended to avoid using very short or very exact timeout durations as could lead to flaky test runs.
+
+```rust
+
+#[integration_test]
+#[time_limit = "10ms"]
+async fn fairly_bad_idea() {
+    // Good chance this test will fail at random,
+    // as this test will only continue execution once the async runtime 
+    // has a spare thread lying around.
+    tokio::time::sleep(std::time::Duration::from_millis(5)).await;
+}
+
+#[integration_test]
+#[time_limit = "10s 10ms"]
+async fn also_a_fairly_bad_idea() {
+    // Some more niche hardware tests can require this kind of assertion.
+    // For this, you might have to use `std::thread::sleep` or your own
+    // assertion internal to the test.
+    tokio::time::sleep(std::time::Duration::from_millis(1010)).await;
+}
+
+```
