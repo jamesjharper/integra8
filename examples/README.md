@@ -90,17 +90,24 @@ of choice can be enabled via the `tokio-runtime` or `async-std-runtime` feature 
 integra8 = { version = "0.0.1-alpha", features = ["tokio-runtime"] } 
 ```
 
-#### Integra8 with async-std
-```toml
-integra8 = { version = "0.0.1-alpha", features = ["async-std-runtime"] } 
-```
-
 ```rust
 #[integration_test]
 async fn async_test() {
     tokio::time::sleep(Duration::from_millis(10)).await;
 }
 ```
+
+#### Integra8 with async-std
+```toml
+integra8 = { version = "0.0.1-alpha", features = ["async-std-runtime"] } 
+```
+```rust
+#[integration_test]
+async fn async_test() {
+    async_std::task::sleep(Duration::from_millis(10)).await;
+}
+```
+
 
 ## Human Friendly Names and Descriptions
 Code for humans first, robots second!
