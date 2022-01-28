@@ -84,13 +84,14 @@ of choice can be enabled via the `tokio-runtime` or `async-std-runtime` feature 
 
 ### Example 
 
+
+#### Integra8 with tokio 
 ```toml
-# use tokio
 integra8 = { version = "0.0.1-alpha", features = ["tokio-runtime"] } 
 ```
 
+#### Integra8 with async-std
 ```toml
-# use async-std
 integra8 = { version = "0.0.1-alpha", features = ["async-std-runtime"] } 
 ```
 
