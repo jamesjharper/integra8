@@ -4,8 +4,8 @@ This crate is *almost ready* for non alpha release!
 
 In its current state, almost everything *should* work, however you may encounter the following:
 
-- Bad spelling / no sense documentation / documentation mistakes 
-- Bugs which have found yet
+- Bad spelling / nonsense documentation / documentation mistakes 
+- Bugs which have not found yet
 
 Happy Testing!
 
