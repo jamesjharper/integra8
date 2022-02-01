@@ -215,7 +215,6 @@ async fn teardown_3() {
 
 ```
 
-
 ## Concurrency
 Use the `#[parallel]` or `#[sequential]` decorator on `Suites`, `Tests`, `Setups` and `Tear downs` to indicate concurrency behavior.
 
@@ -864,7 +863,6 @@ async fn httpbin_should_reply_200_ok(ctx : crate::ExecutionContext) {
 
 ```
 
-
 # Pitfalls
 
 ## Stdout Capture + Child Processes
@@ -872,14 +870,13 @@ Rust's inbuilt test framework makes use of `std::io::stdio::set_output_capture` 
 This API is unstable, and therefore Integra8 does not make use of it. To provide comparable functionality,
 Integra8 starts all `Tests`, `Setups` and `Tear downs` in their own individual process.
 
-While this can be perfectly acceptable most uses cases, it does undermine the async runtime's ability to 
+While this is acceptable for most uses cases, it does undermine the async runtime's ability to 
 schedule optimally and might impact any custom global state managed added by a test author.
 
 This behavior can be disabled with the used of the `use_child_process` setting or `--framework:use-child-process` command line parameter, 
 however this will also disable log stdout capture, resulting in an potential log interleaving when running tests. 
 
-When disabling `use_child_process`, its recommended to install your own file based logging solution to better manage log output.
-
+When disabling `use_child_process`, its considering using *artifacts writers* as described bellow. 
 
 ```rust
 
@@ -894,6 +891,48 @@ main_test! {
 #[integration_test]
 fn chaos_logging() {
     println!("This will show immediately in the console output");
+}
+```
+
+### Test Artifacts workaround
+It can useful to collect and collate artifacts from test runs, such as harvesting a program state in between tests,
+settings, or system metrics. Integra8 can manage artifacts via the test context.
+
+*This features is still under development. Currently this will only work correct when `use_child_process` is disabled.*
+
+
+```rust
+
+#[macro_use]
+pub extern crate integra8;
+
+main_test! {
+    // Required for the feature to work correctly
+    use_child_process: false,
+}
+
+#[integration_test]
+fn no_more_chaos_logging(ctx : crate::ExecutionContext) {
+    // writer's content will automatically be included in the test output
+    let mut writer = ctx.artifacts.writer("log");
+    write!(writer, "This will be listed in the test output")
+}
+
+#[integration_test]
+fn arbitrary_test_data(ctx : crate::ExecutionContext) {
+    // write arbitrary snippet of data to test output
+    ctx.artifacts.include_text("test_agent", "hostname");
+}
+
+#[integration_test]
+fn still_work_in_progress(ctx : crate::ExecutionContext) {
+    // write the contents of this log to test output
+    ctx.artifacts.include_text_file("log", "./logs.text");
+
+    // Currently Integra8 does not manage this files lift time.
+    // If this file is deleted in a tear down, the content will not be shown.
+    //
+    // Use this at your own risk, this implementation will likely change in the future.
 }
 ```
 
@@ -954,7 +993,7 @@ fn running_with_a_loaded_shotgun() {
 ```
 
 ### Timeout Accuracy  
-The runtime async runtime can not guarantee that Tasks are resumed immediately after a operation has completed. 
+The runtime async runtime can not guarantee Tasks are resumed immediately after an operation has completed. 
 This results in a degree of variability in to test run times, which in turn, limits the timeout resolution.
 Because of this, it is recommended to avoid using very short or very exact timeout durations as could lead to flaky test runs.
 
