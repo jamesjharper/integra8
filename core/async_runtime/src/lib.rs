@@ -20,7 +20,7 @@ mod channel_impl {
     }
 }
 
-#[cfg(feature = "sync")]
+#[cfg(not(any(feature = "async-std-runtime", feature = "tokio-runtime")))]
 mod channel_impl {
     pub use std::sync::mpsc::channel;
     pub use std::sync::mpsc::{Receiver, Sender};

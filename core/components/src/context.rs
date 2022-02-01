@@ -98,14 +98,6 @@ pub trait TestParameters {
         true
     }
 
-    fn setup_time_limit_duration(&self) -> Duration;
-
-    fn tear_down_time_limit_duration(&self) -> Duration;
-
-    fn test_time_limit_duration(&self) -> Duration;
-
-    fn test_warning_time_limit_duration(&self) -> Duration;
-
     fn is_child_process(&self) -> bool {
         self.child_process_target().is_some()
     }
@@ -132,6 +124,11 @@ pub trait TestParameters {
     fn test_concurrency(&self) -> ConcurrencyMode;
     fn suite_concurrency(&self) -> ConcurrencyMode;
     fn child_process_target(&self) -> Option<&'_ str>;
+
+    fn setup_time_limit_duration(&self) -> Duration;
+    fn tear_down_time_limit_duration(&self) -> Duration;
+    fn test_time_limit_duration(&self) -> Duration;
+    fn test_warning_time_limit_duration(&self) -> Duration;
 
     fn max_concurrency(&self) -> usize;
     fn root_namespace(&self) -> &'static str;

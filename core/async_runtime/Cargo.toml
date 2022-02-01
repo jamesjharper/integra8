@@ -15,10 +15,8 @@ categories = ["development-tools" ]
 [dependencies]
 async-std = { version = "1.10.0", optional = true}
 tokio = { version = "1.15.0",  features = ["rt", "sync", "time", "rt-multi-thread"], optional = true}
-# TODO: Does it make sense to patch though new_current_thread / rt
+# TODO: Does it make sense to patch though new_current_thread / rt?
 
 [features]
-
-sync = []
 async-std-runtime = ["async-std"]
 tokio-runtime = ["tokio"]

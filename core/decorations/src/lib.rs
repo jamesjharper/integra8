@@ -49,6 +49,7 @@ use test_rigging::*;
 #[doc(hidden)]
 #[cfg(test)]
 mod test_rigging {
+    use std::time::Duration;
 
     #[linkme::distributed_slice]
     pub static REGISTERED_COMPONENTS: [fn() -> crate::ComponentDecoration<Parameters>] = [..];
@@ -99,19 +100,22 @@ mod test_rigging {
             self.suite_concurrency.clone()
         }
 
-        fn default_setup_time_limit(&self) -> u64 {
-            self.default_setup_time_limit
-        }
-        fn tear_down_time_limit_seconds(&self) -> u64 {
-            self.tear_down_time_limit_seconds
+
+        fn setup_time_limit_duration(&self) -> Duration {
+            Duration::from_secs(self.default_setup_time_limit)
         }
 
-        fn test_time_limit_seconds(&self) -> u64 {
-            self.test_time_limit_seconds
+
+        fn tear_down_time_limit_duration(&self) -> Duration {
+            Duration::from_secs(self.tear_down_time_limit_seconds)
         }
 
-        fn test_warning_time_threshold_seconds(&self) -> u64 {
-            self.test_warning_time_threshold_seconds
+        fn test_time_limit_duration(&self) -> Duration {
+            Duration::from_secs(self.test_time_limit_seconds)
+        }
+
+        fn test_warning_time_limit_duration(&self) -> Duration {
+            Duration::from_secs(self.test_warning_time_threshold_seconds)
         }
 
         // Find somewhere else for this
@@ -167,10 +171,10 @@ mod tests {
 
         #[setup]
         #[integra8(crate = crate)]
-        #[name("Setup A")]
-        #[description("the description of this setup A")]
-        #[time_limit_seconds(2)]
-        #[ignore()]
+        #[name = "Setup A"]
+        #[description = "the description of this setup A"]
+        #[time_limit = "2s"]
+        #[ignore]
         #[parallel]
         pub fn setup_a_with_decorations() {}
 
@@ -190,13 +194,13 @@ mod tests {
 
         #[integration_test]
         #[integra8(crate = crate)]
-        #[name("Test A")]
-        #[description("the description of this test A")]
-        #[time_limit_seconds(2)]
-        #[warning_time_limit_milliseconds(1000)]
+        #[name = "Test A"]
+        #[description = "the description of this test A"]
+        #[time_limit = "2s"]
+        #[warning_time_limit = "1s"]
         #[sequential]
-        #[ignore()]
-        #[allow_fail()]
+        #[ignore]
+        #[allow_fail]
         pub fn test_a_with_decorations() {}
 
         #[integration_test]
@@ -216,10 +220,10 @@ mod tests {
 
         #[teardown]
         #[integra8(crate = crate)]
-        #[name("Teardown A")]
-        #[description("the description of this teardown A")]
-        #[time_limit_seconds(2)]
-        #[ignore()]
+        #[name = "Teardown A"]
+        #[description = "the description of this teardown A"]
+        #[time_limit = "2s"]
+        #[ignore]
         #[parallel]
         pub fn teardown_a_with_decorations() {}
 
@@ -238,30 +242,30 @@ mod tests {
 
             #[integration_test]
             #[integra8(crate = crate)]
-            #[name("Test D")]
-            #[description("the description of this test D")]
-            #[time_limit_seconds(2)]
-            #[warning_time_limit_milliseconds(1000)]
+            #[name = "Test D"]
+            #[description = "the description of this test D"]
+            #[time_limit = "2s"]
+            #[warning_time_limit = "1s"]
             #[sequential]
-            #[ignore()]
-            #[allow_fail()]
+            #[ignore]
+            #[allow_fail]
             pub fn test_d_nested_with_decorations() {}
     
             #[setup]
             #[integra8(crate = crate)]
-            #[name("Setup D")]
-            #[description("the description of this setup D")]
-            #[time_limit_seconds(2)]
-            #[ignore()]
+            #[name = "Setup D"]
+            #[description = "the description of this setup D"]
+            #[time_limit = "2s"]
+            #[ignore]
             #[parallel]
             pub fn setup_d_nested_with_decorations() {}
     
             #[teardown]
             #[integra8(crate = crate)]
-            #[name("Teardown D")]
-            #[description("the description of this teardown D")]
-            #[time_limit_seconds(2)]
-            #[ignore()]
+            #[name = "Teardown D"]
+            #[description = "the description of this teardown D"]
+            #[time_limit = "2s"]
+            #[ignore]
             #[parallel]
             pub fn teardown_d_nested_with_decorations() {}
         }
@@ -279,13 +283,13 @@ mod tests {
             
             #[integration_test]
             #[integra8(crate = crate)]
-            #[name("Test Az")]
-            #[description("the description of this test Az")]
-            #[time_limit_seconds(2)]
-            #[warning_time_limit_milliseconds(1000)]
+            #[name = "Test Az"]
+            #[description = "the description of this test Az"]
+            #[time_limit = "2s" ]
+            #[warning_time_limit = "1000ms"]
             #[sequential]
-            #[ignore()]
-            #[allow_fail()]
+            #[ignore]
+            #[allow_fail]
             pub fn test_az_with_decorations() {}
     
             #[setup]
@@ -294,10 +298,10 @@ mod tests {
 
             #[setup]
             #[integra8(crate = crate)]
-            #[name("Setup Az")]
-            #[description("the description of this setup Az")]
-            #[time_limit_seconds(2)]
-            #[ignore()]
+            #[name = "Setup Az"]
+            #[description = "the description of this setup Az"]
+            #[time_limit = "2s"]
+            #[ignore]
             #[parallel]
             pub fn setup_az_with_decorations() {}
     
@@ -307,26 +311,26 @@ mod tests {
 
             #[teardown]
             #[integra8(crate = crate)]
-            #[name("Teardown Az")]
-            #[description("the description of this teardown Az")]
-            #[time_limit_seconds(2)]
-            #[ignore()]
+            #[name = "Teardown Az"]
+            #[description = "the description of this teardown Az"]
+            #[time_limit = "2s"]
+            #[ignore]
             #[parallel]
             pub fn teardown_az_with_decorations() {}
         }
 
         #[suite]
         #[integra8(crate = crate)] 
-        #[sequential_tests]
+        #[test_parallel]
         #[parallel]
-        #[allow_fail()]
-        #[ignore()]
-        #[name("Nested Suite A")]
-        #[description("the description of this nested suite A")]
-        #[tear_down_time_limit_seconds(11)]
-        #[default_setup_time_limit(12)]
-        #[test_time_limit_seconds(13)]
-        #[test_warning_time_threshold_seconds(14)]
+        #[allow_fail]
+        #[ignore]
+        #[name = "Nested Suite A"]
+        #[description = "the description of this nested suite A"]
+        #[tear_down_time_limit = "11s"]
+        #[setup_time_limit = "12s"]
+        #[test_time_limit = "13s"]
+        #[test_warning_time_limit = "14s"]
         pub mod nested_suite_y {
 
             pub use integra8_decorations_impl::*;
@@ -338,13 +342,13 @@ mod tests {
             
             #[integration_test]
             #[integra8(crate = crate)]
-            #[name("Test Ay")]
-            #[description("the description of this test Ay")]
-            #[time_limit_seconds(2)]
-            #[warning_time_limit_milliseconds(1000)]
+            #[name = "Test Ay"]
+            #[description = "the description of this test Ay"]
+            #[time_limit = "2s"]
+            #[warning_time_limit = "1000ms"]
             #[sequential]
-            #[ignore()]
-            #[allow_fail()]
+            #[ignore]
+            #[allow_fail]
             pub fn test_ay_with_decorations() {}
     
             #[setup]
@@ -353,10 +357,10 @@ mod tests {
 
             #[setup]
             #[integra8(crate = crate)]
-            #[name("Setup Ay")]
-            #[description("the description of this setup Ay")]
-            #[time_limit_seconds(2)]
-            #[ignore()]
+            #[name = "Setup Ay"]
+            #[description = "the description of this setup Ay"]
+            #[time_limit = "2s"]
+            #[ignore]
             #[parallel]
             pub fn setup_ay_with_decorations() {}
     
@@ -366,10 +370,10 @@ mod tests {
 
             #[teardown]
             #[integra8(crate = crate)]
-            #[name("Teardown Ay")]
-            #[description("the description of this teardown Ay")]
-            #[time_limit_seconds(2)]
-            #[ignore()]
+            #[name = "Teardown Ay"]
+            #[description = "the description of this teardown Ay"]
+            #[time_limit = "2s"]
+            #[ignore]
             #[parallel]
             pub fn teardown_ay_with_decorations() {}
 
