@@ -7,7 +7,6 @@ use async_process::{Command, Stdio};
 
 use super::Executor;
 
-use integra8_results::artifacts::stdio::TestResultStdio;
 use integra8_results::artifacts::ComponentRunArtifacts;
 use integra8_results::report::ComponentReportBuilder;
 
@@ -67,12 +66,11 @@ impl<
 
             let output = child_process.output().await.unwrap();
 
-            report_builder.with_artifacts(ComponentRunArtifacts {
-                stdio: TestResultStdio {
-                    stdout: output.stdout,
-                    stderr: output.stderr,
-                },
-            });
+            let mut artifacts = ComponentRunArtifacts::new();
+            artifacts.append_stderr(output.stdout);
+            artifacts.append_stdout(output.stderr);
+
+            report_builder.with_artifacts(artifacts);
 
             if output.status.success() {
                 report_builder.passed_result();

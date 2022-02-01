@@ -101,13 +101,12 @@ pub fn render_node_attributes<W: Write>(
         }
     }
 
-    if let Some(std_out) = report.artifacts.stdio.stdout_utf8() {
-        render_attribute(output_formatter, style, "stdout", std_out.unwrap())?;
-        has_attributes = true;
-    }
-
-    if let Some(std_err) = report.artifacts.stdio.stderr_utf8() {
-        render_attribute(output_formatter, style, "stderr", std_err.unwrap())?;
+    for (key, artifact) in &report.artifacts.map {
+        match &artifact.as_string() {
+            Ok(val) => render_attribute(output_formatter, style, &key, &val)?,
+            Err(err) => render_attribute(output_formatter, style, &key, &format!("Failed to render artifact ot string, {}", err.to_string()))?
+        }
+        
         has_attributes = true;
     }
 

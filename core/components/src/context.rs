@@ -1,6 +1,7 @@
 use std::time::Duration;
 use std::sync::Arc;
 
+
 use crate::{ComponentDescription, ConcurrencyMode};
 
 #[derive(Clone, Debug)]
@@ -8,6 +9,28 @@ pub struct ExecutionContext<TParameters> {
     pub parameters: Arc<TParameters>,
     pub description: ComponentDescription,
 }
+
+/*
+use std::collections::HashMap;
+use std::io::{Cursor, Read, Seek, SeekFrom, Write};
+
+
+use std::io::BufRead;
+use std::io::BufReader;
+use std::io::Read;
+
+// Create fake "file"
+let mut c = Cursor::new(Vec::new());
+
+pub struct ContextArtifacts {
+    artifacts: HashMap<String, Box<dyn BufReader<>u8>>,
+}
+
+impl ContextArtifacts {
+
+    pub fn append_artifact(&mut )
+}
+*/
 
 #[derive(Clone)]
 pub enum ExecutionStrategy {

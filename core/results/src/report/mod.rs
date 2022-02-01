@@ -1,4 +1,3 @@
-use crate::artifacts::stdio::TestResultStdio;
 use crate::artifacts::ComponentRunArtifacts;
 use crate::{ComponentResult, ComponentTimeResult};
 
@@ -85,9 +84,7 @@ impl ComponentReportBuilder {
             result: self.build_result(),
             timing: self.timing.unwrap_or_else(|| ComponentTimeResult::zero()),
             description: self.description,
-            artifacts: self.artifacts.unwrap_or_else(|| ComponentRunArtifacts {
-                stdio: TestResultStdio::no_output(),
-            }),
+            artifacts: self.artifacts.unwrap_or_else(|| ComponentRunArtifacts::new()),
         }
     }
 

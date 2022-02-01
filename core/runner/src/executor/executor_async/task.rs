@@ -11,7 +11,6 @@ use crate::notify::ComponentProgressNotify;
 use crate::ComponentFixture;
 use integra8_components::TestParameters;
 
-use integra8_results::artifacts::stdio::TestResultStdio;
 use integra8_results::artifacts::ComponentRunArtifacts;
 use integra8_results::report::ComponentReportBuilder;
 
@@ -65,16 +64,19 @@ impl<
                 // TODO: look for away to get panic details from std-runtime
                 #[cfg(feature = "async-std-runtime")]
                 Ok(Err(panic)) => {
-                    report_builder.with_artifacts(ComponentRunArtifacts {
-                        stdio: TestResultStdio::from_panic(&panic),
-                    });
+
+                    let mut artifacts = ComponentRunArtifacts::new();
+                    artifacts.append_panic(&panic);
+                    report_builder.with_artifacts(artifacts);
                     report_builder.rejected_result();
                 }
                 #[cfg(feature = "tokio-runtime")]
                 Ok(Ok(Err(panic))) => {
-                    report_builder.with_artifacts(ComponentRunArtifacts {
-                        stdio: TestResultStdio::from_panic(&panic),
-                    });
+
+                    let mut artifacts = ComponentRunArtifacts::new();
+                    artifacts.append_panic(&panic);
+
+                    report_builder.with_artifacts(artifacts);
                     report_builder.rejected_result();
                 }
                 _ => {
