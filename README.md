@@ -65,7 +65,7 @@ Integra8 does not aim to replace Rusts existing inbuilt `libtest` framework. `li
 
 ### Suites
 1. [Suite Execution Order](#Suite-Execution-Order)
-2  [Nested Suites](#Nested-Suites)
+2. [Nested Suites](#Nested-Suites)
 3. [Cascading Suite Failure Behavior](#Cascading-Suite-Failure-Behavior)
 4. [Suite Concurrency](#Suite-Concurrency)
 
@@ -235,7 +235,7 @@ Because of this, components are only run concurrently, when they are *adjacent* 
 
 This design allows ordered tests to co-exist with a concept of concurrency, while also enabling concurrency modes to combine in unique ways that may not be immediately intuitive.
 
-Exact implementation details for scheduling can be found [here](./../core/scheduling/src/components.rs)
+Exact implementation details for scheduling can be found [here](./core/scheduling/src/components.rs)
 
 ### Example 
 ```
@@ -310,7 +310,7 @@ fn test_6() {
 
 ```
 
-** *By default all `Tests` `Setups` `Tear downs` and `Suites` are assumed to be `sequential` unless overridden using parameters or inherited. See [main.rs](./3_test_main/a_global_settings/src/main.rs)*
+** *By default all `Tests` `Setups` `Tear downs` and `Suites` are assumed to be `sequential` unless overridden using parameters or inherited. See [main.rs](./examples/3_test_main/a_global_settings/src/main.rs)*
 
 ## Timing-out
 
@@ -519,7 +519,7 @@ Suites follow the following rules
  - `parallel` grouped suites are run first
  - `sequential` suites are run in the order they appear in the schedule order.
 
-Exact implementation details for scheduling can be found [here](./../core/scheduling/src/components.rs)
+Exact implementation details for scheduling can be found [here](./core/scheduling/src/components.rs)
 
 
 ### Example 
