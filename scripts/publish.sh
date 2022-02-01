@@ -6,7 +6,7 @@ set -e
 # Root of workspace-like directories.
 PROJECT_ROOT="."
 CORE_ROOT="./core"
-
+CONTRIB_ROOT="./contrib/"
 
 ALL_CRATE_ROOTS=(
     "${CORE_ROOT}/async_runtime"
@@ -17,6 +17,8 @@ ALL_CRATE_ROOTS=(
     "${CORE_ROOT}/scheduling"
     "${CORE_ROOT}/runner"
     "${CORE_ROOT}/formatters"
+    "${CONTRIB_ROOT}/formatters/tree_formatter"
+    "${CORE_ROOT}/integra8_impl"
     "${CORE_ROOT}/integra8"
 )
 
@@ -26,11 +28,12 @@ ALL_CRATE_ROOTS=(
 
 if ! [ -z "$(git status --porcelain)" ]; then
   echo "Uncommitted changes, please commit and run again."
-  #exit 1
+  exit 1
 fi
 
-echo "Running Tests before publish."
+echo "Cleaning"
 cargo clean
+
 ./scripts/build.sh
 ./scripts/tests.sh
 ./scripts/run_examples.sh
