@@ -1,6 +1,6 @@
 use integra8_components::{
     AcceptanceCriteria, BookEnd, ComponentDescription, ComponentPath, ExecutionContext,
-    ExecutionStrategy, SuiteAttributes, Test, TestParameters,
+    ExecutionStrategy, SuiteAttributes, Test, TestParameters, ExecutionArtifacts
 };
 
 use std::sync::Arc;
@@ -48,14 +48,14 @@ impl<TParameters: TestParameters> ComponentFixture<TParameters> {
         }
     }
 
-    pub async fn run(&self) {
+    pub async fn run(&self, artifacts: Arc<ExecutionArtifacts>)  {
         match self {
             Self::Test {
                 test, ..
             } => {
                 match test.test_fn.requires_parameters()  {
                     true => {
-                        test.test_fn.run_async(self.execution_context()).await
+                        test.test_fn.run_async(self.execution_context(artifacts)).await
                     },
                     false => {
                         test.test_fn.run_async_without_parameters().await
@@ -68,10 +68,11 @@ impl<TParameters: TestParameters> ComponentFixture<TParameters> {
 
                 match bookend.bookend_fn.requires_parameters()  {
                     true => {
-                        bookend.bookend_fn.run_async(self.execution_context()).await
+                        bookend.bookend_fn.run_async(self.execution_context(artifacts)).await;
                     },
                     false => {
-                        bookend.bookend_fn.run_async_without_parameters().await
+                        bookend.bookend_fn.run_async_without_parameters().await;
+
                     }
                 }
             }
@@ -81,10 +82,11 @@ impl<TParameters: TestParameters> ComponentFixture<TParameters> {
         }
     }
 
-    pub fn execution_context(&self) -> ExecutionContext<TParameters> {
+    pub fn execution_context(&self, artifacts: Arc<ExecutionArtifacts>) -> ExecutionContext<TParameters> {
         ExecutionContext {
             parameters: self.parameters(),
             description: self.description().clone(),
+            artifacts: artifacts
         }
     }
 

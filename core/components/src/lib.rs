@@ -1,5 +1,5 @@
 pub mod context;
-pub use context::{ExecutionContext, ExecutionStrategy, TestParameters};
+pub use context::{ExecutionContext, ExecutionStrategy, TestParameters, ExecutionArtifacts, ExecutionArtifact};
 
 pub mod delegates;
 pub use delegates::Delegate;

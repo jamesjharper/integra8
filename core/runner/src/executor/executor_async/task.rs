@@ -2,6 +2,7 @@ use std::future::Future;
 use std::panic::UnwindSafe;
 use std::pin::Pin;
 use std::time::Instant;
+use std::sync::Arc;
 
 use futures::FutureExt;
 
@@ -9,7 +10,7 @@ use super::Executor;
 
 use crate::notify::ComponentProgressNotify;
 use crate::ComponentFixture;
-use integra8_components::TestParameters;
+use integra8_components::{TestParameters, ExecutionArtifacts};
 
 use integra8_results::artifacts::ComponentRunArtifacts;
 use integra8_results::report::ComponentReportBuilder;
@@ -35,13 +36,14 @@ impl<
             fixture: ComponentFixture<T>,
             mut report_builder: ComponentReportBuilder,
         ) -> ComponentReportBuilder {
+            let execution_artifacts_local = Arc::new(ExecutionArtifacts::new());
+            let execution_artifacts_test = execution_artifacts_local.clone();
+            
             progress_notify.notify_started().await;
             let start_time = Instant::now();
 
             let may_panic = integra8_async_runtime::spawn(async move {
-                std::panic::AssertUnwindSafe(fixture.run())
-                    .catch_unwind()
-                    .await
+                    std::panic::AssertUnwindSafe(fixture.run(execution_artifacts_test)).catch_unwind().await
             });
 
             let maybe_time_out = report_builder.time_until_deadline(start_time.elapsed());
@@ -57,32 +59,28 @@ impl<
                 progress_notify.notify_timed_out().await;
             }
 
-            match result {
-                Err(_timeout) => {
-                    report_builder.rejected_result();
-                }
-                // TODO: look for away to get panic details from std-runtime
-                #[cfg(feature = "async-std-runtime")]
-                Ok(Err(panic)) => {
+            let mut artifacts = ComponentRunArtifacts::from_execution_artifacts(execution_artifacts_local);
 
-                    let mut artifacts = ComponentRunArtifacts::new();
-                    artifacts.append_panic(&panic);
-                    report_builder.with_artifacts(artifacts);
+            match result {
+                Err(_timeout) => {            
                     report_builder.rejected_result();
                 }
                 #[cfg(feature = "tokio-runtime")]
                 Ok(Ok(Err(panic))) => {
-
-                    let mut artifacts = ComponentRunArtifacts::new();
                     artifacts.append_panic(&panic);
-
-                    report_builder.with_artifacts(artifacts);
+                    report_builder.rejected_result();
+                }
+                #[cfg(feature = "async-std-runtime")]
+                Ok(Err(panic))=> {
+                    artifacts.append_panic(&panic);
                     report_builder.rejected_result();
                 }
                 _ => {
                     report_builder.passed_result();
                 }
             }
+
+            report_builder.with_artifacts(artifacts);
             report_builder
         }
 
