@@ -11,8 +11,6 @@ use super::Executor;
 use crate::notify::ComponentProgressNotify;
 use crate::ComponentFixture;
 use integra8_components::{TestParameters, ExecutionArtifacts};
-
-use integra8_results::artifacts::ComponentRunArtifacts;
 use integra8_results::report::ComponentReportBuilder;
 
 pub struct AsyncTaskExecutor;
@@ -59,20 +57,18 @@ impl<
                 progress_notify.notify_timed_out().await;
             }
 
-            let mut artifacts = ComponentRunArtifacts::from_execution_artifacts(execution_artifacts_local);
-
             match result {
                 Err(_timeout) => {            
                     report_builder.rejected_result();
                 }
                 #[cfg(feature = "tokio-runtime")]
                 Ok(Ok(Err(panic))) => {
-                    artifacts.append_panic(&panic);
+                    execution_artifacts_local.include_panic("panic", &panic);
                     report_builder.rejected_result();
                 }
                 #[cfg(feature = "async-std-runtime")]
                 Ok(Err(panic))=> {
-                    artifacts.append_panic(&panic);
+                    execution_artifacts_local.include_panic("panic", &panic);
                     report_builder.rejected_result();
                 }
                 _ => {
@@ -80,7 +76,7 @@ impl<
                 }
             }
 
-            report_builder.with_artifacts(artifacts);
+            report_builder.with_artifacts(&execution_artifacts_local);
             report_builder
         }
 

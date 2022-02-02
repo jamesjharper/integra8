@@ -13,7 +13,7 @@ documentation = "https://api.integra8.rs/v0.0.1-alpha/integra8/"
 categories = ["development-tools" ]
 
 [dependencies]
-indexmap = "1.7.0"
+indexmap = "1.8.0"
 
 [dependencies.integra8_components]
 version = "0.0.1-alpha"

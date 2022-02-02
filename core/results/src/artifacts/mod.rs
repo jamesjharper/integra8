@@ -1,12 +1,10 @@
-use std::any::Any;
 use std::borrow::Cow;
-use std::collections::HashMap;
 use std::error::Error;
 use std::fs::File;
 use std::io::Read;
 use std::path::PathBuf;
 use std::str;
-use std::sync::Arc;
+use indexmap::IndexMap;
 
 use integra8_components::{ExecutionArtifact, ExecutionArtifacts};
 
@@ -42,17 +40,19 @@ impl OutputArtifact {
 
 #[derive(Clone, PartialEq, Debug)]
 pub struct ComponentRunArtifacts {
-    pub map: HashMap<String, OutputArtifact>,
+   // Use index map to ensure items alway print in the same order 
+    // when outputting results
+    pub map: IndexMap<String, OutputArtifact>,
 }
 
 impl ComponentRunArtifacts {
     pub fn new() -> Self {
         Self {
-            map: HashMap::new(),
+            map: IndexMap::new(),
         }
     }
 
-    pub fn from_execution_artifacts(artifacts: Arc<ExecutionArtifacts>) -> Self {
+    pub fn from_execution_artifacts(artifacts: &ExecutionArtifacts) -> Self {
         Self {
             map: artifacts
                 .drain()
@@ -72,30 +72,5 @@ impl ComponentRunArtifacts {
                 })
                 .collect(),
         }
-    }
-
-    pub fn append(&mut self, name: impl Into<String>, content: OutputArtifact) {
-        self.map.insert(name.into(), content);
-    }
-
-    pub fn append_panic(&mut self, payload: &(dyn Any + Send)) {
-        // Unfortunately, panic unwind only gives the payload portion of
-        // the panic info. Also, if panic formatter is used we don't even
-        // get a panic message. This is here to get what little info we have,
-        if let Some(s) = payload.downcast_ref::<&str>() {
-            self.append("stderr", OutputArtifact::text(s.to_string()))
-        } else if let Some(s) = payload.downcast_ref::<&String>() {
-            self.append("stderr", OutputArtifact::text(*s))
-        } else {
-            // Can not determine type, so we cant extract anything from this
-        }
-    }
-
-    pub fn append_stderr(&mut self, out: Vec<u8>) {
-        self.append("stderr", OutputArtifact::text_buffer(out))
-    }
-
-    pub fn append_stdout(&mut self, out: Vec<u8>) {
-        self.append("stdout", OutputArtifact::text_buffer(out))
     }
 }

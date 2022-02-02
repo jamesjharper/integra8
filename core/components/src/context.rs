@@ -1,4 +1,5 @@
-use std::collections::HashMap;
+use indexmap::IndexMap;
+use std::any::Any;
 use std::io::{BufRead, Cursor, Read, Seek, SeekFrom, Write};
 use std::mem;
 use std::path::PathBuf;
@@ -22,18 +23,35 @@ pub enum ExecutionArtifact {
 }
 
 pub struct ExecutionArtifacts {
-    map: RwLock<HashMap<String, ExecutionArtifact>>,
+    // Use index map to ensure items alway print in the same order 
+    // when outpuiting results
+    map: RwLock<IndexMap<String, ExecutionArtifact>>,
 }
 
 impl ExecutionArtifacts {
     pub fn new() -> Self {
         Self {
-            map: RwLock::new(HashMap::new()),
+            map: RwLock::new(IndexMap::new()),
         }
     }
 
     pub fn writer<'a>(&'a self, name: impl Into<String>) -> ExecutionArtifactCursor<'a> {
         ExecutionArtifactCursor::new(self, name.into())
+    }
+
+    pub fn include_panic(&self, name: impl Into<String>, payload: &(dyn Any + Send))  -> &Self {
+        // Unfortunately, panic unwind only gives the payload portion of
+        // the panic info. Also, if panic formatter is used we don't even
+        // get a panic message. This is here to get what little info we have,
+        if let Some(s) = payload.downcast_ref::<&str>() {
+            self.include_text(name, *s)
+        } else if let Some(s) = payload.downcast_ref::<&String>() {
+            self.include_text(name, *s)
+        } else {
+            // Can not determine type, so we cant extract anything from this
+            self
+        }
+       
     }
 
     pub fn include_text(&self, name: impl Into<String>, string: impl Into<String>) -> &Self {
@@ -71,8 +89,8 @@ impl ExecutionArtifacts {
         self.map.write().unwrap().insert(name.into(), artifact);
     }
 
-    pub fn drain(&self) -> HashMap<String, ExecutionArtifact> {
-        let mut drain_map = HashMap::new();
+    pub fn drain(&self) -> IndexMap<String, ExecutionArtifact> {
+        let mut drain_map = IndexMap::new();
         mem::swap(&mut *self.map.write().unwrap(), &mut drain_map);
 
         drain_map

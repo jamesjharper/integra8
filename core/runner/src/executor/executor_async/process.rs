@@ -7,7 +7,7 @@ use async_process::{Command, Stdio};
 
 use super::Executor;
 
-use integra8_results::artifacts::ComponentRunArtifacts;
+use integra8_components::ExecutionArtifacts;
 use integra8_results::report::ComponentReportBuilder;
 
 use crate::notify::ComponentProgressNotify;
@@ -66,11 +66,12 @@ impl<
 
             let output = child_process.output().await.unwrap();
 
-            let mut artifacts = ComponentRunArtifacts::new();
-            artifacts.append_stderr(output.stdout);
-            artifacts.append_stdout(output.stderr);
 
-            report_builder.with_artifacts(artifacts);
+            let execution_artifacts = ExecutionArtifacts::new();
+            execution_artifacts.include_text_buffer("stdout", output.stdout);
+            execution_artifacts.include_text_buffer("stderr", output.stderr);
+
+            report_builder.with_artifacts(&execution_artifacts);
 
             if output.status.success() {
                 report_builder.passed_result();

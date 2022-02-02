@@ -1,7 +1,7 @@
 use crate::artifacts::ComponentRunArtifacts;
 use crate::{ComponentResult, ComponentTimeResult};
 
-use integra8_components::{AcceptanceCriteria, ComponentDescription};
+use integra8_components::{AcceptanceCriteria, ComponentDescription, ExecutionArtifacts};
 
 use std::time::Duration;
 
@@ -67,8 +67,10 @@ impl ComponentReportBuilder {
         ));
     }
 
-    pub fn with_artifacts(&mut self, artifacts: impl Into<ComponentRunArtifacts>) {
-        self.artifacts = Some(artifacts.into());
+    pub fn with_artifacts(&mut self, artifacts: &ExecutionArtifacts) {
+        self.artifacts = Some(
+            ComponentRunArtifacts::from_execution_artifacts(artifacts)
+        );
     }
 
     pub fn build(self) -> ComponentRunReport {

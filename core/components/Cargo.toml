@@ -14,3 +14,4 @@ categories = ["development-tools" ]
 
 [dependencies]
 futures = "0.3"
+indexmap = "1.8.0"

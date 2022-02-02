@@ -175,7 +175,7 @@ impl ComponentTimeResult {
 mod tests {
     use super::*;
     use crate::report::ComponentReportBuilder;
-    use integra8_components::{AcceptanceCriteria, TimingAcceptanceCriteria, ComponentDescription, ComponentPath, ComponentId, ComponentType};
+    use integra8_components::{AcceptanceCriteria, TimingAcceptanceCriteria, ComponentDescription, ComponentPath, ComponentId, ComponentType, ExecutionArtifacts};
 
     // Component Report Tests
     fn test_1_report_builder() -> ComponentReportBuilder {
@@ -421,7 +421,6 @@ mod tests {
         assert_eq!(report.timing.duration(), Duration::from_secs(500));
     }
 
-
     #[test]
     fn should_report_test_2_timing_results_as_warn_when_exceeding_warn_timing_acceptance_criteria() {
         // Arrange 
@@ -439,7 +438,6 @@ mod tests {
         assert_eq!(report.timing.is_critical(), false,  "Expected no critical error on test 2 timing results");
         assert_eq!(report.timing.duration(), Duration::from_secs(1500));
     }
-
 
     #[test]
     fn should_report_test_2_timing_results_as_fail_when_exceeding_timing_acceptance_criteria() {
@@ -535,4 +533,115 @@ mod tests {
         // Assert
         assert_eq!(time_to_deadline, None);
     }
+
+    // Artifacts
+
+    #[test]
+    fn should_return_no_artifacts_when_none_are_defined() {
+        // Arrange 
+        let mut builder = test_1_report_builder();
+
+        // Act
+        builder.rejected_result();
+        let report = builder.build();
+
+        // Assert
+        assert!(report.artifacts.map.is_empty());
+    }
+
+    #[test]
+    fn should_return_include_text_artifact_when_defined() {
+        // Arrange 
+        let mut builder = test_1_report_builder();
+
+        let artifacts = ExecutionArtifacts::new();
+        artifacts.include_text("sample", "This is a sample artifact");
+
+        // Act
+        builder.rejected_result();
+        builder.with_artifacts(&artifacts);
+        let report = builder.build();
+
+        // Assert
+        assert_eq!(report.artifacts.map["sample"].as_string().unwrap(), "This is a sample artifact");
+    }
+
+    #[test]
+    fn should_return_include_text_buff_artifact_when_defined() {
+        // Arrange 
+        let mut builder = test_1_report_builder();
+
+        let artifacts = ExecutionArtifacts::new();
+        artifacts.include_text_buffer("sample", b"This is a sample artifact".as_slice());
+
+        // Act
+        builder.rejected_result();
+        builder.with_artifacts(&artifacts);
+        let report = builder.build();
+
+        // Assert
+        assert_eq!(report.artifacts.map["sample"].as_string().unwrap(), "This is a sample artifact");
+    }
+
+
+    #[test]
+    fn should_return_include_text_cursor_artifact_when_defined() {
+
+        use std::io::Write;
+
+        // Arrange       
+        let artifacts = ExecutionArtifacts::new();
+        let mut writer = artifacts.writer("sample");
+        write!(writer, "This is a sample artifact").unwrap();
+        drop(writer); // Drop is required for the stream to write to artifacts
+
+        // Act
+        let mut builder = test_1_report_builder();
+        builder.rejected_result();
+        builder.with_artifacts(&artifacts);
+        let report = builder.build();
+
+        // Assert
+        assert_eq!(report.artifacts.map["sample"].as_string().unwrap(), "This is a sample artifact");
+    }
+
+    #[test]
+    fn should_preserve_artifact_order_defined() {
+        // Arrange 
+        let mut builder = test_1_report_builder();
+
+        let artifacts = ExecutionArtifacts::new();
+        artifacts.include_text("sampleZ", "z");
+        artifacts.include_text("2", "2");
+        artifacts.include_text("sampleA", "a");
+        artifacts.include_text("1", "1");
+
+        // Act
+        builder.rejected_result();
+        builder.with_artifacts(&artifacts);
+        let report = builder.build();
+
+        // Assert
+
+        let mut iter = report.artifacts.map.iter();
+
+        let (k1, v1) = iter.next().unwrap();
+        assert_eq!("sampleZ", k1);
+        assert_eq!("z", v1.as_string().unwrap());
+
+        let (k2, v2) = iter.next().unwrap();
+        assert_eq!("2", k2);
+        assert_eq!("2", v2.as_string().unwrap());
+
+        let (k3, v3) = iter.next().unwrap();
+        assert_eq!("sampleA", k3);
+        assert_eq!("a", v3.as_string().unwrap());
+
+        let (k4, v4) = iter.next().unwrap();
+        assert_eq!("1", k4);
+        assert_eq!("1", v4.as_string().unwrap());
+
+        assert!(iter.next().is_none());
+    }
+
 }
