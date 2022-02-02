@@ -1,7 +1,7 @@
 # Say Hello world to Integra8.
 
 ## Table of Contents
-### Fundaments 
+### Fundamentals 
 1.  [Async / Sync](#Async-/-Sync)
 2.  [Human Friendly Names and Descriptions](#Human-Friendly-Names-and-Descriptions)
 3.  [Allow Failure](#Allow-Failure)
@@ -27,7 +27,7 @@
 2. [Async Timeout limitations](#Async-+-Timeout-limitations)
 
 
-# Fundaments 
+# Fundamentals 
 ## Async / Sync
 Integra8 has native support both `tokio` and `async-std` runtimes.
 `Tests`, `Setups` and `Tear downs` can all be declared `async` and your runtime 
