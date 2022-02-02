@@ -32,7 +32,7 @@ if ! [ -z "$(git status --porcelain)" ]; then
 fi
 
 echo "Cleaning"
-cargo clean
+#cargo clean
 
 ./scripts/build.sh
 ./scripts/tests.sh
@@ -42,7 +42,8 @@ cargo clean
 for dir in "${ALL_CRATE_ROOTS[@]}"; do
   pushd "${dir}"
   echo "Publishing '${dir}'..."
-  cargo publish --no-verify --allow-dirty ${@:1} # --dry-run 
-  sleep 5
+  #cargo publish --no-verify --allow-dirty ${@:1} # --dry-run 
+  echo "Waiting before trying next upload"
+  sleep 120
   popd
 done

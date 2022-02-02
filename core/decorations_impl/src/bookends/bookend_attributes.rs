@@ -1,6 +1,6 @@
 use std::mem;
 use std::time::Duration;
-use syn::{parse_quote, Attribute, Expr, Path, Lit, Result};
+use syn::{parse_quote, Attribute, Expr, Lit, Path, Result};
 
 use crate::parse;
 
@@ -24,47 +24,45 @@ impl BookendAttributes {
             parallel_enabled: None,
         };
 
-
         for attr in attrs.drain(..) {
-
             // #[integra8(crate = path::to::integra8)]
-            if let Some(path) = parse::try_parse_integra8_path(&attr)?  {
+            if let Some(path) = parse::try_parse_integra8_path(&attr)? {
                 builder.integra8_path = Some(path);
                 continue;
             }
 
             // #[name = "the test's given name"]
-            if let Some(name) = parse::try_parse_lit(&attr, "name")?  {
+            if let Some(name) = parse::try_parse_lit(&attr, "name")? {
                 builder.name = Some(name);
                 continue;
             }
 
             // #[description = "the description of this setup / teardown"]
-            if let Some(description) = parse::try_parse_lit(&attr, "description")?  {
+            if let Some(description) = parse::try_parse_lit(&attr, "description")? {
                 builder.description = Some(description);
                 continue;
             }
 
             // #[time_limit = "1m 30s"]
-            if let Some(duration) = parse::try_parse_duration(&attr, "time_limit")?  {
+            if let Some(duration) = parse::try_parse_duration(&attr, "time_limit")? {
                 builder.time_limit = Some(duration);
                 continue;
             }
 
             // #[parallel]
-            if let Some(flag) = parse::try_parse_flag(&attr, "parallel")?  {
+            if let Some(flag) = parse::try_parse_flag(&attr, "parallel")? {
                 builder.parallel_enabled = Some(flag);
                 continue;
             }
 
             // #[sequential]
-            if let Some(flag) = parse::try_parse_flag(&attr, "sequential")?  {
+            if let Some(flag) = parse::try_parse_flag(&attr, "sequential")? {
                 builder.parallel_enabled = Some(!flag);
                 continue;
             }
 
             // #[ignore]
-            if let Some(flag) = parse::try_parse_flag(&attr, "ignore")?  {
+            if let Some(flag) = parse::try_parse_flag(&attr, "ignore")? {
                 builder.ignore = Some(flag);
                 continue;
             }
@@ -80,32 +78,26 @@ impl BookendAttributes {
 
     pub fn take_name(&mut self) -> Expr {
         mem::take(&mut self.name)
-            .map(|val| {
-                parse_quote!(Some(#val))
-            })
+            .map(|val| parse_quote!(Some(#val)))
             .unwrap_or_else(|| parse_quote!(None))
     }
 
     pub fn take_description(&mut self) -> Expr {
         mem::take(&mut self.description)
-            .map(|val| {
-                parse_quote!(Some(#val))
-            })
+            .map(|val| parse_quote!(Some(#val)))
             .unwrap_or_else(|| parse_quote!(None))
     }
 
     pub fn take_ignore(&mut self) -> Expr {
         mem::take(&mut self.ignore)
-            .map(|val| {
-                parse_quote!(Some(#val))
-            })
+            .map(|val| parse_quote!(Some(#val)))
             .unwrap_or_else(|| parse_quote!(None))
     }
 
     pub fn take_time_limit(&mut self) -> Expr {
         match mem::take(&mut self.time_limit) {
             Some(duration) => {
-                let secs = duration.as_secs();    
+                let secs = duration.as_secs();
                 let subsec_nanos = duration.subsec_nanos();
                 parse_quote!(Some(std::time::Duration::new(#secs, #subsec_nanos)))
             }

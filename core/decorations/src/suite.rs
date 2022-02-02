@@ -28,7 +28,7 @@ pub struct SuiteAttributesDecoration {
     /// The duration after which a test is flagged as exceeded is expected duration.
     /// This can be used to give early warnings before a test exceeds some critical threshold.
     /// For example, a HTTP request time out.
-    /// 
+    ///
     /// Tests which are a part of this suite, that do not advertize a warning time limit will inherit this value.
     pub test_warning_time_limit: Option<Duration>,
 

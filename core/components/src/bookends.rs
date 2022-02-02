@@ -28,8 +28,7 @@ impl BookEndAttributes {
     ) -> Self {
         Self {
             ignore: ignore.unwrap_or_else(|| parent_desc.ignore),
-            time_limit: time_limit
-                .map_or_else(|| parent_desc.setup_time_limit, |val| val),
+            time_limit: time_limit.map_or_else(|| parent_desc.setup_time_limit, |val| val),
 
             concurrency_mode: concurrency_mode
                 // Default Serial unless explicitly stated otherwise
@@ -45,8 +44,7 @@ impl BookEndAttributes {
     ) -> Self {
         Self {
             ignore: ignore.unwrap_or_else(|| parent_desc.ignore),
-            time_limit: time_limit
-                .map_or_else(|| parent_desc.tear_down_time_limit, |val| val),
+            time_limit: time_limit.map_or_else(|| parent_desc.tear_down_time_limit, |val| val),
 
             concurrency_mode: concurrency_mode
                 // Default Serial unless explicitly stated otherwise

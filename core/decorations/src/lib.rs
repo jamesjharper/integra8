@@ -40,7 +40,7 @@ impl<TParameters> ComponentDecoration<TParameters> {
     }
 }
 
-// Test rigging to replicate what main_test!() does, 
+// Test rigging to replicate what main_test!() does,
 // to allow decorations to to be used in unit tests.
 // must be in root!
 #[cfg(test)]
@@ -100,11 +100,9 @@ mod test_rigging {
             self.suite_concurrency.clone()
         }
 
-
         fn setup_time_limit_duration(&self) -> Duration {
             Duration::from_secs(self.default_setup_time_limit)
         }
-
 
         fn tear_down_time_limit_duration(&self) -> Duration {
             Duration::from_secs(self.tear_down_time_limit_seconds)
@@ -207,7 +205,6 @@ mod tests {
         #[integra8(crate = crate)]
         pub fn test_b() {}
 
-                            
         #[integration_test]
         #[integra8(crate = crate)]
         pub fn test_c() {}
@@ -231,7 +228,6 @@ mod tests {
         #[integra8(crate = crate)]
         pub fn teardown_b() {}
 
-    
         #[teardown]
         #[integra8(crate = crate)]
         pub fn teardown_c() {}
@@ -250,7 +246,7 @@ mod tests {
             #[ignore]
             #[allow_fail]
             pub fn test_d_nested_with_decorations() {}
-    
+
             #[setup]
             #[integra8(crate = crate)]
             #[name = "Setup D"]
@@ -259,7 +255,7 @@ mod tests {
             #[ignore]
             #[parallel]
             pub fn setup_d_nested_with_decorations() {}
-    
+
             #[teardown]
             #[integra8(crate = crate)]
             #[name = "Teardown D"]
@@ -271,27 +267,26 @@ mod tests {
         }
 
         #[suite]
-        #[integra8(crate = crate)] 
+        #[integra8(crate = crate)]
         pub mod nested_suite_z {
 
             pub use integra8_decorations_impl::*;
 
-
             #[integration_test]
             #[integra8(crate = crate)]
             pub fn test_az() {}
-            
+
             #[integration_test]
             #[integra8(crate = crate)]
             #[name = "Test Az"]
             #[description = "the description of this test Az"]
-            #[time_limit = "2s" ]
+            #[time_limit = "2s"]
             #[warning_time_limit = "1000ms"]
             #[sequential]
             #[ignore]
             #[allow_fail]
             pub fn test_az_with_decorations() {}
-    
+
             #[setup]
             #[integra8(crate = crate)]
             pub fn setup_az() {}
@@ -304,7 +299,7 @@ mod tests {
             #[ignore]
             #[parallel]
             pub fn setup_az_with_decorations() {}
-    
+
             #[teardown]
             #[integra8(crate = crate)]
             pub fn teardown_az() {}
@@ -320,7 +315,7 @@ mod tests {
         }
 
         #[suite]
-        #[integra8(crate = crate)] 
+        #[integra8(crate = crate)]
         #[test_parallel]
         #[parallel]
         #[allow_fail]
@@ -335,11 +330,10 @@ mod tests {
 
             pub use integra8_decorations_impl::*;
 
-
             #[integration_test]
             #[integra8(crate = crate)]
             pub fn test_ay() {}
-            
+
             #[integration_test]
             #[integra8(crate = crate)]
             #[name = "Test Ay"]
@@ -350,7 +344,7 @@ mod tests {
             #[ignore]
             #[allow_fail]
             pub fn test_ay_with_decorations() {}
-    
+
             #[setup]
             #[integra8(crate = crate)]
             pub fn setup_ay() {}
@@ -363,7 +357,7 @@ mod tests {
             #[ignore]
             #[parallel]
             pub fn setup_ay_with_decorations() {}
-    
+
             #[teardown]
             #[integra8(crate = crate)]
             pub fn teardown_ay() {}
@@ -377,22 +371,20 @@ mod tests {
             #[parallel]
             pub fn teardown_ay_with_decorations() {}
 
-
             #[suite]
-            #[integra8(crate = crate)] 
+            #[integra8(crate = crate)]
             pub mod nested_suite_x {
-    
+
                 pub use integra8_decorations_impl::*;
-    
+
                 #[integration_test]
                 #[integra8(crate = crate)]
                 pub fn test_ax() {}
 
-
                 #[setup]
                 #[integra8(crate = crate)]
                 pub fn setup_ax() {}
-    
+
                 #[teardown]
                 #[integra8(crate = crate)]
                 pub fn teardown_ax() {}
@@ -562,7 +554,10 @@ mod tests {
             assert_eq!(teardown1.description.id().as_unique_number(), 1);
             assert_eq!(teardown1.description.parent_id().as_unique_number(), 0);
             assert_eq!(teardown1.description.description(), None);
-            assert_eq!(teardown1.description.component_type(), &ComponentType::TearDown);
+            assert_eq!(
+                teardown1.description.component_type(),
+                &ComponentType::TearDown
+            );
             assert_eq!(teardown1.attributes.ignore, false);
             assert_eq!(teardown1.attributes.time_limit.as_secs(), 50);
         }
@@ -588,12 +583,18 @@ mod tests {
                 suite1.description.path().as_str(),
                 "integra8_decorations::tests::mock_app::nested_suite_z",
             );
-            assert_eq!(suite1.description.relative_path(), "tests::mock_app::nested_suite_z",);
+            assert_eq!(
+                suite1.description.relative_path(),
+                "tests::mock_app::nested_suite_z",
+            );
             assert_eq!(
                 suite1.description.full_name(),
                 "integra8_decorations::tests::mock_app::nested_suite_z",
             );
-            assert_eq!(suite1.description.friendly_name(), "tests::mock_app::nested_suite_z",);
+            assert_eq!(
+                suite1.description.friendly_name(),
+                "tests::mock_app::nested_suite_z",
+            );
             assert_eq!(suite1.description.id().as_unique_number(), 1);
             assert_eq!(suite1.description.parent_id().as_unique_number(), 0);
             assert_eq!(suite1.description.description(), None);
@@ -604,9 +605,14 @@ mod tests {
             assert_eq!(suite1.attributes.test_warning_time_limit.as_secs(), 40);
             assert_eq!(suite1.attributes.setup_time_limit.as_secs(), 20);
             assert_eq!(suite1.attributes.tear_down_time_limit.as_secs(), 50);
-            assert_eq!(suite1.attributes.suite_concurrency_mode, ConcurrencyMode::Sequential);
-            assert_eq!(suite1.attributes.test_concurrency_mode, ConcurrencyMode::Parallel);
-
+            assert_eq!(
+                suite1.attributes.suite_concurrency_mode,
+                ConcurrencyMode::Sequential
+            );
+            assert_eq!(
+                suite1.attributes.test_concurrency_mode,
+                ConcurrencyMode::Parallel
+            );
         }
     }
 
@@ -620,7 +626,7 @@ mod tests {
             let root = ComponentGroup::into_components(
                 vec![
                     mock_app::nested_suite_z::__suite_def(),
-                    mock_app::nested_suite_z::test_az::test_def()
+                    mock_app::nested_suite_z::test_az::test_def(),
                 ],
                 &Parameters::default(),
             );
@@ -661,7 +667,7 @@ mod tests {
             let root = ComponentGroup::into_components(
                 vec![
                     mock_app::nested_suite_z::__suite_def(),
-                    mock_app::nested_suite_z::setup_az::setup_def()
+                    mock_app::nested_suite_z::setup_az::setup_def(),
                 ],
                 &Parameters::default(),
             );
@@ -679,18 +685,12 @@ mod tests {
                 setup1.description.path().as_str(),
                 "integra8_decorations::tests::mock_app::nested_suite_z::setup_az",
             );
-            assert_eq!(
-                setup1.description.relative_path(),
-                "setup_az",
-            );
+            assert_eq!(setup1.description.relative_path(), "setup_az",);
             assert_eq!(
                 setup1.description.full_name(),
                 "integra8_decorations::tests::mock_app::nested_suite_z::setup_az",
             );
-            assert_eq!(
-                setup1.description.friendly_name(),
-                "setup_az",
-            );
+            assert_eq!(setup1.description.friendly_name(), "setup_az",);
             assert_eq!(setup1.description.id().as_unique_number(), 2);
             assert_eq!(setup1.description.parent_id().as_unique_number(), 1);
             assert_eq!(setup1.description.description(), None);
@@ -705,7 +705,7 @@ mod tests {
             let root = ComponentGroup::into_components(
                 vec![
                     mock_app::nested_suite_z::__suite_def(),
-                    mock_app::nested_suite_z::teardown_az::teardown_def()
+                    mock_app::nested_suite_z::teardown_az::teardown_def(),
                 ],
                 &Parameters::default(),
             );
@@ -723,22 +723,19 @@ mod tests {
                 teardown1.description.path().as_str(),
                 "integra8_decorations::tests::mock_app::nested_suite_z::teardown_az",
             );
-            assert_eq!(
-                teardown1.description.relative_path(),
-                "teardown_az",
-            );
+            assert_eq!(teardown1.description.relative_path(), "teardown_az",);
             assert_eq!(
                 teardown1.description.full_name(),
                 "integra8_decorations::tests::mock_app::nested_suite_z::teardown_az",
             );
-            assert_eq!(
-                teardown1.description.friendly_name(),
-                "teardown_az",
-            );
+            assert_eq!(teardown1.description.friendly_name(), "teardown_az",);
             assert_eq!(teardown1.description.id().as_unique_number(), 2);
             assert_eq!(teardown1.description.parent_id().as_unique_number(), 1);
             assert_eq!(teardown1.description.description(), None);
-            assert_eq!(teardown1.description.component_type(), &ComponentType::TearDown);
+            assert_eq!(
+                teardown1.description.component_type(),
+                &ComponentType::TearDown
+            );
             assert_eq!(teardown1.attributes.ignore, false);
             assert_eq!(teardown1.attributes.time_limit.as_secs(), 50);
         }
@@ -754,17 +751,17 @@ mod tests {
                 vec![mock_app::test_a_with_decorations::test_def()],
                 &Parameters::default(),
             );
-    
+
             // Assert
             assert_eq!(root.tests.len(), 1);
             assert_eq!(root.setups.len(), 0);
             assert_eq!(root.tear_downs.len(), 0);
             assert_eq!(root.suites.len(), 0);
             assert_is_root!(root);
-    
+
             // Assert attributes were inherited from the Parameters
             let test1 = &root.tests[0];
-    
+
             assert_eq!(
                 test1.description.path().as_str(),
                 "integra8_decorations::tests::mock_app::test_a_with_decorations",
@@ -786,9 +783,12 @@ mod tests {
             assert_eq!(test1.attributes.ignore, true);
             assert_eq!(test1.attributes.time_limit.as_secs(), 2);
             assert_eq!(test1.attributes.warning_time_limit.as_secs(), 1);
-            assert_eq!(test1.attributes.concurrency_mode, ConcurrencyMode::Sequential);
+            assert_eq!(
+                test1.attributes.concurrency_mode,
+                ConcurrencyMode::Sequential
+            );
         }
-    
+
         #[test]
         fn for_setup() {
             // Act
@@ -796,14 +796,14 @@ mod tests {
                 vec![mock_app::setup_a_with_decorations::setup_def()],
                 &Parameters::default(),
             );
-    
+
             // Assert
             assert_eq!(root.tests.len(), 0);
             assert_eq!(root.setups.len(), 1);
             assert_eq!(root.tear_downs.len(), 0);
             assert_eq!(root.suites.len(), 0);
             assert_is_root!(root);
-    
+
             // Assert attributes/description was inherited from the Parameters
             let setup1 = &root.setups[0].clone();
             assert_eq!(
@@ -825,9 +825,12 @@ mod tests {
             assert_eq!(setup1.description.component_type(), &ComponentType::Setup);
             assert_eq!(setup1.attributes.ignore, true);
             assert_eq!(setup1.attributes.time_limit.as_secs(), 2);
-            assert_eq!(setup1.attributes.concurrency_mode, ConcurrencyMode::Parallel);
+            assert_eq!(
+                setup1.attributes.concurrency_mode,
+                ConcurrencyMode::Parallel
+            );
         }
-    
+
         #[test]
         fn for_tear_down() {
             // Act
@@ -835,14 +838,14 @@ mod tests {
                 vec![mock_app::teardown_a_with_decorations::teardown_def()],
                 &Parameters::default(),
             );
-    
+
             // Assert
             assert_eq!(root.tests.len(), 0);
             assert_eq!(root.setups.len(), 0);
             assert_eq!(root.tear_downs.len(), 1);
             assert_eq!(root.suites.len(), 0);
             assert_is_root!(root);
-    
+
             // Assert attributes/description was inherited from the Parameters
             let teardown1 = &root.tear_downs[0].clone();
             assert_eq!(
@@ -861,12 +864,17 @@ mod tests {
                 teardown1.description.description(),
                 Some("the description of this teardown A")
             );
-            assert_eq!(teardown1.description.component_type(), &ComponentType::TearDown);
+            assert_eq!(
+                teardown1.description.component_type(),
+                &ComponentType::TearDown
+            );
             assert_eq!(teardown1.attributes.ignore, true);
             assert_eq!(teardown1.attributes.time_limit.as_secs(), 2);
-            assert_eq!(teardown1.attributes.concurrency_mode, ConcurrencyMode::Parallel);
+            assert_eq!(
+                teardown1.attributes.concurrency_mode,
+                ConcurrencyMode::Parallel
+            );
         }
-
 
         #[test]
         fn for_suite() {
@@ -889,15 +897,18 @@ mod tests {
                 suite1.description.path().as_str(),
                 "integra8_decorations::tests::mock_app::nested_suite_y",
             );
-            assert_eq!(suite1.description.relative_path(), "tests::mock_app::nested_suite_y",);
             assert_eq!(
-                suite1.description.full_name(),
-                "Nested Suite A",
+                suite1.description.relative_path(),
+                "tests::mock_app::nested_suite_y",
             );
+            assert_eq!(suite1.description.full_name(), "Nested Suite A",);
             assert_eq!(suite1.description.friendly_name(), "Nested Suite A",);
             assert_eq!(suite1.description.id().as_unique_number(), 1);
             assert_eq!(suite1.description.parent_id().as_unique_number(), 0);
-            assert_eq!(suite1.description.description(), Some("the description of this nested suite A"));
+            assert_eq!(
+                suite1.description.description(),
+                Some("the description of this nested suite A")
+            );
             assert_eq!(suite1.description.component_type(), &ComponentType::Suite);
             assert_eq!(suite1.attributes.ignore, true);
             assert_eq!(suite1.attributes.allow_suite_fail, true);
@@ -905,9 +916,14 @@ mod tests {
             assert_eq!(suite1.attributes.test_warning_time_limit.as_secs(), 14);
             assert_eq!(suite1.attributes.setup_time_limit.as_secs(), 12);
             assert_eq!(suite1.attributes.tear_down_time_limit.as_secs(), 11);
-            assert_eq!(suite1.attributes.suite_concurrency_mode, ConcurrencyMode::Parallel);
-            assert_eq!(suite1.attributes.test_concurrency_mode, ConcurrencyMode::Parallel);
-
+            assert_eq!(
+                suite1.attributes.suite_concurrency_mode,
+                ConcurrencyMode::Parallel
+            );
+            assert_eq!(
+                suite1.attributes.test_concurrency_mode,
+                ConcurrencyMode::Parallel
+            );
         }
     }
 
@@ -953,7 +969,10 @@ mod tests {
             assert_eq!(test1.attributes.ignore, true);
             assert_eq!(test1.attributes.time_limit.as_secs(), 2);
             assert_eq!(test1.attributes.warning_time_limit.as_secs(), 1);
-            assert_eq!(test1.attributes.concurrency_mode, ConcurrencyMode::Sequential);
+            assert_eq!(
+                test1.attributes.concurrency_mode,
+                ConcurrencyMode::Sequential
+            );
         }
 
         #[test]
@@ -992,14 +1011,19 @@ mod tests {
             assert_eq!(setup1.description.component_type(), &ComponentType::Setup);
             assert_eq!(setup1.attributes.ignore, true);
             assert_eq!(setup1.attributes.time_limit.as_secs(), 2);
-            assert_eq!(setup1.attributes.concurrency_mode, ConcurrencyMode::Parallel);
+            assert_eq!(
+                setup1.attributes.concurrency_mode,
+                ConcurrencyMode::Parallel
+            );
         }
 
         #[test]
         fn for_tear_down() {
             // Act
             let root = ComponentGroup::into_components(
-                vec![mock_app::nested_namespace::teardown_d_nested_with_decorations::teardown_def()],
+                vec![
+                    mock_app::nested_namespace::teardown_d_nested_with_decorations::teardown_def(),
+                ],
                 &Parameters::default(),
             );
 
@@ -1028,10 +1052,16 @@ mod tests {
                 teardown1.description.description(),
                 Some("the description of this teardown D")
             );
-            assert_eq!(teardown1.description.component_type(), &ComponentType::TearDown);
+            assert_eq!(
+                teardown1.description.component_type(),
+                &ComponentType::TearDown
+            );
             assert_eq!(teardown1.attributes.ignore, true);
             assert_eq!(teardown1.attributes.time_limit.as_secs(), 2);
-            assert_eq!(teardown1.attributes.concurrency_mode, ConcurrencyMode::Parallel);
+            assert_eq!(
+                teardown1.attributes.concurrency_mode,
+                ConcurrencyMode::Parallel
+            );
         }
     }
 
@@ -1044,7 +1074,7 @@ mod tests {
             let root = ComponentGroup::into_components(
                 vec![
                     mock_app::nested_suite_z::__suite_def(),
-                    mock_app::nested_suite_z::test_az_with_decorations::test_def()
+                    mock_app::nested_suite_z::test_az_with_decorations::test_def(),
                 ],
                 &Parameters::default(),
             );
@@ -1080,7 +1110,10 @@ mod tests {
             assert_eq!(test1.attributes.ignore, true);
             assert_eq!(test1.attributes.time_limit.as_secs(), 2);
             assert_eq!(test1.attributes.warning_time_limit.as_secs(), 1);
-            assert_eq!(test1.attributes.concurrency_mode, ConcurrencyMode::Sequential);
+            assert_eq!(
+                test1.attributes.concurrency_mode,
+                ConcurrencyMode::Sequential
+            );
         }
 
         #[test]
@@ -1089,7 +1122,7 @@ mod tests {
             let root = ComponentGroup::into_components(
                 vec![
                     mock_app::nested_suite_z::__suite_def(),
-                    mock_app::nested_suite_z::setup_az_with_decorations::setup_def()
+                    mock_app::nested_suite_z::setup_az_with_decorations::setup_def(),
                 ],
                 &Parameters::default(),
             );
@@ -1123,7 +1156,10 @@ mod tests {
             assert_eq!(setup1.description.component_type(), &ComponentType::Setup);
             assert_eq!(setup1.attributes.ignore, true);
             assert_eq!(setup1.attributes.time_limit.as_secs(), 2);
-            assert_eq!(setup1.attributes.concurrency_mode, ConcurrencyMode::Parallel);
+            assert_eq!(
+                setup1.attributes.concurrency_mode,
+                ConcurrencyMode::Parallel
+            );
         }
 
         #[test]
@@ -1132,7 +1168,7 @@ mod tests {
             let root = ComponentGroup::into_components(
                 vec![
                     mock_app::nested_suite_z::__suite_def(),
-                    mock_app::nested_suite_z::teardown_az_with_decorations::teardown_def()
+                    mock_app::nested_suite_z::teardown_az_with_decorations::teardown_def(),
                 ],
                 &Parameters::default(),
             );
@@ -1162,10 +1198,16 @@ mod tests {
                 teardown1.description.description(),
                 Some("the description of this teardown Az")
             );
-            assert_eq!(teardown1.description.component_type(), &ComponentType::TearDown);
+            assert_eq!(
+                teardown1.description.component_type(),
+                &ComponentType::TearDown
+            );
             assert_eq!(teardown1.attributes.ignore, true);
             assert_eq!(teardown1.attributes.time_limit.as_secs(), 2);
-            assert_eq!(teardown1.attributes.concurrency_mode, ConcurrencyMode::Parallel);
+            assert_eq!(
+                teardown1.attributes.concurrency_mode,
+                ConcurrencyMode::Parallel
+            );
         }
     }
 
@@ -1178,7 +1220,7 @@ mod tests {
             let root = ComponentGroup::into_components(
                 vec![
                     mock_app::nested_suite_y::__suite_def(),
-                    mock_app::nested_suite_y::test_ay_with_decorations::test_def()
+                    mock_app::nested_suite_y::test_ay_with_decorations::test_def(),
                 ],
                 &Parameters::default(),
             );
@@ -1214,7 +1256,10 @@ mod tests {
             assert_eq!(test1.attributes.ignore, true);
             assert_eq!(test1.attributes.time_limit.as_secs(), 2);
             assert_eq!(test1.attributes.warning_time_limit.as_secs(), 1);
-            assert_eq!(test1.attributes.concurrency_mode, ConcurrencyMode::Sequential);
+            assert_eq!(
+                test1.attributes.concurrency_mode,
+                ConcurrencyMode::Sequential
+            );
         }
 
         #[test]
@@ -1223,7 +1268,7 @@ mod tests {
             let root = ComponentGroup::into_components(
                 vec![
                     mock_app::nested_suite_y::__suite_def(),
-                    mock_app::nested_suite_y::setup_ay_with_decorations::setup_def()
+                    mock_app::nested_suite_y::setup_ay_with_decorations::setup_def(),
                 ],
                 &Parameters::default(),
             );
@@ -1257,7 +1302,10 @@ mod tests {
             assert_eq!(setup1.description.component_type(), &ComponentType::Setup);
             assert_eq!(setup1.attributes.ignore, true);
             assert_eq!(setup1.attributes.time_limit.as_secs(), 2);
-            assert_eq!(setup1.attributes.concurrency_mode, ConcurrencyMode::Parallel);
+            assert_eq!(
+                setup1.attributes.concurrency_mode,
+                ConcurrencyMode::Parallel
+            );
         }
 
         #[test]
@@ -1266,7 +1314,7 @@ mod tests {
             let root = ComponentGroup::into_components(
                 vec![
                     mock_app::nested_suite_y::__suite_def(),
-                    mock_app::nested_suite_y::teardown_ay_with_decorations::teardown_def()
+                    mock_app::nested_suite_y::teardown_ay_with_decorations::teardown_def(),
                 ],
                 &Parameters::default(),
             );
@@ -1296,10 +1344,16 @@ mod tests {
                 teardown1.description.description(),
                 Some("the description of this teardown Ay")
             );
-            assert_eq!(teardown1.description.component_type(), &ComponentType::TearDown);
+            assert_eq!(
+                teardown1.description.component_type(),
+                &ComponentType::TearDown
+            );
             assert_eq!(teardown1.attributes.ignore, true);
             assert_eq!(teardown1.attributes.time_limit.as_secs(), 2);
-            assert_eq!(teardown1.attributes.concurrency_mode, ConcurrencyMode::Parallel);
+            assert_eq!(
+                teardown1.attributes.concurrency_mode,
+                ConcurrencyMode::Parallel
+            );
         }
     }
 
@@ -1312,7 +1366,7 @@ mod tests {
             let root = ComponentGroup::into_components(
                 vec![
                     mock_app::nested_suite_y::__suite_def(),
-                    mock_app::nested_suite_y::test_ay::test_def()
+                    mock_app::nested_suite_y::test_ay::test_def(),
                 ],
                 &Parameters::default(),
             );
@@ -1332,11 +1386,14 @@ mod tests {
                 "integra8_decorations::tests::mock_app::nested_suite_y::test_ay",
             );
             assert_eq!(test1.description.relative_path(), "test_ay");
-            assert_eq!(test1.description.full_name(), "integra8_decorations::tests::mock_app::nested_suite_y::test_ay",);
+            assert_eq!(
+                test1.description.full_name(),
+                "integra8_decorations::tests::mock_app::nested_suite_y::test_ay",
+            );
             assert_eq!(test1.description.friendly_name(), "test_ay",);
             assert_eq!(test1.description.id().as_unique_number(), 2);
             assert_eq!(test1.description.parent_id().as_unique_number(), 1);
-            assert_eq!(test1.description.description(), None );
+            assert_eq!(test1.description.description(), None);
             assert_eq!(test1.description.component_type(), &ComponentType::Test);
             assert_eq!(test1.attributes.allow_fail, false);
             assert_eq!(test1.attributes.ignore, true);
@@ -1351,7 +1408,7 @@ mod tests {
             let root = ComponentGroup::into_components(
                 vec![
                     mock_app::nested_suite_y::__suite_def(),
-                    mock_app::nested_suite_y::setup_ay::setup_def()
+                    mock_app::nested_suite_y::setup_ay::setup_def(),
                 ],
                 &Parameters::default(),
             );
@@ -1370,7 +1427,10 @@ mod tests {
                 "integra8_decorations::tests::mock_app::nested_suite_y::setup_ay",
             );
             assert_eq!(setup1.description.relative_path(), "setup_ay",);
-            assert_eq!(setup1.description.full_name(), "integra8_decorations::tests::mock_app::nested_suite_y::setup_ay",);
+            assert_eq!(
+                setup1.description.full_name(),
+                "integra8_decorations::tests::mock_app::nested_suite_y::setup_ay",
+            );
             assert_eq!(setup1.description.friendly_name(), "setup_ay",);
             assert_eq!(setup1.description.id().as_unique_number(), 2);
             assert_eq!(setup1.description.parent_id().as_unique_number(), 1);
@@ -1379,7 +1439,10 @@ mod tests {
             assert_eq!(setup1.description.component_type(), &ComponentType::Setup);
             assert_eq!(setup1.attributes.ignore, true);
             assert_eq!(setup1.attributes.time_limit.as_secs(), 12);
-            assert_eq!(setup1.attributes.concurrency_mode, ConcurrencyMode::Sequential);
+            assert_eq!(
+                setup1.attributes.concurrency_mode,
+                ConcurrencyMode::Sequential
+            );
         }
 
         #[test]
@@ -1388,7 +1451,7 @@ mod tests {
             let root = ComponentGroup::into_components(
                 vec![
                     mock_app::nested_suite_y::__suite_def(),
-                    mock_app::nested_suite_y::teardown_ay::teardown_def()
+                    mock_app::nested_suite_y::teardown_ay::teardown_def(),
                 ],
                 &Parameters::default(),
             );
@@ -1406,19 +1469,25 @@ mod tests {
                 teardown1.description.path().as_str(),
                 "integra8_decorations::tests::mock_app::nested_suite_y::teardown_ay",
             );
+            assert_eq!(teardown1.description.relative_path(), "teardown_ay",);
             assert_eq!(
-                teardown1.description.relative_path(),
-                "teardown_ay",
+                teardown1.description.full_name(),
+                "integra8_decorations::tests::mock_app::nested_suite_y::teardown_ay"
             );
-            assert_eq!(teardown1.description.full_name(), "integra8_decorations::tests::mock_app::nested_suite_y::teardown_ay");
             assert_eq!(teardown1.description.friendly_name(), "teardown_ay",);
             assert_eq!(teardown1.description.id().as_unique_number(), 2);
             assert_eq!(teardown1.description.parent_id().as_unique_number(), 1);
             assert_eq!(teardown1.description.description(), None);
-            assert_eq!(teardown1.description.component_type(), &ComponentType::TearDown);
+            assert_eq!(
+                teardown1.description.component_type(),
+                &ComponentType::TearDown
+            );
             assert_eq!(teardown1.attributes.ignore, true);
             assert_eq!(teardown1.attributes.time_limit.as_secs(), 11);
-            assert_eq!(teardown1.attributes.concurrency_mode, ConcurrencyMode::Sequential);
+            assert_eq!(
+                teardown1.attributes.concurrency_mode,
+                ConcurrencyMode::Sequential
+            );
         }
     }
 
@@ -1432,7 +1501,7 @@ mod tests {
                 vec![
                     mock_app::nested_suite_y::__suite_def(),
                     mock_app::nested_suite_y::nested_suite_x::__suite_def(),
-                    mock_app::nested_suite_y::nested_suite_x::test_ax::test_def()
+                    mock_app::nested_suite_y::nested_suite_x::test_ax::test_def(),
                 ],
                 &Parameters::default(),
             );
@@ -1452,11 +1521,14 @@ mod tests {
                 "integra8_decorations::tests::mock_app::nested_suite_y::nested_suite_x::test_ax",
             );
             assert_eq!(test1.description.relative_path(), "test_ax");
-            assert_eq!(test1.description.full_name(), "integra8_decorations::tests::mock_app::nested_suite_y::nested_suite_x::test_ax",);
+            assert_eq!(
+                test1.description.full_name(),
+                "integra8_decorations::tests::mock_app::nested_suite_y::nested_suite_x::test_ax",
+            );
             assert_eq!(test1.description.friendly_name(), "test_ax",);
             assert_eq!(test1.description.id().as_unique_number(), 3);
             assert_eq!(test1.description.parent_id().as_unique_number(), 2);
-            assert_eq!(test1.description.description(), None );
+            assert_eq!(test1.description.description(), None);
             assert_eq!(test1.description.component_type(), &ComponentType::Test);
             assert_eq!(test1.attributes.allow_fail, false);
             assert_eq!(test1.attributes.ignore, true);
@@ -1472,7 +1544,7 @@ mod tests {
                 vec![
                     mock_app::nested_suite_y::__suite_def(),
                     mock_app::nested_suite_y::nested_suite_x::__suite_def(),
-                    mock_app::nested_suite_y::nested_suite_x::setup_ax::setup_def()
+                    mock_app::nested_suite_y::nested_suite_x::setup_ax::setup_def(),
                 ],
                 &Parameters::default(),
             );
@@ -1491,7 +1563,10 @@ mod tests {
                 "integra8_decorations::tests::mock_app::nested_suite_y::nested_suite_x::setup_ax",
             );
             assert_eq!(setup1.description.relative_path(), "setup_ax",);
-            assert_eq!(setup1.description.full_name(), "integra8_decorations::tests::mock_app::nested_suite_y::nested_suite_x::setup_ax",);
+            assert_eq!(
+                setup1.description.full_name(),
+                "integra8_decorations::tests::mock_app::nested_suite_y::nested_suite_x::setup_ax",
+            );
             assert_eq!(setup1.description.friendly_name(), "setup_ax",);
             assert_eq!(setup1.description.id().as_unique_number(), 3);
             assert_eq!(setup1.description.parent_id().as_unique_number(), 2);
@@ -1500,7 +1575,10 @@ mod tests {
             assert_eq!(setup1.description.component_type(), &ComponentType::Setup);
             assert_eq!(setup1.attributes.ignore, true);
             assert_eq!(setup1.attributes.time_limit.as_secs(), 12);
-            assert_eq!(setup1.attributes.concurrency_mode, ConcurrencyMode::Sequential);
+            assert_eq!(
+                setup1.attributes.concurrency_mode,
+                ConcurrencyMode::Sequential
+            );
         }
 
         #[test]
@@ -1510,7 +1588,7 @@ mod tests {
                 vec![
                     mock_app::nested_suite_y::__suite_def(),
                     mock_app::nested_suite_y::nested_suite_x::__suite_def(),
-                    mock_app::nested_suite_y::nested_suite_x::teardown_ax::teardown_def()
+                    mock_app::nested_suite_y::nested_suite_x::teardown_ax::teardown_def(),
                 ],
                 &Parameters::default(),
             );
@@ -1528,22 +1606,24 @@ mod tests {
                 teardown1.description.path().as_str(),
                 "integra8_decorations::tests::mock_app::nested_suite_y::nested_suite_x::teardown_ax"
             );
-            assert_eq!(
-                teardown1.description.relative_path(),
-                "teardown_ax",
-            );
+            assert_eq!(teardown1.description.relative_path(), "teardown_ax",);
             assert_eq!(teardown1.description.full_name(),  "integra8_decorations::tests::mock_app::nested_suite_y::nested_suite_x::teardown_ax");
             assert_eq!(teardown1.description.friendly_name(), "teardown_ax",);
             assert_eq!(teardown1.description.id().as_unique_number(), 3);
             assert_eq!(teardown1.description.parent_id().as_unique_number(), 2);
             assert_eq!(teardown1.description.description(), None);
-            assert_eq!(teardown1.description.component_type(), &ComponentType::TearDown);
+            assert_eq!(
+                teardown1.description.component_type(),
+                &ComponentType::TearDown
+            );
             assert_eq!(teardown1.attributes.ignore, true);
             assert_eq!(teardown1.attributes.time_limit.as_secs(), 11);
-            assert_eq!(teardown1.attributes.concurrency_mode, ConcurrencyMode::Sequential);
+            assert_eq!(
+                teardown1.attributes.concurrency_mode,
+                ConcurrencyMode::Sequential
+            );
         }
     }
-
 
     #[test]
     fn should_return_components_in_the_order_they_are_defined() {
@@ -1556,33 +1636,28 @@ mod tests {
                 mock_app::setup_c::setup_def(),
                 mock_app::setup_b::setup_def(),
                 mock_app::setup_a::setup_def(),
-
                 mock_app::test_c::test_def(),
                 mock_app::test_b::test_def(),
                 mock_app::test_a::test_def(),
-
                 mock_app::nested_suite_z::__suite_def(),
                 mock_app::nested_suite_z::setup_az::setup_def(),
                 mock_app::nested_suite_z::test_az::test_def(),
                 mock_app::nested_suite_z::teardown_az::teardown_def(),
-
                 mock_app::nested_suite_y::__suite_def(),
-
                 mock_app::teardown_c::teardown_def(),
                 mock_app::teardown_b::teardown_def(),
                 mock_app::teardown_a::teardown_def(),
-
-
-            ], &Parameters::default());
+            ],
+            &Parameters::default(),
+        );
 
         // Assert
         assert_eq!(root.tests.len(), 3);
         assert_eq!(root.setups.len(), 3);
         assert_eq!(root.tear_downs.len(), 3);
         assert_eq!(root.suites.len(), 2);
-        
 
-        // Setups 
+        // Setups
 
         let setup1 = &root.setups[0];
         assert_eq!(setup1.description.id().as_unique_number(), 1);
@@ -1605,7 +1680,7 @@ mod tests {
             "integra8_decorations::tests::mock_app::setup_a"
         );
 
-        // Tests 
+        // Tests
 
         let test1 = &root.tests[0];
         assert_eq!(test1.description.id().as_unique_number(), 4);
@@ -1665,7 +1740,7 @@ mod tests {
             "integra8_decorations::tests::mock_app::nested_suite_y"
         );
 
-        // Tear downs 
+        // Tear downs
 
         let tear_down1 = &root.tear_downs[0];
         assert_eq!(tear_down1.description.id().as_unique_number(), 12);

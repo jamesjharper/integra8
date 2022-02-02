@@ -84,7 +84,9 @@ impl ComponentReportBuilder {
             result: self.build_result(),
             timing: self.timing.unwrap_or_else(|| ComponentTimeResult::zero()),
             description: self.description,
-            artifacts: self.artifacts.unwrap_or_else(|| ComponentRunArtifacts::new()),
+            artifacts: self
+                .artifacts
+                .unwrap_or_else(|| ComponentRunArtifacts::new()),
         }
     }
 

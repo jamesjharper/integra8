@@ -1,10 +1,10 @@
-use std::mem;
-use std::time::Duration;
-use std::sync::Arc;
 use std::collections::HashMap;
-use std::io::{Read, Write, Seek, Cursor, BufRead, SeekFrom};
+use std::io::{BufRead, Cursor, Read, Seek, SeekFrom, Write};
+use std::mem;
 use std::path::PathBuf;
+use std::sync::Arc;
 use std::sync::RwLock;
+use std::time::Duration;
 
 use crate::{ComponentDescription, ConcurrencyMode};
 
@@ -18,8 +18,8 @@ pub enum ExecutionArtifact {
     Text(String),
     TextFile(PathBuf),
     TextBuffer(Vec<u8>),
-    TextStream(Box<dyn BufferSource + Send + Sync>)
-} 
+    TextStream(Box<dyn BufferSource + Send + Sync>),
+}
 
 pub struct ExecutionArtifacts {
     map: RwLock<HashMap<String, ExecutionArtifact>>,
@@ -28,59 +28,56 @@ pub struct ExecutionArtifacts {
 impl ExecutionArtifacts {
     pub fn new() -> Self {
         Self {
-            map: RwLock::new(HashMap::new())
+            map: RwLock::new(HashMap::new()),
         }
     }
 
-    pub fn writer<'a>(&'a self, name : impl Into<String>) -> ExecutionArtifactCursor<'a> {
+    pub fn writer<'a>(&'a self, name: impl Into<String>) -> ExecutionArtifactCursor<'a> {
         ExecutionArtifactCursor::new(self, name.into())
     }
 
-    pub fn include_text(&self, name : impl Into<String>, string : impl Into<String>) -> & Self {
+    pub fn include_text(&self, name: impl Into<String>, string: impl Into<String>) -> &Self {
         self.include(name, ExecutionArtifact::Text(string.into()));
         self
     }
 
-    pub fn include_text_file(&self, name : impl Into<String>, filename : impl Into<PathBuf>) -> & Self {
+    pub fn include_text_file(
+        &self,
+        name: impl Into<String>,
+        filename: impl Into<PathBuf>,
+    ) -> &Self {
         self.include(name, ExecutionArtifact::TextFile(filename.into()));
         self
     }
 
-    pub fn include_text_buffer(&self, name : impl Into<String>, buff : impl Into<Vec<u8>>) -> & Self {
+    pub fn include_text_buffer(&self, name: impl Into<String>, buff: impl Into<Vec<u8>>) -> &Self {
         self.include(name, ExecutionArtifact::TextBuffer(buff.into()));
         self
     }
 
-    pub fn include_text_stream<R: Read + Seek + Send + Sync + 'static >(&self, name : impl Into<String>, reader : R) -> & Self {
-        self.include(name, ExecutionArtifact::TextStream(Box::new(
-            SeekAndReadBufferSource {
-                reader
-            }
-        )));
+    pub fn include_text_stream<R: Read + Seek + Send + Sync + 'static>(
+        &self,
+        name: impl Into<String>,
+        reader: R,
+    ) -> &Self {
+        self.include(
+            name,
+            ExecutionArtifact::TextStream(Box::new(SeekAndReadBufferSource { reader })),
+        );
         self
     }
 
-    pub fn include(&self, name : impl Into<String>, artifact: ExecutionArtifact) {
-        self.map
-            .write()
-            .unwrap()
-            .insert(
-                name.into(),
-                artifact,
-            );
+    pub fn include(&self, name: impl Into<String>, artifact: ExecutionArtifact) {
+        self.map.write().unwrap().insert(name.into(), artifact);
     }
 
     pub fn drain(&self) -> HashMap<String, ExecutionArtifact> {
         let mut drain_map = HashMap::new();
-        mem::swap(&mut *self.map
-            .write()
-            .unwrap(), 
-            &mut drain_map);
+        mem::swap(&mut *self.map.write().unwrap(), &mut drain_map);
 
         drain_map
     }
 }
-
 
 #[derive(Clone)]
 pub enum ExecutionStrategy {
@@ -140,16 +137,15 @@ pub trait TestParameters {
     fn console_output_ansi_mode(&self) -> &'_ str;
 }
 
-
 pub trait BufferSource {
-    fn read_all(&mut self) -> std::io::Result<Vec<u8>> ; 
+    fn read_all(&mut self) -> std::io::Result<Vec<u8>>;
 }
 
 struct SeekAndReadBufferSource<R> {
     reader: R,
 }
 
-impl <R: Read + Seek>  BufferSource for SeekAndReadBufferSource<R> {
+impl<R: Read + Seek> BufferSource for SeekAndReadBufferSource<R> {
     fn read_all(&mut self) -> std::io::Result<Vec<u8>> {
         let mut buffer = Vec::new();
         self.reader.rewind()?;
@@ -161,30 +157,30 @@ impl <R: Read + Seek>  BufferSource for SeekAndReadBufferSource<R> {
 pub struct ExecutionArtifactCursor<'a> {
     inner: Option<Cursor<Vec<u8>>>,
     execution_artifacts: &'a ExecutionArtifacts,
-    key: String
+    key: String,
 }
 
-impl <'a> ExecutionArtifactCursor<'a> {
+impl<'a> ExecutionArtifactCursor<'a> {
     pub fn new(execution_artifacts: &'a ExecutionArtifacts, key: String) -> Self {
         Self {
             inner: Some(Cursor::new(Vec::new())),
             execution_artifacts: execution_artifacts,
-            key: key
+            key: key,
         }
     }
 }
 
-impl <'a> Drop for ExecutionArtifactCursor<'a> {
+impl<'a> Drop for ExecutionArtifactCursor<'a> {
     fn drop(&mut self) {
         // Add self to artifacts automatically once dropped
         if let Some(reader) = mem::take(&mut self.inner) {
-            self.execution_artifacts.include_text_buffer(&self.key, reader.into_inner());
+            self.execution_artifacts
+                .include_text_buffer(&self.key, reader.into_inner());
         }
     }
 }
 
-impl<'a> Read for ExecutionArtifactCursor<'a>
-{
+impl<'a> Read for ExecutionArtifactCursor<'a> {
     fn read(&mut self, buf: &mut [u8]) -> std::io::Result<usize> {
         self.inner.as_mut().map(|r| r.read(buf)).unwrap()
     }
@@ -203,8 +199,7 @@ impl<'a> BufRead for ExecutionArtifactCursor<'a> {
     }
 }
 
-impl<'a>  Write for ExecutionArtifactCursor<'a> {
-
+impl<'a> Write for ExecutionArtifactCursor<'a> {
     fn write(&mut self, buf: &[u8]) -> std::io::Result<usize> {
         self.inner.as_mut().map(|r| r.write(buf)).unwrap()
     }

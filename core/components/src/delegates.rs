@@ -33,9 +33,6 @@ impl<TParameters> fmt::Debug for Delegate<TParameters> {
 }
 
 impl<TParameters> Delegate<TParameters> {
-
-
-
     pub fn sync_without_context(del: fn()) -> Self {
         Self::SyncWithoutContext(del)
     }
@@ -69,17 +66,16 @@ impl<TParameters> Delegate<TParameters> {
         match self {
             Self::SyncWithoutContext(del) => (del)(),
             Self::AsyncWithoutContext(del) => (del)().await,
-            _ => panic!("Parameter are required to invoke the delegate")
+            _ => panic!("Parameter are required to invoke the delegate"),
         }
     }
     pub fn run_sync_without_parameters(&self) {
         match self {
             Self::SyncWithoutContext(del) => (del)(),
             Self::AsyncWithoutContext(del) => block_on((del)()),
-            _ => panic!("Parameter are required to invoke the delegate")
+            _ => panic!("Parameter are required to invoke the delegate"),
         }
     }
-
 
     pub fn run_sync(&self, ctx: ExecutionContext<TParameters>) {
         match self {

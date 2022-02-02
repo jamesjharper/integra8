@@ -1,6 +1,6 @@
 use integra8_components::{
-    AcceptanceCriteria, BookEnd, ComponentDescription, ComponentPath, ExecutionContext,
-    ExecutionStrategy, SuiteAttributes, Test, TestParameters, ExecutionArtifacts
+    AcceptanceCriteria, BookEnd, ComponentDescription, ComponentPath, ExecutionArtifacts,
+    ExecutionContext, ExecutionStrategy, SuiteAttributes, Test, TestParameters,
 };
 
 use std::sync::Arc;
@@ -48,45 +48,41 @@ impl<TParameters: TestParameters> ComponentFixture<TParameters> {
         }
     }
 
-    pub async fn run(&self, artifacts: Arc<ExecutionArtifacts>)  {
+    pub async fn run(&self, artifacts: Arc<ExecutionArtifacts>) {
         match self {
-            Self::Test {
-                test, ..
-            } => {
-                match test.test_fn.requires_parameters()  {
-                    true => {
-                        test.test_fn.run_async(self.execution_context(artifacts)).await
-                    },
-                    false => {
-                        test.test_fn.run_async_without_parameters().await
-                    }
+            Self::Test { test, .. } => match test.test_fn.requires_parameters() {
+                true => {
+                    test.test_fn
+                        .run_async(self.execution_context(artifacts))
+                        .await
                 }
-            }
-            Self::BookEnd {
-                bookend, ..
-            } => {
-
-                match bookend.bookend_fn.requires_parameters()  {
-                    true => {
-                        bookend.bookend_fn.run_async(self.execution_context(artifacts)).await;
-                    },
-                    false => {
-                        bookend.bookend_fn.run_async_without_parameters().await;
-
-                    }
+                false => test.test_fn.run_async_without_parameters().await,
+            },
+            Self::BookEnd { bookend, .. } => match bookend.bookend_fn.requires_parameters() {
+                true => {
+                    bookend
+                        .bookend_fn
+                        .run_async(self.execution_context(artifacts))
+                        .await;
                 }
-            }
+                false => {
+                    bookend.bookend_fn.run_async_without_parameters().await;
+                }
+            },
             Self::Suite { .. } => {
                 // Can not run
             }
         }
     }
 
-    pub fn execution_context(&self, artifacts: Arc<ExecutionArtifacts>) -> ExecutionContext<TParameters> {
+    pub fn execution_context(
+        &self,
+        artifacts: Arc<ExecutionArtifacts>,
+    ) -> ExecutionContext<TParameters> {
         ExecutionContext {
             parameters: self.parameters(),
             description: self.description().clone(),
-            artifacts: artifacts
+            artifacts: artifacts,
         }
     }
 

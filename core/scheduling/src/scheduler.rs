@@ -30,7 +30,7 @@ impl<Stream: TaskStream> TaskScheduler<Stream> {
     pub fn new(state_machine: Stream, max_concurrency_limit: usize) -> Self {
         // Don't waste resources, if we know the max pool size needed, then we shouldn't exceed it
         let actual_max_concurrency = state_machine.max_concurrency_or_limit(max_concurrency_limit);
-        
+
         let (tx, rx) = channel::<TaskCompleteEvent>(actual_max_concurrency);
 
         Self {

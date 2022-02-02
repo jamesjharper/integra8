@@ -50,8 +50,7 @@ impl TestAttributes {
             warning_time_limit: warning_time_limit
                 .map_or_else(|| parent_desc.test_warning_time_limit, |val| val),
 
-            time_limit: time_limit
-                .map_or_else(|| parent_desc.test_time_limit, |val| val),
+            time_limit: time_limit.map_or_else(|| parent_desc.test_time_limit, |val| val),
 
             concurrency_mode: concurrency_mode
                 .map_or_else(|| parent_desc.test_concurrency_mode.clone(), |val| val),

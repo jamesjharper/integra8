@@ -4,9 +4,9 @@ use proc_macro::TokenStream;
 
 mod bookends;
 mod exec_fn;
+mod parse;
 mod suite;
 mod test;
-mod parse;
 
 #[proc_macro_attribute]
 pub fn integration_test(_args_tokens: TokenStream, input_tokens: TokenStream) -> TokenStream {

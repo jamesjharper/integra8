@@ -16,10 +16,10 @@ pub fn main_test(input_tokens: TokenStream) -> TokenStream {
     let max_concurrency_expr = global_attr.take_max_concurrency_expr();
 
     let default_setup_time_limit_expr = global_attr.take_default_setup_time_limit();
-    let tear_down_time_limit_seconds_expr =
-        global_attr.take_tear_down_time_limit_seconds();
+    let tear_down_time_limit_seconds_expr = global_attr.take_tear_down_time_limit_seconds();
     let test_time_limit_seconds_expr = global_attr.take_test_time_limit_seconds();
-    let test_warning_time_threshold_seconds_expr = global_attr.take_test_warning_time_threshold_seconds();
+    let test_warning_time_threshold_seconds_expr =
+        global_attr.take_test_warning_time_threshold_seconds();
 
     let test_concurrency_expr = global_attr.take_test_concurrency();
     let suite_concurrency_expr = global_attr.take_suite_concurrency();
@@ -312,9 +312,9 @@ pub fn main_test(input_tokens: TokenStream) -> TokenStream {
                                     #integra8_path ::scheduling::recommended_max_concurrency()
                                 } else if s == "Max" {
                                     // Zero indicates that there will be
-                                    // no limit will be placed on the 
-                                    // number of  components running concurrently 
-                                    0 
+                                    // no limit will be placed on the
+                                    // number of  components running concurrently
+                                    0
                                 } else {
                                     ::std::str::FromStr::from_str(s).unwrap()
                                 }
@@ -486,15 +486,15 @@ pub fn main_test(input_tokens: TokenStream) -> TokenStream {
                 fn tear_down_time_limit_duration(&self) -> std::time::Duration {
                     self.framework.tear_down_time_limit
                 }
-            
+
                 fn test_time_limit_duration(&self) -> std::time::Duration {
                     self.framework.test_time_limit
                 }
-            
+
                 fn test_warning_time_limit_duration(&self) -> std::time::Duration {
                     self.framework.test_warning_time_limit
                 }
-            
+
                 fn root_namespace(&self) -> &'static str {
                     super::__ROOT_NAMESPACE
                 }

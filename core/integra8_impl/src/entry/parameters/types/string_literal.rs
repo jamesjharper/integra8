@@ -1,11 +1,11 @@
 use proc_macro2::TokenStream;
 use syn::parse::{Parse, ParseStream};
-use syn::{Expr, Lit};
 use syn::{parse_quote, Result};
+use syn::{Expr, Lit};
 
 pub enum StringParameterValue {
     Expr(Box<Expr>),
-    Lit(Box<Lit>)
+    Lit(Box<Lit>),
 }
 
 impl Parse for StringParameterValue {
@@ -13,8 +13,8 @@ impl Parse for StringParameterValue {
         // Check that the value is encapsulated in a ""
         // Any suggestions if there is a better way to do this?
         if let Some((token, _)) = input.cursor().literal() {
-            if  token.to_string().starts_with("\"") {
-                return Ok(Self::Lit(input.parse::<Box<Lit>>()?))
+            if token.to_string().starts_with("\"") {
+                return Ok(Self::Lit(input.parse::<Box<Lit>>()?));
             }
         }
 
@@ -25,13 +25,11 @@ impl Parse for StringParameterValue {
 impl StringParameterValue {
     pub fn render_tokens(self) -> TokenStream {
         match self {
-            Self::Expr(expr) =>  parse_quote!(stringify!(#expr)),
-            Self::Lit(lit) => {
-                match *lit {
-                    Lit::Str(lit_str) => parse_quote!(#lit_str),
-                    other_lit => parse_quote!(stringify!(#other_lit))
-                }
-            }
+            Self::Expr(expr) => parse_quote!(stringify!(#expr)),
+            Self::Lit(lit) => match *lit {
+                Lit::Str(lit_str) => parse_quote!(#lit_str),
+                other_lit => parse_quote!(stringify!(#other_lit)),
+            },
         }
     }
 }

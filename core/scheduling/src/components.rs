@@ -25,8 +25,8 @@ impl<TParameters: TestParameters> IntoTaskStateMachine<ScheduledComponent<TParam
     fn into_task_state_machine(mut self) -> TaskStateMachineNode<ScheduledComponent<TParameters>> {
         let mut root_node = SerialTaskNode::new();
 
-        // Schedule Suite Component before we start running this suites components. 
-        // Suites don't have anything to execute, however the runner will still publish a start when it 
+        // Schedule Suite Component before we start running this suites components.
+        // Suites don't have anything to execute, however the runner will still publish a start when it
         // encountered this component, as well as checking to see if is this suite and its children should be
         // aborted due to its parent failing.
         root_node.enqueue(ScheduledComponent::Suite(
@@ -66,10 +66,7 @@ impl<TParameters: TestParameters> IntoTaskStateMachine<ScheduledComponent<TParam
         root_node.enqueue(self.tear_downs.into_task_state_machine());
 
         // Schedule Component for the second time, so that the runner can finalize the suites results
-        root_node.enqueue(ScheduledComponent::Suite(
-            self.description, 
-            self.attributes
-        ));
+        root_node.enqueue(ScheduledComponent::Suite(self.description, self.attributes));
 
         root_node.into()
     }
@@ -159,7 +156,7 @@ where
         let next = self.iter.next()?;
 
         // If this test isn't parallel then,
-        // yield an array of a single component 
+        // yield an array of a single component
         if next.concurrency_mode() == &ConcurrencyMode::Sequential {
             return Some(next.into_scheduled_component().into());
         }

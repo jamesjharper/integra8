@@ -104,9 +104,14 @@ pub fn render_node_attributes<W: Write>(
     for (key, artifact) in &report.artifacts.map {
         match &artifact.as_string() {
             Ok(val) => render_attribute(output_formatter, style, &key, &val)?,
-            Err(err) => render_attribute(output_formatter, style, &key, &format!("Failed to render artifact ot string, {}", err.to_string()))?
+            Err(err) => render_attribute(
+                output_formatter,
+                style,
+                &key,
+                &format!("Failed to render artifact ot string, {}", err.to_string()),
+            )?,
         }
-        
+
         has_attributes = true;
     }
 

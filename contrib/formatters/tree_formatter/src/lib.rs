@@ -166,7 +166,6 @@ impl OutputFormatter for TreeFormatter {
     }
 
     fn write_run_complete(&mut self, state: &RunSummary) -> Result<(), Box<dyn Error>> {
-
         // TODO: Reinstate this, temporally remove because somethings very wrong with the results counts
         // Will fix when adding unit tests
         /*writeln!(self.writer, "\ntest result: ")?;
@@ -197,7 +196,6 @@ impl OutputFormatter for TreeFormatter {
             )?;
         };
         writeln!(self.writer, "")?;*/
-
 
         // Just the detail level to capture most relevant details in relation to the result
         let detail_level = match (&self.detail_level, state.run_result()) {

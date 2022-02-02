@@ -17,7 +17,7 @@ pub fn recommended_max_concurrency() -> usize {
 /*
 ### example:
 
-```       
+```
  ● root
  ├── ● parallel tests (run at same time)
  │   ├── ■ test 3
@@ -29,14 +29,14 @@ pub fn recommended_max_concurrency() -> usize {
  │
  ├── ● parallel suites (run at same time)
  │   ├── ● Suite 1
- │   │   └── ... recursive behavior 
+ │   │   └── ... recursive behavior
  │   └── ● Suite 2
- │       └── ... recursive behavior 
+ │       └── ... recursive behavior
  ├── ● Sequential suites (run in order)
  │   ├── ● Suite 3
- │   │   └── ... recursive behavior 
+ │   │   └── ... recursive behavior
  │   └── ● Suite 4
- │       └── ... recursive behavior 
+ │       └── ... recursive behavior
 
 ```
 */
