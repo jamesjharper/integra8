@@ -92,6 +92,7 @@ impl ComponentStateToken {
         }
     }
 
+
     /// Finalizes the global published status for this component and propagates the status value to this components parent.
     ///
     /// Parents state is determined by the following rules:
@@ -108,6 +109,10 @@ impl ComponentStateToken {
     ///
     pub fn finalize_result(&self, result: ComponentResult, time_taken: Duration) {
         self.set_result(ComponentState::Finalized(result), time_taken)
+    }
+
+    pub fn tentative_pass(&self, result: ComponentResult, time_taken: Duration) {
+        self.set_result(ComponentResult::passed(), std::time::Duration::new(0, 0))
     }
 
     fn set_result(&self, result: ComponentState, time_taken: Duration) {
@@ -136,24 +141,27 @@ impl ComponentStateToken {
             return;
         }
 
-        if child_model.state.is_success()
-            && !parent_model.state.is_failed()
-            && !parent_model.state.is_warn()
-        {
-            // If no children failed or have warnings, the then we implicitly succeeded
-            parent_model.state = ComponentState::Tentative(ComponentResult::passed());
-            return;
-        }
+        if let Some(child_result) = child_model.state.result() {
+            
+            if child_result.has_passed()
+                && !parent_model.state.is_failed()
+                && !parent_model.state.is_warn()
+            {
+                // If no children failed or have warnings, the then we implicitly succeeded
+                parent_model.state = ComponentState::Tentative(ComponentResult::passed());
+                return;
+            }
 
-        if child_model.state.is_warn() && !parent_model.state.is_failed() {
-            // If no children failed, the then we implicitly have a warnings
-            parent_model.state = ComponentState::Tentative(ComponentResult::child_warning());
-            return;
-        }
+            if child_result.has_warn() && !parent_model.state.is_failed() {
+                // If no children failed, the then we implicitly have a warnings
+                parent_model.state = ComponentState::Tentative(ComponentResult::child_warning());
+                return;
+            }
 
-        if child_model.state.is_skipped() && parent_model.state.is_undetermined() {
-            // if all our children are skipped, then we are implicitly skipped
-            parent_model.state = child_model.state.clone();
+            if child_result.has_not_run() && parent_model.state.is_undetermined() {
+                // if all our children are skipped, then we are implicitly skipped
+                parent_model.state = ComponentState::Tentative(child_result);
+            }
         }
     }
 

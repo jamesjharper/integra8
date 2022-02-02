@@ -5,8 +5,9 @@
 pub extern crate integra8;
 
 main_test! {
-    // TODO: this should be automatically detected as default
     max_concurrency: Auto, // [Auto, 1, any]
+
+    // TODO: this should be automatically detected as default
     console_output: integra8_tree_formatter::TreeFormatter,
     //console_output_ansi_mode: Auto,
     //console_output_level: Error,
@@ -75,13 +76,9 @@ macro_rules! assert_test_fails {
 #[suite]
 mod basic_examples {
 
-    // Somehow this got very broken
-    // TODO: fix this 
-    #[allow_fail] 
     #[integration_test]
     async fn test_basics(ctx : crate::ExecutionContext) {
         assert_test_passes!("./test_basics", ctx);
-
     }
 
     #[integration_test]
