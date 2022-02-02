@@ -81,10 +81,14 @@ impl OutputFormatterFactory for TreeFormatter {
         let style = Style::from_str(parameters.console_output_style()).unwrap();
         let detail_level = DetailLevel::from_str(parameters.console_output_detail_level()).unwrap();
         let encoding = Encoding::from_str(parameters.console_output_encoding()).unwrap();
-        let ansi_mode = AnsiMode::from_str(parameters.console_output_ansi_mode()).unwrap();
+
+        let ansi_mode = if AnsiMode::from_str(parameters.console_output_ansi_mode()).unwrap().is_enabled() {
+            try_init_ansi()
+        } else {
+            AnsiMode::Disabled
+        };
 
         let tree_style = TreeStyle::new(style, encoding.clone(), ansi_mode.clone());
-
         let progress_style = TreeStyle::new(Style::Text, encoding, ansi_mode);
 
         Box::new(TreeFormatter::new(
@@ -166,8 +170,6 @@ impl OutputFormatter for TreeFormatter {
     }
 
     fn write_run_complete(&mut self, state: &RunSummary) -> Result<(), Box<dyn Error>> {
-        // TODO: Reinstate this, temporally remove because somethings very wrong with the results counts
-        // Will fix when adding unit tests
         writeln!(self.writer, "\ntest result: ")?;
 
         match state.run_result() {
@@ -211,4 +213,19 @@ impl OutputFormatter for TreeFormatter {
 
         Ok(())
     }
+}
+
+#[cfg(target_os = "windows")]
+fn try_init_ansi() -> AnsiMode {
+    // Enables ANSI code support on Windows 10.
+    if ansi_term::enable_ansi_support().is_err() {
+        AnsiMode::Disabled // Disable ANSI if this fails
+    } else {
+        AnsiMode::Enabled
+    }
+}
+
+#[cfg(not(target_os = "windows"))]
+fn try_init_ansi() -> AnsiMode {
+    AnsiMode::Enabled
 }
