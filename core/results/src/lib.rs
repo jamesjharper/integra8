@@ -4,13 +4,6 @@ pub mod summary;
 
 use std::time::Duration;
 
-#[derive(Clone, Debug, Eq, PartialEq)]
-pub enum ComponentResult {
-    Pass(PassReason),
-    Warning(WarningReason),
-    Fail(FailureReason),
-    DidNotRun(DidNotRunReason),
-}
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub enum WarningReason {
@@ -38,6 +31,15 @@ pub enum DidNotRunReason {
     ParentFailure,
     Undetermined,
 }
+
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub enum ComponentResult {
+    Pass(PassReason),
+    Warning(WarningReason),
+    Fail(FailureReason),
+    DidNotRun(DidNotRunReason),
+}
+
 
 impl ComponentResult {
     pub fn passed() -> Self {
@@ -165,5 +167,372 @@ impl ComponentTimeResult {
 
     pub fn duration(&self) -> Duration {
         self.time_taken
+    }
+}
+
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::report::ComponentReportBuilder;
+    use integra8_components::{AcceptanceCriteria, TimingAcceptanceCriteria, ComponentDescription, ComponentPath, ComponentId, ComponentType};
+
+    // Component Report Tests
+    fn test_1_report_builder() -> ComponentReportBuilder {
+        ComponentReportBuilder::new(
+            ComponentDescription::new(
+                /* path */ ComponentPath::from("integra8_results::test"),
+                /* name */ Some("test_1"),
+                /* id */ ComponentId::from(2),
+                /* parent_path */ ComponentPath::from("integra8_results"),
+                /* parent_id */ ComponentId::from(1),
+                /* description */ None,
+                /* component_type */ ComponentType::Test,
+                /*  location */ None,
+            ),
+            AcceptanceCriteria {
+                allowed_fail: false,
+                timing: TimingAcceptanceCriteria {
+                    warning_time_limit: None,
+                    time_limit: None,
+                },
+            }
+        )
+    }
+
+    fn test_2_report_builder() -> ComponentReportBuilder {
+        ComponentReportBuilder::new(
+            ComponentDescription::new(
+                /* path */ ComponentPath::from("integra8_results::test"),
+                /* name */ Some("test_2"),
+                /* id */ ComponentId::from(2),
+                /* parent_path */ ComponentPath::from("integra8_results"),
+                /* parent_id */ ComponentId::from(1),
+                /* description */ None,
+                /* component_type */ ComponentType::Test,
+                /*  location */ None,
+            ),
+            AcceptanceCriteria {
+                allowed_fail: false,
+                timing: TimingAcceptanceCriteria {
+                    warning_time_limit: Some(Duration::from_secs(1000)),
+                    time_limit: Some(Duration::from_secs(2000)),
+                },
+            }
+        )
+    }
+
+    fn test_3_report_builder() -> ComponentReportBuilder {
+        ComponentReportBuilder::new(
+            ComponentDescription::new(
+                /* path */ ComponentPath::from("integra8_results::test"),
+                /* name */ Some("test_3"),
+                /* id */ ComponentId::from(2),
+                /* parent_path */ ComponentPath::from("integra8_results"),
+                /* parent_id */ ComponentId::from(1),
+                /* description */ None,
+                /* component_type */ ComponentType::Test,
+                /*  location */ None,
+            ),
+            AcceptanceCriteria {
+                allowed_fail: true,
+                timing: TimingAcceptanceCriteria {
+                    warning_time_limit: Some(Duration::from_secs(1000)),
+                    time_limit: Some(Duration::from_secs(2000)),
+                },
+            }
+        )
+    }
+
+    #[test]
+    fn can_report_test_1_success() {
+
+        // Arrange 
+        let mut builder = test_1_report_builder();
+
+        // Act
+        builder.passed_result();
+        let report = builder.build();
+
+        // Assert
+        assert!(report.result.has_passed(), "Expected Test to have passed");
+        assert_eq!(report.result, ComponentResult::Pass(PassReason::Accepted), "Expected Test to have passed, with PassReason::Accepted");
+    }
+
+    #[test]
+    fn can_report_test_3_success() {
+
+        // Arrange 
+        // Test 3 has failure allowed flag enabled, which shouldn't
+        // prevent its reporting as passed if it does in fact pass
+        let mut builder = test_3_report_builder();
+
+        // Act
+        builder.passed_result();
+        let report = builder.build();
+
+        // Assert
+        assert!(report.result.has_passed(), "Expected Test to have passed");
+        assert_eq!(report.result, ComponentResult::Pass(PassReason::Accepted), "Expected Test to have passed, with PassReason::Accepted");
+    }
+
+    #[test]
+    fn should_report_test_3_warning_when_failed() {
+
+        // Arrange 
+        // Test 3 has failure allowed flag enabled
+        let mut builder = test_3_report_builder();
+
+        // Act
+        builder.rejected_result();
+        let report = builder.build();
+
+        // Assert
+        assert!(report.result.has_warn(), "Expected Test to have warning");
+        assert_eq!(report.result, ComponentResult::Warning(WarningReason::FailureAllowed), "Expected Test to have warning, with WarningReason::FailureAllowed");
+    }
+    
+
+    #[test]
+    fn can_report_test_1_failure() {
+
+        // Arrange 
+        let mut builder = test_1_report_builder();
+
+        // Act
+        builder.rejected_result();
+        let report = builder.build();
+
+        // Assert
+        assert!(report.result.has_failed(), "Expected Test to have failed");
+        assert_eq!(report.result, ComponentResult::Fail(FailureReason::Rejected), "Expected Test to have failed, with FailureReason::Rejected");
+    }
+
+    #[test]
+    fn can_report_test_1_failed_due_to_child_failure() {
+
+        // Arrange 
+        let mut builder = test_1_report_builder();
+
+        // Act
+        builder.with_result(ComponentResult::child_failure());
+        let report = builder.build();
+
+        // Assert
+        assert!(report.result.has_failed(), "Expected Test to have failed");
+        assert_eq!(report.result, ComponentResult::Fail(FailureReason::ChildFailure), "Expected Test to have failed, with FailureReason::ChildFailure");
+    }
+
+    #[test]
+    fn can_report_test_1_ignored() {
+
+        // Arrange 
+        let mut builder = test_1_report_builder();
+
+        // Act
+        builder.ignored_result();
+        let report = builder.build();
+
+        // Assert
+        assert!(report.result.has_not_run(), "Expected Test to have not be run");
+        assert_eq!(report.result, ComponentResult::DidNotRun(DidNotRunReason::Ignored), "Expected Test to have failed, with DidNotRunReason::Ignored");
+    }
+
+    #[test]
+    fn can_report_test_1_undetermined() {
+
+        // Arrange 
+        let mut builder = test_1_report_builder();
+
+        // Act
+        builder.with_result(ComponentResult::undetermined());
+        let report = builder.build();
+
+        // Assert
+        assert!(report.result.has_not_run(), "Expected Test to have not be run");
+        assert_eq!(report.result, ComponentResult::DidNotRun(DidNotRunReason::Undetermined), "Expected Test to have failed, with DidNotRunReason::Undetermined");
+    }
+
+    #[test]
+    fn can_report_test_1_filtered_out() {
+
+        // Arrange 
+        let mut builder = test_1_report_builder();
+
+        // Act
+        builder.filtered_result();
+        let report = builder.build();
+
+        // Assert
+        assert!(report.result.has_not_run(), "Expected Test to have not be run");
+        assert_eq!(report.result, ComponentResult::DidNotRun(DidNotRunReason::Filtered), "Expected Test to have failed, with DidNotRunReason::Undetermined");
+    }
+
+    #[test]
+    fn can_report_test_1_ignored_due_to_parent_failure() {
+
+        // Arrange 
+        let mut builder = test_1_report_builder();
+
+        // Act
+        builder.with_result(ComponentResult::parent_failure());
+        let report = builder.build();
+
+        // Assert
+        assert!(report.result.has_not_run(), "Expected Test to have not be run");
+        assert_eq!(report.result, ComponentResult::DidNotRun(DidNotRunReason::ParentFailure), "Expected Test to have failed, with DidNotRunReason::Undetermined");
+    }
+
+    // Time result behavior 
+
+    #[test]
+    fn should_report_test_1_timing_results_as_ok_when_no_timing_acceptance_criteria() {
+        // Arrange 
+        let mut builder = test_1_report_builder();
+
+        // Act
+        builder.passed_result();
+        builder.time_taken(Duration::from_secs(1000));
+
+        let report = builder.build();
+
+        // Assert
+        assert_eq!(report.timing.is_warn(), false, "Expected no warning on test 1 timing results");
+        assert_eq!(report.timing.is_critical(), false, "Expected no critical error on test 1 timing results");
+        assert_eq!(report.timing.duration(), Duration::from_secs(1000));
+    }
+
+
+    #[test]
+    fn should_report_test_2_timing_results_as_ok_when_within_timing_acceptance_criteria() {
+        // Arrange 
+        let mut builder = test_2_report_builder();
+
+        // Act
+        builder.passed_result();
+        builder.time_taken(Duration::from_secs(500));
+
+        let report = builder.build();
+
+        // Assert
+        assert_eq!(report.result, ComponentResult::Pass(PassReason::Accepted), "Expected Test to have passed, with PassReason::Accepted");
+        assert_eq!(report.timing.is_warn(), false,  "Expected no warning on test 1 timing results");
+        assert_eq!(report.timing.is_critical(), false,  "Expected no critical error on test 1 timing results");
+        assert_eq!(report.timing.duration(), Duration::from_secs(500));
+    }
+
+
+    #[test]
+    fn should_report_test_2_timing_results_as_warn_when_exceeding_warn_timing_acceptance_criteria() {
+        // Arrange 
+        let mut builder = test_2_report_builder();
+
+        // Act
+        builder.passed_result();
+        builder.time_taken(Duration::from_secs(1500));
+
+        let report = builder.build();
+
+        // Assert
+        assert_eq!(report.result, ComponentResult::Warning(WarningReason::OvertimeWarning), "Expected Test to have warning, with WarningReason::OvertimeWarning");
+        assert_eq!(report.timing.is_warn(), true,  "Expected warning on test 2 timing results");
+        assert_eq!(report.timing.is_critical(), false,  "Expected no critical error on test 2 timing results");
+        assert_eq!(report.timing.duration(), Duration::from_secs(1500));
+    }
+
+
+    #[test]
+    fn should_report_test_2_timing_results_as_fail_when_exceeding_timing_acceptance_criteria() {
+        // Arrange 
+        let mut builder = test_2_report_builder();
+
+        // Act
+        builder.passed_result();
+        builder.time_taken(Duration::from_secs(2500));
+
+        let report = builder.build();
+
+        // Assert
+        assert_eq!(report.result, ComponentResult::Fail(FailureReason::Overtime), "Expected Test to have warning, with WarningReason::OvertimeWarning");
+        assert_eq!(report.timing.is_warn(), true,  "Expected warning on test 2 timing results");
+        assert_eq!(report.timing.is_critical(), true,  "Expected critical error on test 2 timing results");
+        assert_eq!(report.timing.duration(), Duration::from_secs(2500));
+    }
+
+    #[test]
+    fn should_report_test_2_results_as_rejected_when_rejected_and_exceeding_timing_acceptance_criteria() {
+        // Because async framework doesn't always resume tasks immediately, we can have a test timeout and fail, and panic 
+        // at the same time. There is no one correct solution to what error should show in this case. The framework will 
+        // favor the panic rather then the time out, as it should in theory be more descriptive.
+
+        // Arrange 
+        let mut builder = test_2_report_builder();
+
+        // Act
+        builder.rejected_result();
+        builder.time_taken(Duration::from_secs(2500));
+
+        let report = builder.build();
+
+        // Assert
+        assert_eq!(report.result, ComponentResult::Fail(FailureReason::Rejected), "Expected Test to have warning, with FailureReason::Rejected");
+        assert_eq!(report.timing.is_warn(), true,  "Expected warning on test 2 timing results");
+        assert_eq!(report.timing.is_critical(), true,  "Expected critical error on test 2 timing results");
+        assert_eq!(report.timing.duration(), Duration::from_secs(2500));
+    }
+    
+    #[test]
+    fn should_report_test_3_results_as_timed_out_when_rejected_and_exceeding_timing_acceptance_criteria() {
+        // Arrange 
+        // Test 3 has failure allowed flag enabled
+        let mut builder = test_3_report_builder();
+
+        // Act
+        builder.rejected_result();
+        builder.time_taken(Duration::from_secs(2500));
+
+        let report = builder.build();
+
+        // Assert
+        assert_eq!(report.result, ComponentResult::Fail(FailureReason::Overtime), "Expected Test to have warning, with WarningReason::OvertimeWarning");
+        assert_eq!(report.timing.is_warn(), true,  "Expected warning on test 3 timing results");
+        assert_eq!(report.timing.is_critical(), true,  "Expected critical error on test 3 timing results");
+        assert_eq!(report.timing.duration(), Duration::from_secs(2500));
+    }
+
+    #[test]
+    fn should_return_remaining_time_to_deadline_based_on_timing_acceptance_criteria() {
+        // Arrange 
+        let builder = test_2_report_builder();
+
+        // Act
+        let time_to_deadline = builder.time_until_deadline(Duration::from_secs(500));
+
+        // Assert
+        assert_eq!(time_to_deadline, Some(Duration::from_secs(1500)));
+    }
+
+    #[test]
+    fn should_return_zero_time_to_deadline_when_exceeding_timing_acceptance_criteria() {
+        // Arrange 
+        let builder = test_2_report_builder();
+
+        // Act
+        let time_to_deadline = builder.time_until_deadline(Duration::from_secs(10000));
+
+        // Assert
+        assert_eq!(time_to_deadline, Some(Duration::from_secs(0)));
+    }
+
+    #[test]
+    fn should_return_none_as_deadline_when_no_timing_acceptance_criteria_is_defined() {
+        // Arrange 
+        let builder = test_1_report_builder();
+
+        // Act
+        let time_to_deadline = builder.time_until_deadline(Duration::from_secs(10000));
+
+        // Assert
+        assert_eq!(time_to_deadline, None);
     }
 }

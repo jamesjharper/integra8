@@ -41,6 +41,10 @@ impl ComponentId {
         Self(0)
     }
 
+    pub fn from(id : usize) -> Self {
+        Self(id)
+    }
+
     pub fn as_unique_number(&self) -> usize {
         self.0
     }

@@ -37,7 +37,6 @@ impl ResultsSource {
     }
 
     pub async fn send(&self, event: TestEvent) {
-        // TODO: NO
         self.tx.send(event).await.unwrap();
     }
 }

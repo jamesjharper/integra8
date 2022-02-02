@@ -2,9 +2,6 @@
 #! /usr/bin/env bash
 set -e
 
-# Root of workspace-like directories.
-PROJECT_ROOT="."
-
 echo "# Building for tokio"
 CARGO_TARGET_DIR=./target/tokio/ cargo build --features="tokio-runtime"
 

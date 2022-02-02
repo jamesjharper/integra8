@@ -2,9 +2,7 @@
 #! /usr/bin/env bash
 set -e
 
-
 # Root of workspace-like directories.
-PROJECT_ROOT="."
 CORE_ROOT="./core"
 CONTRIB_ROOT="./contrib/"
 
@@ -25,14 +23,13 @@ ALL_CRATE_ROOTS=(
 #
 # Publishes all Integra8 crates to crates.io.
 #
-
 if ! [ -z "$(git status --porcelain)" ]; then
   echo "Uncommitted changes, please commit and run again."
   exit 1
 fi
 
 echo "Cleaning"
-#cargo clean
+cargo clean
 
 ./scripts/build.sh
 ./scripts/tests.sh

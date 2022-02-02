@@ -48,16 +48,8 @@ impl ComponentReportBuilder {
         self.result = Some(ComponentResult::ignored());
     }
 
-    pub fn undetermined_result(&mut self) {
-        self.result = Some(ComponentResult::undetermined());
-    }
-
     pub fn filtered_result(&mut self) {
         self.result = Some(ComponentResult::filtered());
-    }
-
-    pub fn parent_failure_result(&mut self) {
-        self.result = Some(ComponentResult::parent_failure());
     }
 
     pub fn time_until_deadline(&self, duration: Duration) -> Option<Duration> {
@@ -99,10 +91,14 @@ impl ComponentReportBuilder {
                     result = ComponentResult::rejection_exempt();
                 }
 
+                if result.has_failed() {
+                    return result;
+                }
+
                 // ** Subtle design choice here.
                 // Tests which allowed_fail will still fail
                 // if they time out.
-                // This logic should probably be somewhere else
+                // However tests which are rejected, do not.
                 if let Some(timing_results) = &self.timing {
                     if timing_results.is_critical() {
                         result = ComponentResult::timed_out();
@@ -114,7 +110,7 @@ impl ComponentReportBuilder {
                 result
             }
             // if the component didn't run for some unknown reason,
-            // the fault the component
+            // the fail the component
             None => ComponentResult::rejected(),
         }
     }
