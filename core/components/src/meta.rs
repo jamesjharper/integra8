@@ -10,7 +10,7 @@ impl ComponentPath {
         Self(path)
     }
 
-    pub fn as_str(&self) -> &'_ str {
+    pub fn as_str(&self) -> &'static str {
         self.0
     }
 }

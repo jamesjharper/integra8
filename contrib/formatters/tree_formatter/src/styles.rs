@@ -1,4 +1,4 @@
-use ansi_term::Colour::{Green, Purple, Red, Yellow};
+use ansi_term::Colour::{Green, Purple, Red, Yellow, Cyan};
 use integra8_formatters::models::report::ComponentRunReport;
 use integra8_formatters::models::{ComponentResult, ComponentType};
 
@@ -64,6 +64,28 @@ impl Formatting {
                 .dimmed()
                 .paint(text.into())
                 .to_string(),
+            Self::None => text.into(),
+        }
+    }
+
+
+    pub fn apply_progress_bar_running(&self, text: impl Into<String>) -> String {
+        match self {
+            Self::Ansi => Green.bold().paint(text.into()).to_string(),
+            Self::None => text.into(),
+        }
+    }
+
+    pub fn apply_progress_bar_in_progress(&self, text: impl Into<String>) -> String {
+        match self {
+            Self::Ansi => Cyan.bold().paint(text.into()).to_string(),
+            Self::None => text.into(),
+        }
+    }
+
+    pub fn apply_progress_bar_finished(&self, text: impl Into<String>) -> String {
+        match self {
+            Self::Ansi => Green.bold().paint(text.into()).to_string(),
             Self::None => text.into(),
         }
     }
@@ -336,17 +358,45 @@ impl TreeBranchStyle {
     }
 }
 
+#[derive(Clone)]
+pub struct ProgressBarStyle {
+    pub template: String,
+    pub progress_chars: String,
+    pub running: String,
+    pub in_progress: String,
+    pub finished: String,
+}
+
+impl ProgressBarStyle {
+    pub fn new(ansi_mode: &AnsiMode) -> Self {
+        let format = Formatting::new(ansi_mode);
+        let running = format.apply_progress_bar_running("   Running ");
+        let in_progress = format.apply_progress_bar_in_progress("  Progress ");
+        let template = format!("{}{}", in_progress, "[{bar}] {pos}/{len} {wide_msg} ");
+        let progress_chars = "=> ".to_string();
+        let finished = format.apply_progress_bar_finished("  Finished ");
+
+        Self {
+            running,
+            template,
+            in_progress,
+            progress_chars,
+            finished,
+        }
+    }
+}
+
 pub struct TreeStyle {
     pub branch: TreeBranchStyle,
     pub node: ComponentTypeStyle,
 }
 
 impl TreeStyle {
-    pub fn new(style: Style, encoding: Encoding, ansi_mode: AnsiMode) -> Self {
-        let format = Formatting::new(&ansi_mode);
+    pub fn new(style: &Style, encoding: &Encoding, ansi_mode: &AnsiMode) -> Self {
+        let format = Formatting::new(ansi_mode);
         Self {
-            branch: TreeBranchStyle::new(&format, &encoding),
-            node: ComponentTypeStyle::new(&format, &encoding, &style),
+            branch: TreeBranchStyle::new(&format, encoding),
+            node: ComponentTypeStyle::new(&format, encoding, style)
         }
     }
 }

@@ -3,38 +3,41 @@ pub mod render;
 mod styles;
 mod tree;
 mod writer;
+mod progress;
 
 use std::error::Error;
 use std::io::{self, Stdout, Write};
 use std::str::FromStr;
 
 use crate::parameters::{AnsiMode, DetailLevel, Encoding, Style, TreeFormatterParameters};
-use crate::styles::TreeStyle;
+use crate::styles::{TreeStyle, ProgressBarStyle};
 use crate::tree::{ResultsNode, ResultsTree};
-use crate::writer::PrefixedTextWriter;
+use crate::progress::TestProgressFormatter;
+
 use integra8_formatters::models::report::ComponentRunReport;
 use integra8_formatters::models::summary::{ComponentTypeCountSummary, RunSummary, SuiteSummary};
-use integra8_formatters::models::{ComponentResult, ComponentType, TestParameters};
+use integra8_formatters::models::{ComponentResult, TestParameters, ComponentDescription};
 use integra8_formatters::{OutputFormatter, OutputFormatterFactory};
+
 
 pub struct TreeFormatter {
     writer: Stdout,
     tree_style: TreeStyle,
-    progress_style: TreeStyle,
     detail_level: DetailLevel,
+    progress_formatter: TestProgressFormatter,
 }
 
 impl TreeFormatter {
     pub fn new(
         writer: Stdout,
         tree_style: TreeStyle,
-        progress_style: TreeStyle,
+        progress_style: ProgressBarStyle,
         detail_level: DetailLevel,
     ) -> Self {
-        TreeFormatter {
+        Self {
+            progress_formatter: TestProgressFormatter::new(progress_style),
             writer,
             tree_style,
-            progress_style,
             detail_level,
         }
     }
@@ -87,14 +90,11 @@ impl OutputFormatterFactory for TreeFormatter {
         } else {
             AnsiMode::Disabled
         };
-
-        let tree_style = TreeStyle::new(style, encoding.clone(), ansi_mode.clone());
-        let progress_style = TreeStyle::new(Style::Text, encoding, ansi_mode);
-
+        
         Box::new(TreeFormatter::new(
             io::stdout(),
-            tree_style,
-            progress_style,
+            TreeStyle::new(&style, &encoding, &ansi_mode),
+            ProgressBarStyle::new(&ansi_mode),
             detail_level,
         ))
     }
@@ -136,13 +136,15 @@ impl OutputFormatter for TreeFormatter {
         &mut self,
         summary: &ComponentTypeCountSummary,
     ) -> Result<(), Box<dyn Error>> {
-        let noun = if summary.tests() != 1 {
-            "tests"
-        } else {
-            "test"
-        };
+        self.progress_formatter.notify_run_start(&mut self.writer, summary)?;
+        Ok(())
+    }
 
-        writeln!(self.writer, "\nrunning {} {}\n", summary.tests(), noun)?;
+    fn write_component_start(
+        &mut self,
+        desc: &ComponentDescription,
+    ) -> Result<(), Box<dyn Error>> {
+        self.progress_formatter.notify_component_start(&mut self.writer, desc)?;
         Ok(())
     }
 
@@ -150,26 +152,12 @@ impl OutputFormatter for TreeFormatter {
         &mut self,
         report: &ComponentRunReport,
     ) -> Result<(), Box<dyn Error>> {
-        if report.description.component_type() == &ComponentType::Suite {
-            return Ok(());
-        }
-
-        if report.result.has_not_run() {
-            return Ok(());
-        }
-
-        let mut prefixed_text_writer = PrefixedTextWriter::new(&mut self.writer);
-        let results = ResultsNode::from_report(report);
-        results.render_node(
-            &mut prefixed_text_writer,
-            &self.progress_style,
-            &DetailLevel::Info,
-        )?;
-
+        self.progress_formatter.notify_component_finished(&mut self.writer, report)?;
         Ok(())
     }
 
     fn write_run_complete(&mut self, state: &RunSummary) -> Result<(), Box<dyn Error>> {
+        self.progress_formatter.notify_run_finished(&mut self.writer, state)?;
         writeln!(self.writer, "\ntest result: ")?;
 
         match state.run_result() {
