@@ -166,7 +166,7 @@ struct SeekAndReadBufferSource<R> {
 impl<R: Read + Seek> BufferSource for SeekAndReadBufferSource<R> {
     fn read_all(&mut self) -> std::io::Result<Vec<u8>> {
         let mut buffer = Vec::new();
-        self.reader.rewind()?;
+        self.reader.seek(SeekFrom::Start(0))?;
         self.reader.read_to_end(&mut buffer)?;
         Ok(buffer)
     }
