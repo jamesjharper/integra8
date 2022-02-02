@@ -33,17 +33,17 @@ impl<'a> PassedResults<'a> {
 
     /// Returns `true` if there are no *pass* results.
     pub fn has_none(&self) -> bool {
-        self.count() == 0
+        self.total_count() == 0
     }
 
     /// Returns `true` if there are any *pass* results.
     pub fn has_some(&self) -> bool {
-        self.count() != 0
+        self.total_count() != 0
     }
 
     /// Returns the total count of *pass* results
-    pub fn count(&self) -> usize {
-        (&self.iter).count()
+    pub fn total_count(&self) -> usize {
+        self.iter.total_count()
     }
 
     /// Returns the total count of *pass* results for a given reason.
@@ -53,7 +53,7 @@ impl<'a> PassedResults<'a> {
     /// * `reason` - The `PassReason` enum to count.
     ///
     pub fn count_due_to_reason(&self, reason: &PassReason) -> usize {
-        (&self.iter).count_due_to_reason(reason)
+        self.iter.total_count_due_to_reason(reason)
     }
 
     /// Returns a iterator of only the pass results with an *accepted* reason.
@@ -89,7 +89,7 @@ impl<'a> Iterator for PassedResults<'a> {
     type Item = &'a ComponentRunReport;
 
     fn size_hint(&self) -> (usize, Option<usize>) {
-        let len = self.count();
+        let len = self.total_count();
         (len, Some(len))
     }
 
@@ -117,7 +117,7 @@ impl<'a> PassReasonResults<'a> {
         self.count != 0
     }
 
-    pub fn count(&self) -> usize {
+    pub fn total_count(&self) -> usize {
         self.count
     }
 }
@@ -164,17 +164,17 @@ impl<'a> WarningResults<'a> {
 
     /// Returns `true` if there are no *pass* results.
     pub fn has_none(&self) -> bool {
-        self.count() == 0
+        self.total_count() == 0
     }
 
     /// Returns `true` if there are any *pass* results.
     pub fn has_some(&self) -> bool {
-        self.count() != 0
+        self.total_count() != 0
     }
 
     /// Returns the total count of *pass* results
-    pub fn count(&self) -> usize {
-        (&self.iter).count()
+    pub fn total_count(&self) -> usize {
+        self.iter.total_count()
     }
 
     /// Returns the total count of *warning* results for a given reason.
@@ -183,8 +183,8 @@ impl<'a> WarningResults<'a> {
     ///
     /// * `reason` - The `WarningReason` enum to count.
     ///
-    pub fn count_due_to_reason(&self, reason: &WarningReason) -> usize {
-        (&self.iter).count_due_to_reason(reason)
+    pub fn total_count_due_to_reason(&self, reason: &WarningReason) -> usize {
+        self.iter.total_count_due_to_reason(reason)
     }
 
     /// Returns a iterator of only the waring results with an *failure allowed* reason.
@@ -246,7 +246,7 @@ impl<'a> WarningResults<'a> {
     ///
     pub fn due_to_reason(self, reason: WarningReason) -> WarningReasonResults<'a> {
         WarningReasonResults {
-            count: self.count_due_to_reason(&reason),
+            count: self.total_count_due_to_reason(&reason),
             iter: self.iter,
             filter_by_reason: reason,
         }
@@ -257,7 +257,7 @@ impl<'a> Iterator for WarningResults<'a> {
     type Item = &'a ComponentRunReport;
 
     fn size_hint(&self) -> (usize, Option<usize>) {
-        let len = self.count();
+        let len = self.total_count();
         (len, Some(len))
     }
 
@@ -285,7 +285,7 @@ impl<'a> WarningReasonResults<'a> {
         self.count != 0
     }
 
-    pub fn count(&self) -> usize {
+    pub fn total_count(&self) -> usize {
         self.count
     }
 }
@@ -329,17 +329,17 @@ impl<'a> FailedResults<'a> {
 
     /// Returns `true` if there are no *fail* results.
     pub fn has_none(&self) -> bool {
-        self.count() == 0
+        self.total_count() == 0
     }
 
     /// Returns `true` if there are any *fail* results.
     pub fn has_some(&self) -> bool {
-        self.count() != 0
+        self.total_count() != 0
     }
 
     /// Returns the total count of *fail* results
-    pub fn count(&self) -> usize {
-        (&self.iter).count()
+    pub fn total_count(&self) -> usize {
+        self.iter.total_count()
     }
 
     /// Returns the total count of *fail* results for a given reason.
@@ -348,8 +348,8 @@ impl<'a> FailedResults<'a> {
     ///
     /// * `reason` - The `FailureReason` enum to count.
     ///
-    pub fn count_due_to_reason(&self, reason: &FailureReason) -> usize {
-        (&self.iter).count_due_to_reason(reason)
+    pub fn total_count_due_to_reason(&self, reason: &FailureReason) -> usize {
+        (&self.iter).total_count_due_to_reason(reason)
     }
 
     /// Returns a iterator of only the fail results with a *rejected* reason.
@@ -390,7 +390,7 @@ impl<'a> FailedResults<'a> {
     ///
     pub fn due_to_reason(self, reason: FailureReason) -> FailedReasonResults<'a> {
         FailedReasonResults {
-            count: self.count_due_to_reason(&reason),
+            count: self.total_count_due_to_reason(&reason),
             iter: self.iter,
             filter_by_reason: reason,
         }
@@ -401,7 +401,7 @@ impl<'a> Iterator for FailedResults<'a> {
     type Item = &'a ComponentRunReport;
 
     fn size_hint(&self) -> (usize, Option<usize>) {
-        let count = self.count();
+        let count = self.total_count();
         (count, Some(count))
     }
 
@@ -429,7 +429,7 @@ impl<'a> FailedReasonResults<'a> {
         self.count != 0
     }
 
-    pub fn count(&self) -> usize {
+    pub fn total_count(&self) -> usize {
         self.count
     }
 }
@@ -481,17 +481,17 @@ impl<'a> NotRunResults<'a> {
 
     /// Returns `true` if there are no *not run* results.
     pub fn has_none(&self) -> bool {
-        self.count() == 0
+        self.total_count() == 0
     }
 
     /// Returns `true` if there are any *not run* results.
     pub fn has_some(&self) -> bool {
-        self.count() != 0
+        self.total_count() != 0
     }
 
     /// Returns the total count of *not run* results
-    pub fn count(&self) -> usize {
-        (&self.iter).count()
+    pub fn total_count(&self) -> usize {
+        self.iter.total_count()
     }
 
     /// Returns the total count of *not run* results for a given reason.
@@ -500,8 +500,8 @@ impl<'a> NotRunResults<'a> {
     ///
     /// * `reason` - The `DidNotRunReason` enum to count.
     ///
-    pub fn count_due_to_reason(&self, reason: &DidNotRunReason) -> usize {
-        (&self.iter).count_due_to_reason(reason)
+    pub fn total_count_due_to_reason(&self, reason: &DidNotRunReason) -> usize {
+        (&self.iter).total_count_due_to_reason(reason)
     }
 
     /// Returns a iterator of only the not run results with an *filtered* reason.
@@ -541,7 +541,7 @@ impl<'a> NotRunResults<'a> {
     ///
     pub fn due_to_reason(self, reason: DidNotRunReason) -> NotRunReasonResults<'a> {
         NotRunReasonResults {
-            count: self.count_due_to_reason(&reason),
+            count: self.total_count_due_to_reason(&reason),
             iter: self.iter,
             filter_by_reason: reason,
         }
@@ -552,7 +552,7 @@ impl<'a> Iterator for NotRunResults<'a> {
     type Item = &'a ComponentRunReport;
 
     fn size_hint(&self) -> (usize, Option<usize>) {
-        let count = self.count();
+        let count = self.total_count();
         (count, Some(count))
     }
 
@@ -580,7 +580,7 @@ impl<'a> NotRunReasonResults<'a> {
         self.count != 0
     }
 
-    pub fn count(&self) -> usize {
+    pub fn total_count(&self) -> usize {
         self.count
     }
 }
@@ -620,13 +620,15 @@ impl<'a, ResultsCountSummary: ResultReasonCounter> ChainedResultsIter<'a, Result
         }
     }
 
-    pub fn count(&self) -> usize {
+    pub fn total_count(&self) -> usize {
         self.iters
             .iter()
-            .fold(0, |acc, (_, counts)| counts.total() + acc)
+            .fold(0, |acc, (_, counts)| {
+                counts.total() + acc
+            })
     }
 
-    pub fn count_due_to_reason(
+    pub fn total_count_due_to_reason(
         &self,
         reason: &<ResultsCountSummary as ResultReasonCounter>::ReasonType,
     ) -> usize {

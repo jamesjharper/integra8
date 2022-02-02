@@ -175,13 +175,37 @@ impl ComponentTimeResult {
 mod tests {
     use super::*;
     use crate::report::ComponentReportBuilder;
+    use crate::summary::RunSummary;
     use integra8_components::{AcceptanceCriteria, TimingAcceptanceCriteria, ComponentDescription, ComponentPath, ComponentId, ComponentType, ExecutionArtifacts};
 
     // Component Report Tests
+
+    fn root_suite_report_builder() -> ComponentReportBuilder {
+        ComponentReportBuilder::new(
+            ComponentDescription::new(
+                /* path */ ComponentPath::from("integra8_results"),
+                /* name */ Some("root"),
+                /* id */ ComponentId::from(1),
+                /* parent_path */ ComponentPath::from("integra8_results"),
+                /* parent_id */ ComponentId::from(1),
+                /* description */ None,
+                /* component_type */ ComponentType::Suite,
+                /*  location */ None,
+            ),
+            AcceptanceCriteria {
+                allowed_fail: false,
+                timing: TimingAcceptanceCriteria {
+                    warning_time_limit: None,
+                    time_limit: None,
+                },
+            }
+        )
+    }
+
     fn test_1_report_builder() -> ComponentReportBuilder {
         ComponentReportBuilder::new(
             ComponentDescription::new(
-                /* path */ ComponentPath::from("integra8_results::test"),
+                /* path */ ComponentPath::from("integra8_results::test::test_1"),
                 /* name */ Some("test_1"),
                 /* id */ ComponentId::from(2),
                 /* parent_path */ ComponentPath::from("integra8_results"),
@@ -200,12 +224,56 @@ mod tests {
         )
     }
 
+    fn setup_1_report_builder() -> ComponentReportBuilder {
+        ComponentReportBuilder::new(
+            ComponentDescription::new(
+                /* path */ ComponentPath::from("integra8_results::test::setup_1"),
+                /* name */ Some("setup_1"),
+                /* id */ ComponentId::from(3),
+                /* parent_path */ ComponentPath::from("integra8_results"),
+                /* parent_id */ ComponentId::from(1),
+                /* description */ None,
+                /* component_type */ ComponentType::Setup,
+                /*  location */ None,
+            ),
+            AcceptanceCriteria {
+                allowed_fail: false,
+                timing: TimingAcceptanceCriteria {
+                    warning_time_limit: None,
+                    time_limit: None,
+                },
+            }
+        )
+    }
+
+    fn tear_down_1_report_builder() -> ComponentReportBuilder {
+        ComponentReportBuilder::new(
+            ComponentDescription::new(
+                /* path */ ComponentPath::from("integra8_results::test::tear_down_1"),
+                /* name */ Some("tear_down_1"),
+                /* id */ ComponentId::from(4),
+                /* parent_path */ ComponentPath::from("integra8_results"),
+                /* parent_id */ ComponentId::from(1),
+                /* description */ None,
+                /* component_type */ ComponentType::TearDown,
+                /*  location */ None,
+            ),
+            AcceptanceCriteria {
+                allowed_fail: false,
+                timing: TimingAcceptanceCriteria {
+                    warning_time_limit: None,
+                    time_limit: None,
+                },
+            }
+        )
+    }
+
     fn test_2_report_builder() -> ComponentReportBuilder {
         ComponentReportBuilder::new(
             ComponentDescription::new(
-                /* path */ ComponentPath::from("integra8_results::test"),
+                /* path */ ComponentPath::from("integra8_results::test::test_2"),
                 /* name */ Some("test_2"),
-                /* id */ ComponentId::from(2),
+                /* id */ ComponentId::from(5),
                 /* parent_path */ ComponentPath::from("integra8_results"),
                 /* parent_id */ ComponentId::from(1),
                 /* description */ None,
@@ -225,9 +293,9 @@ mod tests {
     fn test_3_report_builder() -> ComponentReportBuilder {
         ComponentReportBuilder::new(
             ComponentDescription::new(
-                /* path */ ComponentPath::from("integra8_results::test"),
+                /* path */ ComponentPath::from("integra8_results::test::test_3"),
                 /* name */ Some("test_3"),
-                /* id */ ComponentId::from(2),
+                /* id */ ComponentId::from(6),
                 /* parent_path */ ComponentPath::from("integra8_results"),
                 /* parent_id */ ComponentId::from(1),
                 /* description */ None,
@@ -244,9 +312,96 @@ mod tests {
         )
     }
 
+    fn suite_1_report_builder() -> ComponentReportBuilder {
+        ComponentReportBuilder::new(
+            ComponentDescription::new(
+                /* path */ ComponentPath::from("integra8_results::test::suite_1"),
+                /* name */ Some("suite_1"),
+                /* id */ ComponentId::from(7),
+                /* parent_path */ ComponentPath::from("integra8_results"),
+                /* parent_id */ ComponentId::from(1),
+                /* description */ None,
+                /* component_type */ ComponentType::Suite,
+                /*  location */ None,
+            ),
+            AcceptanceCriteria {
+                allowed_fail: false,
+                timing: TimingAcceptanceCriteria {
+                    warning_time_limit: None,
+                    time_limit: None,
+                },
+            }
+        )
+    }
+
+    fn suite_1_test_1_report_builder() -> ComponentReportBuilder {
+        ComponentReportBuilder::new(
+            ComponentDescription::new(
+                /* path */ ComponentPath::from("integra8_results::test::suite_1::test_1"),
+                /* name */ Some("test_1"),
+                /* id */ ComponentId::from(8),
+                /* parent_path */ ComponentPath::from("integra8_results::test::suite_1"),
+                /* parent_id */ ComponentId::from(7),
+                /* description */ None,
+                /* component_type */ ComponentType::Test,
+                /*  location */ None,
+            ),
+            AcceptanceCriteria {
+                allowed_fail: false,
+                timing: TimingAcceptanceCriteria {
+                    warning_time_limit: None,
+                    time_limit: None,
+                },
+            }
+        )
+    }
+
+    fn suite_1_setup_1_report_builder() -> ComponentReportBuilder {
+        ComponentReportBuilder::new(
+            ComponentDescription::new(
+                /* path */ ComponentPath::from("integra8_results::test::suite_1::setup_1"),
+                /* name */ Some("setup_1"),
+                /* id */ ComponentId::from(9),
+                /* parent_path */ ComponentPath::from("integra8_results::test::suite_1"),
+                /* parent_id */ ComponentId::from(7),
+                /* description */ None,
+                /* component_type */ ComponentType::Setup,
+                /*  location */ None,
+            ),
+            AcceptanceCriteria {
+                allowed_fail: false,
+                timing: TimingAcceptanceCriteria {
+                    warning_time_limit: None,
+                    time_limit: None,
+                },
+            }
+        )
+    }
+
+    fn suite_1_tear_down_1_report_builder() -> ComponentReportBuilder {
+        ComponentReportBuilder::new(
+            ComponentDescription::new(
+                /* path */ ComponentPath::from("integra8_results::test::suite_1::tear_down_1"),
+                /* name */ Some("tear_down_1"),
+                /* id */ ComponentId::from(10),
+                /* parent_path */ ComponentPath::from("integra8_results::test::suite_1"),
+                /* parent_id */ ComponentId::from(7),
+                /* description */ None,
+                /* component_type */ ComponentType::TearDown,
+                /*  location */ None,
+            ),
+            AcceptanceCriteria {
+                allowed_fail: false,
+                timing: TimingAcceptanceCriteria {
+                    warning_time_limit: None,
+                    time_limit: None,
+                },
+            }
+        )
+    }
+
     #[test]
     fn can_report_test_1_success() {
-
         // Arrange 
         let mut builder = test_1_report_builder();
 
@@ -401,7 +556,6 @@ mod tests {
         assert_eq!(report.timing.is_critical(), false, "Expected no critical error on test 1 timing results");
         assert_eq!(report.timing.duration(), Duration::from_secs(1000));
     }
-
 
     #[test]
     fn should_report_test_2_timing_results_as_ok_when_within_timing_acceptance_criteria() {
@@ -583,7 +737,6 @@ mod tests {
         assert_eq!(report.artifacts.map["sample"].as_string().unwrap(), "This is a sample artifact");
     }
 
-
     #[test]
     fn should_return_include_text_cursor_artifact_when_defined() {
 
@@ -644,4 +797,197 @@ mod tests {
         assert!(iter.next().is_none());
     }
 
+
+    // Summary Tests
+
+    #[test]
+    fn can_create_empty_summary_report() {
+         // Arrange 
+         let mut root_suite_builder = root_suite_report_builder();
+         root_suite_builder.passed_result();
+
+         // Act
+         let mut summary = RunSummary::new();
+         summary.push_report(root_suite_builder.build());
+ 
+         // Assert
+         assert_eq!(summary.run_result(), ComponentResult::Pass(PassReason::Accepted));
+         assert_eq!(summary.test_passed().count(), 0);
+         assert_eq!(summary.test_warning().count(), 0);
+         assert_eq!(summary.test_failed().count(), 0);
+         assert_eq!(summary.test_not_run().count(), 0);
+
+         assert_eq!(summary.setup_passed().count(), 0);
+         assert_eq!(summary.setup_warning().count(), 0);
+         assert_eq!(summary.setup_failed().count(), 0);
+         assert_eq!(summary.setup_not_run().count(), 0);
+
+         assert_eq!(summary.tear_down_passed().count(), 0);
+         assert_eq!(summary.tear_down_warning().count(), 0);
+         assert_eq!(summary.tear_down_failed().count(), 0);
+         assert_eq!(summary.tear_down_not_run().count(), 0);
+    }
+
+
+    #[test]
+    fn can_create_summary_report_with_passed_components_at_root() {
+         // Arrange 
+         let mut root_suite_builder = root_suite_report_builder();
+         let mut test_1_builder = test_1_report_builder();
+         let mut setup_1_builder = setup_1_report_builder();
+         let mut tear_down_1_builder = tear_down_1_report_builder();
+         
+         root_suite_builder.passed_result();
+         test_1_builder.passed_result();
+         setup_1_builder.passed_result();
+         tear_down_1_builder.passed_result();
+
+         // Act
+         let mut summary = RunSummary::new();
+         summary.push_report(root_suite_builder.build());
+         summary.push_report(test_1_builder.build());
+         summary.push_report(setup_1_builder.build());
+         summary.push_report(tear_down_1_builder.build());
+ 
+         // Assert
+         assert_eq!(summary.run_result(), ComponentResult::Pass(PassReason::Accepted));
+         assert_eq!(summary.test_passed().count(), 1);
+         assert_eq!(summary.test_warning().count(), 0);
+         assert_eq!(summary.test_failed().count(), 0);
+         assert_eq!(summary.test_not_run().count(), 0);
+
+         assert_eq!(summary.setup_passed().count(), 1);
+         assert_eq!(summary.setup_warning().count(), 0);
+         assert_eq!(summary.setup_failed().count(), 0);
+         assert_eq!(summary.setup_not_run().count(), 0);
+
+         assert_eq!(summary.tear_down_passed().count(), 1);
+         assert_eq!(summary.tear_down_warning().count(), 0);
+         assert_eq!(summary.tear_down_failed().count(), 0);
+         assert_eq!(summary.tear_down_not_run().count(), 0);
+    }
+
+    #[test]
+    fn can_create_summary_report_with_failed_components_at_root() {
+         // Arrange 
+         let mut root_suite_builder = root_suite_report_builder();
+         let mut test_1_builder = test_1_report_builder();
+         let mut setup_1_builder = setup_1_report_builder();
+         let mut tear_down_1_builder = tear_down_1_report_builder();
+         
+         root_suite_builder.rejected_result();
+         test_1_builder.rejected_result();
+         setup_1_builder.rejected_result();
+         tear_down_1_builder.rejected_result();
+
+         // Act
+         let mut summary = RunSummary::new();
+         summary.push_report(root_suite_builder.build());
+         summary.push_report(test_1_builder.build());
+         summary.push_report(setup_1_builder.build());
+         summary.push_report(tear_down_1_builder.build());
+ 
+         // Assert
+         assert_eq!(summary.run_result(), ComponentResult::Fail(FailureReason::Rejected));
+         assert_eq!(summary.test_passed().count(), 0);
+         assert_eq!(summary.test_warning().count(), 0);
+         assert_eq!(summary.test_failed().count(), 1);
+         assert_eq!(summary.test_not_run().count(), 0);
+
+         assert_eq!(summary.setup_passed().count(), 0);
+         assert_eq!(summary.setup_warning().count(), 0);
+         assert_eq!(summary.setup_failed().count(), 1);
+         assert_eq!(summary.setup_not_run().count(), 0);
+
+         assert_eq!(summary.tear_down_passed().count(), 0);
+         assert_eq!(summary.tear_down_warning().count(), 0);
+         assert_eq!(summary.tear_down_failed().count(), 1);
+         assert_eq!(summary.tear_down_not_run().count(), 0);
+    }
+
+    #[test]
+    fn can_create_summary_report_with_passed_components_at_nested_suite() {
+         // Arrange 
+         let mut root_suite_builder = root_suite_report_builder();
+         let mut suite_1_builder = suite_1_report_builder();
+         let mut suite_1_test_1_builder = suite_1_test_1_report_builder();
+         let mut suite_1_setup_1_builder = suite_1_setup_1_report_builder();
+         let mut suite_1_tear_down_1_builder = suite_1_tear_down_1_report_builder();
+         
+         root_suite_builder.passed_result();
+         suite_1_builder.passed_result();
+         suite_1_test_1_builder.passed_result();
+         suite_1_setup_1_builder.passed_result();
+         suite_1_tear_down_1_builder.passed_result();
+
+         // Act
+         let mut summary = RunSummary::new();
+         summary.push_report(root_suite_builder.build());
+         summary.push_report(suite_1_test_1_builder.build());
+         summary.push_report(suite_1_setup_1_builder.build());
+         summary.push_report(suite_1_tear_down_1_builder.build());
+         summary.push_report(suite_1_builder.build());
+
+         // Assert
+         assert_eq!(summary.run_result(), ComponentResult::Pass(PassReason::Accepted));
+         assert_eq!(summary.test_passed().total_count(), 1);
+         assert_eq!(summary.test_warning().total_count(), 0);
+         assert_eq!(summary.test_failed().total_count(), 0);
+         assert_eq!(summary.test_not_run().total_count(), 0);
+
+         assert_eq!(summary.setup_passed().total_count(), 1);
+         assert_eq!(summary.setup_warning().total_count(), 0);
+         assert_eq!(summary.setup_failed().total_count(), 0);
+         assert_eq!(summary.setup_not_run().total_count(), 0);
+
+         assert_eq!(summary.tear_down_passed().total_count(), 1);
+         assert_eq!(summary.tear_down_warning().total_count(), 0);
+         assert_eq!(summary.tear_down_failed().total_count(), 0);
+         assert_eq!(summary.tear_down_not_run().total_count(), 0);
+    }
+
+    #[test]
+    fn can_create_summary_report_with_failed_components_at_nested_suite() {
+         // Arrange 
+         let mut root_suite_builder = root_suite_report_builder();
+         let mut suite_1_builder = suite_1_report_builder();
+         let mut suite_1_test_1_builder = suite_1_test_1_report_builder();
+         let mut suite_1_setup_1_builder = suite_1_setup_1_report_builder();
+         let mut suite_1_tear_down_1_builder = suite_1_tear_down_1_report_builder();
+         
+         root_suite_builder.rejected_result();
+         suite_1_builder.rejected_result();
+         suite_1_test_1_builder.rejected_result();
+         suite_1_setup_1_builder.rejected_result();
+         suite_1_tear_down_1_builder.rejected_result();
+
+         // Act
+         let mut summary = RunSummary::new();
+         summary.push_report(root_suite_builder.build());
+         summary.push_report(suite_1_test_1_builder.build());
+         summary.push_report(suite_1_setup_1_builder.build());
+         summary.push_report(suite_1_tear_down_1_builder.build());
+         summary.push_report(suite_1_builder.build());
+
+         // Assert
+         assert_eq!(summary.run_result(), ComponentResult::Fail(FailureReason::Rejected));
+         assert_eq!(summary.test_passed().total_count(), 0);
+         assert_eq!(summary.test_warning().total_count(), 0);
+         assert_eq!(summary.test_failed().total_count(), 1);
+         assert_eq!(summary.test_failed().due_to_rejection().total_count(), 1);
+         assert_eq!(summary.test_not_run().total_count(), 0);
+
+         assert_eq!(summary.setup_passed().total_count(), 0);
+         assert_eq!(summary.setup_warning().total_count(), 0);
+         assert_eq!(summary.setup_failed().total_count(), 1);
+         assert_eq!(summary.setup_failed().due_to_rejection().total_count(), 1);
+         assert_eq!(summary.setup_not_run().total_count(), 0);
+
+         assert_eq!(summary.tear_down_passed().total_count(), 0);
+         assert_eq!(summary.tear_down_warning().total_count(), 0);
+         assert_eq!(summary.tear_down_failed().total_count(), 1);
+         assert_eq!(summary.tear_down_failed().due_to_rejection().total_count(), 1);
+         assert_eq!(summary.tear_down_not_run().total_count(), 0);
+         
+    }
 }
