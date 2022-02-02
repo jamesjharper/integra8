@@ -111,8 +111,8 @@ impl ComponentStateToken {
         self.set_result(ComponentState::Finalized(result), time_taken)
     }
 
-    pub fn tentative_pass(&self, result: ComponentResult, time_taken: Duration) {
-        self.set_result(ComponentResult::passed(), std::time::Duration::new(0, 0))
+    pub fn tentative_pass(&self) {
+        self.set_result(ComponentState::Tentative(ComponentResult::passed()), std::time::Duration::new(0, 0))
     }
 
     fn set_result(&self, result: ComponentState, time_taken: Duration) {

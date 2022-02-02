@@ -138,7 +138,7 @@ impl RunSummary {
 
     // Tests
 
-    pub fn tests_passed<'a>(&'a self) -> PassedResults<'a> {
+    pub fn test_passed<'a>(&'a self) -> PassedResults<'a> {
         PassedResults::from_many(
             self.suite_summaries
                 .values()
@@ -147,7 +147,7 @@ impl RunSummary {
         )
     }
 
-    pub fn tests_warning<'a>(&'a self) -> WarningResults<'a> {
+    pub fn test_warning<'a>(&'a self) -> WarningResults<'a> {
         WarningResults::from_many(
             self.suite_summaries
                 .values()
@@ -156,7 +156,7 @@ impl RunSummary {
         )
     }
 
-    pub fn tests_failed<'a>(&'a self) -> FailedResults<'a> {
+    pub fn test_failed<'a>(&'a self) -> FailedResults<'a> {
         FailedResults::from_many(
             self.suite_summaries
                 .values()
@@ -165,7 +165,7 @@ impl RunSummary {
         )
     }
 
-    pub fn tests_not_run<'a>(&'a self) -> NotRunResults<'a> {
+    pub fn test_not_run<'a>(&'a self) -> NotRunResults<'a> {
         NotRunResults::from_many(
             self.suite_summaries
                 .values()
@@ -223,7 +223,7 @@ impl RunSummary {
         )
     }
 
-    pub fn tear_down_warnings<'a>(&'a self) -> WarningResults<'a> {
+    pub fn tear_down_warning<'a>(&'a self) -> WarningResults<'a> {
         WarningResults::from_many(
             self.suite_summaries
                 .values()

@@ -168,7 +168,7 @@ impl OutputFormatter for TreeFormatter {
     fn write_run_complete(&mut self, state: &RunSummary) -> Result<(), Box<dyn Error>> {
         // TODO: Reinstate this, temporally remove because somethings very wrong with the results counts
         // Will fix when adding unit tests
-        /*writeln!(self.writer, "\ntest result: ")?;
+        writeln!(self.writer, "\ntest result: ")?;
 
         match state.run_result() {
             ComponentResult::Pass(_) => write!(self.writer, "ok")?,
@@ -177,25 +177,25 @@ impl OutputFormatter for TreeFormatter {
             ComponentResult::DidNotRun(_) => write!(self.writer, "undetermined")?,
         }
 
-        if state.tests_warning().has_some() {
+        if state.test_warning().has_some() {
             writeln!(
                 self.writer,
                 ". {} passed; {} failed ({} allowed); {} skipped",
-                state.tests_passed().count(),
-                state.tests_failed().count() + state.tests_warning().count(),
-                state.tests_warning().count(),
-                state.tests_not_run().count(),
+                state.test_passed().total_count(),
+                state.test_failed().total_count() + state.test_warning().total_count(),
+                state.test_warning().total_count(),
+                state.test_not_run().total_count(),
             )?;
         } else {
             writeln!(
                 self.writer,
                 ". {} passed; {} failed; {} skipped",
-                state.tests_passed().count(),
-                state.tests_failed().count(),
-                state.tests_not_run().count()
+                state.test_passed().total_count(),
+                state.test_failed().total_count(),
+                state.test_not_run().total_count()
             )?;
         };
-        writeln!(self.writer, "")?;*/
+        writeln!(self.writer, "")?;
 
         // Just the detail level to capture most relevant details in relation to the result
         let detail_level = match (&self.detail_level, state.run_result()) {

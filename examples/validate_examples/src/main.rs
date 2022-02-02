@@ -10,7 +10,7 @@ main_test! {
     // TODO: this should be automatically detected as default
     console_output: integra8_tree_formatter::TreeFormatter,
     //console_output_ansi_mode: Auto,
-    //console_output_level: Error,
+    console_output_level: Verbose,
     use_child_process: false,
     default_suite_concurrency: Parallel,
     default_test_concurrency: Parallel,
