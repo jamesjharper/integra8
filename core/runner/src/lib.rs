@@ -157,7 +157,13 @@ impl<
             ComponentRunResult::AlreadyPublished(report_builder) => {
                 ComponentRunResult::AlreadyPublished(report_builder.build())
             }
-            ComponentRunResult::WaitingOnChildren => ComponentRunResult::WaitingOnChildren,
+            ComponentRunResult::WaitingOnChildren => {
+                // A Suite will wait on children before its results can be 
+                // determined, if all the children are ignored or there are no
+                // children then the assume a pass results
+                component_state.tentative_pass();              
+                ComponentRunResult::WaitingOnChildren
+            },
         }
     }
 
