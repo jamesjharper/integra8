@@ -41,7 +41,7 @@ of choice can be enabled via the `tokio-runtime` or `async-std-runtime` feature 
 
 ### Example with tokio 
 ```toml
-integra8 = { version = "0.0.1-alpha", features = ["tokio-runtime"] } 
+integra8 = { version = "0.0.2-alpha", features = ["tokio-runtime"] } 
 ```
 
 ```rust
@@ -52,7 +52,7 @@ async fn async_test() {
 ```
 ### Example with async-std 
 ```toml
-integra8 = { version = "0.0.1-alpha", features = ["async-std-runtime"] } 
+integra8 = { version = "0.0.2-alpha", features = ["async-std-runtime"] } 
 ```
 ```rust
 #[integration_test]
