@@ -3,7 +3,7 @@
 ## Table of Contents
 ### Fundamentals 
 1.  [Async / Sync](#Async-/-Sync)
-2.  [Human Friendly Names and Descriptions](#Human-Friendly-Names-and-Descriptions)
+2.  [Human-Friendly Names and Descriptions](#Human-Friendly-Names-and-Descriptions)
 3.  [Allow Failure](#Allow-Failure)
 4.  [Ignore Component](#Ignore-Component)
 5.  [Setup and Teardown](#Setup-and-Teardown)
@@ -29,15 +29,15 @@
 
 # Fundamentals 
 ## Async / Sync
-Integra8 has native support both `tokio` and `async-std` runtimes.
+Integra8 has native support for both `tokio` and `async-std` runtimes.
 `Tests`, `Setups` and `Tear downs` can all be declared `async` and your runtime 
 of choice can be enabled via the `tokio-runtime` or `async-std-runtime` feature flag.
 
-> Integra8 internally requires an async runtime, so even if you do not need async functionality, 
-> you will still need to enable ether the `tokio-runtime` or `async-std-runtime` feature flag for 
+> Integra8 internally requires an async runtime, so even if you do not require async functionality, 
+> you will still need to enable either the `tokio-runtime` or `async-std-runtime` feature flag for 
 > Integra8 to compile.
 >
-> Using `async` for long running blocking IO is highly recommended as Integra8 is optimized for this.
+> Using `async` for long-running blocking IO is highly recommended as Integra8 is optimized for this.
 
 ### Example with tokio 
 ```toml
@@ -62,10 +62,10 @@ async fn async_test() {
 ```
 
 
-## Human Friendly Names and Descriptions
+## Human-Friendly Names and Descriptions
 Code for humans first, robots second!
 
-`Suites`, `Tests`, `Setups` and `Tear downs` can all have a human friendly name assigned, as well as description for documentation.
+`Suites`, `Tests`, `Setups` and `Tear downs` can all have a human-friendly name assigned, as well as a description for documentation.
 Name and description are shown in test outputs when the test fails to help give quick feedback.
 
 ### Example 
@@ -73,7 +73,7 @@ Name and description are shown in test outputs when the test fails to help give 
 #[integration_test]
 #[name = "A concise name that tells anyone what this test is doing"]
 #[description =
-"A description which can be useful for adding 
+"A description that can be useful for adding 
 exact details, assumptions or context behind 
 why this test exists"
 ]
@@ -88,7 +88,7 @@ Output from `./test_basics`
 ● - test_basics
 └── ■ - A concise name that tells anyone what this test is doing
           description:
-            A description which can be useful for adding exact details, assumptions 
+            A description that can be useful for adding exact details, assumptions 
             or context behind why this test exists
           src: basic/test_basics/src/main.rs:14:1
           stderr:
@@ -129,7 +129,8 @@ Different frameworks have variations in how setup's and teardown's work.
 
 Within Integra8
 
-- Every `Setup` will run _once_ at the start of the test run, (ie once per _suite_, not once per _test_)
+- Every `Setup` will run _once_ at the start of the test run. *ie once per _suite_, not per _test_*
+- Like `Setup` ever `Teardown` will run _once_ at the end of the test run. *ie once per _suite_, not per _test_*
 - Every `Tear down` is _guaranteed_ to run regardless if a `test`, `setup` or `tear down` fails.
 
 ### Example 
@@ -175,11 +176,11 @@ async fn teardown_3() {
 ## Concurrency
 Use the `#[parallel]` or `#[sequential]` decorator on `Suites`, `Tests`, `Setups` and `Tear downs` to indicate concurrency behavior.
 
-> Integra8 has a pure `async` implementation. It does not create threads, and instead leaves this to you async runtime of choice.
+> Integra8 has a pure `async` implementation. It does not create threads and instead leaves this to you async runtime of choice.
 
-### Concurrency Ordering behavior  
-Integra8 always honors the component order in code. 
-Because of this, components are only run concurrently, when they are *adjacent* to other concurrent components in the schedule order.
+### Concurrency Ordering behaviour  
+Integra8 always honours the component order in code. 
+Because of this, components are only run concurrently, when they are *adjacent* to other concurrent components in the scheduling order.
 
 This design allows ordered tests to co-exist with a concept of concurrency, while also enabling concurrency modes to combine in unique ways that may not be immediately intuitive.
 
@@ -227,7 +228,7 @@ fn test_2() {
 }
 
 // 2: test_3 can only be executed after test 1 and test 2 completes
-// as it is appears lower in the source code file, and is not decorated #[parallel]
+// as it appears lower in the source code file, and is not decorated #[parallel]
 
 #[integration_test]
 #[sequential]
@@ -268,7 +269,7 @@ Use the `#[warning_time_limit = "x secs/mins/hours/days"]` decorator on `tests` 
 the maximin duration this test can run before this test is flagged with a warning. 
 
 This can be used to give early warnings before a test exceeds some critical threshold.
-For example, a HTTP request time out, lambda time out, etc.
+For example, an HTTP request time out, lambda time out, etc.
 
 #### Example 
 ```rust
@@ -294,9 +295,9 @@ fn this_test_will_show_a_timeout_error() {
 ```
 
 # Suites
-Use the `#[suite]` decorator indicate a `Suite`.
-`Suites` are a groupings of `tests`, `setups`, `tear downs` and other `suites`, which 
-can be used to change group execution, failure, and concurrency behaviors.
+Use the `#[suite]` decorator to indicate a `Suite`.
+`Suites` are groupings of `tests`, `setups`, `tear downs` and other `suites`, which 
+can be used to change group execution, failure, and concurrency behaviours.
 
 ## Suite Execution Order
 Within Integra8, the component execution order is
@@ -338,7 +339,7 @@ mod first_suite {
     }
 }
 
-/// Suites are run in the order they appear within file.
+/// Suites are run in the order they appear within the file.
 #[suite]
 mod another_suite {
  
@@ -351,8 +352,8 @@ mod another_suite {
 ```
 
 ## Nested Suites
-`Suites` can be nested within each other to produce complex test behaviors
-such as multi step tests, grouping by function/scenario, or given then when type tests.
+`Suites` can be nested within each other to produce complex test behaviours
+such as multi-step tests, grouping by function/scenario, or given then when type tests.
 
 ### Example 
 
@@ -456,16 +457,16 @@ mod suite_which_will_fail {
 
 
 ## Suite Concurrency
-Integra8 always honors the component order in code for all components _except_ suites. 
+Integra8 always honours the component order in code for all components _except_ suites. 
 
-Instead Integra8, favors running parallel suites over serial onces, and will prioritizes running as many suites at once. The intent is, 
+Instead, Integra8, favours running parallel suites over serial ones and will prioritize running as many suites at once. The intent is, 
 by running as many suites upfront the scheduler will remain busy longer, and increases the chances we fail sooner, 
-rather then later.
+rather than later.
 
-Suites follow the following rules 
- - Suites are are group by concurrent mode (`parallel` or `sequential`)
+Suites use the following rules 
+ - Suites are grouped by concurrent mode (`parallel` or `sequential`)
  - `parallel` grouped suites are run first
- - `sequential` suites are run in the order they appear in the schedule order.
+ - `sequential` suites are run in the order they appear in the scheduling order.
 
 Exact implementation details for scheduling can be found [here](./core/scheduling/src/components.rs)
 
@@ -556,7 +557,7 @@ mod suite_3 {
 # Settings and Context
 
 ## Global Settings
-Integra8 supports a number of settings which can be configured globally via `test_main` or mutated via command line parameters.
+Integra8 supports several settings that can be configured globally via `test_main` or mutated via command line parameters.
 
 ### Max Concurrency: 
  - __description:__   Limits the number of components which can run at the same time
@@ -679,8 +680,8 @@ fn override_global_defaults() {
 ```
 
 ## Component Context 
-Integra8 supports a concept of *context*, which is used for forward state and context data to executing components.
-Context can be accessed by adding a parameter `&crate::ExecutionContext` to the test signature.
+Integra8 supports a notion of *context*, which is used for forwarding state and context data to executing components.
+Context can be accessed by adding the parameter `&crate::ExecutionContext` to the test signature.
 
 ```rust
 
@@ -744,7 +745,7 @@ mod test_some_user_actions {
     fn setup(ctx : crate::ExecutionContext) {
         println!("Creating user \"{}\"", suite_user_name(&ctx));
         
-        // Create user in system under test ... 
+        // Create user in the system under test ... 
     }
 
     #[integration_test]
@@ -765,7 +766,7 @@ mod test_some_user_actions {
     fn teardown(ctx : crate::ExecutionContext) {
         println!("Removing user \"{}\"", suite_user_name(&ctx));
         
-        // Remove the user in system under test ...
+        // Remove the user in the system under test ...
     }
 }
 
@@ -774,14 +775,14 @@ mod test_some_user_actions {
 
 
 ## Custom Command Line Parameters
-Integra8 supports a concept of *test context*, which can be used for managing state between 
-tests and forwarding command line parameters within a test applications.
+Integra8 supports a notion of *test context*, which can be used for managing state between 
+tests and forwarding command line parameters within a test application.
 
 Internally, Integra8 leverages [structopt](https://docs.rs/structopt/latest/structopt/) for managing 
 command line parameters. The input parameters can be extended via `main_test{ parameters : ... }` which takes 
 either an inline `struct` definition or externally defined Type which implements the `structopt` trait.
 
-> Note, your toml file must include `structopt` in order for the marco to be able to find it.
+> Note, your toml file must include `structopt` for the macro to be able to find it.
 
 ### Example 
 
@@ -823,15 +824,16 @@ async fn httpbin_should_reply_200_ok(ctx : crate::ExecutionContext) {
 ## Stdout Capture + Child Processes
 Rust's inbuilt test framework makes use of `std::io::stdio::set_output_capture` to capture `stdout` outputs. 
 This API is unstable, and therefore Integra8 does not make use of it. To provide comparable functionality,
-Integra8 starts all `Tests`, `Setups` and `Tear downs` in their own individual process.
+Integra8 starts all `Tests`, `Setups` and `Tear downs` in their process.
 
 While this is acceptable for most uses cases, it does undermine the async runtime's ability to 
-schedule optimally and might impact any custom global state managed added by a test author.
+schedule optimally and may impact any custom global state-managed added by a test author.
 
-This behavior can be disabled with the used of the `use_child_process` setting or `--framework:use-child-process` command line parameter, 
-however this will also disable log stdout capture, resulting in an potential log interleaving when running tests. 
+This behaviour can be disabled with the `use_child_process` setting or `--framework:use-child-process` command line parameter, 
 
-When disabling `use_child_process`, its considering using *artifacts writers* as described bellow. 
+This however will also disable log stdout capture, resulting in logs to console interleaving when running tests. 
+
+When disabling `use_child_process`, consider using *artefacts writers* as described in the _Test Artifacts workaround_ segement bellow. 
 
 ```rust
 
@@ -850,10 +852,10 @@ fn chaos_logging() {
 ```
 
 ### Test Artifacts workaround
-It can useful to collect and collate artifacts from test runs, such as harvesting a program's state in between tests,
-settings, or system metrics. Integra8 can manage artifacts via the test context.
+It can be useful to collect and collate artefacts from test runs, such as harvesting a program's state in between tests,
+settings, or system metrics. Integra8 can manage artefacts via the test context.
 
-*This features is still under development. Currently this will only work correctly when `use_child_process` is disabled.*
+*This feature is still under development and currently will only work when `use_child_process` is disabled.*
 
 
 ```rust
@@ -884,21 +886,20 @@ fn still_work_in_progress(ctx : crate::ExecutionContext) {
     // write the contents of this log to test output
     ctx.artifacts.include_text_file("log", "./logs.text");
 
-    // Currently Integra8 does not manage this files lift time.
-    // If this file is deleted in a tear down, the content will not be shown.
+    // Currently Integra8 does not manage these files lift time.
+    // If this file is deleted in a teardown, the content will not be shown.
     //
     // Use this at your own risk, this implementation will likely change in the future.
 }
 ```
 
 ## Async + Timeout limitations 
-Integra8 does not create its own threads, and instead relies on the async runtime to manage multi tasking.
-While this does offer performance benefits, it unfortunately has its drawbacks.
+Integra8 does not create threads and instead relies on the async runtime to manage multi-tasking.
+While this does offer performance benefits, it, unfortunately, has its drawbacks.
 
 ### Timeout Detection 
 The current timeout implementation can only detect a timeout and abort when a task is paused.
-Long running non async operations are not detected, and instead execution will continue until the task
-its either paused or complete.
+Long-running non-async operations are not detected, and instead, execution will continue until the task is either paused or complete.
 
 ```rust
 
@@ -948,7 +949,7 @@ fn running_with_a_loaded_shotgun() {
 ```
 
 ### Timeout Accuracy  
-The async runtime does not guarantee tasks are resumed immediately after an operation has completed. 
+The async runtime does not guarantee tasks are resumed immediately after an async operation has been completed. 
 This results in a degree of variability in test run times, which in turn limits the timeout resolution.
 As result, it is recommended to avoid using very short or very exact timeout durations as could lead to flaky test runs.
 
