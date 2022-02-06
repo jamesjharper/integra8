@@ -3,7 +3,7 @@
 pub extern crate integra8;
 
 main_test! {
-    console_output: integra8_tree_formatter::TreeFormatter,
+    console_output: integra8_serde_formatter::SerdeFormatter,
 }
 
 // A `Setup` or `Teardown` can be declared with the `#[setup]` and `#[teardown]` decoration and also can be `async`.

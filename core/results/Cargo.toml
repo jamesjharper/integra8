@@ -18,3 +18,8 @@ path = "../components"
 
 [dependencies]
 indexmap = "1.8.0"
+serde = { version = "1.0", features = ["derive"], optional = true }
+serde_bytes = { version = "0.11.5", optional = true }
+
+[features]
+enable_serde = ["integra8_components/enable_serde", "serde", "serde_bytes"]

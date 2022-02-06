@@ -1,7 +1,7 @@
 use crate::summary::counts::ResultReasonCounter;
 use crate::summary::{
     DidNotRunResultsCountSummary, FailResultsCountSummary, PassResultsCountSummary,
-    WarningResultsCountSummary,
+    WarningResultsCountSummary, ResultsCountSummary
 };
 
 use crate::report::ComponentRunReport;
@@ -9,6 +9,65 @@ use crate::ComponentResult;
 use crate::{DidNotRunReason, FailureReason, PassReason, WarningReason};
 
 pub use std::slice::Iter;
+
+pub struct CompleteResults<'a> {
+    iter: ChainedResultsIter<'a, ResultsCountSummary>,
+}
+
+impl<'a> CompleteResults<'a> {
+    pub fn from_many(
+        many: Vec<(Iter<'a, ComponentRunReport>, &'a ResultsCountSummary)>,
+    ) -> Self {
+        Self {
+            iter: ChainedResultsIter::from_many(many),
+        }
+    }
+
+    pub fn from(iter: Iter<'a, ComponentRunReport>, counts: &'a ResultsCountSummary) -> Self {
+        Self {
+            iter: ChainedResultsIter::from_single(iter, counts),
+        }
+    }
+
+    /// Returns `true` if there are no *pass* results.
+    pub fn has_none(&self) -> bool {
+        self.total_count() == 0
+    }
+
+    /// Returns `true` if there are any *pass* results.
+    pub fn has_some(&self) -> bool {
+        self.total_count() != 0
+    }
+
+    /// Returns the total count of *pass* results
+    pub fn total_count(&self) -> usize {
+        self.iter.total_count()
+    }
+
+    /// Returns the total count of *pass* results for a given reason.
+    ///
+    /// # Arguments
+    ///
+    /// * `reason` - The `ComponentResult` enum to count.
+    ///
+    pub fn count_due_to_reason(&self, reason: &ComponentResult) -> usize {
+        self.iter.total_count_due_to_reason(reason)
+    }
+}
+
+impl<'a> Iterator for CompleteResults<'a> {
+    type Item = &'a ComponentRunReport;
+
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        let len = self.total_count();
+        (len, Some(len))
+    }
+
+    fn next(&mut self) -> Option<Self::Item> {
+        self.iter.next()
+    }
+}
+
 
 /// A struct for interrogating *pass* results.
 /// Implements `Iterator` and can be reduced to a filtered results set using its accompanying  `due_to...` methods
@@ -642,7 +701,7 @@ impl<'a, ResultsCountSummary> Iterator for ChainedResultsIter<'a, ResultsCountSu
     type Item = &'a ComponentRunReport;
 
     fn next(&mut self) -> Option<Self::Item> {
-        while let Some((iter, _)) = self.iters.first_mut() {
+        while let Some((iter, _)) = self.iters.last_mut() {
             match iter.next() {
                 Some(val) => {
                     return Some(val);

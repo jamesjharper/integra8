@@ -68,8 +68,8 @@ impl<
 
 
             let execution_artifacts = ExecutionArtifacts::new();
-            execution_artifacts.include_text_buffer("stdout", output.stdout);
-            execution_artifacts.include_text_buffer("stderr", output.stderr);
+            execution_artifacts.include_utf8_text_buffer("stdout", output.stdout);
+            execution_artifacts.include_utf8_text_buffer("stderr", output.stderr);
 
             report_builder.with_artifacts(&execution_artifacts);
 

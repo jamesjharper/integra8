@@ -36,6 +36,42 @@ impl ResultsCountSummary {
             ComponentResult::DidNotRun(result) => self.did_not_run.increment(result),
         }
     }
+
+    pub fn pass(&self) -> usize {
+        self.passed.total()
+    }
+
+    pub fn warning(&self) -> usize {
+        self.warning.total()
+    }
+
+    pub fn failed(&self) -> usize {
+        self.failed.total()
+    }
+
+    pub fn did_not_run(&self) -> usize {
+        self.did_not_run.total()
+    }
+}
+
+impl ResultReasonCounter for ResultsCountSummary {
+    type ReasonType = ComponentResult;
+
+    fn total(&self) -> usize {
+        self.passed.total()
+         + self.warning.total()
+         + self.failed.total()
+         + self.did_not_run.total()
+    }
+
+    fn by_reason(&self, reason: &ComponentResult) -> usize {
+        match reason {
+            ComponentResult::Pass(r) => self.passed.by_reason(r),
+            ComponentResult::Warning(r) => self.warning.by_reason(r),
+            ComponentResult::Fail(r) => self.failed.by_reason(r),
+            ComponentResult::DidNotRun(r) => self.did_not_run.by_reason(r),
+        }
+    }
 }
 
 #[derive(Clone, Debug)]

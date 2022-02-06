@@ -8,7 +8,7 @@ async-std = { version = "1.10.0", optional = true}
 tokio = { version = "1.15.0",  features = ["time"], optional = true}
 
 integra8 = {path = "../../../core/integra8"}
-integra8_tree_formatter = {path = "../../../contrib/formatters/tree_formatter" }
+integra8_serde_formatter = {path = "../../../contrib/formatters/serde_formatter", features=["yaml"] }
 
 [features]
 async-std-runtime = ["async-std"]

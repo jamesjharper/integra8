@@ -8,16 +8,28 @@ use indexmap::IndexMap;
 
 use integra8_components::{ExecutionArtifact, ExecutionArtifacts};
 
+
+#[cfg(feature = "enable_serde")]
+use serde::{Serialize, Deserialize};
+
+#[cfg_attr(feature = "enable_serde", derive(Serialize, Deserialize))]
 #[derive(Clone, PartialEq, Debug)]
 pub enum OutputArtifact {
     Text(String),
     TextFile(PathBuf),
-    TextBuffer(Vec<u8>),
+    #[cfg_attr(feature = "enable_serde", serde(with = "as_utf_string"))]
+    TextBuffer(
+        Vec<u8>
+    ),
 }
 
 impl OutputArtifact {
     pub fn text(val: impl Into<String>) -> Self {
         Self::Text(val.into())
+    }
+
+    pub fn text_file(val: impl Into<PathBuf>) -> Self {
+        Self::TextFile(val.into())
     }
 
     pub fn text_buffer(val: impl Into<Vec<u8>>) -> Self {
@@ -38,10 +50,13 @@ impl OutputArtifact {
     }
 }
 
+
+#[cfg_attr(feature = "enable_serde", derive(Serialize, Deserialize))]
 #[derive(Clone, PartialEq, Debug)]
 pub struct ComponentRunArtifacts {
-   // Use index map to ensure items alway print in the same order 
+    // Use index map to ensure items alway print in the same order 
     // when outputting results
+    #[cfg_attr(feature = "enable_serde", serde(with = "indexmap::serde_seq"))]
     pub map: IndexMap<String, OutputArtifact>,
 }
 
@@ -61,9 +76,9 @@ impl ComponentRunArtifacts {
                     (
                         k,
                         match v {
-                            ExecutionArtifact::Text(s) => OutputArtifact::Text(s),
-                            ExecutionArtifact::TextFile(path) => OutputArtifact::TextFile(path),
-                            ExecutionArtifact::TextBuffer(buff) => OutputArtifact::TextBuffer(buff),
+                            ExecutionArtifact::Text(s) => OutputArtifact::text(s),
+                            ExecutionArtifact::TextFile(path) => OutputArtifact::text_file(path),
+                            ExecutionArtifact::TextBuffer(buff) => OutputArtifact::text_buffer(buff),
                             ExecutionArtifact::TextStream(mut reader) => {
                                 OutputArtifact::TextBuffer(reader.read_all().unwrap())
                             }
@@ -72,5 +87,24 @@ impl ComponentRunArtifacts {
                 })
                 .collect(),
         }
+    }
+}
+
+
+#[cfg(feature = "enable_serde")]
+mod as_utf_string {
+    use std::str;
+    use serde::{Serialize, Deserialize};
+    use serde::{Deserializer, Serializer};
+
+    pub fn serialize<S: Serializer>(v: &Vec<u8>, s: S) -> Result<S::Ok, S::Error> {
+
+        let utf8_str = str::from_utf8(v)
+        .map_err(|e| serde::ser::Error::custom(e))?;
+        str::serialize(&utf8_str, s)
+    }
+    
+    pub fn deserialize<'de, D: Deserializer<'de>>(d: D) -> Result<Vec<u8>, D::Error> {
+        Ok(String::deserialize(d)?.as_bytes().to_vec())
     }
 }

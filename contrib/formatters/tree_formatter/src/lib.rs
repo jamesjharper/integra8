@@ -52,7 +52,7 @@ impl TreeFormatter {
         state: &'a RunSummary,
         suite_summary: &'a SuiteSummary,
     ) -> ResultsNode<'a> {
-        let mut suite_node = ResultsNode::from_report(suite_summary.suite_report.as_ref().unwrap());
+        let mut suite_node = ResultsNode::from_report(suite_summary.suite_report().unwrap());
 
         for setup_report in &suite_summary.setups.reports {
             suite_node.add_child_node(ResultsNode::from_report(&setup_report));
@@ -67,7 +67,7 @@ impl TreeFormatter {
         }
 
         for suite_report in &suite_summary.suites.reports {
-            let suite_summary = state.get_suite(&suite_report.description.path()).unwrap();
+            let suite_summary = state.get_suite(&suite_report.description.id()).unwrap();
             suite_node.add_child_node(self.get_node(state, suite_summary));
         }
 

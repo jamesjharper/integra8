@@ -24,7 +24,7 @@ pub enum ExecutionArtifact {
 
 pub struct ExecutionArtifacts {
     // Use index map to ensure items alway print in the same order 
-    // when outpuiting results
+    // when outputting results
     map: RwLock<IndexMap<String, ExecutionArtifact>>,
 }
 
@@ -51,7 +51,6 @@ impl ExecutionArtifacts {
             // Can not determine type, so we cant extract anything from this
             self
         }
-       
     }
 
     pub fn include_text(&self, name: impl Into<String>, string: impl Into<String>) -> &Self {
@@ -68,12 +67,12 @@ impl ExecutionArtifacts {
         self
     }
 
-    pub fn include_text_buffer(&self, name: impl Into<String>, buff: impl Into<Vec<u8>>) -> &Self {
+    pub fn include_utf8_text_buffer(&self, name: impl Into<String>, buff: impl Into<Vec<u8>>) -> &Self {
         self.include(name, ExecutionArtifact::TextBuffer(buff.into()));
         self
     }
 
-    pub fn include_text_stream<R: Read + Seek + Send + Sync + 'static>(
+    pub fn include_utf8_text_stream<R: Read + Seek + Send + Sync + 'static>(
         &self,
         name: impl Into<String>,
         reader: R,
@@ -92,7 +91,6 @@ impl ExecutionArtifacts {
     pub fn drain(&self) -> IndexMap<String, ExecutionArtifact> {
         let mut drain_map = IndexMap::new();
         mem::swap(&mut *self.map.write().unwrap(), &mut drain_map);
-
         drain_map
     }
 }
@@ -193,7 +191,7 @@ impl<'a> Drop for ExecutionArtifactCursor<'a> {
         // Add self to artifacts automatically once dropped
         if let Some(reader) = mem::take(&mut self.inner) {
             self.execution_artifacts
-                .include_text_buffer(&self.key, reader.into_inner());
+                .include_utf8_text_buffer(&self.key, reader.into_inner());
         }
     }
 }

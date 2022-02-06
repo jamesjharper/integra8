@@ -42,7 +42,7 @@ main_test! {
     default_test_time_limit: "30 seconds",
 
     // TODO: this should be automatically detected as default
-    console_output: integra8_tree_formatter::TreeFormatter
+    console_output: integra8_serde_formatter::SerdeFormatter,
 
     // Console output parameters will be documented once 
     // the design is finalized 

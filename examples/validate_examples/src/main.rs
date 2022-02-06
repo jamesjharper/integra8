@@ -4,13 +4,14 @@
 #[macro_use]
 pub extern crate integra8;
 
+
 main_test! {
     max_concurrency: Auto, // [Auto, 1, any]
 
     // TODO: this should be automatically detected as default
     console_output: integra8_tree_formatter::TreeFormatter,
     //console_output_ansi_mode: Auto,
-    console_output_level: Verbose,
+   // console_output_level: Verbose,
     use_child_process: false,
     default_suite_concurrency: Parallel,
     default_test_concurrency: Parallel,
@@ -20,28 +21,26 @@ macro_rules! run_tests {
     ($exe_name:expr, $ctx:expr) => {
         {
             use async_process::{Command, Stdio};
-            // Running the bin this way makes 
-            // the exe think there is no TTY attached.
-            // We can pass --console:ansi-mode to force ANSI 
-            // to be Enabled/Disabled
-            let ansi_mode = match atty::is(atty::Stream::Stdout) {
-                true => "Enabled",
-                false => "Disabled"
-            };
-
             match Command::new($exe_name)
                 .kill_on_drop(true)
                 .stdout(Stdio::piped())
                 .stderr(Stdio::piped())
-                .arg("--console:ansi-mode").arg(ansi_mode)
                 .output()
                 .await {
                 Err(e) => panic!("Failed to run test binary {}, {}", $exe_name, e.to_string()),
                 Ok(r) => {
                     let result = r.status.code();
-                    $ctx.artifacts.include_text_buffer("stdout", r.stdout);
-                    $ctx.artifacts.include_text_buffer("stderr", r.stderr);
-                    result
+                    let stdout_string = String::from_utf8(r.stdout).unwrap();
+                    let stderr_string = String::from_utf8(r.stderr).unwrap();
+
+                    use integra8::results::report::ComponentRunReport;
+                    use serde_yaml::Error;
+
+                    let test_report : Result<Vec<ComponentRunReport>, Error>  = serde_yaml::from_str(&stdout_string);
+                    $ctx.artifacts.include_text("stdout", stdout_string);
+                    $ctx.artifacts.include_text("stderr", stderr_string);
+
+                    (result, test_report)
                 }
             }
         }
@@ -51,11 +50,19 @@ macro_rules! run_tests {
 macro_rules! assert_test_passes {
     ($exe_name:expr, $ctx:expr) => {
         match run_tests!($exe_name, $ctx) {
-            Some(0) => {
+            (Some(0), Ok(_report)) => {
                 // success!
+               // report
             },
-            Some(other) => assert!(false, "Expected status code 0, but received {}", other),
-            None => assert!(false, "Expected status code 0, but received none"),
+            (Some(0), Err(_e)) => {
+                //panic!("Failed to parse formatted output {}", e)
+            },
+            (Some(other), _ ) => {
+                panic!("Expected status code 0, but received {}", other)
+            },
+            (None, _ ) => {
+                panic!("Expected status code 0, but received none")
+            },
         };
     }
 }
@@ -63,11 +70,19 @@ macro_rules! assert_test_passes {
 macro_rules! assert_test_fails {
     ($exe_name:expr, $ctx:expr) => {
         match run_tests!($exe_name, $ctx) {
-            Some(1) => {
+            (Some(1), Ok(_report)) => {
                 // Failure ... which is a success!
+                //report
             },
-            Some(other) => assert!(false, "Expected status code 1, but received {}", other),
-            None => assert!(false, "Expected status code 1, but received none"),
+            (Some(1), Err(_e)) => {
+                //panic!("Failed to parse formatted output {}", e)
+            },
+            (Some(other), _ ) => {
+                panic!("Expected status code 1, but received {}", other)
+            },
+            (None, _ ) => {
+                panic!("Expected status code 1, but received none")
+            },
         };
     }
 }
@@ -103,13 +118,12 @@ mod basic_examples {
     
 }
 
-
 #[suite]
 mod execution_context {
 
     #[integration_test]
     async fn custom_parameters(ctx : crate::ExecutionContext) {
-        assert_test_passes!("./custom_parameters", ctx);
+         assert_test_passes!("./custom_parameters", ctx);
     }
 
     #[integration_test]
@@ -152,7 +166,7 @@ mod pitfalls {
 
     #[integration_test]
     async fn use_child_process(ctx : crate::ExecutionContext) {
-        assert_test_passes!("./use_child_process", ctx);
+       assert_test_passes!("./use_child_process", ctx);
     }
 }
 

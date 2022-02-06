@@ -78,7 +78,7 @@ exact details, assumptions or context behind
 why this test exists"
 ]
 fn can_shutdown_hal_9000() {
-    assert!(false, "I'm Afraid I Can't Do That, Dave");
+    assert!(false, "I'm Afraid I Can't let you do that, Dave");
 }
 
 ```
@@ -92,7 +92,7 @@ Output from `./test_basics`
             or context behind why this test exists
           src: basic/test_basics/src/main.rs:14:1
           stderr:
-            thread 'async-std/runtime' panicked at 'I'm Afraid I Can't Do That, Dave', basic/test_basics/src/main.rs:20:3
+            thread 'async-std/runtime' panicked at 'I'm Afraid I Can't let you do that, Dave', basic/test_basics/src/main.rs:20:3
             note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 ```
@@ -129,8 +129,8 @@ Different frameworks have variations in how setup's and teardown's work.
 
 Within Integra8
 
-- Every `Setup` will run _once_ at the start of the test run. *ie once per _suite_, not per _test_*
-- Like `Setup` ever `Teardown` will run _once_ at the end of the test run. *ie once per _suite_, not per _test_*
+- Every `Setup` will run _once_ at the start of the test group. *ie once per _suite_, not per _test_*
+- Like `Setup` ever `Teardown` will run _once_ at the end of the test group. *ie once per _suite_, not per _test_*
 - Every `Tear down` is _guaranteed_ to run regardless if a `test`, `setup` or `tear down` fails.
 
 ### Example 
@@ -176,10 +176,10 @@ async fn teardown_3() {
 ## Concurrency
 Use the `#[parallel]` or `#[sequential]` decorator on `Suites`, `Tests`, `Setups` and `Tear downs` to indicate concurrency behavior.
 
-> Integra8 has a pure `async` implementation. It does not create threads and instead leaves this to you async runtime of choice.
+> Integra8 has a pure `async` implementation. It does not create threads and instead leaves this to your async runtime of choice.
 
 ### Concurrency Ordering behaviour  
-Integra8 always honours the component order in code. 
+Integra8 always honours the component order in code (for all components _except_ suites). 
 Because of this, components are only run concurrently, when they are *adjacent* to other concurrent components in the scheduling order.
 
 This design allows ordered tests to co-exist with a concept of concurrency, while also enabling concurrency modes to combine in unique ways that may not be immediately intuitive.
@@ -313,7 +313,7 @@ Within Integra8, the component execution order is
 /// are at part of the "root" suite, and are run first. 
 #[integration_test]
 fn first_test() {
-    println!("This test before any suites");
+    println!("This test runs before any suites");
 }
 
 /// Suites at the root level, are run after 
@@ -353,7 +353,7 @@ mod another_suite {
 
 ## Nested Suites
 `Suites` can be nested within each other to produce complex test behaviours
-such as multi-step tests, grouping by function/scenario, or given then when type tests.
+such as multi-step tests, grouping by function/scenario, or `given` `then` `when` type tests.
 
 ### Example 
 

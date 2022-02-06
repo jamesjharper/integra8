@@ -6,5 +6,5 @@ edition = "2018"
 
 [dependencies]
 integra8 = {path = "../../../core/integra8"}
-integra8_tree_formatter = {path = "../../../contrib/formatters/tree_formatter" }
+integra8_serde_formatter = {path = "../../../contrib/formatters/serde_formatter", features=["yaml"] }
 

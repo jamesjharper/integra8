@@ -8,7 +8,6 @@ pub mod models {
 }
 
 use std::error::Error;
-use std::io::Write;
 
 use models::report::ComponentRunReport;
 use models::summary::{ComponentTypeCountSummary, RunSummary};
@@ -158,62 +157,5 @@ pub trait OutputFormatter {
 
     fn write_test_report(&mut self, _report: &ComponentRunReport) -> Result<(), Box<dyn Error>> {
         Ok(())
-    }
-}
-
-pub enum OutputLocation {
-    Pretty(Box<term::StdoutTerminal>),
-    Raw(Box<dyn Write>),
-}
-
-impl OutputLocation {
-    pub fn write_pretty<S: std::fmt::Display>(
-        &mut self,
-        s: S,
-        color: term::color::Color,
-    ) -> Result<(), Box<dyn Error>> {
-        match self {
-            OutputLocation::Pretty(ref mut term) => {
-                term.fg(color)?;
-                write!(term, "{}", s)?;
-                // term.write_all(s.as_ref().as_bytes())?;
-                term.reset()?;
-                term.flush()?;
-            }
-            OutputLocation::Raw(ref mut _stdout) => {
-                self.write_plain(s)?;
-            }
-        }
-        Ok(())
-    }
-
-
-    pub fn write_plain<S: std::fmt::Display>(&mut self, s: S) -> Result<(), Box<dyn Error>> {
-        match *self {
-            OutputLocation::Pretty(ref mut term) => {
-                write!(term, "{}", s)?;
-            }
-            OutputLocation::Raw(ref mut stdout) => {
-                write!(stdout, "{}", s)?;
-            }
-        }
-
-        Ok(())
-    }
-}
-
-impl Write for OutputLocation {
-    fn write(&mut self, buf: &[u8]) -> std::io::Result<usize> {
-        match *self {
-            OutputLocation::Pretty(ref mut term) => term.write(buf),
-            OutputLocation::Raw(ref mut stdout) => stdout.write(buf),
-        }
-    }
-
-    fn flush(&mut self) -> std::io::Result<()> {
-        match *self {
-            OutputLocation::Pretty(ref mut term) => term.flush(),
-            OutputLocation::Raw(ref mut stdout) => stdout.flush(),
-        }
     }
 }

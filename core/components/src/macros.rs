@@ -2,7 +2,7 @@
 macro_rules! src_loc {
     () => {
         $crate::ComponentLocation {
-            file_name: file!(),
+            file_name: std::borrow::Cow::from(file!()),
             column: column!(),
             line: line!(),
         }

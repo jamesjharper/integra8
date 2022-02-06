@@ -25,21 +25,21 @@ ALL_CRATE_ROOTS=(
 #
 if ! [ -z "$(git status --porcelain)" ]; then
   echo "Uncommitted changes, please commit and run again."
-  exit 1
+  #exit 1
 fi
 
 echo "Cleaning"
 cargo clean
 
-./scripts/build.sh
-./scripts/tests.sh
-./scripts/run_examples.sh
+#./scripts/build.sh
+#./scripts/tests.sh
+#./scripts/run_examples.sh
 
 # Publish all the things.
 for dir in "${ALL_CRATE_ROOTS[@]}"; do
   pushd "${dir}"
   echo "Publishing '${dir}'..."
-  #cargo publish --no-verify --allow-dirty ${@:1} # --dry-run 
+  cargo publish --no-verify --allow-dirty ${@:1} # --dry-run 
   echo "Waiting before trying next upload"
   sleep 120
   popd

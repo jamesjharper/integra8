@@ -6,12 +6,12 @@ use crate::styles::ProgressBarStyle;
 
 use integra8_formatters::models::report::ComponentRunReport;
 use integra8_formatters::models::summary::{ComponentTypeCountSummary, RunSummary};
-use integra8_formatters::models::{ComponentType, ComponentDescription};
+use integra8_formatters::models::{ComponentType, ComponentDescription, ComponentId};
 
 pub struct TestProgressFormatter {
     progress: ProgressBar,
     style: ProgressBarStyle,
-    in_progress: IndexMap<&'static str, String>, // Use index map to ensure newest item is always shown first
+    in_progress: IndexMap<ComponentId, String>, // Use index map to ensure newest item is always shown first
 }
 
 impl TestProgressFormatter {
@@ -75,7 +75,7 @@ impl TestProgressFormatter {
 
         self.writeln(writer, &format!("{} {}", self.style.running, desc.full_name()))?;
         if !self.progress.is_hidden() {
-            self.add_in_progress(desc.path().as_str(), desc.friendly_name());          
+            self.add_in_progress(desc.id(), desc.friendly_name());          
         }
         Ok(())
     }
@@ -89,7 +89,7 @@ impl TestProgressFormatter {
             return Ok(());
         }
         if !self.progress.is_hidden() {
-            self.remove_in_progress(report.description.path().as_str());
+            self.remove_in_progress(report.description.id());
         }
         Ok(())
     }
@@ -107,15 +107,15 @@ impl TestProgressFormatter {
         Ok(())
     }
 
-    fn remove_in_progress(&mut self, path : &'static str) {
-        self.in_progress.remove(path);
+    fn remove_in_progress(&mut self, id : &ComponentId) {
+        self.in_progress.remove(id);
         self.update_in_progress();
         self.progress.inc(1);
     }
 
-    fn add_in_progress(&mut self, path : &'static str, name : String) {
+    fn add_in_progress(&mut self, id : &ComponentId, name : String) {
 
-        self.in_progress.insert(path, name);
+        self.in_progress.insert(id.clone(), name);
         self.update_in_progress();
         self.progress.inc(1);
     }

@@ -5,7 +5,7 @@ pub extern crate integra8;
 // # Test main
 // Test main is required to setup the application entrypoint and bootstrap the test framework
 main_test! {
-    console_output: integra8_tree_formatter::TreeFormatter,
+    console_output: integra8_serde_formatter::SerdeFormatter,
 }
 
 // # Hello World
@@ -45,7 +45,7 @@ async fn async_test() {
 //             or context behind why this test exists
 //           src: basic/test_basics/src/main.rs:14:1
 //           stderr:
-//             thread 'async-std/runtime' panicked at 'You shall not pass!', basic/test_basics/src/main.rs:20:3
+//             thread 'async-std/runtime' panicked at 'I'm Afraid I Can't let you do that, Dave', basic/test_basics/src/main.rs:20:3
 //             note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 //
 // ```
@@ -53,12 +53,13 @@ async fn async_test() {
 #[integration_test]
 #[name = "A concise name that tells anyone what this test is doing"]
 #[description =
-"A description which can be useful for adding exact details, assumptions or context behind why this test exists"
+"A description that can be useful for adding 
+exact details, assumptions or context behind 
+why this test exists"
 ]
-fn a_test_with_a_name() {
-
+fn can_shutdown_hal_9000() {
+    assert!(true, "I'm Afraid I Can't let you do that, Dave");
 }
-
 
 // # Allow Fail Tests
 // Using the `#[allow_fail]` decoration, tests can be allowed to fail.
@@ -75,3 +76,5 @@ fn this_test_is_sus() {
 fn this_test_wont_even_run() {
     assert!(false, "you will never fail if you don't try")
 }
+
+

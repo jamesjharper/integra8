@@ -133,8 +133,9 @@ impl<TParameters> HierarchyNode<TParameters> {
 
     pub fn insert_component(&mut self, component: ComponentDecoration<TParameters>) {
         match component {
-            ComponentDecoration::IntegrationTest(integration_tst) => {
-                self.insert_test(integration_tst);
+            ComponentDecoration::IntegrationTest(test) => {
+                println!("{}", test.desc.path);
+                self.insert_test(test);
             }
             ComponentDecoration::Suite(suite_description) => {
                 self.insert_suite(suite_description);

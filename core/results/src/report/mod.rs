@@ -5,6 +5,10 @@ use integra8_components::{AcceptanceCriteria, ComponentDescription, ExecutionArt
 
 use std::time::Duration;
 
+#[cfg(feature = "enable_serde")]
+use serde::{Serialize, Deserialize};
+
+#[cfg_attr(feature = "enable_serde", derive(Serialize, Deserialize))]
 #[derive(Clone, PartialEq, Debug)]
 pub struct ComponentRunReport {
     pub result: ComponentResult,

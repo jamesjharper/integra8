@@ -14,7 +14,6 @@ categories = ["development-tools" ]
 
 [dependencies]
 structopt = "0.3"
-term = "0.5"
 
 [dependencies.integra8_components]
 version = "0.0.2-alpha"
@@ -23,3 +22,7 @@ path = "../components"
 [dependencies.integra8_results]
 version = "0.0.2-alpha"
 path = "../results"
+
+
+[features]
+enable_serde = ["integra8_results/enable_serde", "integra8_components/enable_serde"]

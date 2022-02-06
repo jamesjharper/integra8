@@ -203,8 +203,6 @@ pub fn resolve_component_schedule<
 }
 
 #[cfg(test)]
-//type ExecutionContext  = crate::runner::context::ExecutionContext<MockParameters>;
-#[cfg(test)]
 #[derive(Clone, Debug, crate::structopt::StructOpt)]
 #[structopt()]
 pub struct MockParameters {}

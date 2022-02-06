@@ -19,7 +19,6 @@ indexmap = "1.8.0"
 version = "0.0.2-alpha"
 path = "../components"
 
-
 [dev-dependencies]
 structopt = "0.3"
 linkme = "0.2"

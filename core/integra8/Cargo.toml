@@ -45,6 +45,7 @@ path = "../scheduling"
 [dependencies.integra8_results]
 version = "0.0.2-alpha"
 path = "../results"
+features = ["enable_serde"]
 
 [dependencies.integra8_formatters]
 version = "0.0.2-alpha"

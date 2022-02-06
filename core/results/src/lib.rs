@@ -4,7 +4,10 @@ pub mod summary;
 
 use std::time::Duration;
 
+#[cfg(feature = "enable_serde")]
+use serde::{Serialize, Deserialize};
 
+#[cfg_attr(feature = "enable_serde", derive(Serialize, Deserialize))]
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub enum WarningReason {
     FailureAllowed,
@@ -12,11 +15,13 @@ pub enum WarningReason {
     ChildWarning,
 }
 
+#[cfg_attr(feature = "enable_serde", derive(Serialize, Deserialize))]
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub enum PassReason {
     Accepted,
 }
 
+#[cfg_attr(feature = "enable_serde", derive(Serialize, Deserialize))]
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub enum FailureReason {
     Rejected,
@@ -24,6 +29,7 @@ pub enum FailureReason {
     ChildFailure,
 }
 
+#[cfg_attr(feature = "enable_serde", derive(Serialize, Deserialize))]
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub enum DidNotRunReason {
     Ignored,
@@ -32,6 +38,7 @@ pub enum DidNotRunReason {
     Undetermined,
 }
 
+#[cfg_attr(feature = "enable_serde", derive(Serialize, Deserialize))]
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub enum ComponentResult {
     Pass(PassReason),
@@ -39,7 +46,6 @@ pub enum ComponentResult {
     Fail(FailureReason),
     DidNotRun(DidNotRunReason),
 }
-
 
 impl ComponentResult {
     pub fn passed() -> Self {
@@ -115,10 +121,13 @@ impl ComponentResult {
     }
 }
 
+#[cfg_attr(feature = "enable_serde", derive(Serialize, Deserialize))]
 #[derive(Clone, PartialEq, Debug)]
 pub struct ComponentTimeResult {
     pub time_taken: Duration,
+    #[cfg_attr(feature = "enable_serde", serde(skip_serializing_if = "Option::is_none"))]
     pub warning_time_limit: Option<Duration>,
+    #[cfg_attr(feature = "enable_serde", serde(skip_serializing_if = "Option::is_none"))]
     pub time_limit: Option<Duration>,
 }
 
@@ -386,6 +395,95 @@ mod tests {
                 /* id */ ComponentId::from(10),
                 /* parent_path */ ComponentPath::from("integra8_results::test::suite_1"),
                 /* parent_id */ ComponentId::from(7),
+                /* description */ None,
+                /* component_type */ ComponentType::TearDown,
+                /*  location */ None,
+            ),
+            AcceptanceCriteria {
+                allowed_fail: false,
+                timing: TimingAcceptanceCriteria {
+                    warning_time_limit: None,
+                    time_limit: None,
+                },
+            }
+        )
+    }
+
+
+    fn suite_2_report_builder() -> ComponentReportBuilder {
+        ComponentReportBuilder::new(
+            ComponentDescription::new(
+                /* path */ ComponentPath::from("integra8_results::test::suite_2"),
+                /* name */ Some("suite_2"),
+                /* id */ ComponentId::from(11),
+                /* parent_path */ ComponentPath::from("integra8_results"),
+                /* parent_id */ ComponentId::from(1),
+                /* description */ None,
+                /* component_type */ ComponentType::Suite,
+                /*  location */ None,
+            ),
+            AcceptanceCriteria {
+                allowed_fail: false,
+                timing: TimingAcceptanceCriteria {
+                    warning_time_limit: None,
+                    time_limit: None,
+                },
+            }
+        )
+    }
+
+    fn suite_2_test_1_report_builder() -> ComponentReportBuilder {
+        ComponentReportBuilder::new(
+            ComponentDescription::new(
+                /* path */ ComponentPath::from("integra8_results::test::suite_2::test_1"),
+                /* name */ Some("test_1"),
+                /* id */ ComponentId::from(12),
+                /* parent_path */ ComponentPath::from("integra8_results::test::suite_2"),
+                /* parent_id */ ComponentId::from(11),
+                /* description */ None,
+                /* component_type */ ComponentType::Test,
+                /*  location */ None,
+            ),
+            AcceptanceCriteria {
+                allowed_fail: false,
+                timing: TimingAcceptanceCriteria {
+                    warning_time_limit: None,
+                    time_limit: None,
+                },
+            }
+        )
+    }
+
+    fn suite_2_setup_1_report_builder() -> ComponentReportBuilder {
+        ComponentReportBuilder::new(
+            ComponentDescription::new(
+                /* path */ ComponentPath::from("integra8_results::test::suite_2::setup_1"),
+                /* name */ Some("setup_1"),
+                /* id */ ComponentId::from(13),
+                /* parent_path */ ComponentPath::from("integra8_results::test::suite_2"),
+                /* parent_id */ ComponentId::from(11),
+                /* description */ None,
+                /* component_type */ ComponentType::Setup,
+                /*  location */ None,
+            ),
+            AcceptanceCriteria {
+                allowed_fail: false,
+                timing: TimingAcceptanceCriteria {
+                    warning_time_limit: None,
+                    time_limit: None,
+                },
+            }
+        )
+    }
+
+    fn suite_2_tear_down_1_report_builder() -> ComponentReportBuilder {
+        ComponentReportBuilder::new(
+            ComponentDescription::new(
+                /* path */ ComponentPath::from("integra8_results::test::suite_2::tear_down_1"),
+                /* name */ Some("tear_down_1"),
+                /* id */ ComponentId::from(14),
+                /* parent_path */ ComponentPath::from("integra8_results::test::suite_2"),
+                /* parent_id */ ComponentId::from(11),
                 /* description */ None,
                 /* component_type */ ComponentType::TearDown,
                 /*  location */ None,
@@ -726,7 +824,7 @@ mod tests {
         let mut builder = test_1_report_builder();
 
         let artifacts = ExecutionArtifacts::new();
-        artifacts.include_text_buffer("sample", b"This is a sample artifact".as_slice());
+        artifacts.include_utf8_text_buffer("sample", b"This is a sample artifact".as_slice());
 
         // Act
         builder.rejected_result();
@@ -954,6 +1052,12 @@ mod tests {
          let mut suite_1_test_1_builder = suite_1_test_1_report_builder();
          let mut suite_1_setup_1_builder = suite_1_setup_1_report_builder();
          let mut suite_1_tear_down_1_builder = suite_1_tear_down_1_report_builder();
+
+
+         let mut suite_2_builder = suite_2_report_builder();
+         let mut suite_2_test_1_builder = suite_2_test_1_report_builder();
+         let mut suite_2_setup_1_builder = suite_2_setup_1_report_builder();
+         let mut suite_2_tear_down_1_builder = suite_2_tear_down_1_report_builder();
          
          root_suite_builder.rejected_result();
          suite_1_builder.rejected_result();
@@ -961,33 +1065,44 @@ mod tests {
          suite_1_setup_1_builder.rejected_result();
          suite_1_tear_down_1_builder.rejected_result();
 
+
+         suite_2_builder.rejected_result();
+         suite_2_test_1_builder.rejected_result();
+         suite_2_setup_1_builder.rejected_result();
+         suite_2_tear_down_1_builder.rejected_result();
+
          // Act
          let mut summary = RunSummary::new();
          summary.push_report(root_suite_builder.build());
+
          summary.push_report(suite_1_test_1_builder.build());
          summary.push_report(suite_1_setup_1_builder.build());
          summary.push_report(suite_1_tear_down_1_builder.build());
          summary.push_report(suite_1_builder.build());
 
+         summary.push_report(suite_2_test_1_builder.build());
+         summary.push_report(suite_2_setup_1_builder.build());
+         summary.push_report(suite_2_tear_down_1_builder.build());
+         summary.push_report(suite_2_builder.build());
+
          // Assert
          assert_eq!(summary.run_result(), ComponentResult::Fail(FailureReason::Rejected));
          assert_eq!(summary.test_passed().total_count(), 0);
          assert_eq!(summary.test_warning().total_count(), 0);
-         assert_eq!(summary.test_failed().total_count(), 1);
-         assert_eq!(summary.test_failed().due_to_rejection().total_count(), 1);
+         assert_eq!(summary.test_failed().total_count(), 2);
+         assert_eq!(summary.test_failed().due_to_rejection().total_count(), 2);
          assert_eq!(summary.test_not_run().total_count(), 0);
 
          assert_eq!(summary.setup_passed().total_count(), 0);
          assert_eq!(summary.setup_warning().total_count(), 0);
-         assert_eq!(summary.setup_failed().total_count(), 1);
-         assert_eq!(summary.setup_failed().due_to_rejection().total_count(), 1);
+         assert_eq!(summary.setup_failed().total_count(), 2);
+         assert_eq!(summary.setup_failed().due_to_rejection().total_count(), 2);
          assert_eq!(summary.setup_not_run().total_count(), 0);
 
          assert_eq!(summary.tear_down_passed().total_count(), 0);
          assert_eq!(summary.tear_down_warning().total_count(), 0);
-         assert_eq!(summary.tear_down_failed().total_count(), 1);
-         assert_eq!(summary.tear_down_failed().due_to_rejection().total_count(), 1);
-         assert_eq!(summary.tear_down_not_run().total_count(), 0);
-         
+         assert_eq!(summary.tear_down_failed().total_count(), 2);
+         assert_eq!(summary.tear_down_failed().due_to_rejection().total_count(), 2);
+         assert_eq!(summary.tear_down_not_run().total_count(), 0);         
     }
 }
