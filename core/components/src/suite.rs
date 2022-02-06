@@ -156,7 +156,7 @@ impl<TParameters: TestParameters> Suite<TParameters> {
         description: Option<&'static str>,
         path: &'static str,
         ignore: Option<bool>,
-        src: Option<ComponentLocation>,
+        src: ComponentLocation,
         allow_suite_fail: Option<bool>,
         test_warning_time_limit: Option<Duration>,
         test_time_limit: Option<Duration>,

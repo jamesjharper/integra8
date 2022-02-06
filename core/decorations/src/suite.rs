@@ -1,4 +1,5 @@
 use std::time::Duration;
+use std::borrow::Cow;
 
 use integra8_components::{
     ComponentDescription, ComponentGeneratorId, ComponentLocation, ConcurrencyMode, Suite,
@@ -17,7 +18,7 @@ pub struct SuiteAttributesDecoration {
     pub path: &'static str,
 
     /// The source code location of this test
-    pub location: Option<ComponentLocation>,
+    pub location: ComponentLocation,
 
     /// Indicates that this entire suite should not be run.
     pub ignore: Option<bool>,
@@ -61,7 +62,11 @@ impl SuiteAttributesDecoration {
             name: Some(namespace),
             path: namespace,
             description: None,
-            location: None,
+            location: ComponentLocation {
+                file_name: Cow::from("main.rs"),
+                column: 0,
+                line: 0,
+            },
             ignore: None,
             allow_suite_fail: None,
             test_warning_time_limit: None,

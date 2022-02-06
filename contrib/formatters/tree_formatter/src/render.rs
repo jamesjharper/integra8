@@ -80,10 +80,8 @@ pub fn render_node_attributes<W: Write>(
 
     // Don't write location for suites
     if report.description.component_type() != &ComponentType::Suite {
-        if let Some(src) = report.description.location() {
-            render_attribute(output_formatter, style, "src", &src.hotlink_text())?;
-            has_attributes = true;
-        }
+        render_attribute(output_formatter, style, "src", &report.description.location().hotlink_text())?;
+        has_attributes = true;
     }
 
     if detail_level != &DetailLevel::StopWatch {

@@ -129,8 +129,7 @@ pub struct ComponentDescription {
 
     component_type: ComponentType,
 
-    #[cfg_attr(feature = "enable_serde", serde(skip_serializing_if = "Option::is_none"))]
-    location: Option<ComponentLocation>,
+    location: ComponentLocation,
 }
 
 impl ComponentDescription {
@@ -142,7 +141,7 @@ impl ComponentDescription {
         parent_id: ComponentId,
         description: Option<&'static str>,
         component_type: ComponentType,
-        location: Option<ComponentLocation>,
+        location: ComponentLocation,
     ) -> Self {
         Self {
             path,
@@ -213,8 +212,8 @@ impl ComponentDescription {
         &self.component_type
     }
 
-    pub fn location(&self) -> Option<&'_ ComponentLocation> {
-        self.location.as_ref()
+    pub fn location(&self) -> &'_ ComponentLocation {
+        &self.location
     }
 }
 

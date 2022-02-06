@@ -183,6 +183,7 @@ impl ComponentTimeResult {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use integra8_components::src_loc;
     use crate::report::ComponentReportBuilder;
     use crate::summary::RunSummary;
     use integra8_components::{AcceptanceCriteria, TimingAcceptanceCriteria, ComponentDescription, ComponentPath, ComponentId, ComponentType, ExecutionArtifacts};
@@ -199,7 +200,7 @@ mod tests {
                 /* parent_id */ ComponentId::from(1),
                 /* description */ None,
                 /* component_type */ ComponentType::Suite,
-                /*  location */ None,
+                /*  location */ src_loc!(),
             ),
             AcceptanceCriteria {
                 allowed_fail: false,
@@ -221,7 +222,7 @@ mod tests {
                 /* parent_id */ ComponentId::from(1),
                 /* description */ None,
                 /* component_type */ ComponentType::Test,
-                /*  location */ None,
+                /*  location */ src_loc!(),
             ),
             AcceptanceCriteria {
                 allowed_fail: false,
@@ -243,7 +244,7 @@ mod tests {
                 /* parent_id */ ComponentId::from(1),
                 /* description */ None,
                 /* component_type */ ComponentType::Setup,
-                /*  location */ None,
+                /*  location */ src_loc!(),
             ),
             AcceptanceCriteria {
                 allowed_fail: false,
@@ -265,7 +266,7 @@ mod tests {
                 /* parent_id */ ComponentId::from(1),
                 /* description */ None,
                 /* component_type */ ComponentType::TearDown,
-                /*  location */ None,
+                /*  location */ src_loc!(),
             ),
             AcceptanceCriteria {
                 allowed_fail: false,
@@ -287,7 +288,7 @@ mod tests {
                 /* parent_id */ ComponentId::from(1),
                 /* description */ None,
                 /* component_type */ ComponentType::Test,
-                /*  location */ None,
+                /*  location */ src_loc!(),
             ),
             AcceptanceCriteria {
                 allowed_fail: false,
@@ -309,7 +310,7 @@ mod tests {
                 /* parent_id */ ComponentId::from(1),
                 /* description */ None,
                 /* component_type */ ComponentType::Test,
-                /*  location */ None,
+                /*  location */ src_loc!(),
             ),
             AcceptanceCriteria {
                 allowed_fail: true,
@@ -331,7 +332,7 @@ mod tests {
                 /* parent_id */ ComponentId::from(1),
                 /* description */ None,
                 /* component_type */ ComponentType::Suite,
-                /*  location */ None,
+                /*  location */ src_loc!(),
             ),
             AcceptanceCriteria {
                 allowed_fail: false,
@@ -353,7 +354,7 @@ mod tests {
                 /* parent_id */ ComponentId::from(7),
                 /* description */ None,
                 /* component_type */ ComponentType::Test,
-                /*  location */ None,
+                /*  location */ src_loc!(),
             ),
             AcceptanceCriteria {
                 allowed_fail: false,
@@ -375,7 +376,7 @@ mod tests {
                 /* parent_id */ ComponentId::from(7),
                 /* description */ None,
                 /* component_type */ ComponentType::Setup,
-                /*  location */ None,
+                /*  location */ src_loc!(),
             ),
             AcceptanceCriteria {
                 allowed_fail: false,
@@ -397,7 +398,7 @@ mod tests {
                 /* parent_id */ ComponentId::from(7),
                 /* description */ None,
                 /* component_type */ ComponentType::TearDown,
-                /*  location */ None,
+                /*  location */ src_loc!(),
             ),
             AcceptanceCriteria {
                 allowed_fail: false,
@@ -420,7 +421,7 @@ mod tests {
                 /* parent_id */ ComponentId::from(1),
                 /* description */ None,
                 /* component_type */ ComponentType::Suite,
-                /*  location */ None,
+                /*  location */ src_loc!(),
             ),
             AcceptanceCriteria {
                 allowed_fail: false,
@@ -442,7 +443,7 @@ mod tests {
                 /* parent_id */ ComponentId::from(11),
                 /* description */ None,
                 /* component_type */ ComponentType::Test,
-                /*  location */ None,
+                /*  location */ src_loc!(),
             ),
             AcceptanceCriteria {
                 allowed_fail: false,
@@ -464,7 +465,7 @@ mod tests {
                 /* parent_id */ ComponentId::from(11),
                 /* description */ None,
                 /* component_type */ ComponentType::Setup,
-                /*  location */ None,
+                /*  location */ src_loc!(),
             ),
             AcceptanceCriteria {
                 allowed_fail: false,
@@ -486,7 +487,7 @@ mod tests {
                 /* parent_id */ ComponentId::from(11),
                 /* description */ None,
                 /* component_type */ ComponentType::TearDown,
-                /*  location */ None,
+                /*  location */ src_loc!(),
             ),
             AcceptanceCriteria {
                 allowed_fail: false,

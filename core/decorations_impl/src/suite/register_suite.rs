@@ -47,7 +47,7 @@ pub fn register_suite(input_tokens: TokenStream) -> TokenStream {
                         name: #name_expr,
                         description: #description_expr,
                         path: module_path!(),
-                        location: Some(#integra8_path ::components::src_loc!()),
+                        location: #integra8_path ::components::src_loc!(),
                         ignore: #ignore_expr,
                         allow_suite_fail: #allow_fail_expr,
                         test_warning_time_limit: #test_warning_time_limit_expr,

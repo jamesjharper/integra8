@@ -17,7 +17,7 @@ pub struct BookEndAttributesDecoration {
     pub path: &'static str,
 
     /// The source code location of this bookend
-    pub location: Option<ComponentLocation>,
+    pub location: ComponentLocation,
 
     /// Indicates that bookend should not be run.
     pub ignore: Option<bool>,
