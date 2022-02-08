@@ -12,9 +12,6 @@ keywords = ["integra8", "test", "framework", "integration", "bdd"]
 documentation = "https://api.integra8.rs/v0.0.2-alpha/integra8/"
 categories = ["development-tools" ]
 
-[dependencies]
-indexmap = "1.8.0"
-
 [dependencies.integra8_components]
 version = "0.0.2-alpha"
 path = "../components"

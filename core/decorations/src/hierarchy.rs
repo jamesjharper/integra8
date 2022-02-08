@@ -1,4 +1,4 @@
-use indexmap::IndexMap;
+use std::collections::HashMap;
 
 use crate::{BookEndDecoration, ComponentDecoration, SuiteAttributesDecoration, TestDecoration};
 
@@ -117,7 +117,7 @@ pub struct HierarchyNode<TParameters> {
     tests: Vec<TestDecoration<TParameters>>,
     setups: Vec<BookEndDecoration<TParameters>>,
     tear_downs: Vec<BookEndDecoration<TParameters>>,
-    nodes: IndexMap<String, HierarchyNode<TParameters>>,
+    nodes: HashMap<String, HierarchyNode<TParameters>>,
 }
 
 impl<TParameters> HierarchyNode<TParameters> {
@@ -127,14 +127,13 @@ impl<TParameters> HierarchyNode<TParameters> {
             tests: Vec::<TestDecoration<TParameters>>::new(),
             setups: Vec::<BookEndDecoration<TParameters>>::new(),
             tear_downs: Vec::<BookEndDecoration<TParameters>>::new(),
-            nodes: IndexMap::new(),
+            nodes: HashMap::new(),
         }
     }
 
     pub fn insert_component(&mut self, component: ComponentDecoration<TParameters>) {
         match component {
             ComponentDecoration::IntegrationTest(test) => {
-                println!("{}", test.desc.path);
                 self.insert_test(test);
             }
             ComponentDecoration::Suite(suite_description) => {
@@ -150,22 +149,22 @@ impl<TParameters> HierarchyNode<TParameters> {
     }
 
     pub fn insert_suite(&mut self, suite: SuiteAttributesDecoration) {
-        let mut node = self.find_namespace_entry(&suite.path);
+        let mut node = self.find_namespace_entry(&suite.location.path.as_str());
         node.suite = Some(suite);
     }
 
     pub fn insert_test(&mut self, test: TestDecoration<TParameters>) {
-        let node = self.find_method_entry(&test.desc.path);
+        let node = self.find_method_entry(&test.desc.location.path.as_str());
         node.tests.push(test);
     }
 
     pub fn insert_setup(&mut self, setup: BookEndDecoration<TParameters>) {
-        let node = self.find_method_entry(&setup.desc.path);
+        let node = self.find_method_entry(&setup.desc.location.path.as_str());
         node.setups.push(setup);
     }
 
     pub fn insert_teardown(&mut self, teardown: BookEndDecoration<TParameters>) {
-        let node = self.find_method_entry(&teardown.desc.path);
+        let node = self.find_method_entry(&teardown.desc.location.path.as_str());
         node.tear_downs.push(teardown);
     }
 
@@ -216,6 +215,16 @@ impl<TParameters> HierarchyNode<TParameters> {
             }
         }
 
+        // Order components
+        sub_groups.sort_unstable_by(|a, b| {
+            let a = a.suite.as_ref().map(|x| &x.location);
+            let b = b.suite.as_ref().map(|x| &x.location);
+            a.cmp(&b)
+        });
+        tests.sort_unstable_by(|a, b| a.desc.location.cmp(&b.desc.location));
+        setups.sort_unstable_by(|a, b| a.desc.location.cmp(&b.desc.location));
+        tear_downs.sort_unstable_by(|a, b| a.desc.location.cmp(&b.desc.location));
+    
         return ComponentGroup {
             suite,
             tests,

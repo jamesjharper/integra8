@@ -1,7 +1,7 @@
 use std::time::Duration;
 
 use crate::{
-    ComponentDescription, ComponentGeneratorId, ComponentLocation, ComponentPath, ComponentType,
+    ComponentDescription, ComponentGeneratorId, ComponentLocation, ComponentType,
     ConcurrencyMode, Delegate, SuiteAttributes,
 };
 
@@ -67,8 +67,7 @@ impl<TParameters> BookEnd<TParameters> {
         id_gen: &mut ComponentGeneratorId,
         name: Option<&'static str>,
         description: Option<&'static str>,
-        path: &'static str,
-        src: ComponentLocation,
+        location: ComponentLocation,
         ignore: Option<bool>,
         time_limit: Option<Duration>,
         concurrency_mode: Option<ConcurrencyMode>,
@@ -76,14 +75,13 @@ impl<TParameters> BookEnd<TParameters> {
     ) -> Self {
         Self {
             description: ComponentDescription::new(
-                ComponentPath::from(path),
                 name,
                 id_gen.next(),
-                parent_suite_description.path().clone(),
                 parent_suite_description.id().clone(),
+                location,
+                parent_suite_description.location().clone(),
                 description,
                 ComponentType::Setup,
-                src,
             ),
             attributes: BookEndAttributes::new_setup(
                 parent_suite_attributes,
@@ -101,8 +99,7 @@ impl<TParameters> BookEnd<TParameters> {
         id_gen: &mut ComponentGeneratorId,
         name: Option<&'static str>,
         description: Option<&'static str>,
-        path: &'static str,
-        src: ComponentLocation,
+        location: ComponentLocation,
         ignore: Option<bool>,
         time_limit: Option<Duration>,
         concurrency_mode: Option<ConcurrencyMode>,
@@ -110,14 +107,13 @@ impl<TParameters> BookEnd<TParameters> {
     ) -> Self {
         Self {
             description: ComponentDescription::new(
-                ComponentPath::from(path),
                 name,
                 id_gen.next(),
-                parent_suite_description.path().clone(),
                 parent_suite_description.id().clone(),
+                location,
+                parent_suite_description.location().clone(),
                 description,
                 ComponentType::TearDown,
-                src,
             ),
             attributes: BookEndAttributes::new_tear_down(
                 parent_suite_attributes,

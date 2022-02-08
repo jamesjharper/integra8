@@ -10,7 +10,7 @@ pub use suite::SuiteAttributesDecoration;
 mod hierarchy;
 pub use hierarchy::{ComponentGroup, ComponentHierarchy};
 
-use integra8_components::ComponentType;
+use integra8_components::{ComponentType, ComponentPath};
 
 #[derive(Debug)]
 pub enum ComponentDecoration<TParameters> {
@@ -21,12 +21,12 @@ pub enum ComponentDecoration<TParameters> {
 }
 
 impl<TParameters> ComponentDecoration<TParameters> {
-    pub fn path(&self) -> &'static str {
+    pub fn path(&self) -> &'_ ComponentPath {
         match self {
-            ComponentDecoration::IntegrationTest(c) => c.desc.path,
-            ComponentDecoration::Suite(c) => c.path,
-            ComponentDecoration::TearDown(c) => c.desc.path,
-            ComponentDecoration::Setup(c) => c.desc.path,
+            ComponentDecoration::IntegrationTest(c) => &c.desc.location.path,
+            ComponentDecoration::Suite(c) => &c.location.path,
+            ComponentDecoration::TearDown(c) => &c.desc.location.path,
+            ComponentDecoration::Setup(c) => &c.desc.location.path,
         }
     }
 
@@ -1630,9 +1630,10 @@ mod tests {
         // Act
         let root = ComponentGroup::into_components(
             vec![
-                // linkme will determine the exact order,
-                // but assuming this is the order it returns
-                // component order should match this
+                // linkme does not order components in the 
+                // order they appear in the file.
+                // we have internally order by line count,
+                // and lexicographically order between files 
                 mock_app::setup_c::setup_def(),
                 mock_app::setup_b::setup_def(),
                 mock_app::setup_a::setup_def(),
@@ -1663,7 +1664,7 @@ mod tests {
         assert_eq!(setup1.description.id().as_unique_number(), 1);
         assert_eq!(
             setup1.description.path().as_str(),
-            "integra8_decorations::tests::mock_app::setup_c"
+            "integra8_decorations::tests::mock_app::setup_a"
         );
 
         let setup2 = &root.setups[1];
@@ -1677,7 +1678,7 @@ mod tests {
         assert_eq!(setup3.description.id().as_unique_number(), 3);
         assert_eq!(
             setup3.description.path().as_str(),
-            "integra8_decorations::tests::mock_app::setup_a"
+            "integra8_decorations::tests::mock_app::setup_c"
         );
 
         // Tests
@@ -1686,7 +1687,7 @@ mod tests {
         assert_eq!(test1.description.id().as_unique_number(), 4);
         assert_eq!(
             test1.description.path().as_str(),
-            "integra8_decorations::tests::mock_app::test_c"
+            "integra8_decorations::tests::mock_app::test_a"
         );
 
         let test2 = &root.tests[1];
@@ -1700,7 +1701,7 @@ mod tests {
         assert_eq!(test3.description.id().as_unique_number(), 6);
         assert_eq!(
             test3.description.path().as_str(),
-            "integra8_decorations::tests::mock_app::test_a"
+            "integra8_decorations::tests::mock_app::test_c"
         );
 
         // Nested Suite 1
@@ -1746,7 +1747,7 @@ mod tests {
         assert_eq!(tear_down1.description.id().as_unique_number(), 12);
         assert_eq!(
             tear_down1.description.path().as_str(),
-            "integra8_decorations::tests::mock_app::teardown_c"
+            "integra8_decorations::tests::mock_app::teardown_a"
         );
 
         let tear_down2 = &root.tear_downs[1];
@@ -1760,7 +1761,7 @@ mod tests {
         assert_eq!(tear_down3.description.id().as_unique_number(), 14);
         assert_eq!(
             tear_down3.description.path().as_str(),
-            "integra8_decorations::tests::mock_app::teardown_a"
+            "integra8_decorations::tests::mock_app::teardown_c"
         );
     }
 }

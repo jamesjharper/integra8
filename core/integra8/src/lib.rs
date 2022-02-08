@@ -175,7 +175,7 @@ pub fn resolve_components<
             // Child process is used to run a single component in a separate process
             components
                 .into_iter()
-                .find(|c| !parameters.exclude_component_predicate(c.path()))
+                .find(|c| !parameters.exclude_component_predicate(c.path().as_str()))
                 .into_iter()
                 .collect()
         }

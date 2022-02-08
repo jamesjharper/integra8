@@ -5,6 +5,7 @@ macro_rules! src_loc {
             file_name: std::borrow::Cow::from(file!()),
             column: column!(),
             line: line!(),
+            path: $crate::ComponentPath::from(module_path!())
         }
     };
 }

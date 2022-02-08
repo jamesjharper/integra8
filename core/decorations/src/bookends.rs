@@ -13,9 +13,6 @@ pub struct BookEndAttributesDecoration {
     // A description of the bookend which can be displayed by the output formatter if it supports it
     pub description: Option<&'static str>,
 
-    /// The path used to calculate the bookends test group
-    pub path: &'static str,
-
     /// The source code location of this bookend
     pub location: ComponentLocation,
 
@@ -50,7 +47,6 @@ impl<TParameters: TestParameters> BookEndDecoration<TParameters> {
             id_gen,
             self.desc.name,
             self.desc.description,
-            self.desc.path,
             self.desc.location,
             self.desc.ignore,
             self.desc.time_limit,
@@ -71,7 +67,6 @@ impl<TParameters: TestParameters> BookEndDecoration<TParameters> {
             id_gen,
             self.desc.name,
             self.desc.description,
-            self.desc.path,
             self.desc.location,
             self.desc.ignore,
             self.desc.time_limit,

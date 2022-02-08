@@ -183,24 +183,32 @@ impl ComponentTimeResult {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use integra8_components::src_loc;
     use crate::report::ComponentReportBuilder;
     use crate::summary::RunSummary;
-    use integra8_components::{AcceptanceCriteria, TimingAcceptanceCriteria, ComponentDescription, ComponentPath, ComponentId, ComponentType, ExecutionArtifacts};
+    use integra8_components::{AcceptanceCriteria, TimingAcceptanceCriteria, ComponentDescription, ComponentPath, ComponentId, ComponentType, ExecutionArtifacts, ComponentLocation};
 
     // Component Report Tests
 
     fn root_suite_report_builder() -> ComponentReportBuilder {
         ComponentReportBuilder::new(
             ComponentDescription::new(
-                /* path */ ComponentPath::from("integra8_results"),
                 /* name */ Some("root"),
                 /* id */ ComponentId::from(1),
-                /* parent_path */ ComponentPath::from("integra8_results"),
                 /* parent_id */ ComponentId::from(1),
+                /* location */ ComponentLocation {
+                    file_name: std::borrow::Cow::from("main.rs"),
+                    column: 0,
+                    line: 0,
+                    path: ComponentPath::from("integra8_results"),
+                },
+                /* parent_location */ ComponentLocation {
+                    file_name: std::borrow::Cow::from("main.rs"),
+                    column: 0,
+                    line: 0,
+                    path: ComponentPath::from("integra8_results")
+                },
                 /* description */ None,
                 /* component_type */ ComponentType::Suite,
-                /*  location */ src_loc!(),
             ),
             AcceptanceCriteria {
                 allowed_fail: false,
@@ -215,14 +223,23 @@ mod tests {
     fn test_1_report_builder() -> ComponentReportBuilder {
         ComponentReportBuilder::new(
             ComponentDescription::new(
-                /* path */ ComponentPath::from("integra8_results::test::test_1"),
                 /* name */ Some("test_1"),
                 /* id */ ComponentId::from(2),
-                /* parent_path */ ComponentPath::from("integra8_results"),
                 /* parent_id */ ComponentId::from(1),
+                /* location */ ComponentLocation {
+                    file_name: std::borrow::Cow::from(file!()),
+                    column: column!(),
+                    line: line!(),
+                    path:ComponentPath::from("integra8_results::test::test_1")
+                },
+                /* parent_location */ ComponentLocation {
+                    file_name: std::borrow::Cow::from("main.rs"),
+                    column: 0,
+                    line: 0,
+                    path: ComponentPath::from("integra8_results")
+                },
                 /* description */ None,
                 /* component_type */ ComponentType::Test,
-                /*  location */ src_loc!(),
             ),
             AcceptanceCriteria {
                 allowed_fail: false,
@@ -237,14 +254,24 @@ mod tests {
     fn setup_1_report_builder() -> ComponentReportBuilder {
         ComponentReportBuilder::new(
             ComponentDescription::new(
-                /* path */ ComponentPath::from("integra8_results::test::setup_1"),
                 /* name */ Some("setup_1"),
                 /* id */ ComponentId::from(3),
-                /* parent_path */ ComponentPath::from("integra8_results"),
                 /* parent_id */ ComponentId::from(1),
+                /* location */ ComponentLocation {
+                    file_name: std::borrow::Cow::from(file!()),
+                    column: column!(),
+                    line: line!(),
+                    path: ComponentPath::from("integra8_results::test::setup_1")
+                },
+                /* parent_location */ ComponentLocation {
+                    file_name: std::borrow::Cow::from("main.rs"),
+                    column: 0,
+                    line: 0,
+                    path: ComponentPath::from("integra8_results")
+                },
                 /* description */ None,
                 /* component_type */ ComponentType::Setup,
-                /*  location */ src_loc!(),
+                
             ),
             AcceptanceCriteria {
                 allowed_fail: false,
@@ -259,14 +286,23 @@ mod tests {
     fn tear_down_1_report_builder() -> ComponentReportBuilder {
         ComponentReportBuilder::new(
             ComponentDescription::new(
-                /* path */ ComponentPath::from("integra8_results::test::tear_down_1"),
                 /* name */ Some("tear_down_1"),
                 /* id */ ComponentId::from(4),
-                /* parent_path */ ComponentPath::from("integra8_results"),
                 /* parent_id */ ComponentId::from(1),
+                /* location */ ComponentLocation {
+                    file_name: std::borrow::Cow::from(file!()),
+                    column: column!(),
+                    line: line!(),
+                    path: ComponentPath::from("integra8_results::test::tear_down_1")
+                },
+                /* parent_location */ ComponentLocation {
+                    file_name: std::borrow::Cow::from("main.rs"),
+                    column: 0,
+                    line: 0,
+                    path: ComponentPath::from("integra8_results")
+                },
                 /* description */ None,
                 /* component_type */ ComponentType::TearDown,
-                /*  location */ src_loc!(),
             ),
             AcceptanceCriteria {
                 allowed_fail: false,
@@ -281,14 +317,24 @@ mod tests {
     fn test_2_report_builder() -> ComponentReportBuilder {
         ComponentReportBuilder::new(
             ComponentDescription::new(
-                /* path */ ComponentPath::from("integra8_results::test::test_2"),
                 /* name */ Some("test_2"),
                 /* id */ ComponentId::from(5),
-                /* parent_path */ ComponentPath::from("integra8_results"),
                 /* parent_id */ ComponentId::from(1),
+                /* location */ ComponentLocation {
+                    file_name: std::borrow::Cow::from(file!()),
+                    column: column!(),
+                    line: line!(),
+                    path: ComponentPath::from("integra8_results::test::test_2")
+                },
+                /* parent_location */ ComponentLocation {
+                    file_name: std::borrow::Cow::from("main.rs"),
+                    column: 0,
+                    line: 0,
+                    path: ComponentPath::from("integra8_results")
+                },
                 /* description */ None,
                 /* component_type */ ComponentType::Test,
-                /*  location */ src_loc!(),
+
             ),
             AcceptanceCriteria {
                 allowed_fail: false,
@@ -303,14 +349,23 @@ mod tests {
     fn test_3_report_builder() -> ComponentReportBuilder {
         ComponentReportBuilder::new(
             ComponentDescription::new(
-                /* path */ ComponentPath::from("integra8_results::test::test_3"),
                 /* name */ Some("test_3"),
                 /* id */ ComponentId::from(6),
-                /* parent_path */ ComponentPath::from("integra8_results"),
                 /* parent_id */ ComponentId::from(1),
+                /* location */ ComponentLocation {
+                    file_name: std::borrow::Cow::from(file!()),
+                    column: column!(),
+                    line: line!(),
+                    path:ComponentPath::from("integra8_results::test::test_3")
+                },
+                /* parent_location */ ComponentLocation {
+                    file_name: std::borrow::Cow::from("main.rs"),
+                    column: 0,
+                    line: 0,
+                    path: ComponentPath::from("integra8_results")
+                },
                 /* description */ None,
                 /* component_type */ ComponentType::Test,
-                /*  location */ src_loc!(),
             ),
             AcceptanceCriteria {
                 allowed_fail: true,
@@ -325,14 +380,23 @@ mod tests {
     fn suite_1_report_builder() -> ComponentReportBuilder {
         ComponentReportBuilder::new(
             ComponentDescription::new(
-                /* path */ ComponentPath::from("integra8_results::test::suite_1"),
                 /* name */ Some("suite_1"),
                 /* id */ ComponentId::from(7),
-                /* parent_path */ ComponentPath::from("integra8_results"),
                 /* parent_id */ ComponentId::from(1),
+                /* location */ ComponentLocation {
+                    file_name: std::borrow::Cow::from(file!()),
+                    column: 1,
+                    line: 369,
+                    path: ComponentPath::from("integra8_results::test::suite_1")
+                },
+                /* parent_location */ ComponentLocation {
+                    file_name: std::borrow::Cow::from("main.rs"),
+                    column: 0,
+                    line: 0,
+                    path: ComponentPath::from("integra8_results")
+                },
                 /* description */ None,
                 /* component_type */ ComponentType::Suite,
-                /*  location */ src_loc!(),
             ),
             AcceptanceCriteria {
                 allowed_fail: false,
@@ -347,14 +411,23 @@ mod tests {
     fn suite_1_test_1_report_builder() -> ComponentReportBuilder {
         ComponentReportBuilder::new(
             ComponentDescription::new(
-                /* path */ ComponentPath::from("integra8_results::test::suite_1::test_1"),
                 /* name */ Some("test_1"),
                 /* id */ ComponentId::from(8),
-                /* parent_path */ ComponentPath::from("integra8_results::test::suite_1"),
                 /* parent_id */ ComponentId::from(7),
+                /* location */ ComponentLocation {
+                    file_name: std::borrow::Cow::from(file!()),
+                    column: column!(),
+                    line: line!(),
+                    path:ComponentPath::from("integra8_results::test::suite_1::test_1")
+                },
+                /* parent_location */ ComponentLocation {
+                    file_name: std::borrow::Cow::from(file!()),
+                    column: 1,
+                    line: 369,
+                    path: ComponentPath::from("integra8_results::test::suite_1")
+                },
                 /* description */ None,
                 /* component_type */ ComponentType::Test,
-                /*  location */ src_loc!(),
             ),
             AcceptanceCriteria {
                 allowed_fail: false,
@@ -369,14 +442,23 @@ mod tests {
     fn suite_1_setup_1_report_builder() -> ComponentReportBuilder {
         ComponentReportBuilder::new(
             ComponentDescription::new(
-                /* path */ ComponentPath::from("integra8_results::test::suite_1::setup_1"),
                 /* name */ Some("setup_1"),
                 /* id */ ComponentId::from(9),
-                /* parent_path */ ComponentPath::from("integra8_results::test::suite_1"),
                 /* parent_id */ ComponentId::from(7),
+                /* location */ ComponentLocation {
+                    file_name: std::borrow::Cow::from(file!()),
+                    column: column!(),
+                    line: line!(),
+                    path:ComponentPath::from("integra8_results::test::suite_1::setup_1")
+                },
+                /* parent_location */ ComponentLocation {
+                    file_name: std::borrow::Cow::from(file!()),
+                    column: 1,
+                    line: 369,
+                    path: ComponentPath::from("integra8_results::test::suite_1")
+                },
                 /* description */ None,
                 /* component_type */ ComponentType::Setup,
-                /*  location */ src_loc!(),
             ),
             AcceptanceCriteria {
                 allowed_fail: false,
@@ -391,14 +473,23 @@ mod tests {
     fn suite_1_tear_down_1_report_builder() -> ComponentReportBuilder {
         ComponentReportBuilder::new(
             ComponentDescription::new(
-                /* path */ ComponentPath::from("integra8_results::test::suite_1::tear_down_1"),
                 /* name */ Some("tear_down_1"),
                 /* id */ ComponentId::from(10),
-                /* parent_path */ ComponentPath::from("integra8_results::test::suite_1"),
                 /* parent_id */ ComponentId::from(7),
+                /* location */ ComponentLocation {
+                    file_name: std::borrow::Cow::from(file!()),
+                    column: column!(),
+                    line: line!(),
+                    path:ComponentPath::from("integra8_results::test::suite_1::tear_down_1")
+                },
+                /* parent_location */ ComponentLocation {
+                    file_name: std::borrow::Cow::from(file!()),
+                    column: 1,
+                    line: 369,
+                    path: ComponentPath::from("integra8_results::test::suite_1")
+                },
                 /* description */ None,
                 /* component_type */ ComponentType::TearDown,
-                /*  location */ src_loc!(),
             ),
             AcceptanceCriteria {
                 allowed_fail: false,
@@ -414,14 +505,23 @@ mod tests {
     fn suite_2_report_builder() -> ComponentReportBuilder {
         ComponentReportBuilder::new(
             ComponentDescription::new(
-                /* path */ ComponentPath::from("integra8_results::test::suite_2"),
                 /* name */ Some("suite_2"),
                 /* id */ ComponentId::from(11),
-                /* parent_path */ ComponentPath::from("integra8_results"),
                 /* parent_id */ ComponentId::from(1),
+                /* location */ ComponentLocation {
+                    file_name: std::borrow::Cow::from(file!()),
+                    column: 1,
+                    line: 516,
+                    path: ComponentPath::from("integra8_results::test::suite_2")
+                },
+                /* parent_location */ ComponentLocation {
+                    file_name: std::borrow::Cow::from("main.rs"),
+                    column: 0,
+                    line: 0,
+                    path: ComponentPath::from("integra8_results")
+                },
                 /* description */ None,
-                /* component_type */ ComponentType::Suite,
-                /*  location */ src_loc!(),
+                /* component_type */ ComponentType::Suite,         
             ),
             AcceptanceCriteria {
                 allowed_fail: false,
@@ -436,14 +536,23 @@ mod tests {
     fn suite_2_test_1_report_builder() -> ComponentReportBuilder {
         ComponentReportBuilder::new(
             ComponentDescription::new(
-                /* path */ ComponentPath::from("integra8_results::test::suite_2::test_1"),
                 /* name */ Some("test_1"),
                 /* id */ ComponentId::from(12),
-                /* parent_path */ ComponentPath::from("integra8_results::test::suite_2"),
                 /* parent_id */ ComponentId::from(11),
+                 /* location */ ComponentLocation {
+                    file_name: std::borrow::Cow::from(file!()),
+                    column: column!(),
+                    line: line!(),
+                    path:ComponentPath::from("integra8_results::test::suite_2::test_1")
+                },
+                /* parent_location */ ComponentLocation {
+                    file_name: std::borrow::Cow::from(file!()),
+                    column: 1,
+                    line: 516,
+                    path: ComponentPath::from("integra8_results::test::suite_2")
+                },
                 /* description */ None,
                 /* component_type */ ComponentType::Test,
-                /*  location */ src_loc!(),
             ),
             AcceptanceCriteria {
                 allowed_fail: false,
@@ -458,14 +567,23 @@ mod tests {
     fn suite_2_setup_1_report_builder() -> ComponentReportBuilder {
         ComponentReportBuilder::new(
             ComponentDescription::new(
-                /* path */ ComponentPath::from("integra8_results::test::suite_2::setup_1"),
                 /* name */ Some("setup_1"),
                 /* id */ ComponentId::from(13),
-                /* parent_path */ ComponentPath::from("integra8_results::test::suite_2"),
                 /* parent_id */ ComponentId::from(11),
+                /* location */ ComponentLocation {
+                    file_name: std::borrow::Cow::from(file!()),
+                    column: column!(),
+                    line: line!(),
+                    path:ComponentPath::from("integra8_results::test::suite_2::setup_1")
+                },
+                /* parent_location */ ComponentLocation {
+                    file_name: std::borrow::Cow::from(file!()),
+                    column: 1,
+                    line: 516,
+                    path: ComponentPath::from("integra8_results::test::suite_2")
+                },
                 /* description */ None,
                 /* component_type */ ComponentType::Setup,
-                /*  location */ src_loc!(),
             ),
             AcceptanceCriteria {
                 allowed_fail: false,
@@ -480,14 +598,23 @@ mod tests {
     fn suite_2_tear_down_1_report_builder() -> ComponentReportBuilder {
         ComponentReportBuilder::new(
             ComponentDescription::new(
-                /* path */ ComponentPath::from("integra8_results::test::suite_2::tear_down_1"),
                 /* name */ Some("tear_down_1"),
                 /* id */ ComponentId::from(14),
-                /* parent_path */ ComponentPath::from("integra8_results::test::suite_2"),
                 /* parent_id */ ComponentId::from(11),
+                /* location */ ComponentLocation {
+                    file_name: std::borrow::Cow::from(file!()),
+                    column: column!(),
+                    line: line!(),
+                    path:ComponentPath::from("integra8_results::test::suite_2::tear_down_1")
+                },
+                /* parent_location */ ComponentLocation {
+                    file_name: std::borrow::Cow::from(file!()),
+                    column: 1,
+                    line: 516,
+                    path: ComponentPath::from("integra8_results::test::suite_2")
+                },
                 /* description */ None,
                 /* component_type */ ComponentType::TearDown,
-                /*  location */ src_loc!(),
             ),
             AcceptanceCriteria {
                 allowed_fail: false,

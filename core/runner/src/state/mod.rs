@@ -3,13 +3,13 @@ use std::sync::{Arc, RwLock};
 mod model;
 pub use model::{ComponentResultsModel, ComponentState};
 
-use integra8_components::{ComponentDescription, ComponentPath, ComponentType};
+use integra8_components::{ComponentDescription, ComponentId, ComponentType};
 use integra8_results::ComponentResult;
 use std::collections::HashMap;
 use std::time::Duration;
 
 pub struct RunStateModel {
-    component_result_states: HashMap<ComponentPath, Arc<RwLock<ComponentResultsModel>>>,
+    component_result_states: HashMap<ComponentId, Arc<RwLock<ComponentResultsModel>>>,
 }
 
 impl RunStateModel {
@@ -28,14 +28,14 @@ impl RunStateModel {
     pub fn get_status_token(&mut self, description: &ComponentDescription) -> ComponentStateToken {
         ComponentStateToken {
             component_type: description.component_type().clone(),
-            self_token: self.get_token(&description.path()),
-            parent_token: self.get_token(&description.parent_path()),
+            self_token: self.get_token(&description.id()),
+            parent_token: self.get_token(&description.parent_id()),
         }
     }
 
-    fn get_token(&mut self, path: &ComponentPath) -> Arc<RwLock<ComponentResultsModel>> {
+    fn get_token(&mut self, id: &ComponentId) -> Arc<RwLock<ComponentResultsModel>> {
         self.component_result_states
-            .entry(path.clone())
+            .entry(id.clone())
             .or_insert(Arc::new(RwLock::new(
                 ComponentResultsModel::undetermined_state(),
             )))

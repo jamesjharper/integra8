@@ -1,7 +1,7 @@
 use std::time::Duration;
 
 use crate::{
-    ComponentDescription, ComponentGeneratorId, ComponentLocation, ComponentPath, ComponentType,
+    ComponentDescription, ComponentGeneratorId, ComponentLocation, ComponentType,
     ConcurrencyMode, Delegate, SuiteAttributes, TestParameters,
 };
 
@@ -73,8 +73,7 @@ impl<TParameters: TestParameters> Test<TParameters> {
         id_gen: &mut ComponentGeneratorId,
         name: Option<&'static str>,
         description: Option<&'static str>,
-        path: &'static str,
-        src: ComponentLocation,
+        location: ComponentLocation,
         ignore: Option<bool>,
         allow_fail: Option<bool>,
         warning_time_limit: Option<Duration>,
@@ -84,14 +83,13 @@ impl<TParameters: TestParameters> Test<TParameters> {
     ) -> Self {
         Self {
             description: ComponentDescription::new(
-                ComponentPath::from(path),
                 name,
                 id_gen.next(),
-                parent_description.path().clone(),
                 parent_description.id().clone(),
+                location,
+                parent_description.location().clone(),
                 description,
                 ComponentType::Test,
-                src,
             ),
             attributes: TestAttributes::new(
                 parent_attributes,

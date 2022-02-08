@@ -13,9 +13,6 @@ pub struct TestAttributesDecoration {
     // A description of the test which can be displayed by the output formatter if it supports it
     pub description: Option<&'static str>,
 
-    /// The test path used to calculate the test's test group
-    pub path: &'static str,
-
     /// The source code location of this test
     pub location: ComponentLocation,
 
@@ -60,7 +57,6 @@ impl<TParameters: TestParameters> TestDecoration<TParameters> {
             id_gen,
             self.desc.name,
             self.desc.description,
-            self.desc.path,
             self.desc.location,
             self.desc.ignore,
             self.desc.allow_fail,

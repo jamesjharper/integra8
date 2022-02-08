@@ -1,9 +1,8 @@
 use std::time::Duration;
-use std::borrow::Cow;
 
 use integra8_components::{
     ComponentDescription, ComponentGeneratorId, ComponentLocation, ConcurrencyMode, Suite,
-    SuiteAttributes, TestParameters,
+    SuiteAttributes, TestParameters, ComponentPath
 };
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
@@ -13,9 +12,6 @@ pub struct SuiteAttributesDecoration {
 
     // A description of the suite which can be displayed by the output formatter if it supports it
     pub description: Option<&'static str>,
-
-    /// The test path used to calculate the suite's test group
-    pub path: &'static str,
 
     /// The source code location of this test
     pub location: ComponentLocation,
@@ -57,13 +53,13 @@ pub struct SuiteAttributesDecoration {
 }
 
 impl SuiteAttributesDecoration {
-    pub fn root(namespace: &'static str) -> Self {
+    pub fn root(path: &'static str) -> Self {
         Self {
-            name: Some(namespace),
-            path: namespace,
+            name: Some(path),
             description: None,
             location: ComponentLocation {
-                file_name: Cow::from("main.rs"),
+                path: ComponentPath::from(path),
+                file_name: std::borrow::Cow::from("main.rs"),
                 column: 0,
                 line: 0,
             },
@@ -90,7 +86,6 @@ impl SuiteAttributesDecoration {
             id_gen,
             self.name,
             self.description,
-            self.path,
             self.ignore,
             self.location,
             self.allow_suite_fail,

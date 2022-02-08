@@ -1,7 +1,7 @@
 use std::time::Duration;
 
 use crate::{
-    BookEnd, ComponentDescription, ComponentGeneratorId, ComponentLocation, ComponentPath,
+    BookEnd, ComponentDescription, ComponentGeneratorId, ComponentLocation,
     ComponentType, ConcurrencyMode, Test, TestParameters,
 };
 
@@ -154,9 +154,8 @@ impl<TParameters: TestParameters> Suite<TParameters> {
         id_gen: &mut ComponentGeneratorId,
         name: Option<&'static str>,
         description: Option<&'static str>,
-        path: &'static str,
         ignore: Option<bool>,
-        src: ComponentLocation,
+        location: ComponentLocation,
         allow_suite_fail: Option<bool>,
         test_warning_time_limit: Option<Duration>,
         test_time_limit: Option<Duration>,
@@ -166,21 +165,20 @@ impl<TParameters: TestParameters> Suite<TParameters> {
         test_concurrency_mode: Option<ConcurrencyMode>,
     ) -> Suite<TParameters> {
         let id = id_gen.next();
-        let (parent_path, parent_id) = parent
-            .map(|p| (p.1.path().clone(), p.1.id().clone()))
+        let (parent_location, parent_id) = parent
+            .map(|p| (p.1.location().clone(), p.1.id().clone()))
             // root nodes have themselves as their parent and an id of zero
-            .unwrap_or_else(|| (ComponentPath::from(path), id.clone()));
+            .unwrap_or_else(|| (location.clone(), id.clone()));
 
         Suite {
             description: ComponentDescription::new(
-                ComponentPath::from(path),
                 name,
                 id,
-                parent_path,
                 parent_id,
+                location,
+                parent_location,
                 description,
                 ComponentType::Suite,
-                src,
             ),
             attributes: SuiteAttributes::new(
                 parent.map(|p| p.0),
