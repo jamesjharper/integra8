@@ -50,12 +50,12 @@ macro_rules! run_tests {
 macro_rules! assert_test_passes {
     ($exe_name:expr, $ctx:expr) => {
         match run_tests!($exe_name, $ctx) {
-            (Some(0), Ok(_report)) => {
+            (Some(0), Ok(report)) => {
                 // success!
-               // report
+                report
             },
-            (Some(0), Err(_e)) => {
-                //panic!("Failed to parse formatted output {}", e)
+            (Some(0), Err(e)) => {
+                panic!("Failed to parse formatted output {}", e)
             },
             (Some(other), _ ) => {
                 panic!("Expected status code 0, but received {}", other)
@@ -63,19 +63,19 @@ macro_rules! assert_test_passes {
             (None, _ ) => {
                 panic!("Expected status code 0, but received none")
             },
-        };
+        }
     }
 }
 
 macro_rules! assert_test_fails {
     ($exe_name:expr, $ctx:expr) => {
         match run_tests!($exe_name, $ctx) {
-            (Some(1), Ok(_report)) => {
+            (Some(1), Ok(report)) => {
                 // Failure ... which is a success!
-                //report
+                report
             },
-            (Some(1), Err(_e)) => {
-                //panic!("Failed to parse formatted output {}", e)
+            (Some(1), Err(e)) => {
+                panic!("Failed to parse formatted output {}", e)
             },
             (Some(other), _ ) => {
                 panic!("Expected status code 1, but received {}", other)
@@ -83,17 +83,131 @@ macro_rules! assert_test_fails {
             (None, _ ) => {
                 panic!("Expected status code 1, but received none")
             },
-        };
+        }
     }
+}
+
+use integra8::components::ComponentType;
+use integra8::results::{ComponentResult, WarningReason, PassReason, DidNotRunReason};
+
+
+#[macro_export]
+macro_rules! assert_root_suite {
+    (
+        report => $report:expr,
+        path => $path:expr,
+        result => $result:expr,
+    ) => {
+        assert_eq!($report[0].description.path().as_str(), $path);
+        assert_eq!($report[0].result, $result);
+        assert_eq!($report[0].description.id().as_unique_number(), 0);
+        assert_eq!($report[0].description.parent_id().as_unique_number(), 0);
+        assert_eq!($report[0].description.component_type(), &ComponentType::Suite);
+    };
+}
+
+
+#[macro_export]
+macro_rules! assert_test {
+    (        
+        report => $report:expr,
+        path => $path:expr,
+        result => $result:expr,
+        id => $id:expr,
+        parent_id => $parent_id:expr,
+        $($key:expr => $value:expr),* 
+    ) => {
+        assert_eq!($report[$id].description.path().as_str(), $path);
+        assert_eq!($report[$id].result, $result);
+        assert_eq!($report[$id].description.id().as_unique_number(), $id);
+        assert_eq!($report[$id].description.parent_id().as_unique_number(), $parent_id);
+        assert_eq!($report[$id].description.component_type(), &ComponentType::Test);
+
+        $(
+            assert_eq!($report[$id].artifacts.map[stringify!($key)].as_string().unwrap(), $value);
+        )*
+    };
+}
+
+#[macro_export]
+macro_rules! assert_description {
+    (        
+        report => $report:expr,
+        id => $id:expr,
+        name => $name:expr,
+        description => $description:expr,
+    ) => {
+        assert_eq!($report[$id].description.friendly_name().as_str(), $name);
+        assert_eq!($report[$id].description.description(), Some($description));
+    };
 }
 
 
 #[suite]
 mod basic_examples {
 
+    use super::*;
+
     #[integration_test]
     async fn test_basics(ctx : crate::ExecutionContext) {
-        assert_test_passes!("./test_basics", ctx);
+        // Act
+        let r = assert_test_passes!("./test_basics", ctx);
+
+        // Assert 
+        assert_root_suite!(
+            report => r,
+            path => "test_basics",
+            result => ComponentResult::Warning(WarningReason::ChildWarning),
+        );
+
+        assert_test!(
+            report => r,
+            path => "test_basics::hello_world_test",
+            result => ComponentResult::Pass(PassReason::Accepted),
+            id => 1,
+            parent_id => 0,
+            stdout => "Hello world!\n"
+        );
+
+        assert_test!(
+            report => r,
+            path => "test_basics::async_test",
+            result => ComponentResult::Pass(PassReason::Accepted),
+            id => 2,
+            parent_id => 0,
+        );
+
+        assert_test!(
+            report => r,
+            path => "test_basics::can_shutdown_hal_9000",
+            result => ComponentResult::Pass(PassReason::Accepted),
+            id => 3,
+            parent_id => 0,
+        );
+
+        assert_description!(
+            report => r,
+            id => 3,
+            name => "A concise name that tells anyone what this test is doing",
+            description => "A description that can be useful for adding \nexact details, assumptions or context behind \nwhy this test exists",
+        );
+        
+        assert_test!(
+            report => r,
+            path => "test_basics::this_test_is_sus",
+            result => ComponentResult::Warning(WarningReason::FailureAllowed),
+            id => 4,
+            parent_id => 0,
+            stderr => "thread 'tokio-runtime-worker' panicked at 'You shall not pass!', 1_setup_test_teardown/a_test_basics/src/main.rs:69:5\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n"
+        );
+
+        assert_test!(
+            report => r,
+            path => "test_basics::this_test_wont_even_run",
+            result => ComponentResult::DidNotRun(DidNotRunReason::Ignored),
+            id => 5,
+            parent_id => 0,
+        );
     }
 
     #[integration_test]
@@ -164,10 +278,10 @@ mod pitfalls {
         assert_test_fails!("./timeout_limitations", ctx);
     }
 
-    #[integration_test]
+    /*#[integration_test]
     async fn use_child_process(ctx : crate::ExecutionContext) {
        assert_test_passes!("./use_child_process", ctx);
-    }
+    }*/
 }
 
 

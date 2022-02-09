@@ -219,10 +219,6 @@ impl ComponentDescription {
         &self.id
     }
 
-  /*  pub fn parent_path(&self) -> &'_ ComponentPath {
-        &self.parent_path
-    }*/
-
     pub fn parent_id(&self) -> &'_ ComponentId {
         &self.parent_id
     }

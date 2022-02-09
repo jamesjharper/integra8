@@ -65,7 +65,7 @@ echo " # Running ${RUNTIME_NAME} ... "
 pushd "${EXAMPLES_ROOT}"
 pushd "${CARGO_TARGET_DIR}"
 pushd "${CONFIG}"
-./validate_examples
+./acceptance_tests
 popd
 popd
 popd

@@ -18,5 +18,5 @@ members = [
   "4_pitfalls/b_nested_sequential_behavior",
   "4_pitfalls/c_timeout_limitations",
 
-  "validate_examples",
+  "acceptance_tests",
 ]
