@@ -352,7 +352,69 @@ mod basic_examples {
 
     #[integration_test]
     async fn parallel_test_behavior(ctx : crate::ExecutionContext) {
-        assert_test_passes!("./parallel_test_behavior", ctx);
+        // Act 
+        let r = assert_test_passes!("./parallel_test_behavior", ctx);
+
+        // Assert 
+        assert_root_suite!(
+            report => r,
+            path => "parallel_test_behavior",
+            result => ComponentResult::Pass(PassReason::Accepted),
+        );
+
+        assert_component!(
+            report => r,
+            path => "parallel_test_behavior::test_1",
+            result => ComponentResult::Pass(PassReason::Accepted),
+            id => 1,
+            parent_id => 0,
+            component_type => ComponentType::Test,
+        );
+
+        assert_component!(
+            report => r,
+            path => "parallel_test_behavior::test_2",
+            result => ComponentResult::Pass(PassReason::Accepted),
+            id => 2,
+            parent_id => 0,
+            component_type => ComponentType::Test,
+        );
+
+        assert_component!(
+            report => r,
+            path => "parallel_test_behavior::test_3",
+            result => ComponentResult::Pass(PassReason::Accepted),
+            id => 3,
+            parent_id => 0,
+            component_type => ComponentType::Test,
+        );
+
+        assert_component!(
+            report => r,
+            path => "parallel_test_behavior::test_4",
+            result => ComponentResult::Pass(PassReason::Accepted),
+            id => 4,
+            parent_id => 0,
+            component_type => ComponentType::Test,
+        );
+        
+        assert_component!(
+            report => r,
+            path => "parallel_test_behavior::test_5",
+            result => ComponentResult::Pass(PassReason::Accepted),
+            id => 5,
+            parent_id => 0,
+            component_type => ComponentType::Test,
+        );
+
+        assert_component!(
+            report => r,
+            path => "parallel_test_behavior::test_6",
+            result => ComponentResult::Pass(PassReason::Accepted),
+            id => 6,
+            parent_id => 0,
+            component_type => ComponentType::Test,
+        );
     }
     
     #[integration_test]
@@ -360,8 +422,8 @@ mod basic_examples {
         // Act 
         let r = assert_test_fails!("./timeout_behavior", ctx);
 
-         // Assert 
-         assert_root_suite!(
+        // Assert 
+        assert_root_suite!(
             report => r,
             path => "timeout_behavior",
             result => ComponentResult::Fail(FailureReason::ChildFailure),
