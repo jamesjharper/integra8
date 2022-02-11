@@ -5,6 +5,7 @@ members = [
   "1_setup_test_teardown/c_setup_and_tear_down_failure_behavior",
   "1_setup_test_teardown/d_parallel_test_behavior",
   "1_setup_test_teardown/e_timeout_behavior",
+  "1_setup_test_teardown/f_multi_file_test_order",
 
   "2_suites/a_suites_basics",
   "2_suites/b_cascading_failure_behavior",

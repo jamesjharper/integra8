@@ -88,7 +88,7 @@ macro_rules! assert_test_fails {
 }
 
 use integra8::components::ComponentType;
-use integra8::results::{ComponentResult, WarningReason, PassReason, DidNotRunReason};
+use integra8::results::{ComponentResult, WarningReason, PassReason, FailureReason, DidNotRunReason};
 
 
 #[macro_export]
@@ -107,21 +107,23 @@ macro_rules! assert_root_suite {
 }
 
 
+
 #[macro_export]
-macro_rules! assert_test {
+macro_rules! assert_component {
     (        
         report => $report:expr,
         path => $path:expr,
         result => $result:expr,
         id => $id:expr,
         parent_id => $parent_id:expr,
+        component_type => $component_type:expr,
         $($key:expr => $value:expr),* 
     ) => {
         assert_eq!($report[$id].description.path().as_str(), $path);
         assert_eq!($report[$id].result, $result);
         assert_eq!($report[$id].description.id().as_unique_number(), $id);
         assert_eq!($report[$id].description.parent_id().as_unique_number(), $parent_id);
-        assert_eq!($report[$id].description.component_type(), &ComponentType::Test);
+        assert_eq!($report[$id].description.component_type(), &$component_type);
 
         $(
             assert_eq!($report[$id].artifacts.map[stringify!($key)].as_string().unwrap(), $value);
@@ -160,29 +162,32 @@ mod basic_examples {
             result => ComponentResult::Warning(WarningReason::ChildWarning),
         );
 
-        assert_test!(
+        assert_component!(
             report => r,
             path => "test_basics::hello_world_test",
             result => ComponentResult::Pass(PassReason::Accepted),
             id => 1,
             parent_id => 0,
+            component_type => ComponentType::Test,
             stdout => "Hello world!\n"
         );
 
-        assert_test!(
+        assert_component!(
             report => r,
             path => "test_basics::async_test",
             result => ComponentResult::Pass(PassReason::Accepted),
             id => 2,
             parent_id => 0,
+            component_type => ComponentType::Test,
         );
 
-        assert_test!(
+        assert_component!(
             report => r,
             path => "test_basics::can_shutdown_hal_9000",
             result => ComponentResult::Pass(PassReason::Accepted),
             id => 3,
             parent_id => 0,
+            component_type => ComponentType::Test,
         );
 
         assert_description!(
@@ -192,37 +197,157 @@ mod basic_examples {
             description => "A description that can be useful for adding \nexact details, assumptions or context behind \nwhy this test exists",
         );
         
-        assert_test!(
+        assert_component!(
             report => r,
             path => "test_basics::this_test_is_sus",
             result => ComponentResult::Warning(WarningReason::FailureAllowed),
             id => 4,
             parent_id => 0,
+            component_type => ComponentType::Test,
             stderr => "thread 'tokio-runtime-worker' panicked at 'You shall not pass!', 1_setup_test_teardown/a_test_basics/src/main.rs:69:5\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n"
         );
 
-        assert_test!(
+        assert_component!(
             report => r,
             path => "test_basics::this_test_wont_even_run",
             result => ComponentResult::DidNotRun(DidNotRunReason::Ignored),
             id => 5,
             parent_id => 0,
+            component_type => ComponentType::Test,
         );
     }
 
     #[integration_test]
-    async fn timeout_behavior(ctx : crate::ExecutionContext) {
-        assert_test_fails!("./timeout_behavior", ctx);
-    }
-
-    #[integration_test]
     async fn setup_and_tear_down_basics(ctx : crate::ExecutionContext) {
-        assert_test_passes!("./setup_and_tear_down_basics", ctx);
+        let r = assert_test_passes!("./setup_and_tear_down_basics", ctx);
+
+        // Assert 
+        assert_root_suite!(
+            report => r,
+            path => "setup_and_tear_down_basics",
+            result => ComponentResult::Pass(PassReason::Accepted),
+        );
+
+        assert_component!(
+            report => r,
+            path => "setup_and_tear_down_basics::setup",
+            result => ComponentResult::Pass(PassReason::Accepted),
+            id => 1,
+            parent_id => 0,
+            component_type => ComponentType::Setup,
+            stdout => "Setup is called first\n"
+        );
+
+        assert_component!(
+            report => r,
+            path => "setup_and_tear_down_basics::test_1",
+            result => ComponentResult::Pass(PassReason::Accepted),
+            id => 2,
+            parent_id => 0,
+            component_type => ComponentType::Test,
+            stdout => "Then test 1 is called\n"
+        );
+
+        assert_component!(
+            report => r,
+            path => "setup_and_tear_down_basics::test_2",
+            result => ComponentResult::Pass(PassReason::Accepted),
+            id => 3,
+            parent_id => 0,
+            component_type => ComponentType::Test,
+            stdout => "And then test 2 is called\n"
+        );
+
+        assert_component!(
+            report => r,
+            path => "setup_and_tear_down_basics::teardown",
+            result => ComponentResult::Pass(PassReason::Accepted),
+            id => 4,
+            parent_id => 0,
+            component_type => ComponentType::TearDown,
+            stdout => "And finally teardown is called\n"
+        );
     }
     
     #[integration_test]
     async fn setup_and_tear_down_failure_behavior(ctx : crate::ExecutionContext) {
-        assert_test_fails!("./setup_and_tear_down_failure_behavior", ctx);
+        // Act
+        let r = assert_test_fails!("./setup_and_tear_down_failure_behavior", ctx);
+
+         // Assert 
+         assert_root_suite!(
+            report => r,
+            path => "setup_and_tear_down_failure_behavior",
+            result => ComponentResult::Fail(FailureReason::ChildFailure),
+        );
+
+        assert_component!(
+            report => r,
+            path => "setup_and_tear_down_failure_behavior::setup",
+            result => ComponentResult::Pass(PassReason::Accepted),
+            id => 1,
+            parent_id => 0,
+            component_type => ComponentType::Setup,
+            stdout => "Setup is called first\n"
+        );
+
+        assert_component!(
+            report => r,
+            path => "setup_and_tear_down_failure_behavior::test_1",
+            result => ComponentResult::Pass(PassReason::Accepted),
+            id => 2,
+            parent_id => 0,
+            component_type => ComponentType::Test,
+            stdout => "Then test 1 is called\n"
+        );
+
+        assert_component!(
+            report => r,
+            path => "setup_and_tear_down_failure_behavior::test_2",
+            result => ComponentResult::Fail(FailureReason::Rejected),
+            id => 3,
+            parent_id => 0,
+            component_type => ComponentType::Test,
+            stderr => "thread 'tokio-runtime-worker' panicked at 'Test 2 fails', 1_setup_test_teardown/c_setup_and_tear_down_failure_behavior/src/main.rs:31:5\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n"
+        );
+
+        assert_component!(
+            report => r,
+            path => "setup_and_tear_down_failure_behavior::test_3",
+            result => ComponentResult::DidNotRun(DidNotRunReason::ParentFailure),
+            id => 4,
+            parent_id => 0,
+            component_type => ComponentType::Test,
+        );
+
+        assert_component!(
+            report => r,
+            path => "setup_and_tear_down_failure_behavior::teardown_1",
+            result => ComponentResult::Pass(PassReason::Accepted),
+            id => 5,
+            parent_id => 0,
+            component_type => ComponentType::TearDown,
+            stdout => "However teardown 1 is run regardless of the failure\n"
+        );
+
+        assert_component!(
+            report => r,
+            path => "setup_and_tear_down_failure_behavior::teardown_2",
+            result => ComponentResult::Fail(FailureReason::Rejected),
+            id => 6,
+            parent_id => 0,
+            component_type => ComponentType::TearDown,
+        );
+
+        assert_component!(
+            report => r,
+            path => "setup_and_tear_down_failure_behavior::teardown_3",
+            result => ComponentResult::Pass(PassReason::Accepted),
+            id => 7,
+            parent_id => 0,
+            component_type => ComponentType::TearDown,
+            stdout => "And also teardown 3 is run regardless of all other failures\n"
+        );
     }
 
     #[integration_test]
@@ -230,6 +355,79 @@ mod basic_examples {
         assert_test_passes!("./parallel_test_behavior", ctx);
     }
     
+    #[integration_test]
+    async fn timeout_behavior(ctx : crate::ExecutionContext) {
+        // Act 
+        let r = assert_test_fails!("./timeout_behavior", ctx);
+
+         // Assert 
+         assert_root_suite!(
+            report => r,
+            path => "timeout_behavior",
+            result => ComponentResult::Fail(FailureReason::ChildFailure),
+        );
+
+        assert_component!(
+            report => r,
+            path => "timeout_behavior::this_test_will_show_a_timeout_warning",
+            result => ComponentResult::Warning(WarningReason::OvertimeWarning),
+            id => 1,
+            parent_id => 0,
+            component_type => ComponentType::Test,
+        );
+
+        assert_component!(
+            report => r,
+            path => "timeout_behavior::this_test_will_show_a_timeout_error",
+            result => ComponentResult::Fail(FailureReason::Rejected),
+            id => 2,
+            parent_id => 0,
+            component_type => ComponentType::Test,
+        );
+    }
+
+
+    #[integration_test]
+    async fn multi_file_test_order(ctx : crate::ExecutionContext) {
+        let r = assert_test_passes!("./multi_file_test_order", ctx);
+
+        // Assert 
+        assert_root_suite!(
+            report => r,
+            path => "multi_file_test_order",
+            result => ComponentResult::Pass(PassReason::Accepted),
+        );
+
+        assert_component!(
+            report => r,
+            path => "multi_file_test_order::test_c",
+            result => ComponentResult::Pass(PassReason::Accepted),
+            id => 1,
+            parent_id => 0,
+            component_type => ComponentType::Test,
+            stdout => "Test C was called first\n"
+        );
+
+        assert_component!(
+            report => r,
+            path => "multi_file_test_order::a_test_mod::test_a",
+            result => ComponentResult::Pass(PassReason::Accepted),
+            id => 2,
+            parent_id => 0,
+            component_type => ComponentType::Test,
+            stdout => "Test A was called second\n"
+        );
+
+        assert_component!(
+            report => r,
+            path => "multi_file_test_order::b_test_mod::test_b",
+            result => ComponentResult::Pass(PassReason::Accepted),
+            id => 3,
+            parent_id => 0,
+            component_type => ComponentType::Test,
+            stdout => "Test B was called last\n"
+        );
+    }
 }
 
 #[suite]

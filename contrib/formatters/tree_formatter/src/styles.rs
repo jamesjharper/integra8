@@ -89,6 +89,13 @@ impl Formatting {
             Self::None => text.into(),
         }
     }
+
+    pub fn apply_progress_bar_failed(&self, text: impl Into<String>) -> String {
+        match self {
+            Self::Ansi => Red.bold().paint(text.into()).to_string(),
+            Self::None => text.into(),
+        }
+    }
 }
 
 pub struct ComponentStyle {
@@ -365,16 +372,19 @@ pub struct ProgressBarStyle {
     pub running: String,
     pub in_progress: String,
     pub finished: String,
+    pub failed: String,
 }
 
 impl ProgressBarStyle {
     pub fn new(ansi_mode: &AnsiMode) -> Self {
         let format = Formatting::new(ansi_mode);
         let running = format.apply_progress_bar_running("   Running ");
+        let failed = format.apply_progress_bar_failed("   Failed  ");
         let in_progress = format.apply_progress_bar_in_progress("  Progress ");
         let template = format!("{}{}", in_progress, "[{bar}] {pos}/{len} {wide_msg} ");
         let progress_chars = "=> ".to_string();
         let finished = format.apply_progress_bar_finished("  Finished ");
+     
 
         Self {
             running,
@@ -382,6 +392,7 @@ impl ProgressBarStyle {
             in_progress,
             progress_chars,
             finished,
+            failed
         }
     }
 }

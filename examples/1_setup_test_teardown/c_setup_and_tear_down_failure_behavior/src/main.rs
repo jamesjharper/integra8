@@ -17,17 +17,17 @@ main_test! {
 //
 #[setup]
 async fn setup() {
-    println!("Setup is run first");
+    println!("Setup is called first");
 }
 
 #[integration_test]
 async fn test_1() {
-    println!("Then test 1 is run");
+    println!("Then test 1 is called");
 }
 
 #[integration_test]
 async fn test_2() {
-    println!("And then test 2 is run, but fails");
+    println!("And then test 2 is called, but fails");
     assert!(false, "Test 2 fails")
 }
 

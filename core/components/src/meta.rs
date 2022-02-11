@@ -240,17 +240,16 @@ impl ComponentDescription {
 impl Ord for ComponentLocation {
     fn cmp(&self, other: &Self) -> Ordering {
 
-        // 99% of the time we are ordering components which
-        // appear in the same file, and we order by line number
+        // todo add tests for this 
+
+        // within files, order by line number
         if self.file_name == other.file_name {
             return self.line.cmp(&other.line);
         }
 
-        // When ordering suites, we order lexicographically 
-        match self.path.cmp(&other.path) {
-            Ordering::Equal => {
-                self.line.cmp(&other.line)
-            },
+        // order lexicographically across files 
+        match self.parent_path().cmp(other.parent_path()) {
+            Ordering::Equal => self.line.cmp(&other.line),
             other => other
         }
     }
@@ -276,5 +275,12 @@ pub struct ComponentLocation {
 impl ComponentLocation {
     pub fn hotlink_text(&self) -> String {
         format!("{}:{}:{}", self.file_name, self.line, self.column)
+    }
+
+    pub fn parent_path(&self) -> &'_ str {
+        self.path.as_str()
+            .rfind(':')
+            .map(|i| &self.path.as_str()[.. i.saturating_sub(1)])
+            .unwrap_or_else(|| "")
     }
 }

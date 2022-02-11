@@ -82,12 +82,18 @@ impl TestProgressFormatter {
 
     pub fn notify_component_finished<W: Write>(
         &mut self,
-        _writer: &mut W,
+        writer: &mut W,
         report: &ComponentRunReport,
     ) -> std::io::Result<()>  {
         if report.description.component_type() == &ComponentType::Suite {
             return Ok(());
         }
+
+        if report.result.has_failed() {
+            self.writeln(writer, &format!("{} {}", self.style.failed, report.description.full_name()))?;
+        }
+
+
         if !self.progress.is_hidden() {
             self.remove_in_progress(report.description.id());
         }

@@ -21,12 +21,12 @@ async fn setup() {
 }
 
 #[integration_test]
-async fn test1() {
+async fn test_1() {
     println!("Then test 1 is called");
 }
 
 #[integration_test]
-async fn test2() {
+async fn test_2() {
     println!("And then test 2 is called");
 }
 
