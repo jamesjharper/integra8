@@ -23,7 +23,5 @@ async fn httpbin_should_reply_200_ok(ctx : crate::ExecutionContext) {
     // integra8 will run other tests while this test waits for a response 
     #[cfg(feature = "async-std-runtime")]
     let response = reqwest::blocking::get(&ctx.parameters.app.url).unwrap();
-
-    println!("{:#?}", response);
     assert_eq!(response.status(), 200, "Expected http 200 response");
 }

@@ -51,7 +51,12 @@ mod matryoshka_suite {
  
     #[integration_test]
     fn test1() {
-        println!("Called first");
+        println!("Call order 1");
+    }
+
+    #[teardown]
+    fn teardown() {
+        println!("Call order 6");
     }
 
     #[suite]
@@ -59,7 +64,12 @@ mod matryoshka_suite {
     
         #[integration_test]
         fn inner_test_1() {
-            println!("Called second");
+            println!("Call order 2");
+        }
+
+        #[teardown]
+        fn inner_teardown() {
+            println!("Call order 5");
         }
 
         #[suite]
@@ -67,7 +77,12 @@ mod matryoshka_suite {
         
             #[integration_test]
             fn inner_most_test_1() {
-                println!("Called last");
+                println!("Call order 3");
+            }
+
+            #[teardown]
+            fn inner_most_teardown() {
+                println!("Call order 4");
             }
         }
     }

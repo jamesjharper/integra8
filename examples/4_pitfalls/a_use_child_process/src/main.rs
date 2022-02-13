@@ -8,5 +8,5 @@ main_test! {
 
 #[integration_test]
 fn hello_world_test() {
-    println!("Hello world!");
+    eprintln!("Hello world!");
 }

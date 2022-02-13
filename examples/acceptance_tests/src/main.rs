@@ -448,7 +448,6 @@ mod basic_examples {
         );
     }
 
-
     #[integration_test]
     async fn multi_file_test_order(ctx : crate::ExecutionContext) {
         let r = assert_test_passes!("./multi_file_test_order", ctx);
@@ -482,9 +481,19 @@ mod basic_examples {
 
         assert_component!(
             report => r,
-            path => "multi_file_test_order::b_test_mod::test_b",
+            path => "multi_file_test_order::a_test_mod::aa_test_mod::test_zz",
             result => ComponentResult::Pass(PassReason::Accepted),
             id => 3,
+            parent_id => 0,
+            component_type => ComponentType::Test,
+            stdout => "Test ZZ was called third\n"
+        );
+
+        assert_component!(
+            report => r,
+            path => "multi_file_test_order::b_test_mod::test_b",
+            result => ComponentResult::Pass(PassReason::Accepted),
+            id => 4,
             parent_id => 0,
             component_type => ComponentType::Test,
             stdout => "Test B was called last\n"
@@ -494,29 +503,336 @@ mod basic_examples {
 
 #[suite]
 mod execution_context {
+    use super::*;
 
     #[integration_test]
     async fn custom_parameters(ctx : crate::ExecutionContext) {
-         assert_test_passes!("./custom_parameters", ctx);
+         let r = assert_test_passes!("./custom_parameters", ctx);
+
+        // Assert 
+        assert_root_suite!(
+            report => r,
+            path => "custom_parameters",
+            result => ComponentResult::Pass(PassReason::Accepted),
+        );
+
+        assert_component!(
+            report => r,
+            path => "custom_parameters::httpbin_should_reply_200_ok",
+            result => ComponentResult::Pass(PassReason::Accepted),
+            id => 1,
+            parent_id => 0,
+            component_type => ComponentType::Test,
+        );
     }
 
     #[integration_test]
     async fn generate_test_data(ctx : crate::ExecutionContext) {
-        assert_test_passes!("./generate_test_data", ctx);
+        let r = assert_test_passes!("./generate_test_data", ctx);
+
+
+        // Assert 
+        assert_root_suite!(
+            report => r,
+            path => "generate_test_data",
+            result => ComponentResult::Pass(PassReason::Accepted),
+        );
+
+        // TODO: fix!
     }
 }
 
 #[suite]
 mod suites {
+    use super::*;
 
     #[integration_test]
     async fn suites_basics(ctx : crate::ExecutionContext) {
-        assert_test_passes!("./suites_basics", ctx);
+        let r = assert_test_passes!("./suites_basics", ctx);
+
+
+        // Assert 
+        assert_root_suite!(
+            report => r,
+            path => "suites_basics",
+            result => ComponentResult::Pass(PassReason::Accepted),
+        );
+
+        assert_component!(
+            report => r,
+            path => "suites_basics::first_test",
+            result => ComponentResult::Pass(PassReason::Accepted),
+            id => 1,
+            parent_id => 0,
+            component_type => ComponentType::Test,
+            stdout => "This test before any suites\n"
+        );
+
+        assert_component!(
+            report => r,
+            path => "suites_basics::first_suite",
+            result => ComponentResult::Pass(PassReason::Accepted),
+            id => 2,
+            parent_id => 0,
+            component_type => ComponentType::Suite,
+        );
+
+        assert_component!(
+            report => r,
+            path => "suites_basics::first_suite::setup",
+            result => ComponentResult::Pass(PassReason::Accepted),
+            id => 3,
+            parent_id => 2,
+            component_type => ComponentType::Setup,
+            stdout => "first_suite::setup is called first\n"
+        );
+
+        assert_component!(
+            report => r,
+            path => "suites_basics::first_suite::test",
+            result => ComponentResult::Pass(PassReason::Accepted),
+            id => 4,
+            parent_id => 2,
+            component_type => ComponentType::Test,
+            stdout => "Then first_suite::test is called\n"
+        );
+
+        assert_component!(
+            report => r,
+            path => "suites_basics::first_suite::teardown",
+            result => ComponentResult::Pass(PassReason::Accepted),
+            id => 5,
+            parent_id => 2,
+            component_type => ComponentType::TearDown,
+            stdout => "And first_suite::teardown is called\n"
+        );
+
+        assert_component!(
+            report => r,
+            path => "suites_basics::another_suite",
+            result => ComponentResult::Pass(PassReason::Accepted),
+            id => 6,
+            parent_id => 0,
+            component_type => ComponentType::Suite,
+        );
+
+
+        assert_component!(
+            report => r,
+            path => "suites_basics::another_suite::test1",
+            result => ComponentResult::Pass(PassReason::Accepted),
+            id => 7,
+            parent_id => 6,
+            component_type => ComponentType::Test,
+            stdout => "Then another_suite::test_1 finally 1 is called\n"
+        );
+
+        assert_component!(
+            report => r,
+            path => "suites_basics::matryoshka_suite",
+            result => ComponentResult::Pass(PassReason::Accepted),
+            id => 8,
+            parent_id => 0,
+            component_type => ComponentType::Suite,
+        );
+
+        assert_component!(
+            report => r,
+            path => "suites_basics::matryoshka_suite::test1",
+            result => ComponentResult::Pass(PassReason::Accepted),
+            id => 9,
+            parent_id => 8,
+            component_type => ComponentType::Test,
+            stdout => "Call order 1\n"
+        );
+
+        assert_component!(
+            report => r,
+            path => "suites_basics::matryoshka_suite::inner_matryoshka_suite",
+            result => ComponentResult::Pass(PassReason::Accepted),
+            id => 10,
+            parent_id => 8,
+            component_type => ComponentType::Suite,
+        );
+
+        assert_component!(
+            report => r,
+            path => "suites_basics::matryoshka_suite::inner_matryoshka_suite::inner_test_1",
+            result => ComponentResult::Pass(PassReason::Accepted),
+            id => 11,
+            parent_id => 10,
+            component_type => ComponentType::Test,
+            stdout => "Call order 2\n"
+        );
+
+        assert_component!(
+            report => r,
+            path => "suites_basics::matryoshka_suite::inner_matryoshka_suite::inner_most_matryoshka_suite",
+            result => ComponentResult::Pass(PassReason::Accepted),
+            id => 12,
+            parent_id => 10,
+            component_type => ComponentType::Suite,
+        );
+
+        assert_component!(
+            report => r,
+            path => "suites_basics::matryoshka_suite::inner_matryoshka_suite::inner_most_matryoshka_suite::inner_most_test_1",
+            result => ComponentResult::Pass(PassReason::Accepted),
+            id => 13,
+            parent_id => 12,
+            component_type => ComponentType::Test,
+            stdout => "Call order 3\n"
+        );
+
+        assert_component!(
+            report => r,
+            path => "suites_basics::matryoshka_suite::inner_matryoshka_suite::inner_most_matryoshka_suite::inner_most_teardown",
+            result => ComponentResult::Pass(PassReason::Accepted),
+            id => 14,
+            parent_id => 12,
+            component_type => ComponentType::TearDown,
+            stdout => "Call order 4\n"
+        );
+
+        assert_component!(
+            report => r,
+            path => "suites_basics::matryoshka_suite::inner_matryoshka_suite::inner_teardown",
+            result => ComponentResult::Pass(PassReason::Accepted),
+            id => 15,
+            parent_id => 10,
+            component_type => ComponentType::TearDown,
+            stdout => "Call order 5\n"
+        );
+
+        assert_component!(
+            report => r,
+            path => "suites_basics::matryoshka_suite::teardown",
+            result => ComponentResult::Pass(PassReason::Accepted),
+            id => 16,
+            parent_id => 8,
+            component_type => ComponentType::TearDown,
+            stdout => "Call order 6\n"
+        );
+
+        assert_component!(
+            report => r,
+            path => "suites_basics::suite_with_internal_namespaces",
+            result => ComponentResult::Pass(PassReason::Accepted),
+            id => 17,
+            parent_id => 0,
+            component_type => ComponentType::Suite,
+        );
+
+        assert_component!(
+            report => r,
+            path => "suites_basics::suite_with_internal_namespaces::test_1",
+            result => ComponentResult::Pass(PassReason::Accepted),
+            id => 18,
+            parent_id => 17,
+            component_type => ComponentType::Test,
+        );
+
+        assert_component!(
+            report => r,
+            path => "suites_basics::suite_with_internal_namespaces::internal_namespace::test_2",
+            result => ComponentResult::Pass(PassReason::Accepted),
+            id => 19,
+            parent_id => 17,
+            component_type => ComponentType::Test,
+        );
     }
 
     #[integration_test]
     async fn parallel_suite_behavior(ctx : crate::ExecutionContext) {
-        assert_test_passes!("./parallel_suite_behavior", ctx);
+        let r = assert_test_passes!("./parallel_suite_behavior", ctx);
+
+        // Assert 
+        assert_root_suite!(
+            report => r,
+            path => "parallel_suite_behavior",
+            result => ComponentResult::Pass(PassReason::Accepted),
+        );
+
+        assert_component!(
+            report => r,
+            path => "parallel_suite_behavior::suite_1",
+            result => ComponentResult::Pass(PassReason::Accepted),
+            id => 1,
+            parent_id => 0,
+            component_type => ComponentType::Suite,
+        );
+
+        assert_component!(
+            report => r,
+            path => "parallel_suite_behavior::suite_1::test_1",
+            result => ComponentResult::Pass(PassReason::Accepted),
+            id => 2,
+            parent_id => 1,
+            component_type => ComponentType::Test,
+        );
+      
+        assert_component!(
+            report => r,
+            path => "parallel_suite_behavior::suite_1::test_2",
+            result => ComponentResult::Pass(PassReason::Accepted),
+            id => 3,
+            parent_id => 1,
+            component_type => ComponentType::Test,
+        );
+
+        assert_component!(
+            report => r,
+            path => "parallel_suite_behavior::suite_2",
+            result => ComponentResult::Pass(PassReason::Accepted),
+            id => 4,
+            parent_id => 0,
+            component_type => ComponentType::Suite,
+        );
+
+        assert_component!(
+            report => r,
+            path => "parallel_suite_behavior::suite_2::test_1",
+            result => ComponentResult::Pass(PassReason::Accepted),
+            id => 5,
+            parent_id => 4,
+            component_type => ComponentType::Test,
+        );
+      
+        assert_component!(
+            report => r,
+            path => "parallel_suite_behavior::suite_2::test_2",
+            result => ComponentResult::Pass(PassReason::Accepted),
+            id => 6,
+            parent_id => 4,
+            component_type => ComponentType::Test,
+        );
+
+        assert_component!(
+            report => r,
+            path => "parallel_suite_behavior::suite_3",
+            result => ComponentResult::Pass(PassReason::Accepted),
+            id => 7,
+            parent_id => 0,
+            component_type => ComponentType::Suite,
+        );
+
+        assert_component!(
+            report => r,
+            path => "parallel_suite_behavior::suite_3::test_1",
+            result => ComponentResult::Pass(PassReason::Accepted),
+            id => 8,
+            parent_id => 7,
+            component_type => ComponentType::Test,
+        );
+      
+        assert_component!(
+            report => r,
+            path => "parallel_suite_behavior::suite_3::test_2",
+            result => ComponentResult::Pass(PassReason::Accepted),
+            id => 9,
+            parent_id => 7,
+            component_type => ComponentType::Test,
+        );
     }
 
     #[integration_test]
@@ -538,10 +854,10 @@ mod pitfalls {
         assert_test_fails!("./timeout_limitations", ctx);
     }
 
-    /*#[integration_test]
+    #[integration_test]
     async fn use_child_process(ctx : crate::ExecutionContext) {
        assert_test_passes!("./use_child_process", ctx);
-    }*/
+    }
 }
 
 

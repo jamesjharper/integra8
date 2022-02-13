@@ -134,7 +134,6 @@ impl RunSummary {
                         (suite.suite_report.reports.iter(), &suite.suite_report.counts),
                         (suite.setups.reports.iter(), &suite.setups.counts),
                         (suite.tests.reports.iter(), &suite.tests.counts),
-                        (suite.suites.reports.iter(), &suite.suites.counts),
                         (suite.tear_downs.reports.iter(), &suite.tear_downs.counts)
                     ]
                 }).collect()
