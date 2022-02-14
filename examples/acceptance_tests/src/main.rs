@@ -90,7 +90,6 @@ macro_rules! assert_test_fails {
 use integra8::components::ComponentType;
 use integra8::results::{ComponentResult, WarningReason, PassReason, FailureReason, DidNotRunReason};
 
-
 #[macro_export]
 macro_rules! assert_root_suite {
     (
@@ -837,7 +836,124 @@ mod suites {
 
     #[integration_test]
     async fn cascading_failure_behavior(ctx : crate::ExecutionContext) {
-        assert_test_fails!("./cascading_failure_behavior", ctx);
+        let r = assert_test_fails!("./cascading_failure_behavior", ctx);
+
+
+        // Assert 
+        assert_root_suite!(
+            report => r,
+            path => "cascading_failure_behavior",
+            result => ComponentResult::Fail(FailureReason::ChildFailure),
+        );
+
+
+        assert_component!(
+            report => r,
+            path => "cascading_failure_behavior::suite_which_will_fail",
+            result => ComponentResult::Fail(FailureReason::ChildFailure),
+            id => 1,
+            parent_id => 0,
+            component_type => ComponentType::Suite,
+        );
+
+
+        assert_component!(
+            report => r,
+            path => "cascading_failure_behavior::suite_which_will_fail::allow_fail_suite",
+            result => ComponentResult::Warning(WarningReason::FailureAllowed),
+            id => 2,
+            parent_id => 1,
+            component_type => ComponentType::Suite,
+        );
+
+        assert_component!(
+            report => r,
+            path => "cascading_failure_behavior::suite_which_will_fail::allow_fail_suite",
+            result => ComponentResult::Warning(WarningReason::FailureAllowed),
+            id => 2,
+            parent_id => 1,
+            component_type => ComponentType::Suite,
+        );
+
+        assert_component!(
+            report => r,
+            path => "cascading_failure_behavior::suite_which_will_fail::allow_fail_suite::test_1",
+            result => ComponentResult::Warning(WarningReason::FailureAllowed),
+            id => 3,
+            parent_id => 2,
+            component_type => ComponentType::Test,
+        );
+
+        assert_component!(
+            report => r,
+            path => "cascading_failure_behavior::suite_which_will_fail::allow_fail_suite::test_2",
+            result => ComponentResult::Fail(FailureReason::Rejected),
+            id => 4,
+            parent_id => 2,
+            component_type => ComponentType::Test,
+        );
+
+        assert_component!(
+            report => r,
+            path => "cascading_failure_behavior::suite_which_will_fail::allow_fail_suite::test_3",
+            result => ComponentResult::DidNotRun(DidNotRunReason::ParentFailure),
+            id => 5,
+            parent_id => 2,
+            component_type => ComponentType::Test,
+        );
+
+        assert_component!(
+            report => r,
+            path => "cascading_failure_behavior::suite_which_will_fail::allow_fail_suite::teardown",
+            result => ComponentResult::Pass(PassReason::Accepted),
+            id => 6,
+            parent_id => 2,
+            component_type => ComponentType::TearDown,
+        );
+
+        assert_component!(
+            report => r,
+            path => "cascading_failure_behavior::suite_which_will_fail::not_allow_fail_suite",
+            result => ComponentResult::Fail(FailureReason::ChildFailure),
+            id => 7,
+            parent_id => 1,
+            component_type => ComponentType::Suite,
+        );
+
+        assert_component!(
+            report => r,
+            path => "cascading_failure_behavior::suite_which_will_fail::not_allow_fail_suite::test_1",
+            result => ComponentResult::Fail(FailureReason::Rejected),
+            id => 8,
+            parent_id => 7,
+            component_type => ComponentType::Test,
+        );
+
+        assert_component!(
+            report => r,
+            path => "cascading_failure_behavior::suite_which_will_fail::not_allow_fail_suite::test_2",
+            result => ComponentResult::DidNotRun(DidNotRunReason::ParentFailure),
+            id => 9,
+            parent_id => 7,
+            component_type => ComponentType::Test,
+        );
+
+        assert_component!(
+            report => r,
+            path => "cascading_failure_behavior::suite_which_will_fail::teardown",
+            result => ComponentResult::Pass(PassReason::Accepted),
+            id => 10,
+            parent_id => 1,
+            component_type => ComponentType::TearDown,
+        );
+    }
+}
+
+#[suite]
+mod test_main {
+    #[integration_test]
+    async fn global_settings(ctx : crate::ExecutionContext) {
+        assert_test_passes!("./global_settings", ctx);
     }
 }
 
@@ -861,10 +977,3 @@ mod pitfalls {
 }
 
 
-#[suite]
-mod test_main {
-    #[integration_test]
-    async fn global_settings(ctx : crate::ExecutionContext) {
-        assert_test_passes!("./global_settings", ctx);
-    }
-}
