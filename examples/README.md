@@ -33,7 +33,7 @@ Integra8 has native support for both `tokio` and `async-std` runtimes.
 `Tests`, `Setups` and `Tear downs` can all be declared `async` and your runtime 
 of choice can be enabled via the `tokio-runtime` or `async-std-runtime` feature flag.
 
-> Integra8 internally requires an async runtime, so even if you do not require async functionality, 
+> Integra8 internally requires an async runtime, so if you do not require async functionality, 
 > you will still need to enable either the `tokio-runtime` or `async-std-runtime` feature flag for 
 > Integra8 to compile.
 >
@@ -179,10 +179,10 @@ Use the `#[parallel]` or `#[sequential]` decorator on `Suites`, `Tests`, `Setups
 > Integra8 has a pure `async` implementation. It does not create threads and instead leaves this to your async runtime of choice.
 
 ### Concurrency Ordering behaviour  
-Integra8 always honours the component order in code (for all components _except_ suites). 
-Because of this, components are only run concurrently, when they are *adjacent* to other concurrent components in the scheduling order.
+Integra8 will execute `Tests`, `Setups` and `Tear downs` components in the order they appear in the source file.
+Because of this, components are only run concurrently, when they are *adjacent* to other concurrent components in execution order.
 
-This design allows ordered tests to co-exist with a concept of concurrency, while also enabling concurrency modes to combine in unique ways that may not be immediately intuitive.
+This design allows ordered tests to co-exist with a concurrency tests.
 
 Exact implementation details for scheduling can be found [here](./core/scheduling/src/components.rs)
 
@@ -266,7 +266,7 @@ fn test_6() {
 ### Warning Timeout threshold
 
 Use the `#[warning_time_limit = "x secs/mins/hours/days"]` decorator on `tests` to indicate 
-the maximin duration this test can run before this test is flagged with a warning. 
+the maximin duration a test can run before this test is flagged with a warning. 
 
 This can be used to give early warnings before a test exceeds some critical threshold.
 For example, an HTTP request time out, lambda time out, etc.
@@ -276,14 +276,14 @@ For example, an HTTP request time out, lambda time out, etc.
 #[integration_test]
 #[warning_time_limit = "1min 10 seconds"]
 fn this_test_will_show_a_timeout_warning() {
-    sleep(Duration::from_secs(70));
+    sleep(Duration::from_secs(80));
 }
 ```
 
 ### Critical Timeout threshold
 Use the `#[time_limit = "x secs /mins/ hours/ days"]` decorator 
-on `Tests`, `Setups` and `Tear downs` to indicate  can all be decorated with 
-the maximum duration this component can run before it is forcibly aborted.
+on `Tests`, `Setups` and `Tear downs` to indicate the 
+maximum duration this component can run before it is forcibly aborted.
 
 #### Example 
 ```rust
@@ -295,9 +295,9 @@ fn this_test_will_show_a_timeout_error() {
 ```
 
 # Suites
-Use the `#[suite]` decorator to indicate a `Suite`.
-`Suites` are groupings of `tests`, `setups`, `tear downs` and other `suites`, which 
-can be used to change group execution, failure, and concurrency behaviours.
+Use the `#[suite]` decorator to indicate a groupings of 
+`tests`, `setups`, `tear downs` and other `suites`. Grouping components together 
+within a suite can be used to change execution order, failure, and concurrency behaviours.
 
 ## Suite Execution Order
 Within Integra8, the component execution order is
@@ -339,7 +339,6 @@ mod first_suite {
     }
 }
 
-/// Suites are run in the order they appear within the file.
 #[suite]
 mod another_suite {
  
@@ -387,7 +386,7 @@ mod matryoshka_suite {
 ```
 
 ## Cascading Suite Failure Behavior
-`Suite` failures cascaded upwards to the root suite, causing execution of parent suites to abort as the failure bubbles up.
+`Suite` failures cascaded upwards to the root suite, resulting in execution of parent suites to abort as the failure bubbles up.
 Failure bubbling can be halted with the use of `#[allow_fail]` decorator. This will cause the failure to 
 bubble as a warning and prevent further abortion to parent suites.
 
@@ -412,14 +411,14 @@ mod suite_which_will_fail {
         // immediately aborts execution of their parent suite.
         #[integration_test]
         fn test_2() {
-            assert!(false, "Really Fail")
+            assert!(false, "Real Fail")
         }
-        
+
         // This test will not run and will be 
         // indicated as `ComponentResult::DidNotRun(DidNotRunReason::ParentFailure)`
         #[integration_test]
-        fn test_2() {
-            println!("Test 2 Is never run");
+        fn test_3() {
+            assert!(false, "Cant fail if you never try")
         }
 
         // However Tear downs are run           
@@ -433,18 +432,19 @@ mod suite_which_will_fail {
     // Failing Suites without #[allow_fail], will cascade this failures
     // to their parent suite
     #[suite]
-    mod failing_suite {
+    mod not_allow_fail_suite {
     
         #[integration_test]
-        fn test1() {
+        fn test_1() {
             assert!(false, "Fail")
         }
 
         #[integration_test]
-        fn test2() {
-            println!("Is never run");
+        fn test_2() {
+            println!("Is never called");
         }
     }
+
     // Tear downs are always run!
     #[teardown]
     fn teardown() {
@@ -457,19 +457,16 @@ mod suite_which_will_fail {
 
 
 ## Suite Concurrency
-Integra8 always honours the component order in code for all components _except_ suites. 
-
+Unlike  `Tests`, `Setups` and `Tear downs`, `suites` do not run in the order they appear in the source file.
 Instead, Integra8, favours running parallel suites over serial ones and will prioritize running as many suites at once. The intent is, 
-by running as many suites upfront the scheduler will remain busy longer, and increases the chances we fail sooner, 
-rather than later.
+by running as many suites upfront the scheduler will remain busy longer, and increases the chances of detecting a failure sooner.
 
 Suites use the following rules 
  - Suites are grouped by concurrent mode (`parallel` or `sequential`)
  - `parallel` grouped suites are run first
- - `sequential` suites are run in the order they appear in the scheduling order.
+ - `sequential` suites are run in the order they appear in file
 
 Exact implementation details for scheduling can be found [here](./core/scheduling/src/components.rs)
-
 
 ### Example 
 
@@ -557,7 +554,7 @@ mod suite_3 {
 # Settings and Context
 
 ## Global Settings
-Integra8 supports several settings that can be configured globally via `test_main` or mutated via command line parameters.
+Integra8 supports several settings that can be configured globally via `test_main` and/or mutated via command line parameters.
 
 ### Max Concurrency: 
  - __description:__   Limits the number of components which can run at the same time
@@ -565,7 +562,7 @@ Integra8 supports several settings that can be configured globally via `test_mai
  - __Command line:__  `--framework:max-concurrency` 
  - __Default:__       `"Auto"`
  - __Possible Values:__ 
-    - `Auto`    : Will limit to the number of system cores available 
+    - `Auto`    : Will limit to the number of system cores available
     - `Max`     : Limit is determined by the test schedule (can be faster for tests with a lot async blocking calls)
     - `1`       : Forces all test to run Sequentially
     - `{usize}` : You choose your own destiny 
@@ -603,7 +600,7 @@ Integra8 supports several settings that can be configured globally via `test_mai
  - __Command line:__  `--default:setup-time-limit` 
  - __Default:__       `30s`
  - __Possible Values:__ 
-    - `{usize}` : Any number of seconds
+    - `{usize}` : Any number x secs/mins/hours/days. See [humantime](https://docs.rs/humantime/latest/humantime/) for accepted values.
 
 ### Default Tear Down Timeout
  - __description:__   Global default time out for tear downs
@@ -611,7 +608,7 @@ Integra8 supports several settings that can be configured globally via `test_mai
  - __Command line:__  `--default:tear-down-time-limit` 
  - __Default:__       `30s`
  - __Possible Values:__ 
-    - `{usize}` : Any number of seconds
+    - `{usize}` : Any number x secs/mins/hours/days. See [humantime](https://docs.rs/humantime/latest/humantime/) for accepted values.
 
 ### Default Test Timeout
  - __description:__   Global default time out for tests
@@ -619,7 +616,7 @@ Integra8 supports several settings that can be configured globally via `test_mai
  - __Command line:__  `--default:test-time-limit` 
  - __Default:__       `30s`
  - __Possible Values:__ 
-    - `{usize}` : Any number of seconds
+    - `{usize}` : Any number x secs/mins/hours/days. See [humantime](https://docs.rs/humantime/latest/humantime/) for accepted values.
 
 ### Default Test Warning Timeout
  - __description:__   Global default warning time out for tests
@@ -627,7 +624,7 @@ Integra8 supports several settings that can be configured globally via `test_mai
  - __Command line:__  `--default:test-warn-time-threshold` 
  - __Default:__       `30s`
  - __Possible Values:__ 
-    - `{usize}` : Any number of seconds
+    - `{usize}` : Any number x secs/mins/hours/days. See [humantime](https://docs.rs/humantime/latest/humantime/) for accepted values.
 
 
 ### Example 
@@ -698,7 +695,7 @@ fn access_context(ctx : crate::ExecutionContext) {
     // The components parents order id.
     // this will always be a number which is unique to all other tests
     // TODO: Double check that works correctly with child processes tests (Nope, its broken)!
-    println!("id: {}", ctx.description.id().as_unique_number());
+    println!("id: {}", ctx.description.parent_id().as_unique_number());
 
     // The name assigned via #[name = "..."]
     // If no name is assigned then the components path
@@ -713,7 +710,7 @@ fn access_context(ctx : crate::ExecutionContext) {
     println!("description: {}", ctx.description.description());
 
     // The full path of this component 
-    println!("path: {}",ctx.description.path());
+    println!("path: {}",ctx.description.location().path());
 
     // The path of this component relative to its parent 
     println!("relative_path: {}",ctx.description.relative_path());
@@ -803,16 +800,9 @@ main_test! {
 #[integration_test]
 async fn httpbin_should_reply_200_ok(ctx : crate::ExecutionContext) {
 
-    // Note: crate::ExecutionContext was automatically generated by main_test!
+    // Note: crate::ExecutionContext was automatically generated by main_test
 
-    #[cfg(feature = "tokio-runtime")]
     let response = reqwest::get(&ctx.parameters.app.url).await.unwrap();
-
-    // reqwest does not support async-std, so blocking must be used instead.
-    // Its recommended to use async for these types of tests, as 
-    // integra8 will run other tests while this test waits for a response 
-    #[cfg(feature = "async-std-runtime")]
-    let response = reqwest::blocking::get(&ctx.parameters.app.url).unwrap();
 
     println!("{:#?}", response);
     assert_eq!(response.status(), 200, "Expected http 200 response");
@@ -823,7 +813,7 @@ async fn httpbin_should_reply_200_ok(ctx : crate::ExecutionContext) {
 
 ## Stdout Capture + Child Processes
 Rust's inbuilt test framework makes use of `std::io::stdio::set_output_capture` to capture `stdout` outputs. 
-This API is unstable, and therefore Integra8 does not make use of it. To provide comparable functionality,
+This API is unstable, therefore Integra8 does not make use of it. To provide comparable functionality,
 Integra8 starts all `Tests`, `Setups` and `Tear downs` in their process.
 
 While this is acceptable for most uses cases, it does undermine the async runtime's ability to 
@@ -833,7 +823,7 @@ This behaviour can be disabled with the `use_child_process` setting or `--framew
 
 This however will also disable log stdout capture, resulting in logs to console interleaving when running tests. 
 
-When disabling `use_child_process`, consider using *artefacts writers* as described in the _Test Artifacts workaround_ segement bellow. 
+When disabling `use_child_process`, consider using *artefact writers* as described in the _Test Artifacts workaround_ segment bellow. 
 
 ```rust
 
@@ -886,7 +876,7 @@ fn still_work_in_progress(ctx : crate::ExecutionContext) {
     // write the contents of this log to test output
     ctx.artifacts.include_text_file("log", "./logs.text");
 
-    // Currently Integra8 does not manage these files lift time.
+    // Currently Integra8 does not manage these files life time.
     // If this file is deleted in a teardown, the content will not be shown.
     //
     // Use this at your own risk, this implementation will likely change in the future.
@@ -895,11 +885,11 @@ fn still_work_in_progress(ctx : crate::ExecutionContext) {
 
 ## Async + Timeout limitations 
 Integra8 does not create threads and instead relies on the async runtime to manage multi-tasking.
-While this does offer performance benefits, it, unfortunately, has its drawbacks.
+While this does offer performance benefits, it, unfortunately, has some drawbacks.
 
 ### Timeout Detection 
 The current timeout implementation can only detect a timeout and abort when a task is paused.
-Long-running non-async operations are not detected, and instead, execution will continue until the task is either paused or complete.
+Long-running non-async operations can not be immediately detected, and instead, execution will continue until the task is either paused or complete.
 
 ```rust
 
@@ -941,7 +931,7 @@ async fn reqwest() {
 fn running_with_a_loaded_shotgun() {
     // This test will never complete, and the process will not close.
     loop {
-        println!("Hope you have access to your build server...");
+        println!("Hope you have access to your build server ...");
     }        
 }
 
