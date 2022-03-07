@@ -1,11 +1,12 @@
 use std::time::Duration;
+use serde::{Serialize, Deserialize};
 
 use crate::{
-    ComponentDescription, ComponentGeneratorId, ComponentLocation, ComponentType,
+    ComponentDescription, ComponentId, ComponentLocation, ComponentType,
     ConcurrencyMode, Delegate, SuiteAttributes, TestParameters,
 };
 
-#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct TestAttributes {
     /// Indicates that test should be run, however failures should be ignored and do not cascade.
     pub allow_fail: bool,
@@ -70,7 +71,7 @@ impl<TParameters: TestParameters> Test<TParameters> {
         parent_description: &ComponentDescription,
         parent_attributes: &SuiteAttributes,
         parameters: &TParameters,
-        id_gen: &mut ComponentGeneratorId,
+        id: ComponentId,
         name: Option<&'static str>,
         description: Option<&'static str>,
         location: ComponentLocation,
@@ -84,7 +85,7 @@ impl<TParameters: TestParameters> Test<TParameters> {
         Self {
             description: ComponentDescription::new(
                 name,
-                id_gen.next(),
+                id,
                 parent_description.id().clone(),
                 location,
                 parent_description.location().clone(),

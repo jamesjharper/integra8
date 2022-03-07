@@ -14,9 +14,7 @@ categories = ["development-tools" ]
 
 [dependencies]
 futures = "0.3"
-indexmap = "1.8.0"
-serde = { version = "1.0", features = ["derive"], optional = true }
+indexmap = {version = "1.8.0", features = ["serde-1"]}
+serde_json = { version = "1.0" }
+serde = { version = "1.0", features = ["derive"] }
 
-[features]
-default = []
-enable_serde = ["serde", "indexmap/serde-1"]

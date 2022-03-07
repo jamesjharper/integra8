@@ -1,11 +1,12 @@
 use std::time::Duration;
+use serde::{Serialize, Deserialize};
 
 use crate::{
-    ComponentDescription, ComponentGeneratorId, ComponentLocation, ComponentType,
+    ComponentDescription, ComponentId, ComponentLocation, ComponentType,
     ConcurrencyMode, Delegate, SuiteAttributes,
 };
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct BookEndAttributes {
     /// Indicates that bookend should not be run.
     pub ignore: bool,
@@ -64,7 +65,7 @@ impl<TParameters> BookEnd<TParameters> {
     pub fn new_setup(
         parent_suite_description: &ComponentDescription,
         parent_suite_attributes: &SuiteAttributes,
-        id_gen: &mut ComponentGeneratorId,
+        id: ComponentId,
         name: Option<&'static str>,
         description: Option<&'static str>,
         location: ComponentLocation,
@@ -76,7 +77,7 @@ impl<TParameters> BookEnd<TParameters> {
         Self {
             description: ComponentDescription::new(
                 name,
-                id_gen.next(),
+                id,
                 parent_suite_description.id().clone(),
                 location,
                 parent_suite_description.location().clone(),
@@ -96,7 +97,7 @@ impl<TParameters> BookEnd<TParameters> {
     pub fn new_tear_down(
         parent_suite_description: &ComponentDescription,
         parent_suite_attributes: &SuiteAttributes,
-        id_gen: &mut ComponentGeneratorId,
+        id: ComponentId,
         name: Option<&'static str>,
         description: Option<&'static str>,
         location: ComponentLocation,
@@ -108,7 +109,7 @@ impl<TParameters> BookEnd<TParameters> {
         Self {
             description: ComponentDescription::new(
                 name,
-                id_gen.next(),
+                id,
                 parent_suite_description.id().clone(),
                 location,
                 parent_suite_description.location().clone(),

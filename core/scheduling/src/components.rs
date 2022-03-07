@@ -4,7 +4,7 @@ use crate::state_machine::{ParallelTaskNode, SerialTaskNode, TaskStateMachineNod
 
 use integra8_components::{
     BookEnd, ComponentDescription, ComponentType, ConcurrencyMode, Suite, SuiteAttributes, Test,
-    TestParameters,
+    TestParameters, Component
 };
 
 #[derive(Clone, Debug)]
@@ -15,8 +15,32 @@ pub enum ScheduledComponent<TParameters> {
     TearDown(BookEnd<TParameters>),
 }
 
+impl<TParameters> ScheduledComponent<TParameters> {
+    pub fn from(component : Component<TParameters>) -> Self {
+        match component {
+            Component::Suite(c) => ScheduledComponent::Suite(c.description, c.attributes),
+            Component::Test(c) => ScheduledComponent::Test(c),
+            Component::Setup(c) => ScheduledComponent::Setup(c),
+            Component::TearDown(c) => ScheduledComponent::TearDown(c),
+        }
+    }
+}
+
 pub trait IntoTaskStateMachine<Payload> {
     fn into_task_state_machine(self) -> TaskStateMachineNode<Payload>;
+}
+
+impl<TParameters: TestParameters> IntoTaskStateMachine<ScheduledComponent<TParameters>>
+    for Component<TParameters>
+{
+    fn into_task_state_machine(self) -> TaskStateMachineNode<ScheduledComponent<TParameters>> {
+        match self {
+            Component::Suite(c) => c.into_task_state_machine(),
+            Component::Test(c) => TaskStateMachineNode::from(ScheduledComponent::Test(c)),
+            Component::Setup(c) => TaskStateMachineNode::from(ScheduledComponent::Setup(c)),
+            Component::TearDown(c) => TaskStateMachineNode::from(ScheduledComponent::TearDown(c)),
+        }
+    }
 }
 
 impl<TParameters: TestParameters> IntoTaskStateMachine<ScheduledComponent<TParameters>>

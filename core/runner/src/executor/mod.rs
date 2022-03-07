@@ -1,51 +1,48 @@
 use std::panic::UnwindSafe;
 
-use integra8_components::TestParameters;
+use integra8_components::{ExecutionStrategy, TestParameters};
 use integra8_results::report::ComponentReportBuilder;
 
 use crate::notify::ComponentProgressNotify;
 use crate::ComponentFixture;
 
 #[cfg(feature = "async")]
-pub use executor_async::Executor;
-
-#[cfg(feature = "async")]
-pub fn process_external_executor<
-    TParameters: TestParameters + Send + Sync + UnwindSafe + 'static,
-    ProgressNotify: ComponentProgressNotify + Send + Sync + 'static,
->() -> impl Executor<TParameters, ProgressNotify> {
-    executor_async::process::AsyncProcessExecutor {}
-}
-
-#[cfg(feature = "async")]
-pub fn process_internal_executor<
-    TParameters: TestParameters + Send + Sync + UnwindSafe + 'static,
-    ProgressNotify: ComponentProgressNotify + Send + Sync + 'static,
->() -> impl Executor<TParameters, ProgressNotify> {
-    executor_async::task::AsyncTaskExecutor {}
-}
+pub use executor_async::execute;
 
 #[cfg(feature = "async")]
 mod executor_async {
     use super::*;
 
-    pub mod process;
-    pub mod task;
+    pub mod child_process;
+    pub mod green_thread;
+    pub mod current_thread;
 
-    use std::future::Future;
-    use std::pin::Pin;
-
-    pub trait Executor<
+    pub async fn execute<
         TParameters: TestParameters + Send + Sync + UnwindSafe + 'static,
         ProgressNotify: ComponentProgressNotify + Send + Sync + 'static,
-    >
-    {
-        fn execute<'async_trait>(
-            &'async_trait self,
-            progress_notify: ProgressNotify,
-            fixture: ComponentFixture<TParameters>,
-            report_builder: ComponentReportBuilder,
-        ) -> Pin<Box<dyn Future<Output = ComponentReportBuilder> + Send + 'async_trait>>;
+    >(
+        progress_notify: ProgressNotify,
+        fixture: ComponentFixture<TParameters>,
+        report_builder: ComponentReportBuilder,
+    ) -> ComponentReportBuilder {
+
+        match fixture.execution_strategy() {
+            ExecutionStrategy::ChildProcess => {
+                executor_async::child_process::ChildProcessExecutor
+                    .execute(progress_notify, fixture, report_builder)
+                    .await
+            },
+            ExecutionStrategy::CurrentThread => {
+                executor_async::current_thread::CurrentThreadExecutor
+                    .execute(progress_notify, fixture, report_builder)
+                    .await
+            },
+            ExecutionStrategy::GreenThread => {
+                executor_async::green_thread::GreenThreadExecutor 
+                    .execute(progress_notify, fixture, report_builder)
+                    .await
+            },
+        }
     }
 }
 
@@ -57,16 +54,5 @@ pub type Executor<TParameters, ProgressNotify> =
 mod test_sync_impl {
     use super::*;
 
-    pub trait Executor<
-        TParameters: TestParameters + Send + Sync + UnwindSafe + 'static,
-        ProgressNotify: ComponentProgressNotify + Send + Sync,
-    >
-    {
-        fn execute(
-            &self,
-            progress_notify: ProgressNotify,
-            fixture: ComponentFixture<TParameters>,
-            report_builder: ComponentReportBuilder,
-        ) -> ComponentReportBuilder;
-    }
+    // Not implemented
 }

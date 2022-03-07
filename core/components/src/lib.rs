@@ -1,6 +1,6 @@
 pub mod context;
 pub use context::{
-    ExecutionArtifact, ExecutionArtifacts, ExecutionContext, ExecutionStrategy, TestParameters,
+    ExecutionArtifact, ExecutionArtifacts, ExecutionContext, ExecutionStrategy, TestParameters, ChildProcessComponentArgs, ChildProcessComponentMetaArgs
 };
 
 pub mod delegates;
@@ -25,3 +25,11 @@ pub use meta::{
     ComponentDescription, ComponentGeneratorId, ComponentId, ComponentLocation, ComponentPath,
     ComponentType, ConcurrencyMode,
 };
+
+#[derive(Clone, Debug)]
+pub enum Component<TParameters> {
+    Suite(Suite<TParameters>),
+    Test(Test<TParameters>),
+    Setup(BookEnd<TParameters>),
+    TearDown(BookEnd<TParameters>),
+}

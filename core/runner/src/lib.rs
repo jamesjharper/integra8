@@ -1,5 +1,4 @@
 pub mod executor;
-
 mod state;
 pub use state::{ComponentState, ComponentStateToken, RunStateModel};
 
@@ -9,203 +8,133 @@ pub use notify::{ComponentProgressNotify, RunProgressNotify};
 mod fixture;
 pub use fixture::ComponentFixture;
 
+mod schedule_runner;
+pub use schedule_runner::ScheduleRunner;
+
 use std::panic::UnwindSafe;
 use std::sync::Arc;
+use async_trait::async_trait;
 
-use integra8_components::{ExecutionStrategy, TestParameters};
-use integra8_scheduling::iter::TaskStreamMap;
+use integra8_components::TestParameters;
 use integra8_scheduling::state_machine::TaskStateMachineNode;
-use integra8_scheduling::{ScheduledComponent, TaskScheduler};
+use integra8_scheduling::ScheduledComponent;
 
 use integra8_results::report::{ComponentReportBuilder, ComponentRunReport};
 use integra8_results::summary::ComponentTypeCountSummary;
 
-use crate::executor::{process_external_executor, process_internal_executor, Executor};
+use crate::notify::NullComponentProgressChannelNotify;
 
-use std::future::Future;
-use std::pin::Pin;
+/// IOC code seem for internal test and customization extensions to the framework
+#[async_trait]
+pub trait ResolveRunnerStrategy<Parameters: TestParameters, ProgressNotify: RunProgressNotify>  {
+    fn create(parameters: &Parameters) -> Self
+    where
+        Self: Sized;
 
-pub trait ScheduleRunner<TParameters> {
-    fn run(
-        self,
-        parameters: TParameters,
-        schedule: TaskStateMachineNode<ScheduledComponent<TParameters>>,
-        summary: ComponentTypeCountSummary,
-    ) -> Pin<Box<dyn Future<Output = ()> + Send + 'static>>;
-}
-
-pub struct DefaultScheduleRunner<RunProgressNotify> {
-    pub sender: RunProgressNotify,
-    pub status: RunStateModel,
-}
-
-impl<
-        TParameters: TestParameters + Sync + Send + UnwindSafe + 'static,
-        ProgressNotify: RunProgressNotify + Sync + Send + Clone + 'static,
-    > ScheduleRunner<TParameters> for DefaultScheduleRunner<ProgressNotify>
-{
-    fn run(
-        self,
-        parameters: TParameters,
-        schedule: TaskStateMachineNode<ScheduledComponent<TParameters>>,
-        summary: ComponentTypeCountSummary,
-    ) -> Pin<Box<dyn Future<Output = ()> + Send + 'static>> {
-        // TODO: Performance check how much slower  using async_trait is over manually writing this this way.
-        async fn run<
-            TInnerParameters: TestParameters + Sync + Send + UnwindSafe + 'static,
-            InnerProgressNotify: RunProgressNotify + Clone + Send + Sync + 'static,
-        >(
-            mut runner: DefaultScheduleRunner<InnerProgressNotify>,
-            parameters: TInnerParameters,
-            schedule: TaskStateMachineNode<ScheduledComponent<TInnerParameters>>,
-            summary: ComponentTypeCountSummary,
-        ) {
-            runner.sender.notify_run_start(summary).await;
-            let sender = runner.sender.clone();
-
-            let parameters = Arc::new(parameters);
-
-            let scheduled_component_runs = schedule
-                .map(|component| runner.prepare_component_run(parameters.clone(), component));
-
-            TaskScheduler::new(scheduled_component_runs, parameters.max_concurrency())
-                .for_each_concurrent(|runner| async {
-                    if let ComponentRunResult::Ready(report) = runner.run().await {
-                        sender.notify_component_report_complete(report).await;
-                    }
-                })
-                .await;
-
-            runner.sender.notify_run_complete().await;
-        }
-
-        Box::pin(run(self, parameters, schedule, summary))
-    }
-}
-
-impl<ProgressNotify: RunProgressNotify + Sync + Send + Clone + 'static>
-    DefaultScheduleRunner<ProgressNotify>
-{
-    pub fn new(sender: ProgressNotify) -> Self {
-        Self {
-            sender: sender,
-            status: RunStateModel::new(),
-        }
-    }
-
-    fn prepare_component_run<TParameters: TestParameters + Sync + Send + UnwindSafe + 'static>(
+    /// Runs the given schedule
+    ///
+    /// # Arguments
+    ///
+    /// * `parameters` - The parameter type as defined by the test author.
+    ///
+    /// * `notify` - The results observer, used for publishing test results back to an observing thread.
+    /// 
+    /// * `schedule` - A ordered tree of components to be executed in order
+    /// 
+    /// * `summary` - Count summary of all the components within the schedule
+    ///
+    async fn run_schedule(
         &mut self,
-        parameters: Arc<TParameters>,
-        component: ScheduledComponent<TParameters>,
-    ) -> ComponentRunner<TParameters, <ProgressNotify as RunProgressNotify>::ComponentProgressNotify>
-    {
-        let fixture = match component {
-            ScheduledComponent::Test(c) => ComponentFixture::for_test(c, parameters),
-            ScheduledComponent::Setup(c) | ScheduledComponent::TearDown(c) => {
-                ComponentFixture::for_bookend(c, parameters)
-            }
-            ScheduledComponent::Suite(description, attributes) => {
-                ComponentFixture::for_suite(description, attributes, parameters)
-            }
-        };
+        parameters: Parameters,
+        notify: ProgressNotify,
+        schedule: TaskStateMachineNode<ScheduledComponent<Parameters>>,
+        summary: ComponentTypeCountSummary,
+    );
 
-        ComponentRunner {
-            component_state: self.status.get_status_token(fixture.description()),
-            progress_notify: self
-                .sender
-                .component_process_notify(fixture.description().clone()),
-            report: ComponentReportBuilder::new(
-                fixture.description().clone(),
-                fixture.acceptance_criteria(),
-            ),
-            fixture: fixture,
-        }
-    }
+
+    /// Runs a given component
+    ///
+    /// # Arguments
+    ///
+    /// * `parameters` - The parameter type as defined by the test author.
+    ///
+    /// * `scheduled_component` - The component to be executed 
+    /// 
+    async fn run_component(
+        &mut self,
+        parameters: Parameters,
+        scheduled_component: ScheduledComponent<Parameters>,
+    ) -> ComponentRunReport;
 }
 
-pub enum ComponentRunResult<Report> {
-    Ready(Report),
-    AlreadyPublished(Report),
-    WaitingOnChildren,
-}
+/// Inbuilt implementation for resolving test results formatters
+pub struct DefaultResolveRunnerStrategy;
 
-pub struct ComponentRunner<
-    TParameters: TestParameters + Send + Sync + UnwindSafe + 'static,
-    ProgressNotify: ComponentProgressNotify + Send + Sync + 'static,
-> {
-    pub component_state: ComponentStateToken,
-    pub progress_notify: ProgressNotify,
-    pub report: ComponentReportBuilder,
-    pub fixture: ComponentFixture<TParameters>,
-}
-
+#[async_trait]
 impl<
-        TParameters: TestParameters + Send + Sync + UnwindSafe + 'static,
-        ProgressNotify: ComponentProgressNotify + Send + Sync + 'static,
-    > ComponentRunner<TParameters, ProgressNotify>
+    Parameters: TestParameters + Sync + Send + UnwindSafe + 'static,
+    ProgressNotify: RunProgressNotify + Sync + Send + Clone + 'static,
+> ResolveRunnerStrategy<Parameters, ProgressNotify> for DefaultResolveRunnerStrategy
 {
-    pub async fn run(self) -> ComponentRunResult<ComponentRunReport> {
-        let component_state = self.component_state.clone();
-
-        match self.evaluate().await {
-            ComponentRunResult::Ready(report_builder) => {
-                let report = report_builder.build();
-                component_state.finalize_result(report.result.clone(), report.timing.duration());
-
-                ComponentRunResult::Ready(report)
-            }
-            ComponentRunResult::AlreadyPublished(report_builder) => {
-                ComponentRunResult::AlreadyPublished(report_builder.build())
-            }
-            ComponentRunResult::WaitingOnChildren => {
-                // A Suite will wait on children before its results can be 
-                // determined, if all the children are ignored or there are no
-                // children then the assume a pass results
-                component_state.tentative_pass();              
-                ComponentRunResult::WaitingOnChildren
-            },
-        }
+    fn create(_parameters: &Parameters) -> Self
+    where
+        Self: Sized,
+    {
+        Self
     }
 
-    async fn evaluate(mut self) -> ComponentRunResult<ComponentReportBuilder> {
-        match self.component_state.state() {
-            ComponentState::Undetermined => self.execute().await,
-            ComponentState::Tentative(result) => {
-                self.report.time_taken(self.component_state.time_taken());
-                self.report.with_result(result.clone());
-                ComponentRunResult::Ready(self.report)
-            }
-            ComponentState::Finalized(result) => {
-                self.report.time_taken(self.component_state.time_taken());
-                self.report.with_result(result);
-                ComponentRunResult::AlreadyPublished(self.report)
-            }
-        }
+    /// Runs the given schedule
+    ///
+    /// # Arguments
+    ///
+    /// * `parameters` - The parameter type as defined by the test author.
+    ///
+    /// * `notify` - The results observer, used for publishing test results back to an observing thread.
+    /// 
+    /// * `schedule` - A ordered tree of components to be executed in order
+    /// 
+    /// * `summary` - Count summary of all the components within the schedule
+    ///
+    async fn run_schedule(
+        &mut self,
+        parameters: Parameters,
+        notify: ProgressNotify,
+        schedule: TaskStateMachineNode<ScheduledComponent<Parameters>>,
+        summary: ComponentTypeCountSummary,
+    ) {
+        ScheduleRunner::new(notify)
+            .run(parameters, schedule, summary)
+            .await
     }
+    
+    /// Runs a given component
+    ///
+    /// # Arguments
+    ///
+    /// * `parameters` - The parameter type as defined by the test author.
+    ///
+    /// * `scheduled_component` - The component to be executed 
+    /// 
+    async fn run_component(
+        &mut self,
+        parameters: Parameters,
+        scheduled_component: ScheduledComponent<Parameters>,
+    ) -> ComponentRunReport {
 
-    async fn execute(mut self) -> ComponentRunResult<ComponentReportBuilder> {
-        if self.fixture.ignore() {
-            self.report.ignored_result();
-            return ComponentRunResult::Ready(self.report);
-        }
-
-        if self.fixture.is_suite() {
-            // Suites cant "run", they are only a projection of their children's results.
-            return ComponentRunResult::WaitingOnChildren;
-        }
-
-        // execute to determine the components state
-        match self.fixture.execution_strategy() {
-            ExecutionStrategy::ProcessInternal => ComponentRunResult::Ready(
-                process_internal_executor()
-                    .execute(self.progress_notify, self.fixture, self.report)
-                    .await,
-            ),
-            ExecutionStrategy::ProcessExternal => ComponentRunResult::Ready(
-                process_external_executor()
-                    .execute(self.progress_notify, self.fixture, self.report)
-                    .await,
-            ),
-        }
+        let fixture = ComponentFixture::from_scheduled_component(
+            scheduled_component, 
+            Arc::new(parameters)
+        );
+        let report =  ComponentReportBuilder::new(
+            fixture.description().clone(),
+            fixture.acceptance_criteria(),
+        );
+        executor::execute(
+            NullComponentProgressChannelNotify {}, 
+            fixture, 
+            report
+        )
+        .await
+        .build()
     }
 }

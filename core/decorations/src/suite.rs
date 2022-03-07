@@ -1,7 +1,7 @@
 use std::time::Duration;
 
 use integra8_components::{
-    ComponentDescription, ComponentGeneratorId, ComponentLocation, ConcurrencyMode, Suite,
+    ComponentDescription, ComponentId, ComponentLocation, ConcurrencyMode, Suite,
     SuiteAttributes, TestParameters, ComponentPath
 };
 
@@ -76,14 +76,14 @@ impl SuiteAttributesDecoration {
 
     pub fn into_component<TParameters: TestParameters>(
         self,
-        id_gen: &mut ComponentGeneratorId,
+        id: ComponentId,
         parent: Option<(&SuiteAttributes, &ComponentDescription)>,
         parameters: &TParameters,
     ) -> Suite<TParameters> {
         Suite::new(
             parent,
             parameters,
-            id_gen,
+            id,
             self.name,
             self.description,
             self.ignore,

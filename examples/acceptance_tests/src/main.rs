@@ -39,53 +39,40 @@ macro_rules! run_tests {
                     let test_report : Result<Vec<ComponentRunReport>, Error>  = serde_yaml::from_str(&stdout_string);
                     $ctx.artifacts.include_text("stdout", stdout_string);
                     $ctx.artifacts.include_text("stderr", stderr_string);
-
-                    (result, test_report)
+                    
+                    ( 
+                        result.map(|r| ComponentResult::from_status_code(r)), 
+                        test_report
+                    )
                 }
             }
         }
     }
 }
 
-macro_rules! assert_test_passes {
-    ($exe_name:expr, $ctx:expr) => {
+
+macro_rules! assert_test_result {
+    (
+        exe => $exe_name:expr,
+        ctx => $ctx:expr,
+        result => $expected:expr,
+    ) => {
         match run_tests!($exe_name, $ctx) {
-            (Some(0), Ok(report)) => {
+            (Some(actual), Ok(report)) => {
+                assert!($expected == actual, "Expected status code {:?}, but received {:?}", $expected, actual);
                 // success!
                 report
             },
-            (Some(0), Err(e)) => {
+            (_, Err(e)) => {
                 panic!("Failed to parse formatted output {}", e)
             },
-            (Some(other), _ ) => {
-                panic!("Expected status code 0, but received {}", other)
-            },
             (None, _ ) => {
-                panic!("Expected status code 0, but received none")
+                panic!("Process was terminated by a signal")
             },
         }
     }
 }
 
-macro_rules! assert_test_fails {
-    ($exe_name:expr, $ctx:expr) => {
-        match run_tests!($exe_name, $ctx) {
-            (Some(1), Ok(report)) => {
-                // Failure ... which is a success!
-                report
-            },
-            (Some(1), Err(e)) => {
-                panic!("Failed to parse formatted output {}", e)
-            },
-            (Some(other), _ ) => {
-                panic!("Expected status code 1, but received {}", other)
-            },
-            (None, _ ) => {
-                panic!("Expected status code 1, but received none")
-            },
-        }
-    }
-}
 
 use integra8::components::ComponentType;
 use integra8::results::{ComponentResult, WarningReason, PassReason, FailureReason, DidNotRunReason};
@@ -104,8 +91,6 @@ macro_rules! assert_root_suite {
         assert_eq!($report[0].description.component_type(), &ComponentType::Suite);
     };
 }
-
-
 
 #[macro_export]
 macro_rules! assert_component {
@@ -152,7 +137,11 @@ mod basic_examples {
     #[integration_test]
     async fn test_basics(ctx : crate::ExecutionContext) {
         // Act
-        let r = assert_test_passes!("./test_basics", ctx);
+        let r = assert_test_result!(
+            exe => "./test_basics", 
+            ctx => ctx, 
+            result => ComponentResult::Warning(WarningReason::ChildWarning),
+        );
 
         // Assert 
         assert_root_suite!(
@@ -203,7 +192,6 @@ mod basic_examples {
             id => 4,
             parent_id => 0,
             component_type => ComponentType::Test,
-            stderr => "thread 'tokio-runtime-worker' panicked at 'You shall not pass!', 1_setup_test_teardown/a_test_basics/src/main.rs:69:5\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n"
         );
 
         assert_component!(
@@ -218,7 +206,11 @@ mod basic_examples {
 
     #[integration_test]
     async fn setup_and_tear_down_basics(ctx : crate::ExecutionContext) {
-        let r = assert_test_passes!("./setup_and_tear_down_basics", ctx);
+        let r = assert_test_result!(
+            exe => "./setup_and_tear_down_basics", 
+            ctx => ctx, 
+            result => ComponentResult::Pass(PassReason::Accepted),
+        );
 
         // Assert 
         assert_root_suite!(
@@ -271,7 +263,11 @@ mod basic_examples {
     #[integration_test]
     async fn setup_and_tear_down_failure_behavior(ctx : crate::ExecutionContext) {
         // Act
-        let r = assert_test_fails!("./setup_and_tear_down_failure_behavior", ctx);
+        let r = assert_test_result!(
+            exe => "./setup_and_tear_down_failure_behavior", 
+            ctx => ctx, 
+            result => ComponentResult::Fail(FailureReason::ChildFailure),
+        );
 
          // Assert 
          assert_root_suite!(
@@ -307,7 +303,6 @@ mod basic_examples {
             id => 3,
             parent_id => 0,
             component_type => ComponentType::Test,
-            stderr => "thread 'tokio-runtime-worker' panicked at 'Test 2 fails', 1_setup_test_teardown/c_setup_and_tear_down_failure_behavior/src/main.rs:31:5\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n"
         );
 
         assert_component!(
@@ -352,7 +347,11 @@ mod basic_examples {
     #[integration_test]
     async fn parallel_test_behavior(ctx : crate::ExecutionContext) {
         // Act 
-        let r = assert_test_passes!("./parallel_test_behavior", ctx);
+        let r = assert_test_result!(
+            exe => "./parallel_test_behavior", 
+            ctx => ctx, 
+            result => ComponentResult::Pass(PassReason::Accepted),
+        );
 
         // Assert 
         assert_root_suite!(
@@ -419,7 +418,11 @@ mod basic_examples {
     #[integration_test]
     async fn timeout_behavior(ctx : crate::ExecutionContext) {
         // Act 
-        let r = assert_test_fails!("./timeout_behavior", ctx);
+        let r = assert_test_result!(
+            exe => "./timeout_behavior", 
+            ctx => ctx, 
+            result => ComponentResult::Fail(FailureReason::ChildFailure),
+        );
 
         // Assert 
         assert_root_suite!(
@@ -449,7 +452,11 @@ mod basic_examples {
 
     #[integration_test]
     async fn multi_file_test_order(ctx : crate::ExecutionContext) {
-        let r = assert_test_passes!("./multi_file_test_order", ctx);
+        let r = assert_test_result!(
+            exe => "./multi_file_test_order", 
+            ctx => ctx, 
+            result => ComponentResult::Pass(PassReason::Accepted),
+        );
 
         // Assert 
         assert_root_suite!(
@@ -506,7 +513,11 @@ mod execution_context {
 
     #[integration_test]
     async fn custom_parameters(ctx : crate::ExecutionContext) {
-         let r = assert_test_passes!("./custom_parameters", ctx);
+        let r = assert_test_result!(
+            exe => "./custom_parameters", 
+            ctx => ctx, 
+            result => ComponentResult::Pass(PassReason::Accepted),
+        );
 
         // Assert 
         assert_root_suite!(
@@ -527,8 +538,11 @@ mod execution_context {
 
     #[integration_test]
     async fn generate_test_data(ctx : crate::ExecutionContext) {
-        let r = assert_test_passes!("./generate_test_data", ctx);
-
+        let r = assert_test_result!(
+            exe => "./generate_test_data", 
+            ctx => ctx, 
+            result => ComponentResult::Pass(PassReason::Accepted),
+        );
 
         // Assert 
         assert_root_suite!(
@@ -547,8 +561,11 @@ mod suites {
 
     #[integration_test]
     async fn suites_basics(ctx : crate::ExecutionContext) {
-        let r = assert_test_passes!("./suites_basics", ctx);
-
+        let r = assert_test_result!(
+            exe => "./suites_basics", 
+            ctx => ctx, 
+            result => ComponentResult::Pass(PassReason::Accepted),
+        );
 
         // Assert 
         assert_root_suite!(
@@ -743,7 +760,11 @@ mod suites {
 
     #[integration_test]
     async fn parallel_suite_behavior(ctx : crate::ExecutionContext) {
-        let r = assert_test_passes!("./parallel_suite_behavior", ctx);
+        let r = assert_test_result!(
+            exe => "./parallel_suite_behavior", 
+            ctx => ctx, 
+            result => ComponentResult::Pass(PassReason::Accepted),
+        );
 
         // Assert 
         assert_root_suite!(
@@ -836,8 +857,11 @@ mod suites {
 
     #[integration_test]
     async fn cascading_failure_behavior(ctx : crate::ExecutionContext) {
-        let r = assert_test_fails!("./cascading_failure_behavior", ctx);
-
+        let r = assert_test_result!(
+            exe => "./cascading_failure_behavior", 
+            ctx => ctx, 
+            result => ComponentResult::Fail(FailureReason::ChildFailure),
+        );
 
         // Assert 
         assert_root_suite!(
@@ -951,28 +975,47 @@ mod suites {
 
 #[suite]
 mod test_main {
+    use super::*;
+
     #[integration_test]
     async fn global_settings(ctx : crate::ExecutionContext) {
-        assert_test_passes!("./global_settings", ctx);
+        let _r = assert_test_result!(
+            exe => "./global_settings", 
+            ctx => ctx, 
+            result => ComponentResult::Pass(PassReason::Accepted),
+        );
     }
 }
 
 #[suite]
 mod pitfalls {
+    use super::*;
 
     #[integration_test]
     async fn nested_sequential_behavior(ctx : crate::ExecutionContext) {
-        assert_test_passes!("./nested_sequential_behavior", ctx);
+        let _r = assert_test_result!(
+            exe => "./nested_sequential_behavior", 
+            ctx => ctx, 
+            result => ComponentResult::Pass(PassReason::Accepted),
+        );
     }
 
     #[integration_test]
     async fn timeout_limitations(ctx : crate::ExecutionContext) {
-        assert_test_fails!("./timeout_limitations", ctx);
+        let _r = assert_test_result!(
+            exe => "./timeout_limitations", 
+            ctx => ctx, 
+            result => ComponentResult::Fail(FailureReason::ChildFailure),
+        );
     }
 
     #[integration_test]
     async fn use_child_process(ctx : crate::ExecutionContext) {
-       assert_test_passes!("./use_child_process", ctx);
+        let _r = assert_test_result!(
+            exe => "./use_child_process", 
+            ctx => ctx, 
+            result => ComponentResult::Pass(PassReason::Accepted),
+        );
     }
 }
 

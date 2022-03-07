@@ -1,4 +1,5 @@
 use indexmap::IndexMap;
+use std::error::Error;
 use std::any::Any;
 use std::io::{BufRead, Cursor, Read, Seek, SeekFrom, Write};
 use std::mem;
@@ -6,8 +7,9 @@ use std::path::PathBuf;
 use std::sync::Arc;
 use std::sync::RwLock;
 use std::time::Duration;
+use serde::{Serialize, Deserialize};
 
-use crate::{ComponentDescription, ConcurrencyMode};
+use crate::{ComponentDescription, ConcurrencyMode, Component, ComponentPath, ComponentId, BookEndAttributes, TestAttributes, Delegate, ComponentType, ComponentLocation, Test, BookEnd };
 
 pub struct ExecutionContext<TParameters> {
     pub parameters: Arc<TParameters>,
@@ -95,63 +97,6 @@ impl ExecutionArtifacts {
     }
 }
 
-#[derive(Clone)]
-pub enum ExecutionStrategy {
-    ProcessInternal,
-    ProcessExternal,
-}
-
-pub trait TestParameters {
-    // Parameter Projections
-    fn is_multi_threaded(&self) -> bool {
-        // TODO: remove
-        if self.max_concurrency() == 1 {
-            return false;
-        }
-        true
-    }
-
-    fn is_child_process(&self) -> bool {
-        self.child_process_target().is_some()
-    }
-
-    fn execution_strategy(&self) -> ExecutionStrategy {
-        if self.is_child_process() {
-            return ExecutionStrategy::ProcessInternal;
-        }
-        if !self.use_child_processes() {
-            return ExecutionStrategy::ProcessInternal;
-        }
-        ExecutionStrategy::ProcessExternal
-    }
-
-    fn exclude_component_predicate(&self, component_path: &str) -> bool {
-        match &self.child_process_target() {
-            Some(name) => name != &component_path,
-            None => false,
-        }
-    }
-
-    // User defined
-
-    fn test_concurrency(&self) -> ConcurrencyMode;
-    fn suite_concurrency(&self) -> ConcurrencyMode;
-    fn child_process_target(&self) -> Option<&'_ str>;
-
-    fn setup_time_limit_duration(&self) -> Duration;
-    fn tear_down_time_limit_duration(&self) -> Duration;
-    fn test_time_limit_duration(&self) -> Duration;
-    fn test_warning_time_limit_duration(&self) -> Duration;
-
-    fn max_concurrency(&self) -> usize;
-    fn root_namespace(&self) -> &'static str;
-    fn use_child_processes(&self) -> bool;
-
-    fn console_output_style(&self) -> &'_ str;
-    fn console_output_detail_level(&self) -> &'_ str;
-    fn console_output_encoding(&self) -> &'_ str;
-    fn console_output_ansi_mode(&self) -> &'_ str;
-}
 
 pub trait BufferSource {
     fn read_all(&mut self) -> std::io::Result<Vec<u8>>;
@@ -234,3 +179,168 @@ impl<'a> Seek for ExecutionArtifactCursor<'a> {
         self.inner.as_mut().map(|r| r.stream_position()).unwrap()
     }
 }
+
+
+#[derive(Clone)]
+pub enum ExecutionStrategy {
+    GreenThread,
+    ChildProcess,
+    CurrentThread
+}
+
+pub trait TestParameters {
+    // Parameter Projections
+
+    fn is_child_process(&self) -> bool {
+        self.child_process_target().is_some()
+    }
+
+    fn execution_strategy(&self) -> ExecutionStrategy {
+        if self.is_child_process() {
+            return ExecutionStrategy::CurrentThread;
+        }
+
+        if self.use_child_processes() {
+            return ExecutionStrategy::ChildProcess;     
+        }
+        ExecutionStrategy::GreenThread
+    }
+
+    // User defined
+
+    fn test_concurrency(&self) -> ConcurrencyMode;
+    fn suite_concurrency(&self) -> ConcurrencyMode;
+    fn child_process_target(&self) -> Option<&'_ ChildProcessComponentArgs>;
+
+    fn setup_time_limit_duration(&self) -> Duration;
+    fn tear_down_time_limit_duration(&self) -> Duration;
+    fn test_time_limit_duration(&self) -> Duration;
+    fn test_warning_time_limit_duration(&self) -> Duration;
+
+    fn max_concurrency(&self) -> usize;
+    fn root_namespace(&self) -> &'static str;
+    fn use_child_processes(&self) -> bool;
+
+    fn console_output_style(&self) -> &'_ str;
+    fn console_output_detail_level(&self) -> &'_ str;
+    fn console_output_encoding(&self) -> &'_ str;
+    fn console_output_ansi_mode(&self) -> &'_ str;
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct ChildProcessComponentMetaArgs {
+    pub path: ComponentPath,
+    pub parent_location: ComponentLocation,
+    pub id: ComponentId,
+    pub parent_id: ComponentId,
+}
+
+impl ChildProcessComponentMetaArgs {
+    pub fn from_description(description: ComponentDescription) -> Self {
+        Self {
+            path: description.location().path.clone(),
+            parent_location: description.parent_location().clone(),
+            id: description.id().clone(),
+            parent_id: description.parent_id().clone(),
+        }
+    }
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum ChildProcessComponentArgs {
+    Test {
+        meta: ChildProcessComponentMetaArgs, 
+        attributes: TestAttributes
+    },
+    Setup {
+        meta: ChildProcessComponentMetaArgs, 
+        attributes: BookEndAttributes
+    },
+    TearDown {
+        meta: ChildProcessComponentMetaArgs, 
+        attributes: BookEndAttributes
+    },
+}
+
+impl ChildProcessComponentArgs {
+    pub fn from_str(str_value: &str) -> Result<Self, Box<dyn Error>>  {
+        let val = serde_json::from_str(str_value)?;
+        Ok(val)
+    }
+
+    pub fn meta<'a>(&'a self) -> &'a ChildProcessComponentMetaArgs {
+        match self {
+            Self::Test { meta, .. } => {
+                meta
+            },
+            Self::Setup  { meta, .. } => {
+                meta
+            },
+            Self::TearDown  { meta, .. } => {
+                meta
+            },
+        }
+    }
+
+    pub fn to_string(&self) -> Result<String, Box<dyn Error>>  {
+        let as_string = serde_json::to_string(&self)?;
+        Ok(as_string)
+    }
+
+    pub fn into_component<TParameters>(
+        self,
+        name: Option<&'static str>,
+        description: Option<&'static str>,
+        location: ComponentLocation,
+        component_fn: Delegate<TParameters>
+    ) -> Component<TParameters> {
+        match self {
+            Self::Test { meta, attributes } => {
+                Component::Test(Test {
+                    description: ComponentDescription::new(
+                        name,
+                        meta.id,
+                        meta.parent_id,
+                        location,
+                        meta.parent_location,
+                        description,
+                        ComponentType::Test,
+                    ),
+                    attributes: attributes,
+                    test_fn: component_fn
+                })
+            },
+            Self::Setup { meta, attributes } => {
+                Component::Setup(BookEnd {
+                    description: ComponentDescription::new(
+                        name,
+                        meta.id,
+                        meta.parent_id,
+                        location,
+                        meta.parent_location,
+                        description,
+                        ComponentType::Setup,
+                    ),
+                    attributes: attributes,
+                    bookend_fn: component_fn
+                })
+            },
+            Self::TearDown { meta, attributes } => {
+                Component::TearDown(BookEnd {
+                    description: ComponentDescription::new(
+                        name,
+                        meta.id,
+                        meta.parent_id,
+                        location,
+                        meta.parent_location,
+                        description,
+                        ComponentType::TearDown,
+                    ),
+                    attributes: attributes,
+                    bookend_fn: component_fn
+                })
+            },
+        }
+    }
+}
+

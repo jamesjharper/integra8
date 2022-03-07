@@ -8,7 +8,7 @@ use std::error::Error;
 use integra8_async_runtime::Receiver;
 use integra8_results::summary::ComponentTypeCountSummary;
 
-use crate::channel::TestEvent;
+use crate::core::channel::TestEvent;
 
 pub struct ResultsSink {
     pub sink: ResultsOutputWriterSink,

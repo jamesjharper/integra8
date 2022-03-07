@@ -56,6 +56,10 @@ impl ComponentReportBuilder {
         self.result = Some(ComponentResult::filtered());
     }
 
+    pub fn timed_out_result(&mut self) {
+        self.result = Some(ComponentResult::timed_out());
+    }
+
     pub fn time_until_deadline(&self, duration: Duration) -> Option<Duration> {
         match self.acceptance_criteria.timing.time_limit {
             Some(time_limit) => Some(time_limit.saturating_sub(duration)),

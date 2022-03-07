@@ -1,4 +1,4 @@
-use crate::channel::TestEvent;
+use crate::core::channel::TestEvent;
 
 use integra8_async_runtime::Sender;
 use integra8_results::report::ComponentRunReport;

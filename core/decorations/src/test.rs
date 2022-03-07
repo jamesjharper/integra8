@@ -1,7 +1,7 @@
 use std::time::Duration;
 
 use integra8_components::{
-    ComponentDescription, ComponentGeneratorId, ComponentLocation, ConcurrencyMode, Delegate,
+    ComponentDescription, ComponentId, ComponentLocation, ConcurrencyMode, Delegate,
     SuiteAttributes, Test, TestParameters,
 };
 
@@ -45,7 +45,7 @@ pub struct TestDecoration<TParameters> {
 impl<TParameters: TestParameters> TestDecoration<TParameters> {
     pub fn into_component(
         self,
-        id_gen: &mut ComponentGeneratorId,
+        id: ComponentId,
         parent_description: &ComponentDescription,
         parent_attributes: &SuiteAttributes,
         parameters: &TParameters,
@@ -54,7 +54,7 @@ impl<TParameters: TestParameters> TestDecoration<TParameters> {
             parent_description,
             parent_attributes,
             parameters,
-            id_gen,
+            id,
             self.desc.name,
             self.desc.description,
             self.desc.location,

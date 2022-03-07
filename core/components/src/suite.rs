@@ -1,7 +1,7 @@
 use std::time::Duration;
 
 use crate::{
-    BookEnd, ComponentDescription, ComponentGeneratorId, ComponentLocation,
+    BookEnd, ComponentDescription, ComponentId, ComponentLocation,
     ComponentType, ConcurrencyMode, Test, TestParameters,
 };
 
@@ -151,7 +151,7 @@ impl<TParameters: TestParameters> Suite<TParameters> {
     pub fn new(
         parent: Option<(&SuiteAttributes, &ComponentDescription)>,
         parameters: &TParameters,
-        id_gen: &mut ComponentGeneratorId,
+        id: ComponentId,
         name: Option<&'static str>,
         description: Option<&'static str>,
         ignore: Option<bool>,
@@ -164,7 +164,6 @@ impl<TParameters: TestParameters> Suite<TParameters> {
         suite_concurrency_mode: Option<ConcurrencyMode>,
         test_concurrency_mode: Option<ConcurrencyMode>,
     ) -> Suite<TParameters> {
-        let id = id_gen.next();
         let (parent_location, parent_id) = parent
             .map(|p| (p.1.location().clone(), p.1.id().clone()))
             // root nodes have themselves as their parent and an id of zero

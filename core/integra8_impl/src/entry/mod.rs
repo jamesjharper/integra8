@@ -151,7 +151,7 @@ pub fn main_test(input_tokens: TokenStream) -> TokenStream {
                 // indicates is this instance will spawn child processes
                 pub use_child_processes: bool,
 
-                pub child_process_target: Option<String>,
+                pub child_process_target: Option<#integra8_path ::components::ChildProcessComponentArgs>,
                 pub max_concurrency: usize,
                 pub default_setup_time_limit: std::time::Duration,
                 pub test_time_limit: std::time::Duration,
@@ -300,7 +300,7 @@ pub fn main_test(input_tokens: TokenStream) -> TokenStream {
                     TestParameters {
                         child_process_target: matches
                             .value_of("internal:child-process-target")
-                            .map(|s| ::std::str::FromStr::from_str(s).unwrap()),
+                            .map(|s| #integra8_path ::components::ChildProcessComponentArgs::from_str(s).unwrap()),
                         use_child_processes: matches
                             .value_of("framework:use-child-process")
                             .map(|s| ::std::str::FromStr::from_str(s).unwrap())
@@ -459,8 +459,8 @@ pub fn main_test(input_tokens: TokenStream) -> TokenStream {
                 #formatter_settings_type
             > {
 
-                fn child_process_target(&self) -> Option<&'_ str> {
-                    self.framework.child_process_target.as_ref().map(String::as_ref)
+                fn child_process_target(&self) -> Option<&'_ #integra8_path ::components::ChildProcessComponentArgs> {
+                    self.framework.child_process_target.as_ref()
                 }
 
                 fn use_child_processes(&self) -> bool {

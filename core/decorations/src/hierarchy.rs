@@ -16,7 +16,7 @@ pub struct ComponentGroup<TParameters> {
 }
 
 impl<TParameters: TestParameters> ComponentGroup<TParameters> {
-    pub fn into_components<ComponentsIterator>(
+    pub fn into_root_component<ComponentsIterator>(
         components: ComponentsIterator,
         parameters: &TParameters,
     ) -> Suite<TParameters>
@@ -38,7 +38,7 @@ impl<TParameters: TestParameters> ComponentGroup<TParameters> {
             .suite
             .unwrap_or_else(|| SuiteAttributesDecoration::root(parameters.root_namespace()));
 
-        let mut suite = parent_suite_attributes.into_component(id_gen, parent, parameters);
+        let mut suite = parent_suite_attributes.into_component(id_gen.next(), parent, parameters);
 
         // For a clean implementation, we want the id to accessed in approximate order of execution.
 
@@ -46,14 +46,14 @@ impl<TParameters: TestParameters> ComponentGroup<TParameters> {
         suite.setups = self
             .setups
             .into_iter()
-            .map(|x| x.into_setup_component(id_gen, &suite.description, &suite.attributes))
+            .map(|x| x.into_setup_component(id_gen.next(), &suite.description, &suite.attributes))
             .collect();
 
         // 2: Tests
         suite.tests = self
             .tests
             .into_iter()
-            .map(|x| x.into_component(id_gen, &suite.description, &suite.attributes, parameters))
+            .map(|x| x.into_component(id_gen.next(), &suite.description, &suite.attributes, parameters))
             .collect();
 
         // 3: Nested Suites
@@ -73,7 +73,7 @@ impl<TParameters: TestParameters> ComponentGroup<TParameters> {
         suite.tear_downs = self
             .tear_downs
             .into_iter()
-            .map(|x| x.into_tear_down_component(id_gen, &suite.description, &suite.attributes))
+            .map(|x| x.into_tear_down_component(id_gen.next(), &suite.description, &suite.attributes))
             .collect();
 
         suite

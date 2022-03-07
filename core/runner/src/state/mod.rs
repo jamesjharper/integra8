@@ -71,7 +71,7 @@ impl ComponentStateToken {
     /// | Undetermined          | Failed             | Failed, or Undetermined if component type  is tear down    |
     /// | Undetermined          | Undetermined       | Undetermined                                               |
     ///
-    /// *Tear down is always run, even if the parent is in a failed state. This is to ensure to the best our abilities a clean environment after running the test.*
+    /// *Tear down is always run, even if the parent is in a failed state. This is to ensure a clean environment after running the test.*
     ///
     pub fn state(&self) -> ComponentState {
         match self.self_token.read().unwrap().state.clone() {

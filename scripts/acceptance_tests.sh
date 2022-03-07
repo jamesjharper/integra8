@@ -34,7 +34,7 @@ if [ "$2" == "tokio" ]; then
     CARGO_TARGET_DIR="./target/tokio/"
 elif [ "$2" == "async-std" ]; then
     RUNTIME_NAME="async-std"
-    BUILD_FEATURES="async-std-runtime"
+    BUILD_FEATURES="async-std-runtime integra8/async-std-runtime"
     CARGO_TARGET_DIR="./target/async-std/"
 else
     Usage && exit 1

@@ -119,6 +119,45 @@ impl ComponentResult {
             _ => false,
         }
     }
+
+    pub fn to_status_code(&self) -> i32 {
+        match self {
+            ComponentResult::Pass(PassReason::Accepted) => 0,
+            // Any unexpected panic will return => 1,
+            ComponentResult::Warning(WarningReason::FailureAllowed) => 2,
+            ComponentResult::Warning(WarningReason::OvertimeWarning) => 3,
+            ComponentResult::Warning(WarningReason::ChildWarning) => 4,
+
+            ComponentResult::Fail(FailureReason::ChildFailure) => 10,
+            ComponentResult::Fail(FailureReason::Rejected) => 11,
+            ComponentResult::Fail(FailureReason::Overtime) => 12,
+
+            ComponentResult::DidNotRun(DidNotRunReason::Undetermined) => 20,
+            ComponentResult::DidNotRun(DidNotRunReason::Filtered) => 21,
+            ComponentResult::DidNotRun(DidNotRunReason::Ignored) => 22,
+            ComponentResult::DidNotRun(DidNotRunReason::ParentFailure) => 23,
+        }
+    }
+
+    pub fn from_status_code(status_code: i32) -> Self {
+        match status_code {
+            0 => ComponentResult::Pass(PassReason::Accepted),
+            //1 => Any unexpected internal panic will return 1,
+            2 => ComponentResult::Warning(WarningReason::FailureAllowed),
+            3 => ComponentResult::Warning(WarningReason::OvertimeWarning),
+            4 => ComponentResult::Warning(WarningReason::ChildWarning),
+
+            10 => ComponentResult::Fail(FailureReason::ChildFailure),
+            11 => ComponentResult::Fail(FailureReason::Rejected),
+            13 => ComponentResult::Fail(FailureReason::Overtime),
+
+            20 => ComponentResult::DidNotRun(DidNotRunReason::Undetermined),
+            21 => ComponentResult::DidNotRun(DidNotRunReason::Filtered),
+            22 => ComponentResult::DidNotRun(DidNotRunReason::Ignored),
+            23 => ComponentResult::DidNotRun(DidNotRunReason::ParentFailure),
+            _ => ComponentResult::DidNotRun(DidNotRunReason::Undetermined)
+        }
+    }
 }
 
 #[cfg_attr(feature = "enable_serde", derive(Serialize, Deserialize))]

@@ -1,7 +1,7 @@
 use std::time::Duration;
 
 use integra8_components::{
-    BookEnd, ComponentDescription, ComponentGeneratorId, ComponentLocation, ConcurrencyMode,
+    BookEnd, ComponentDescription, ComponentId, ComponentLocation, ConcurrencyMode,
     Delegate, SuiteAttributes, TestParameters,
 };
 
@@ -37,14 +37,14 @@ pub struct BookEndDecoration<TParameters> {
 impl<TParameters: TestParameters> BookEndDecoration<TParameters> {
     pub fn into_setup_component(
         self,
-        id_gen: &mut ComponentGeneratorId,
+        id: ComponentId,
         parent_suite_description: &ComponentDescription,
         parent_suite_attributes: &SuiteAttributes,
     ) -> BookEnd<TParameters> {
         BookEnd::new_setup(
             parent_suite_description,
             parent_suite_attributes,
-            id_gen,
+            id,
             self.desc.name,
             self.desc.description,
             self.desc.location,
@@ -57,14 +57,14 @@ impl<TParameters: TestParameters> BookEndDecoration<TParameters> {
 
     pub fn into_tear_down_component(
         self,
-        id_gen: &mut ComponentGeneratorId,
+        id: ComponentId,
         parent_suite_description: &ComponentDescription,
         parent_suite_attributes: &SuiteAttributes,
     ) -> BookEnd<TParameters> {
         BookEnd::new_tear_down(
             parent_suite_description,
             parent_suite_attributes,
-            id_gen,
+            id,
             self.desc.name,
             self.desc.description,
             self.desc.location,

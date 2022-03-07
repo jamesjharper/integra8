@@ -10,7 +10,7 @@ pub use suite::SuiteAttributesDecoration;
 mod hierarchy;
 pub use hierarchy::{ComponentGroup, ComponentHierarchy};
 
-use integra8_components::{ComponentType, ComponentPath};
+use integra8_components::{ComponentType, ComponentLocation, Delegate};
 
 #[derive(Debug)]
 pub enum ComponentDecoration<TParameters> {
@@ -21,12 +21,31 @@ pub enum ComponentDecoration<TParameters> {
 }
 
 impl<TParameters> ComponentDecoration<TParameters> {
-    pub fn path(&self) -> &'_ ComponentPath {
+
+    pub fn name(&self) ->  Option<&'static str> {
         match self {
-            ComponentDecoration::IntegrationTest(c) => &c.desc.location.path,
-            ComponentDecoration::Suite(c) => &c.location.path,
-            ComponentDecoration::TearDown(c) => &c.desc.location.path,
-            ComponentDecoration::Setup(c) => &c.desc.location.path,
+            ComponentDecoration::IntegrationTest(c) => c.desc.name.clone(),
+            ComponentDecoration::Suite(c) => c.name.clone(),
+            ComponentDecoration::TearDown(c) => c.desc.name.clone(),
+            ComponentDecoration::Setup(c) => c.desc.name.clone(),
+        }
+    }
+
+    pub fn description(&self) ->  Option<&'static str> {
+        match self {
+            ComponentDecoration::IntegrationTest(c) => c.desc.description.clone(),
+            ComponentDecoration::Suite(c) => c.description.clone(),
+            ComponentDecoration::TearDown(c) => c.desc.description.clone(),
+            ComponentDecoration::Setup(c) => c.desc.description.clone(),
+        }
+    }
+
+    pub fn location(&self) -> &'_ ComponentLocation {
+        match self {
+            ComponentDecoration::IntegrationTest(c) => &c.desc.location,
+            ComponentDecoration::Suite(c) => &c.location,
+            ComponentDecoration::TearDown(c) => &c.desc.location,
+            ComponentDecoration::Setup(c) => &c.desc.location,
         }
     }
 
@@ -36,6 +55,15 @@ impl<TParameters> ComponentDecoration<TParameters> {
             ComponentDecoration::Suite(_) => ComponentType::Suite,
             ComponentDecoration::TearDown(_) => ComponentType::TearDown,
             ComponentDecoration::Setup(_) => ComponentType::Setup,
+        }
+    }
+
+    pub fn into_delegate(self) -> Option<Delegate<TParameters>> {
+        match self {
+            ComponentDecoration::IntegrationTest(c) => Some(c.test_fn),
+            ComponentDecoration::Suite(_) => None,
+            ComponentDecoration::TearDown(c) => Some(c.bookend_fn),
+            ComponentDecoration::Setup(c) => Some(c.bookend_fn),
         }
     }
 }
@@ -80,7 +108,7 @@ mod test_rigging {
     }
 
     impl components::TestParameters for TestAppParameters {
-        fn child_process_target(&self) -> Option<&'_ str> {
+        fn child_process_target(&self) -> Option<&'_ crate::components::ChildProcessComponentArgs> {
             None // not needed for tests
         }
 
@@ -410,7 +438,7 @@ mod tests {
     #[test]
     fn should_initialize_from_no_components() {
         // Act
-        let root = ComponentGroup::into_components(vec![], &Parameters::default());
+        let root = ComponentGroup::into_root_component(vec![], &Parameters::default());
 
         // Assert
         assert_eq!(root.tests.len(), 0);
@@ -442,7 +470,7 @@ mod tests {
         #[test]
         fn for_test() {
             // Act
-            let root = ComponentGroup::into_components(
+            let root = ComponentGroup::into_root_component(
                 vec![mock_app::test_a::test_def()],
                 &Parameters::default(),
             );
@@ -480,7 +508,7 @@ mod tests {
         #[test]
         fn for_setup() {
             // Act
-            let root = ComponentGroup::into_components(
+            let root = ComponentGroup::into_root_component(
                 vec![mock_app::setup_a::setup_def()],
                 &Parameters::default(),
             );
@@ -521,7 +549,7 @@ mod tests {
         #[test]
         fn for_tear_down() {
             // Act
-            let root = ComponentGroup::into_components(
+            let root = ComponentGroup::into_root_component(
                 vec![mock_app::teardown_a::teardown_def()],
                 &Parameters::default(),
             );
@@ -565,7 +593,7 @@ mod tests {
         #[test]
         fn for_suite() {
             // Act
-            let root = ComponentGroup::into_components(
+            let root = ComponentGroup::into_root_component(
                 vec![mock_app::nested_suite_z::__suite_def()],
                 &Parameters::default(),
             );
@@ -623,7 +651,7 @@ mod tests {
         #[test]
         fn for_test() {
             // Act
-            let root = ComponentGroup::into_components(
+            let root = ComponentGroup::into_root_component(
                 vec![
                     mock_app::nested_suite_z::__suite_def(),
                     mock_app::nested_suite_z::test_az::test_def(),
@@ -664,7 +692,7 @@ mod tests {
         #[test]
         fn for_setup() {
             // Act
-            let root = ComponentGroup::into_components(
+            let root = ComponentGroup::into_root_component(
                 vec![
                     mock_app::nested_suite_z::__suite_def(),
                     mock_app::nested_suite_z::setup_az::setup_def(),
@@ -702,7 +730,7 @@ mod tests {
         #[test]
         fn for_tear_down() {
             // Act
-            let root = ComponentGroup::into_components(
+            let root = ComponentGroup::into_root_component(
                 vec![
                     mock_app::nested_suite_z::__suite_def(),
                     mock_app::nested_suite_z::teardown_az::teardown_def(),
@@ -747,7 +775,7 @@ mod tests {
         #[test]
         fn for_test() {
             // Act
-            let root = ComponentGroup::into_components(
+            let root = ComponentGroup::into_root_component(
                 vec![mock_app::test_a_with_decorations::test_def()],
                 &Parameters::default(),
             );
@@ -792,7 +820,7 @@ mod tests {
         #[test]
         fn for_setup() {
             // Act
-            let root = ComponentGroup::into_components(
+            let root = ComponentGroup::into_root_component(
                 vec![mock_app::setup_a_with_decorations::setup_def()],
                 &Parameters::default(),
             );
@@ -834,7 +862,7 @@ mod tests {
         #[test]
         fn for_tear_down() {
             // Act
-            let root = ComponentGroup::into_components(
+            let root = ComponentGroup::into_root_component(
                 vec![mock_app::teardown_a_with_decorations::teardown_def()],
                 &Parameters::default(),
             );
@@ -879,7 +907,7 @@ mod tests {
         #[test]
         fn for_suite() {
             // Act
-            let root = ComponentGroup::into_components(
+            let root = ComponentGroup::into_root_component(
                 vec![mock_app::nested_suite_y::__suite_def()],
                 &Parameters::default(),
             );
@@ -933,7 +961,7 @@ mod tests {
         #[test]
         fn for_test() {
             // Act
-            let root = ComponentGroup::into_components(
+            let root = ComponentGroup::into_root_component(
                 vec![mock_app::nested_namespace::test_d_nested_with_decorations::test_def()],
                 &Parameters::default(),
             );
@@ -978,7 +1006,7 @@ mod tests {
         #[test]
         fn for_setup() {
             // Act
-            let root = ComponentGroup::into_components(
+            let root = ComponentGroup::into_root_component(
                 vec![mock_app::nested_namespace::setup_d_nested_with_decorations::setup_def()],
                 &Parameters::default(),
             );
@@ -1020,7 +1048,7 @@ mod tests {
         #[test]
         fn for_tear_down() {
             // Act
-            let root = ComponentGroup::into_components(
+            let root = ComponentGroup::into_root_component(
                 vec![
                     mock_app::nested_namespace::teardown_d_nested_with_decorations::teardown_def(),
                 ],
@@ -1071,7 +1099,7 @@ mod tests {
         #[test]
         fn for_test() {
             // Act
-            let root = ComponentGroup::into_components(
+            let root = ComponentGroup::into_root_component(
                 vec![
                     mock_app::nested_suite_z::__suite_def(),
                     mock_app::nested_suite_z::test_az_with_decorations::test_def(),
@@ -1119,7 +1147,7 @@ mod tests {
         #[test]
         fn for_setup() {
             // Act
-            let root = ComponentGroup::into_components(
+            let root = ComponentGroup::into_root_component(
                 vec![
                     mock_app::nested_suite_z::__suite_def(),
                     mock_app::nested_suite_z::setup_az_with_decorations::setup_def(),
@@ -1165,7 +1193,7 @@ mod tests {
         #[test]
         fn for_tear_down() {
             // Act
-            let root = ComponentGroup::into_components(
+            let root = ComponentGroup::into_root_component(
                 vec![
                     mock_app::nested_suite_z::__suite_def(),
                     mock_app::nested_suite_z::teardown_az_with_decorations::teardown_def(),
@@ -1217,7 +1245,7 @@ mod tests {
         #[test]
         fn for_test() {
             // Act
-            let root = ComponentGroup::into_components(
+            let root = ComponentGroup::into_root_component(
                 vec![
                     mock_app::nested_suite_y::__suite_def(),
                     mock_app::nested_suite_y::test_ay_with_decorations::test_def(),
@@ -1265,7 +1293,7 @@ mod tests {
         #[test]
         fn for_setup() {
             // Act
-            let root = ComponentGroup::into_components(
+            let root = ComponentGroup::into_root_component(
                 vec![
                     mock_app::nested_suite_y::__suite_def(),
                     mock_app::nested_suite_y::setup_ay_with_decorations::setup_def(),
@@ -1311,7 +1339,7 @@ mod tests {
         #[test]
         fn for_tear_down() {
             // Act
-            let root = ComponentGroup::into_components(
+            let root = ComponentGroup::into_root_component(
                 vec![
                     mock_app::nested_suite_y::__suite_def(),
                     mock_app::nested_suite_y::teardown_ay_with_decorations::teardown_def(),
@@ -1363,7 +1391,7 @@ mod tests {
         #[test]
         fn for_test() {
             // Act
-            let root = ComponentGroup::into_components(
+            let root = ComponentGroup::into_root_component(
                 vec![
                     mock_app::nested_suite_y::__suite_def(),
                     mock_app::nested_suite_y::test_ay::test_def(),
@@ -1405,7 +1433,7 @@ mod tests {
         #[test]
         fn for_setup() {
             // Act
-            let root = ComponentGroup::into_components(
+            let root = ComponentGroup::into_root_component(
                 vec![
                     mock_app::nested_suite_y::__suite_def(),
                     mock_app::nested_suite_y::setup_ay::setup_def(),
@@ -1448,7 +1476,7 @@ mod tests {
         #[test]
         fn for_tear_down() {
             // Act
-            let root = ComponentGroup::into_components(
+            let root = ComponentGroup::into_root_component(
                 vec![
                     mock_app::nested_suite_y::__suite_def(),
                     mock_app::nested_suite_y::teardown_ay::teardown_def(),
@@ -1497,7 +1525,7 @@ mod tests {
         #[test]
         fn for_test() {
             // Act
-            let root = ComponentGroup::into_components(
+            let root = ComponentGroup::into_root_component(
                 vec![
                     mock_app::nested_suite_y::__suite_def(),
                     mock_app::nested_suite_y::nested_suite_x::__suite_def(),
@@ -1540,7 +1568,7 @@ mod tests {
         #[test]
         fn for_setup() {
             // Act
-            let root = ComponentGroup::into_components(
+            let root = ComponentGroup::into_root_component(
                 vec![
                     mock_app::nested_suite_y::__suite_def(),
                     mock_app::nested_suite_y::nested_suite_x::__suite_def(),
@@ -1584,7 +1612,7 @@ mod tests {
         #[test]
         fn for_tear_down() {
             // Act
-            let root = ComponentGroup::into_components(
+            let root = ComponentGroup::into_root_component(
                 vec![
                     mock_app::nested_suite_y::__suite_def(),
                     mock_app::nested_suite_y::nested_suite_x::__suite_def(),
@@ -1628,7 +1656,7 @@ mod tests {
     #[test]
     fn should_return_components_in_the_order_they_are_defined() {
         // Act
-        let root = ComponentGroup::into_components(
+        let root = ComponentGroup::into_root_component(
             vec![
                 // linkme does not order components in the 
                 // order they appear in the file.

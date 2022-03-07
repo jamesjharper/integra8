@@ -4,12 +4,10 @@ use std::borrow::Cow;
 use std::convert::AsRef;
 use std::ffi::OsStr;
 use std::fmt::{self, Display, Formatter};
-
-#[cfg(feature = "enable_serde")]
 use serde::{Serialize, Deserialize};
 
-#[cfg_attr(feature = "enable_serde", derive(Serialize, Deserialize))]
-#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct ComponentPath(Cow<'static, str>);
 
 impl ComponentPath {
@@ -52,8 +50,7 @@ impl AsRef<str> for ComponentPath {
     }
 }
 
-#[cfg_attr(feature = "enable_serde", derive(Serialize, Deserialize))]
-#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct ComponentId(usize);
 
 impl ComponentId {
@@ -97,8 +94,7 @@ impl ComponentGeneratorId {
     }
 }
 
-#[cfg_attr(feature = "enable_serde", derive(Serialize, Deserialize))]
-#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum ComponentType {
     Suite,
     Test,
@@ -115,7 +111,7 @@ impl ComponentType {
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum ConcurrencyMode {
     Parallel,
     Sequential,
@@ -132,19 +128,16 @@ impl std::str::FromStr for ConcurrencyMode {
     }
 }
 
-#[cfg_attr(feature = "enable_serde", derive(Serialize, Deserialize))]
-#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct ComponentDescription {
    
     #[cfg_attr(feature = "enable_serde", serde(skip_serializing_if = "Option::is_none"))]
     name: Option<Cow<'static, str>>,
+
     // Note: this object is cloned often. To insure this remains preformat
     // the implementation should favor using `static or Arc when every possible
-    /// The identity o
-    /// f the bookend. Used for uniquely identify the bookend and displaying the test name to the end user.
     #[cfg_attr(feature = "enable_serde", serde(skip_serializing_if = "Option::is_none"))]
     description: Option<Cow<'static, str>>,
-   
 
     id: ComponentId,
 
@@ -234,6 +227,15 @@ impl ComponentDescription {
     pub fn location(&self) -> &'_ ComponentLocation {
         &self.location
     }
+
+    pub fn parent_location(&self) -> &'_ ComponentLocation {
+        &self.parent_location
+    }
+
+    pub fn reassign_ids(&mut self, id : ComponentId, parent_id: ComponentId) {
+        self.id = id;
+        self.parent_id = parent_id;
+    }
 }
 
 
@@ -261,10 +263,7 @@ impl PartialOrd for ComponentLocation {
     }
 }
 
-
-
-#[cfg_attr(feature = "enable_serde", derive(Serialize, Deserialize))]
-#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct ComponentLocation {
     pub file_name: Cow<'static, str>,
     pub column: u32,
