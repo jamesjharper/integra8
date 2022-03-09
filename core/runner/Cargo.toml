@@ -1,6 +1,6 @@
 [package]
 name = "integra8_runner"
-version = "0.0.2-alpha"
+version = "0.0.3-alpha"
 edition = "2018"
 description = """
 Test runner for the Integra8 test framework.
@@ -9,7 +9,7 @@ repository = "https://github.com/jamesjharper/integra8"
 readme = "../../README.md"
 license = "MIT OR Apache-2.0"
 keywords = ["integra8", "test", "framework", "integration", "bdd"]
-documentation = "https://api.integra8.rs/v0.0.2-alpha/integra8/"
+documentation = "https://api.integra8.rs/v0.0.3-alpha/integra8/"
 categories = ["development-tools" ]
 
 
@@ -20,19 +20,19 @@ futures = "0.3.17"
 
 
 [dependencies.integra8_components]
-version = "0.0.2-alpha"
+version = "0.0.3-alpha"
 path = "../components"
 
 [dependencies.integra8_scheduling]
-version = "0.0.2-alpha"
+version = "0.0.3-alpha"
 path = "../scheduling"
 
 [dependencies.integra8_async_runtime]
-version = "0.0.2-alpha"
+version = "0.0.3-alpha"
 path = "../async_runtime"
 
 [dependencies.integra8_results]
-version = "0.0.2-alpha"
+version = "0.0.3-alpha"
 path = "../results"
 
 

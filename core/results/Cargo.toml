@@ -1,6 +1,6 @@
 [package]
 name = "integra8_results"
-version = "0.0.2-alpha"
+version = "0.0.3-alpha"
 edition = "2018"
 description = """
 Test Result objects for the Integra8 test framework.
@@ -9,11 +9,11 @@ repository = "https://github.com/jamesjharper/integra8"
 readme = "../../README.md"
 license = "MIT OR Apache-2.0"
 keywords = ["integra8", "test", "framework", "integration", "bdd"]
-documentation = "https://api.integra8.rs/v0.0.2-alpha/integra8/"
+documentation = "https://api.integra8.rs/v0.0.3-alpha/integra8/"
 categories = ["development-tools" ]
 
 [dependencies.integra8_components]
-version = "0.0.2-alpha"
+version = "0.0.3-alpha"
 path = "../components"
 
 [dependencies]

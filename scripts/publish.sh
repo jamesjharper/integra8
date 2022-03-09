@@ -29,11 +29,16 @@ if ! [ -z "$(git status --porcelain)" ]; then
 fi
 
 echo "Cleaning"
-cargo clean
+#cargo clean
 
-#./scripts/build.sh
-#./scripts/tests.sh
-#./scripts/run_examples.sh
+./scripts/build.sh release tokio
+./scripts/build.sh release async-std
+
+./scripts/tests.sh release tokio
+./scripts/tests.sh release async-std
+
+./scripts/acceptance_tests.sh release tokio
+./scripts/acceptance_tests.sh release async-std
 
 # Publish all the things.
 for dir in "${ALL_CRATE_ROOTS[@]}"; do

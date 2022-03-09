@@ -52,13 +52,13 @@ EXAMPLES_ROOT="./examples"
 if [ "$CLEAN" == "true" ]; then
     pushd "${EXAMPLES_ROOT}"
     echo " # Cleaning ${RUNTIME_NAME} ... "
-    CARGO_TARGET_DIR=${CARGO_TARGET_DIR} cargo clean $RELEASE_FLAGS
+    CARGO_TARGET_DIR=${CARGO_TARGET_DIR} cargo clean $BUILD_FLAGS
     popd
 fi
 
-echo " # Building ${RUNTIME_NAME} ..."
+echo " # Building ${RUNTIME_NAME} (${CONFIG}) ..."
 pushd "${EXAMPLES_ROOT}"
-CARGO_TARGET_DIR=${CARGO_TARGET_DIR} cargo build $RELEASE_FLAGS --features="${BUILD_FEATURES}"
+CARGO_TARGET_DIR=${CARGO_TARGET_DIR} cargo build $BUILD_FLAGS --features="${BUILD_FEATURES}"
 popd
 
 echo " # Running ${RUNTIME_NAME} ... "
