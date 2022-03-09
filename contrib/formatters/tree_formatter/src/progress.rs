@@ -1,12 +1,12 @@
 use indexmap::IndexMap;
-use std::io::Write;
 use indicatif::{ProgressBar, ProgressStyle};
+use std::io::Write;
 
 use crate::styles::ProgressBarStyle;
 
 use integra8_formatters::models::report::ComponentRunReport;
 use integra8_formatters::models::summary::{ComponentTypeCountSummary, RunSummary};
-use integra8_formatters::models::{ComponentType, ComponentDescription, ComponentId};
+use integra8_formatters::models::{ComponentDescription, ComponentId, ComponentType};
 
 pub struct TestProgressFormatter {
     progress: ProgressBar,
@@ -22,13 +22,13 @@ impl TestProgressFormatter {
                 .template(&style.template)
                 .with_key("len", |state| format!("{}", (state.len + 1) / 2))
                 .with_key("pos", |state| format!("{}", (state.pos + 1) / 2))
-                .progress_chars(&style.progress_chars)
-            );
+                .progress_chars(&style.progress_chars),
+        );
 
         Self {
             progress,
             style,
-            in_progress: IndexMap::new()
+            in_progress: IndexMap::new(),
         }
     }
 
@@ -43,8 +43,11 @@ impl TestProgressFormatter {
             "component"
         };
 
-        let total_component_count = summary.tests() +  summary.setups() +  summary.tear_downs();
-        self.writeln(writer, &format!("\nrunning {} {}\n", total_component_count, noun))?;
+        let total_component_count = summary.tests() + summary.setups() + summary.tear_downs();
+        self.writeln(
+            writer,
+            &format!("\nrunning {} {}\n", total_component_count, noun),
+        )?;
         self.progress.set_length((total_component_count * 2) as u64);
         Ok(())
     }
@@ -52,14 +55,13 @@ impl TestProgressFormatter {
     pub fn notify_run_finished<W: Write>(
         &mut self,
         writer: &mut W,
-        _state: &RunSummary
+        _state: &RunSummary,
     ) -> std::io::Result<()> {
-
         self.writeln(writer, self.style.finished.clone())?;
         if !self.progress.is_hidden() {
             self.progress.finish_and_clear();
         }
-        
+
         Ok(())
     }
 
@@ -68,14 +70,16 @@ impl TestProgressFormatter {
         writer: &mut W,
         desc: &ComponentDescription,
     ) -> std::io::Result<()> {
-
         if desc.component_type() == &ComponentType::Suite {
             return Ok(());
         }
 
-        self.writeln(writer, &format!("{} {}", self.style.running, desc.full_name()))?;
+        self.writeln(
+            writer,
+            &format!("{} {}", self.style.running, desc.full_name()),
+        )?;
         if !self.progress.is_hidden() {
-            self.add_in_progress(desc.id(), desc.friendly_name());          
+            self.add_in_progress(desc.id(), desc.friendly_name());
         }
         Ok(())
     }
@@ -84,15 +88,17 @@ impl TestProgressFormatter {
         &mut self,
         writer: &mut W,
         report: &ComponentRunReport,
-    ) -> std::io::Result<()>  {
+    ) -> std::io::Result<()> {
         if report.description.component_type() == &ComponentType::Suite {
             return Ok(());
         }
 
         if report.result.has_failed() {
-            self.writeln(writer, &format!("{} {}", self.style.failed, report.description.full_name()))?;
+            self.writeln(
+                writer,
+                &format!("{} {}", self.style.failed, report.description.full_name()),
+            )?;
         }
-
 
         if !self.progress.is_hidden() {
             self.remove_in_progress(report.description.id());
@@ -100,33 +106,35 @@ impl TestProgressFormatter {
         Ok(())
     }
 
-    fn writeln<W: Write, S: AsRef<str>>( 
-        &mut self,
-        writer: &mut W,
-        msg: S
-    ) -> std::io::Result<()>  {
+    fn writeln<W: Write, S: AsRef<str>>(&mut self, writer: &mut W, msg: S) -> std::io::Result<()> {
         if self.progress.is_hidden() {
             writeln!(writer, "{}", msg.as_ref())?;
         } else {
-            self.progress.println(msg);    
+            self.progress.println(msg);
         }
         Ok(())
     }
 
-    fn remove_in_progress(&mut self, id : &ComponentId) {
+    fn remove_in_progress(&mut self, id: &ComponentId) {
         self.in_progress.remove(id);
         self.update_in_progress();
         self.progress.inc(1);
     }
 
-    fn add_in_progress(&mut self, id : &ComponentId, name : String) {
-
+    fn add_in_progress(&mut self, id: &ComponentId, name: String) {
         self.in_progress.insert(id.clone(), name);
         self.update_in_progress();
         self.progress.inc(1);
     }
 
     fn update_in_progress(&self) {
-        self.progress.set_message(self.in_progress.values().rev().map(|s| &**s).collect::<Vec<&str>>().join(", "));
+        self.progress.set_message(
+            self.in_progress
+                .values()
+                .rev()
+                .map(|s| &**s)
+                .collect::<Vec<&str>>()
+                .join(", "),
+        );
     }
 }

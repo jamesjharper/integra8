@@ -1,11 +1,10 @@
 use std::cmp::Ordering;
 
+use serde::{Deserialize, Serialize};
 use std::borrow::Cow;
 use std::convert::AsRef;
 use std::ffi::OsStr;
 use std::fmt::{self, Display, Formatter};
-use serde::{Serialize, Deserialize};
-
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct ComponentPath(Cow<'static, str>);
@@ -58,7 +57,7 @@ impl ComponentId {
         Self(0)
     }
 
-    pub fn from(id : usize) -> Self {
+    pub fn from(id: usize) -> Self {
         Self(id)
     }
 
@@ -130,13 +129,18 @@ impl std::str::FromStr for ConcurrencyMode {
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct ComponentDescription {
-   
-    #[cfg_attr(feature = "enable_serde", serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(
+        feature = "enable_serde",
+        serde(skip_serializing_if = "Option::is_none")
+    )]
     name: Option<Cow<'static, str>>,
 
     // Note: this object is cloned often. To insure this remains preformat
     // the implementation should favor using `static or Arc when every possible
-    #[cfg_attr(feature = "enable_serde", serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(
+        feature = "enable_serde",
+        serde(skip_serializing_if = "Option::is_none")
+    )]
     description: Option<Cow<'static, str>>,
 
     id: ComponentId,
@@ -161,7 +165,7 @@ impl ComponentDescription {
         component_type: ComponentType,
     ) -> Self {
         Self {
-            id,         
+            id,
             parent_id,
             location,
             parent_location,
@@ -232,27 +236,25 @@ impl ComponentDescription {
         &self.parent_location
     }
 
-    pub fn reassign_ids(&mut self, id : ComponentId, parent_id: ComponentId) {
+    pub fn reassign_ids(&mut self, id: ComponentId, parent_id: ComponentId) {
         self.id = id;
         self.parent_id = parent_id;
     }
 }
 
-
 impl Ord for ComponentLocation {
     fn cmp(&self, other: &Self) -> Ordering {
-
-        // todo add tests for this 
+        // todo add tests for this
 
         // within files, order by line number
         if self.file_name == other.file_name {
             return self.line.cmp(&other.line);
         }
 
-        // order lexicographically across files 
+        // order lexicographically across files
         match self.parent_path().cmp(other.parent_path()) {
             Ordering::Equal => self.line.cmp(&other.line),
-            other => other
+            other => other,
         }
     }
 }
@@ -277,9 +279,10 @@ impl ComponentLocation {
     }
 
     pub fn parent_path(&self) -> &'_ str {
-        self.path.as_str()
+        self.path
+            .as_str()
             .rfind(':')
-            .map(|i| &self.path.as_str()[.. i.saturating_sub(1)])
+            .map(|i| &self.path.as_str()[..i.saturating_sub(1)])
             .unwrap_or_else(|| "")
     }
 }

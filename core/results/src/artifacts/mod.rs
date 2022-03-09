@@ -1,16 +1,15 @@
+use indexmap::IndexMap;
 use std::borrow::Cow;
 use std::error::Error;
 use std::fs::File;
 use std::io::Read;
 use std::path::PathBuf;
 use std::str;
-use indexmap::IndexMap;
 
 use integra8_components::{ExecutionArtifact, ExecutionArtifacts};
 
-
 #[cfg(feature = "enable_serde")]
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 #[cfg_attr(feature = "enable_serde", derive(Serialize, Deserialize))]
 #[derive(Clone, PartialEq, Debug)]
@@ -18,9 +17,7 @@ pub enum OutputArtifact {
     Text(String),
     TextFile(PathBuf),
     #[cfg_attr(feature = "enable_serde", serde(with = "as_utf_string"))]
-    TextBuffer(
-        Vec<u8>
-    ),
+    TextBuffer(Vec<u8>),
 }
 
 impl OutputArtifact {
@@ -50,11 +47,10 @@ impl OutputArtifact {
     }
 }
 
-
 #[cfg_attr(feature = "enable_serde", derive(Serialize, Deserialize))]
 #[derive(Clone, PartialEq, Debug)]
 pub struct ComponentRunArtifacts {
-    // Use index map to ensure items alway print in the same order 
+    // Use index map to ensure items alway print in the same order
     // when outputting results
     #[cfg_attr(feature = "enable_serde", serde(with = "indexmap::serde_seq"))]
     pub map: IndexMap<String, OutputArtifact>,
@@ -78,7 +74,9 @@ impl ComponentRunArtifacts {
                         match v {
                             ExecutionArtifact::Text(s) => OutputArtifact::text(s),
                             ExecutionArtifact::TextFile(path) => OutputArtifact::text_file(path),
-                            ExecutionArtifact::TextBuffer(buff) => OutputArtifact::text_buffer(buff),
+                            ExecutionArtifact::TextBuffer(buff) => {
+                                OutputArtifact::text_buffer(buff)
+                            }
                             ExecutionArtifact::TextStream(mut reader) => {
                                 OutputArtifact::TextBuffer(reader.read_all().unwrap())
                             }
@@ -90,20 +88,17 @@ impl ComponentRunArtifacts {
     }
 }
 
-
 #[cfg(feature = "enable_serde")]
 mod as_utf_string {
-    use std::str;
-    use serde::{Serialize, Deserialize};
+    use serde::{Deserialize, Serialize};
     use serde::{Deserializer, Serializer};
+    use std::str;
 
     pub fn serialize<S: Serializer>(v: &Vec<u8>, s: S) -> Result<S::Ok, S::Error> {
-
-        let utf8_str = str::from_utf8(v)
-        .map_err(|e| serde::ser::Error::custom(e))?;
+        let utf8_str = str::from_utf8(v).map_err(|e| serde::ser::Error::custom(e))?;
         str::serialize(&utf8_str, s)
     }
-    
+
     pub fn deserialize<'de, D: Deserializer<'de>>(d: D) -> Result<Vec<u8>, D::Error> {
         Ok(String::deserialize(d)?.as_bytes().to_vec())
     }

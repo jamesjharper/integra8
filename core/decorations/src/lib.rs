@@ -10,7 +10,7 @@ pub use suite::SuiteAttributesDecoration;
 mod hierarchy;
 pub use hierarchy::{ComponentGroup, ComponentHierarchy};
 
-use integra8_components::{ComponentType, ComponentLocation, Delegate};
+use integra8_components::{ComponentLocation, ComponentType, Delegate};
 
 #[derive(Debug)]
 pub enum ComponentDecoration<TParameters> {
@@ -21,8 +21,7 @@ pub enum ComponentDecoration<TParameters> {
 }
 
 impl<TParameters> ComponentDecoration<TParameters> {
-
-    pub fn name(&self) ->  Option<&'static str> {
+    pub fn name(&self) -> Option<&'static str> {
         match self {
             ComponentDecoration::IntegrationTest(c) => c.desc.name.clone(),
             ComponentDecoration::Suite(c) => c.name.clone(),
@@ -31,7 +30,7 @@ impl<TParameters> ComponentDecoration<TParameters> {
         }
     }
 
-    pub fn description(&self) ->  Option<&'static str> {
+    pub fn description(&self) -> Option<&'static str> {
         match self {
             ComponentDecoration::IntegrationTest(c) => c.desc.description.clone(),
             ComponentDecoration::Suite(c) => c.description.clone(),
@@ -1658,10 +1657,10 @@ mod tests {
         // Act
         let root = ComponentGroup::into_root_component(
             vec![
-                // linkme does not order components in the 
+                // linkme does not order components in the
                 // order they appear in the file.
                 // we have internally order by line count,
-                // and lexicographically order between files 
+                // and lexicographically order between files
                 mock_app::setup_c::setup_def(),
                 mock_app::setup_b::setup_def(),
                 mock_app::setup_a::setup_def(),

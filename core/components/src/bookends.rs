@@ -1,9 +1,9 @@
+use serde::{Deserialize, Serialize};
 use std::time::Duration;
-use serde::{Serialize, Deserialize};
 
 use crate::{
-    ComponentDescription, ComponentId, ComponentLocation, ComponentType,
-    ConcurrencyMode, Delegate, SuiteAttributes,
+    ComponentDescription, ComponentId, ComponentLocation, ComponentType, ConcurrencyMode, Delegate,
+    SuiteAttributes,
 };
 
 #[derive(Clone, Debug, Serialize, Deserialize)]

@@ -5,7 +5,7 @@ pub mod summary;
 use std::time::Duration;
 
 #[cfg(feature = "enable_serde")]
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 #[cfg_attr(feature = "enable_serde", derive(Serialize, Deserialize))]
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -155,7 +155,7 @@ impl ComponentResult {
             21 => ComponentResult::DidNotRun(DidNotRunReason::Filtered),
             22 => ComponentResult::DidNotRun(DidNotRunReason::Ignored),
             23 => ComponentResult::DidNotRun(DidNotRunReason::ParentFailure),
-            _ => ComponentResult::DidNotRun(DidNotRunReason::Undetermined)
+            _ => ComponentResult::DidNotRun(DidNotRunReason::Undetermined),
         }
     }
 }
@@ -164,9 +164,15 @@ impl ComponentResult {
 #[derive(Clone, PartialEq, Debug)]
 pub struct ComponentTimeResult {
     pub time_taken: Duration,
-    #[cfg_attr(feature = "enable_serde", serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(
+        feature = "enable_serde",
+        serde(skip_serializing_if = "Option::is_none")
+    )]
     pub warning_time_limit: Option<Duration>,
-    #[cfg_attr(feature = "enable_serde", serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(
+        feature = "enable_serde",
+        serde(skip_serializing_if = "Option::is_none")
+    )]
     pub time_limit: Option<Duration>,
 }
 
@@ -218,13 +224,15 @@ impl ComponentTimeResult {
     }
 }
 
-
 #[cfg(test)]
 mod tests {
     use super::*;
     use crate::report::ComponentReportBuilder;
     use crate::summary::RunSummary;
-    use integra8_components::{AcceptanceCriteria, TimingAcceptanceCriteria, ComponentDescription, ComponentPath, ComponentId, ComponentType, ExecutionArtifacts, ComponentLocation};
+    use integra8_components::{
+        AcceptanceCriteria, ComponentDescription, ComponentId, ComponentLocation, ComponentPath,
+        ComponentType, ExecutionArtifacts, TimingAcceptanceCriteria,
+    };
 
     // Component Report Tests
 
@@ -234,17 +242,19 @@ mod tests {
                 /* name */ Some("root"),
                 /* id */ ComponentId::from(1),
                 /* parent_id */ ComponentId::from(1),
-                /* location */ ComponentLocation {
+                /* location */
+                ComponentLocation {
                     file_name: std::borrow::Cow::from("main.rs"),
                     column: 0,
                     line: 0,
                     path: ComponentPath::from("integra8_results"),
                 },
-                /* parent_location */ ComponentLocation {
+                /* parent_location */
+                ComponentLocation {
                     file_name: std::borrow::Cow::from("main.rs"),
                     column: 0,
                     line: 0,
-                    path: ComponentPath::from("integra8_results")
+                    path: ComponentPath::from("integra8_results"),
                 },
                 /* description */ None,
                 /* component_type */ ComponentType::Suite,
@@ -255,7 +265,7 @@ mod tests {
                     warning_time_limit: None,
                     time_limit: None,
                 },
-            }
+            },
         )
     }
 
@@ -265,17 +275,19 @@ mod tests {
                 /* name */ Some("test_1"),
                 /* id */ ComponentId::from(2),
                 /* parent_id */ ComponentId::from(1),
-                /* location */ ComponentLocation {
+                /* location */
+                ComponentLocation {
                     file_name: std::borrow::Cow::from(file!()),
                     column: column!(),
                     line: line!(),
-                    path:ComponentPath::from("integra8_results::test::test_1")
+                    path: ComponentPath::from("integra8_results::test::test_1"),
                 },
-                /* parent_location */ ComponentLocation {
+                /* parent_location */
+                ComponentLocation {
                     file_name: std::borrow::Cow::from("main.rs"),
                     column: 0,
                     line: 0,
-                    path: ComponentPath::from("integra8_results")
+                    path: ComponentPath::from("integra8_results"),
                 },
                 /* description */ None,
                 /* component_type */ ComponentType::Test,
@@ -286,7 +298,7 @@ mod tests {
                     warning_time_limit: None,
                     time_limit: None,
                 },
-            }
+            },
         )
     }
 
@@ -296,21 +308,22 @@ mod tests {
                 /* name */ Some("setup_1"),
                 /* id */ ComponentId::from(3),
                 /* parent_id */ ComponentId::from(1),
-                /* location */ ComponentLocation {
+                /* location */
+                ComponentLocation {
                     file_name: std::borrow::Cow::from(file!()),
                     column: column!(),
                     line: line!(),
-                    path: ComponentPath::from("integra8_results::test::setup_1")
+                    path: ComponentPath::from("integra8_results::test::setup_1"),
                 },
-                /* parent_location */ ComponentLocation {
+                /* parent_location */
+                ComponentLocation {
                     file_name: std::borrow::Cow::from("main.rs"),
                     column: 0,
                     line: 0,
-                    path: ComponentPath::from("integra8_results")
+                    path: ComponentPath::from("integra8_results"),
                 },
                 /* description */ None,
                 /* component_type */ ComponentType::Setup,
-                
             ),
             AcceptanceCriteria {
                 allowed_fail: false,
@@ -318,7 +331,7 @@ mod tests {
                     warning_time_limit: None,
                     time_limit: None,
                 },
-            }
+            },
         )
     }
 
@@ -328,17 +341,19 @@ mod tests {
                 /* name */ Some("tear_down_1"),
                 /* id */ ComponentId::from(4),
                 /* parent_id */ ComponentId::from(1),
-                /* location */ ComponentLocation {
+                /* location */
+                ComponentLocation {
                     file_name: std::borrow::Cow::from(file!()),
                     column: column!(),
                     line: line!(),
-                    path: ComponentPath::from("integra8_results::test::tear_down_1")
+                    path: ComponentPath::from("integra8_results::test::tear_down_1"),
                 },
-                /* parent_location */ ComponentLocation {
+                /* parent_location */
+                ComponentLocation {
                     file_name: std::borrow::Cow::from("main.rs"),
                     column: 0,
                     line: 0,
-                    path: ComponentPath::from("integra8_results")
+                    path: ComponentPath::from("integra8_results"),
                 },
                 /* description */ None,
                 /* component_type */ ComponentType::TearDown,
@@ -349,7 +364,7 @@ mod tests {
                     warning_time_limit: None,
                     time_limit: None,
                 },
-            }
+            },
         )
     }
 
@@ -359,21 +374,22 @@ mod tests {
                 /* name */ Some("test_2"),
                 /* id */ ComponentId::from(5),
                 /* parent_id */ ComponentId::from(1),
-                /* location */ ComponentLocation {
+                /* location */
+                ComponentLocation {
                     file_name: std::borrow::Cow::from(file!()),
                     column: column!(),
                     line: line!(),
-                    path: ComponentPath::from("integra8_results::test::test_2")
+                    path: ComponentPath::from("integra8_results::test::test_2"),
                 },
-                /* parent_location */ ComponentLocation {
+                /* parent_location */
+                ComponentLocation {
                     file_name: std::borrow::Cow::from("main.rs"),
                     column: 0,
                     line: 0,
-                    path: ComponentPath::from("integra8_results")
+                    path: ComponentPath::from("integra8_results"),
                 },
                 /* description */ None,
                 /* component_type */ ComponentType::Test,
-
             ),
             AcceptanceCriteria {
                 allowed_fail: false,
@@ -381,7 +397,7 @@ mod tests {
                     warning_time_limit: Some(Duration::from_secs(1000)),
                     time_limit: Some(Duration::from_secs(2000)),
                 },
-            }
+            },
         )
     }
 
@@ -391,17 +407,19 @@ mod tests {
                 /* name */ Some("test_3"),
                 /* id */ ComponentId::from(6),
                 /* parent_id */ ComponentId::from(1),
-                /* location */ ComponentLocation {
+                /* location */
+                ComponentLocation {
                     file_name: std::borrow::Cow::from(file!()),
                     column: column!(),
                     line: line!(),
-                    path:ComponentPath::from("integra8_results::test::test_3")
+                    path: ComponentPath::from("integra8_results::test::test_3"),
                 },
-                /* parent_location */ ComponentLocation {
+                /* parent_location */
+                ComponentLocation {
                     file_name: std::borrow::Cow::from("main.rs"),
                     column: 0,
                     line: 0,
-                    path: ComponentPath::from("integra8_results")
+                    path: ComponentPath::from("integra8_results"),
                 },
                 /* description */ None,
                 /* component_type */ ComponentType::Test,
@@ -412,7 +430,7 @@ mod tests {
                     warning_time_limit: Some(Duration::from_secs(1000)),
                     time_limit: Some(Duration::from_secs(2000)),
                 },
-            }
+            },
         )
     }
 
@@ -422,17 +440,19 @@ mod tests {
                 /* name */ Some("suite_1"),
                 /* id */ ComponentId::from(7),
                 /* parent_id */ ComponentId::from(1),
-                /* location */ ComponentLocation {
+                /* location */
+                ComponentLocation {
                     file_name: std::borrow::Cow::from(file!()),
                     column: 1,
                     line: 369,
-                    path: ComponentPath::from("integra8_results::test::suite_1")
+                    path: ComponentPath::from("integra8_results::test::suite_1"),
                 },
-                /* parent_location */ ComponentLocation {
+                /* parent_location */
+                ComponentLocation {
                     file_name: std::borrow::Cow::from("main.rs"),
                     column: 0,
                     line: 0,
-                    path: ComponentPath::from("integra8_results")
+                    path: ComponentPath::from("integra8_results"),
                 },
                 /* description */ None,
                 /* component_type */ ComponentType::Suite,
@@ -443,7 +463,7 @@ mod tests {
                     warning_time_limit: None,
                     time_limit: None,
                 },
-            }
+            },
         )
     }
 
@@ -453,17 +473,19 @@ mod tests {
                 /* name */ Some("test_1"),
                 /* id */ ComponentId::from(8),
                 /* parent_id */ ComponentId::from(7),
-                /* location */ ComponentLocation {
+                /* location */
+                ComponentLocation {
                     file_name: std::borrow::Cow::from(file!()),
                     column: column!(),
                     line: line!(),
-                    path:ComponentPath::from("integra8_results::test::suite_1::test_1")
+                    path: ComponentPath::from("integra8_results::test::suite_1::test_1"),
                 },
-                /* parent_location */ ComponentLocation {
+                /* parent_location */
+                ComponentLocation {
                     file_name: std::borrow::Cow::from(file!()),
                     column: 1,
                     line: 369,
-                    path: ComponentPath::from("integra8_results::test::suite_1")
+                    path: ComponentPath::from("integra8_results::test::suite_1"),
                 },
                 /* description */ None,
                 /* component_type */ ComponentType::Test,
@@ -474,7 +496,7 @@ mod tests {
                     warning_time_limit: None,
                     time_limit: None,
                 },
-            }
+            },
         )
     }
 
@@ -484,17 +506,19 @@ mod tests {
                 /* name */ Some("setup_1"),
                 /* id */ ComponentId::from(9),
                 /* parent_id */ ComponentId::from(7),
-                /* location */ ComponentLocation {
+                /* location */
+                ComponentLocation {
                     file_name: std::borrow::Cow::from(file!()),
                     column: column!(),
                     line: line!(),
-                    path:ComponentPath::from("integra8_results::test::suite_1::setup_1")
+                    path: ComponentPath::from("integra8_results::test::suite_1::setup_1"),
                 },
-                /* parent_location */ ComponentLocation {
+                /* parent_location */
+                ComponentLocation {
                     file_name: std::borrow::Cow::from(file!()),
                     column: 1,
                     line: 369,
-                    path: ComponentPath::from("integra8_results::test::suite_1")
+                    path: ComponentPath::from("integra8_results::test::suite_1"),
                 },
                 /* description */ None,
                 /* component_type */ ComponentType::Setup,
@@ -505,7 +529,7 @@ mod tests {
                     warning_time_limit: None,
                     time_limit: None,
                 },
-            }
+            },
         )
     }
 
@@ -515,17 +539,19 @@ mod tests {
                 /* name */ Some("tear_down_1"),
                 /* id */ ComponentId::from(10),
                 /* parent_id */ ComponentId::from(7),
-                /* location */ ComponentLocation {
+                /* location */
+                ComponentLocation {
                     file_name: std::borrow::Cow::from(file!()),
                     column: column!(),
                     line: line!(),
-                    path:ComponentPath::from("integra8_results::test::suite_1::tear_down_1")
+                    path: ComponentPath::from("integra8_results::test::suite_1::tear_down_1"),
                 },
-                /* parent_location */ ComponentLocation {
+                /* parent_location */
+                ComponentLocation {
                     file_name: std::borrow::Cow::from(file!()),
                     column: 1,
                     line: 369,
-                    path: ComponentPath::from("integra8_results::test::suite_1")
+                    path: ComponentPath::from("integra8_results::test::suite_1"),
                 },
                 /* description */ None,
                 /* component_type */ ComponentType::TearDown,
@@ -536,10 +562,9 @@ mod tests {
                     warning_time_limit: None,
                     time_limit: None,
                 },
-            }
+            },
         )
     }
-
 
     fn suite_2_report_builder() -> ComponentReportBuilder {
         ComponentReportBuilder::new(
@@ -547,20 +572,22 @@ mod tests {
                 /* name */ Some("suite_2"),
                 /* id */ ComponentId::from(11),
                 /* parent_id */ ComponentId::from(1),
-                /* location */ ComponentLocation {
+                /* location */
+                ComponentLocation {
                     file_name: std::borrow::Cow::from(file!()),
                     column: 1,
                     line: 516,
-                    path: ComponentPath::from("integra8_results::test::suite_2")
+                    path: ComponentPath::from("integra8_results::test::suite_2"),
                 },
-                /* parent_location */ ComponentLocation {
+                /* parent_location */
+                ComponentLocation {
                     file_name: std::borrow::Cow::from("main.rs"),
                     column: 0,
                     line: 0,
-                    path: ComponentPath::from("integra8_results")
+                    path: ComponentPath::from("integra8_results"),
                 },
                 /* description */ None,
-                /* component_type */ ComponentType::Suite,         
+                /* component_type */ ComponentType::Suite,
             ),
             AcceptanceCriteria {
                 allowed_fail: false,
@@ -568,7 +595,7 @@ mod tests {
                     warning_time_limit: None,
                     time_limit: None,
                 },
-            }
+            },
         )
     }
 
@@ -578,17 +605,19 @@ mod tests {
                 /* name */ Some("test_1"),
                 /* id */ ComponentId::from(12),
                 /* parent_id */ ComponentId::from(11),
-                 /* location */ ComponentLocation {
+                /* location */
+                ComponentLocation {
                     file_name: std::borrow::Cow::from(file!()),
                     column: column!(),
                     line: line!(),
-                    path:ComponentPath::from("integra8_results::test::suite_2::test_1")
+                    path: ComponentPath::from("integra8_results::test::suite_2::test_1"),
                 },
-                /* parent_location */ ComponentLocation {
+                /* parent_location */
+                ComponentLocation {
                     file_name: std::borrow::Cow::from(file!()),
                     column: 1,
                     line: 516,
-                    path: ComponentPath::from("integra8_results::test::suite_2")
+                    path: ComponentPath::from("integra8_results::test::suite_2"),
                 },
                 /* description */ None,
                 /* component_type */ ComponentType::Test,
@@ -599,7 +628,7 @@ mod tests {
                     warning_time_limit: None,
                     time_limit: None,
                 },
-            }
+            },
         )
     }
 
@@ -609,17 +638,19 @@ mod tests {
                 /* name */ Some("setup_1"),
                 /* id */ ComponentId::from(13),
                 /* parent_id */ ComponentId::from(11),
-                /* location */ ComponentLocation {
+                /* location */
+                ComponentLocation {
                     file_name: std::borrow::Cow::from(file!()),
                     column: column!(),
                     line: line!(),
-                    path:ComponentPath::from("integra8_results::test::suite_2::setup_1")
+                    path: ComponentPath::from("integra8_results::test::suite_2::setup_1"),
                 },
-                /* parent_location */ ComponentLocation {
+                /* parent_location */
+                ComponentLocation {
                     file_name: std::borrow::Cow::from(file!()),
                     column: 1,
                     line: 516,
-                    path: ComponentPath::from("integra8_results::test::suite_2")
+                    path: ComponentPath::from("integra8_results::test::suite_2"),
                 },
                 /* description */ None,
                 /* component_type */ ComponentType::Setup,
@@ -630,7 +661,7 @@ mod tests {
                     warning_time_limit: None,
                     time_limit: None,
                 },
-            }
+            },
         )
     }
 
@@ -640,17 +671,19 @@ mod tests {
                 /* name */ Some("tear_down_1"),
                 /* id */ ComponentId::from(14),
                 /* parent_id */ ComponentId::from(11),
-                /* location */ ComponentLocation {
+                /* location */
+                ComponentLocation {
                     file_name: std::borrow::Cow::from(file!()),
                     column: column!(),
                     line: line!(),
-                    path:ComponentPath::from("integra8_results::test::suite_2::tear_down_1")
+                    path: ComponentPath::from("integra8_results::test::suite_2::tear_down_1"),
                 },
-                /* parent_location */ ComponentLocation {
+                /* parent_location */
+                ComponentLocation {
                     file_name: std::borrow::Cow::from(file!()),
                     column: 1,
                     line: 516,
-                    path: ComponentPath::from("integra8_results::test::suite_2")
+                    path: ComponentPath::from("integra8_results::test::suite_2"),
                 },
                 /* description */ None,
                 /* component_type */ ComponentType::TearDown,
@@ -661,13 +694,13 @@ mod tests {
                     warning_time_limit: None,
                     time_limit: None,
                 },
-            }
+            },
         )
     }
 
     #[test]
     fn can_report_test_1_success() {
-        // Arrange 
+        // Arrange
         let mut builder = test_1_report_builder();
 
         // Act
@@ -676,13 +709,16 @@ mod tests {
 
         // Assert
         assert!(report.result.has_passed(), "Expected Test to have passed");
-        assert_eq!(report.result, ComponentResult::Pass(PassReason::Accepted), "Expected Test to have passed, with PassReason::Accepted");
+        assert_eq!(
+            report.result,
+            ComponentResult::Pass(PassReason::Accepted),
+            "Expected Test to have passed, with PassReason::Accepted"
+        );
     }
 
     #[test]
     fn can_report_test_3_success() {
-
-        // Arrange 
+        // Arrange
         // Test 3 has failure allowed flag enabled, which shouldn't
         // prevent its reporting as passed if it does in fact pass
         let mut builder = test_3_report_builder();
@@ -693,13 +729,16 @@ mod tests {
 
         // Assert
         assert!(report.result.has_passed(), "Expected Test to have passed");
-        assert_eq!(report.result, ComponentResult::Pass(PassReason::Accepted), "Expected Test to have passed, with PassReason::Accepted");
+        assert_eq!(
+            report.result,
+            ComponentResult::Pass(PassReason::Accepted),
+            "Expected Test to have passed, with PassReason::Accepted"
+        );
     }
 
     #[test]
     fn should_report_test_3_warning_when_failed() {
-
-        // Arrange 
+        // Arrange
         // Test 3 has failure allowed flag enabled
         let mut builder = test_3_report_builder();
 
@@ -709,14 +748,16 @@ mod tests {
 
         // Assert
         assert!(report.result.has_warn(), "Expected Test to have warning");
-        assert_eq!(report.result, ComponentResult::Warning(WarningReason::FailureAllowed), "Expected Test to have warning, with WarningReason::FailureAllowed");
+        assert_eq!(
+            report.result,
+            ComponentResult::Warning(WarningReason::FailureAllowed),
+            "Expected Test to have warning, with WarningReason::FailureAllowed"
+        );
     }
-    
 
     #[test]
     fn can_report_test_1_failure() {
-
-        // Arrange 
+        // Arrange
         let mut builder = test_1_report_builder();
 
         // Act
@@ -725,13 +766,16 @@ mod tests {
 
         // Assert
         assert!(report.result.has_failed(), "Expected Test to have failed");
-        assert_eq!(report.result, ComponentResult::Fail(FailureReason::Rejected), "Expected Test to have failed, with FailureReason::Rejected");
+        assert_eq!(
+            report.result,
+            ComponentResult::Fail(FailureReason::Rejected),
+            "Expected Test to have failed, with FailureReason::Rejected"
+        );
     }
 
     #[test]
     fn can_report_test_1_failed_due_to_child_failure() {
-
-        // Arrange 
+        // Arrange
         let mut builder = test_1_report_builder();
 
         // Act
@@ -740,13 +784,16 @@ mod tests {
 
         // Assert
         assert!(report.result.has_failed(), "Expected Test to have failed");
-        assert_eq!(report.result, ComponentResult::Fail(FailureReason::ChildFailure), "Expected Test to have failed, with FailureReason::ChildFailure");
+        assert_eq!(
+            report.result,
+            ComponentResult::Fail(FailureReason::ChildFailure),
+            "Expected Test to have failed, with FailureReason::ChildFailure"
+        );
     }
 
     #[test]
     fn can_report_test_1_ignored() {
-
-        // Arrange 
+        // Arrange
         let mut builder = test_1_report_builder();
 
         // Act
@@ -754,14 +801,20 @@ mod tests {
         let report = builder.build();
 
         // Assert
-        assert!(report.result.has_not_run(), "Expected Test to have not be run");
-        assert_eq!(report.result, ComponentResult::DidNotRun(DidNotRunReason::Ignored), "Expected Test to have failed, with DidNotRunReason::Ignored");
+        assert!(
+            report.result.has_not_run(),
+            "Expected Test to have not be run"
+        );
+        assert_eq!(
+            report.result,
+            ComponentResult::DidNotRun(DidNotRunReason::Ignored),
+            "Expected Test to have failed, with DidNotRunReason::Ignored"
+        );
     }
 
     #[test]
     fn can_report_test_1_undetermined() {
-
-        // Arrange 
+        // Arrange
         let mut builder = test_1_report_builder();
 
         // Act
@@ -769,14 +822,20 @@ mod tests {
         let report = builder.build();
 
         // Assert
-        assert!(report.result.has_not_run(), "Expected Test to have not be run");
-        assert_eq!(report.result, ComponentResult::DidNotRun(DidNotRunReason::Undetermined), "Expected Test to have failed, with DidNotRunReason::Undetermined");
+        assert!(
+            report.result.has_not_run(),
+            "Expected Test to have not be run"
+        );
+        assert_eq!(
+            report.result,
+            ComponentResult::DidNotRun(DidNotRunReason::Undetermined),
+            "Expected Test to have failed, with DidNotRunReason::Undetermined"
+        );
     }
 
     #[test]
     fn can_report_test_1_filtered_out() {
-
-        // Arrange 
+        // Arrange
         let mut builder = test_1_report_builder();
 
         // Act
@@ -784,14 +843,20 @@ mod tests {
         let report = builder.build();
 
         // Assert
-        assert!(report.result.has_not_run(), "Expected Test to have not be run");
-        assert_eq!(report.result, ComponentResult::DidNotRun(DidNotRunReason::Filtered), "Expected Test to have failed, with DidNotRunReason::Undetermined");
+        assert!(
+            report.result.has_not_run(),
+            "Expected Test to have not be run"
+        );
+        assert_eq!(
+            report.result,
+            ComponentResult::DidNotRun(DidNotRunReason::Filtered),
+            "Expected Test to have failed, with DidNotRunReason::Undetermined"
+        );
     }
 
     #[test]
     fn can_report_test_1_ignored_due_to_parent_failure() {
-
-        // Arrange 
+        // Arrange
         let mut builder = test_1_report_builder();
 
         // Act
@@ -799,15 +864,22 @@ mod tests {
         let report = builder.build();
 
         // Assert
-        assert!(report.result.has_not_run(), "Expected Test to have not be run");
-        assert_eq!(report.result, ComponentResult::DidNotRun(DidNotRunReason::ParentFailure), "Expected Test to have failed, with DidNotRunReason::Undetermined");
+        assert!(
+            report.result.has_not_run(),
+            "Expected Test to have not be run"
+        );
+        assert_eq!(
+            report.result,
+            ComponentResult::DidNotRun(DidNotRunReason::ParentFailure),
+            "Expected Test to have failed, with DidNotRunReason::Undetermined"
+        );
     }
 
-    // Time result behavior 
+    // Time result behavior
 
     #[test]
     fn should_report_test_1_timing_results_as_ok_when_no_timing_acceptance_criteria() {
-        // Arrange 
+        // Arrange
         let mut builder = test_1_report_builder();
 
         // Act
@@ -817,14 +889,22 @@ mod tests {
         let report = builder.build();
 
         // Assert
-        assert_eq!(report.timing.is_warn(), false, "Expected no warning on test 1 timing results");
-        assert_eq!(report.timing.is_critical(), false, "Expected no critical error on test 1 timing results");
+        assert_eq!(
+            report.timing.is_warn(),
+            false,
+            "Expected no warning on test 1 timing results"
+        );
+        assert_eq!(
+            report.timing.is_critical(),
+            false,
+            "Expected no critical error on test 1 timing results"
+        );
         assert_eq!(report.timing.duration(), Duration::from_secs(1000));
     }
 
     #[test]
     fn should_report_test_2_timing_results_as_ok_when_within_timing_acceptance_criteria() {
-        // Arrange 
+        // Arrange
         let mut builder = test_2_report_builder();
 
         // Act
@@ -834,15 +914,28 @@ mod tests {
         let report = builder.build();
 
         // Assert
-        assert_eq!(report.result, ComponentResult::Pass(PassReason::Accepted), "Expected Test to have passed, with PassReason::Accepted");
-        assert_eq!(report.timing.is_warn(), false,  "Expected no warning on test 1 timing results");
-        assert_eq!(report.timing.is_critical(), false,  "Expected no critical error on test 1 timing results");
+        assert_eq!(
+            report.result,
+            ComponentResult::Pass(PassReason::Accepted),
+            "Expected Test to have passed, with PassReason::Accepted"
+        );
+        assert_eq!(
+            report.timing.is_warn(),
+            false,
+            "Expected no warning on test 1 timing results"
+        );
+        assert_eq!(
+            report.timing.is_critical(),
+            false,
+            "Expected no critical error on test 1 timing results"
+        );
         assert_eq!(report.timing.duration(), Duration::from_secs(500));
     }
 
     #[test]
-    fn should_report_test_2_timing_results_as_warn_when_exceeding_warn_timing_acceptance_criteria() {
-        // Arrange 
+    fn should_report_test_2_timing_results_as_warn_when_exceeding_warn_timing_acceptance_criteria()
+    {
+        // Arrange
         let mut builder = test_2_report_builder();
 
         // Act
@@ -852,15 +945,27 @@ mod tests {
         let report = builder.build();
 
         // Assert
-        assert_eq!(report.result, ComponentResult::Warning(WarningReason::OvertimeWarning), "Expected Test to have warning, with WarningReason::OvertimeWarning");
-        assert_eq!(report.timing.is_warn(), true,  "Expected warning on test 2 timing results");
-        assert_eq!(report.timing.is_critical(), false,  "Expected no critical error on test 2 timing results");
+        assert_eq!(
+            report.result,
+            ComponentResult::Warning(WarningReason::OvertimeWarning),
+            "Expected Test to have warning, with WarningReason::OvertimeWarning"
+        );
+        assert_eq!(
+            report.timing.is_warn(),
+            true,
+            "Expected warning on test 2 timing results"
+        );
+        assert_eq!(
+            report.timing.is_critical(),
+            false,
+            "Expected no critical error on test 2 timing results"
+        );
         assert_eq!(report.timing.duration(), Duration::from_secs(1500));
     }
 
     #[test]
     fn should_report_test_2_timing_results_as_fail_when_exceeding_timing_acceptance_criteria() {
-        // Arrange 
+        // Arrange
         let mut builder = test_2_report_builder();
 
         // Act
@@ -870,19 +975,32 @@ mod tests {
         let report = builder.build();
 
         // Assert
-        assert_eq!(report.result, ComponentResult::Fail(FailureReason::Overtime), "Expected Test to have warning, with WarningReason::OvertimeWarning");
-        assert_eq!(report.timing.is_warn(), true,  "Expected warning on test 2 timing results");
-        assert_eq!(report.timing.is_critical(), true,  "Expected critical error on test 2 timing results");
+        assert_eq!(
+            report.result,
+            ComponentResult::Fail(FailureReason::Overtime),
+            "Expected Test to have warning, with WarningReason::OvertimeWarning"
+        );
+        assert_eq!(
+            report.timing.is_warn(),
+            true,
+            "Expected warning on test 2 timing results"
+        );
+        assert_eq!(
+            report.timing.is_critical(),
+            true,
+            "Expected critical error on test 2 timing results"
+        );
         assert_eq!(report.timing.duration(), Duration::from_secs(2500));
     }
 
     #[test]
-    fn should_report_test_2_results_as_rejected_when_rejected_and_exceeding_timing_acceptance_criteria() {
-        // Because async framework doesn't always resume tasks immediately, we can have a test timeout and fail, and panic 
-        // at the same time. There is no one correct solution to what error should show in this case. The framework will 
+    fn should_report_test_2_results_as_rejected_when_rejected_and_exceeding_timing_acceptance_criteria(
+    ) {
+        // Because async framework doesn't always resume tasks immediately, we can have a test timeout and fail, and panic
+        // at the same time. There is no one correct solution to what error should show in this case. The framework will
         // favor the panic rather then the time out, as it should in theory be more descriptive.
 
-        // Arrange 
+        // Arrange
         let mut builder = test_2_report_builder();
 
         // Act
@@ -892,15 +1010,28 @@ mod tests {
         let report = builder.build();
 
         // Assert
-        assert_eq!(report.result, ComponentResult::Fail(FailureReason::Rejected), "Expected Test to have warning, with FailureReason::Rejected");
-        assert_eq!(report.timing.is_warn(), true,  "Expected warning on test 2 timing results");
-        assert_eq!(report.timing.is_critical(), true,  "Expected critical error on test 2 timing results");
+        assert_eq!(
+            report.result,
+            ComponentResult::Fail(FailureReason::Rejected),
+            "Expected Test to have warning, with FailureReason::Rejected"
+        );
+        assert_eq!(
+            report.timing.is_warn(),
+            true,
+            "Expected warning on test 2 timing results"
+        );
+        assert_eq!(
+            report.timing.is_critical(),
+            true,
+            "Expected critical error on test 2 timing results"
+        );
         assert_eq!(report.timing.duration(), Duration::from_secs(2500));
     }
-    
+
     #[test]
-    fn should_report_test_3_results_as_timed_out_when_rejected_and_exceeding_timing_acceptance_criteria() {
-        // Arrange 
+    fn should_report_test_3_results_as_timed_out_when_rejected_and_exceeding_timing_acceptance_criteria(
+    ) {
+        // Arrange
         // Test 3 has failure allowed flag enabled
         let mut builder = test_3_report_builder();
 
@@ -911,15 +1042,27 @@ mod tests {
         let report = builder.build();
 
         // Assert
-        assert_eq!(report.result, ComponentResult::Fail(FailureReason::Overtime), "Expected Test to have warning, with WarningReason::OvertimeWarning");
-        assert_eq!(report.timing.is_warn(), true,  "Expected warning on test 3 timing results");
-        assert_eq!(report.timing.is_critical(), true,  "Expected critical error on test 3 timing results");
+        assert_eq!(
+            report.result,
+            ComponentResult::Fail(FailureReason::Overtime),
+            "Expected Test to have warning, with WarningReason::OvertimeWarning"
+        );
+        assert_eq!(
+            report.timing.is_warn(),
+            true,
+            "Expected warning on test 3 timing results"
+        );
+        assert_eq!(
+            report.timing.is_critical(),
+            true,
+            "Expected critical error on test 3 timing results"
+        );
         assert_eq!(report.timing.duration(), Duration::from_secs(2500));
     }
 
     #[test]
     fn should_return_remaining_time_to_deadline_based_on_timing_acceptance_criteria() {
-        // Arrange 
+        // Arrange
         let builder = test_2_report_builder();
 
         // Act
@@ -931,7 +1074,7 @@ mod tests {
 
     #[test]
     fn should_return_zero_time_to_deadline_when_exceeding_timing_acceptance_criteria() {
-        // Arrange 
+        // Arrange
         let builder = test_2_report_builder();
 
         // Act
@@ -943,7 +1086,7 @@ mod tests {
 
     #[test]
     fn should_return_none_as_deadline_when_no_timing_acceptance_criteria_is_defined() {
-        // Arrange 
+        // Arrange
         let builder = test_1_report_builder();
 
         // Act
@@ -957,7 +1100,7 @@ mod tests {
 
     #[test]
     fn should_return_no_artifacts_when_none_are_defined() {
-        // Arrange 
+        // Arrange
         let mut builder = test_1_report_builder();
 
         // Act
@@ -970,7 +1113,7 @@ mod tests {
 
     #[test]
     fn should_return_include_text_artifact_when_defined() {
-        // Arrange 
+        // Arrange
         let mut builder = test_1_report_builder();
 
         let artifacts = ExecutionArtifacts::new();
@@ -982,12 +1125,15 @@ mod tests {
         let report = builder.build();
 
         // Assert
-        assert_eq!(report.artifacts.map["sample"].as_string().unwrap(), "This is a sample artifact");
+        assert_eq!(
+            report.artifacts.map["sample"].as_string().unwrap(),
+            "This is a sample artifact"
+        );
     }
 
     #[test]
     fn should_return_include_text_buff_artifact_when_defined() {
-        // Arrange 
+        // Arrange
         let mut builder = test_1_report_builder();
 
         let artifacts = ExecutionArtifacts::new();
@@ -999,15 +1145,17 @@ mod tests {
         let report = builder.build();
 
         // Assert
-        assert_eq!(report.artifacts.map["sample"].as_string().unwrap(), "This is a sample artifact");
+        assert_eq!(
+            report.artifacts.map["sample"].as_string().unwrap(),
+            "This is a sample artifact"
+        );
     }
 
     #[test]
     fn should_return_include_text_cursor_artifact_when_defined() {
-
         use std::io::Write;
 
-        // Arrange       
+        // Arrange
         let artifacts = ExecutionArtifacts::new();
         let mut writer = artifacts.writer("sample");
         write!(writer, "This is a sample artifact").unwrap();
@@ -1020,12 +1168,15 @@ mod tests {
         let report = builder.build();
 
         // Assert
-        assert_eq!(report.artifacts.map["sample"].as_string().unwrap(), "This is a sample artifact");
+        assert_eq!(
+            report.artifacts.map["sample"].as_string().unwrap(),
+            "This is a sample artifact"
+        );
     }
 
     #[test]
     fn should_preserve_artifact_order_defined() {
-        // Arrange 
+        // Arrange
         let mut builder = test_1_report_builder();
 
         let artifacts = ExecutionArtifacts::new();
@@ -1062,214 +1213,228 @@ mod tests {
         assert!(iter.next().is_none());
     }
 
-
     // Summary Tests
 
     #[test]
     fn can_create_empty_summary_report() {
-         // Arrange 
-         let mut root_suite_builder = root_suite_report_builder();
-         root_suite_builder.passed_result();
+        // Arrange
+        let mut root_suite_builder = root_suite_report_builder();
+        root_suite_builder.passed_result();
 
-         // Act
-         let mut summary = RunSummary::new();
-         summary.push_report(root_suite_builder.build());
- 
-         // Assert
-         assert_eq!(summary.run_result(), ComponentResult::Pass(PassReason::Accepted));
-         assert_eq!(summary.test_passed().count(), 0);
-         assert_eq!(summary.test_warning().count(), 0);
-         assert_eq!(summary.test_failed().count(), 0);
-         assert_eq!(summary.test_not_run().count(), 0);
+        // Act
+        let mut summary = RunSummary::new();
+        summary.push_report(root_suite_builder.build());
 
-         assert_eq!(summary.setup_passed().count(), 0);
-         assert_eq!(summary.setup_warning().count(), 0);
-         assert_eq!(summary.setup_failed().count(), 0);
-         assert_eq!(summary.setup_not_run().count(), 0);
+        // Assert
+        assert_eq!(
+            summary.run_result(),
+            ComponentResult::Pass(PassReason::Accepted)
+        );
+        assert_eq!(summary.test_passed().count(), 0);
+        assert_eq!(summary.test_warning().count(), 0);
+        assert_eq!(summary.test_failed().count(), 0);
+        assert_eq!(summary.test_not_run().count(), 0);
 
-         assert_eq!(summary.tear_down_passed().count(), 0);
-         assert_eq!(summary.tear_down_warning().count(), 0);
-         assert_eq!(summary.tear_down_failed().count(), 0);
-         assert_eq!(summary.tear_down_not_run().count(), 0);
+        assert_eq!(summary.setup_passed().count(), 0);
+        assert_eq!(summary.setup_warning().count(), 0);
+        assert_eq!(summary.setup_failed().count(), 0);
+        assert_eq!(summary.setup_not_run().count(), 0);
+
+        assert_eq!(summary.tear_down_passed().count(), 0);
+        assert_eq!(summary.tear_down_warning().count(), 0);
+        assert_eq!(summary.tear_down_failed().count(), 0);
+        assert_eq!(summary.tear_down_not_run().count(), 0);
     }
-
 
     #[test]
     fn can_create_summary_report_with_passed_components_at_root() {
-         // Arrange 
-         let mut root_suite_builder = root_suite_report_builder();
-         let mut test_1_builder = test_1_report_builder();
-         let mut setup_1_builder = setup_1_report_builder();
-         let mut tear_down_1_builder = tear_down_1_report_builder();
-         
-         root_suite_builder.passed_result();
-         test_1_builder.passed_result();
-         setup_1_builder.passed_result();
-         tear_down_1_builder.passed_result();
+        // Arrange
+        let mut root_suite_builder = root_suite_report_builder();
+        let mut test_1_builder = test_1_report_builder();
+        let mut setup_1_builder = setup_1_report_builder();
+        let mut tear_down_1_builder = tear_down_1_report_builder();
 
-         // Act
-         let mut summary = RunSummary::new();
-         summary.push_report(root_suite_builder.build());
-         summary.push_report(test_1_builder.build());
-         summary.push_report(setup_1_builder.build());
-         summary.push_report(tear_down_1_builder.build());
- 
-         // Assert
-         assert_eq!(summary.run_result(), ComponentResult::Pass(PassReason::Accepted));
-         assert_eq!(summary.test_passed().count(), 1);
-         assert_eq!(summary.test_warning().count(), 0);
-         assert_eq!(summary.test_failed().count(), 0);
-         assert_eq!(summary.test_not_run().count(), 0);
+        root_suite_builder.passed_result();
+        test_1_builder.passed_result();
+        setup_1_builder.passed_result();
+        tear_down_1_builder.passed_result();
 
-         assert_eq!(summary.setup_passed().count(), 1);
-         assert_eq!(summary.setup_warning().count(), 0);
-         assert_eq!(summary.setup_failed().count(), 0);
-         assert_eq!(summary.setup_not_run().count(), 0);
+        // Act
+        let mut summary = RunSummary::new();
+        summary.push_report(root_suite_builder.build());
+        summary.push_report(test_1_builder.build());
+        summary.push_report(setup_1_builder.build());
+        summary.push_report(tear_down_1_builder.build());
 
-         assert_eq!(summary.tear_down_passed().count(), 1);
-         assert_eq!(summary.tear_down_warning().count(), 0);
-         assert_eq!(summary.tear_down_failed().count(), 0);
-         assert_eq!(summary.tear_down_not_run().count(), 0);
+        // Assert
+        assert_eq!(
+            summary.run_result(),
+            ComponentResult::Pass(PassReason::Accepted)
+        );
+        assert_eq!(summary.test_passed().count(), 1);
+        assert_eq!(summary.test_warning().count(), 0);
+        assert_eq!(summary.test_failed().count(), 0);
+        assert_eq!(summary.test_not_run().count(), 0);
+
+        assert_eq!(summary.setup_passed().count(), 1);
+        assert_eq!(summary.setup_warning().count(), 0);
+        assert_eq!(summary.setup_failed().count(), 0);
+        assert_eq!(summary.setup_not_run().count(), 0);
+
+        assert_eq!(summary.tear_down_passed().count(), 1);
+        assert_eq!(summary.tear_down_warning().count(), 0);
+        assert_eq!(summary.tear_down_failed().count(), 0);
+        assert_eq!(summary.tear_down_not_run().count(), 0);
     }
 
     #[test]
     fn can_create_summary_report_with_failed_components_at_root() {
-         // Arrange 
-         let mut root_suite_builder = root_suite_report_builder();
-         let mut test_1_builder = test_1_report_builder();
-         let mut setup_1_builder = setup_1_report_builder();
-         let mut tear_down_1_builder = tear_down_1_report_builder();
-         
-         root_suite_builder.rejected_result();
-         test_1_builder.rejected_result();
-         setup_1_builder.rejected_result();
-         tear_down_1_builder.rejected_result();
+        // Arrange
+        let mut root_suite_builder = root_suite_report_builder();
+        let mut test_1_builder = test_1_report_builder();
+        let mut setup_1_builder = setup_1_report_builder();
+        let mut tear_down_1_builder = tear_down_1_report_builder();
 
-         // Act
-         let mut summary = RunSummary::new();
-         summary.push_report(root_suite_builder.build());
-         summary.push_report(test_1_builder.build());
-         summary.push_report(setup_1_builder.build());
-         summary.push_report(tear_down_1_builder.build());
- 
-         // Assert
-         assert_eq!(summary.run_result(), ComponentResult::Fail(FailureReason::Rejected));
-         assert_eq!(summary.test_passed().count(), 0);
-         assert_eq!(summary.test_warning().count(), 0);
-         assert_eq!(summary.test_failed().count(), 1);
-         assert_eq!(summary.test_not_run().count(), 0);
+        root_suite_builder.rejected_result();
+        test_1_builder.rejected_result();
+        setup_1_builder.rejected_result();
+        tear_down_1_builder.rejected_result();
 
-         assert_eq!(summary.setup_passed().count(), 0);
-         assert_eq!(summary.setup_warning().count(), 0);
-         assert_eq!(summary.setup_failed().count(), 1);
-         assert_eq!(summary.setup_not_run().count(), 0);
+        // Act
+        let mut summary = RunSummary::new();
+        summary.push_report(root_suite_builder.build());
+        summary.push_report(test_1_builder.build());
+        summary.push_report(setup_1_builder.build());
+        summary.push_report(tear_down_1_builder.build());
 
-         assert_eq!(summary.tear_down_passed().count(), 0);
-         assert_eq!(summary.tear_down_warning().count(), 0);
-         assert_eq!(summary.tear_down_failed().count(), 1);
-         assert_eq!(summary.tear_down_not_run().count(), 0);
+        // Assert
+        assert_eq!(
+            summary.run_result(),
+            ComponentResult::Fail(FailureReason::Rejected)
+        );
+        assert_eq!(summary.test_passed().count(), 0);
+        assert_eq!(summary.test_warning().count(), 0);
+        assert_eq!(summary.test_failed().count(), 1);
+        assert_eq!(summary.test_not_run().count(), 0);
+
+        assert_eq!(summary.setup_passed().count(), 0);
+        assert_eq!(summary.setup_warning().count(), 0);
+        assert_eq!(summary.setup_failed().count(), 1);
+        assert_eq!(summary.setup_not_run().count(), 0);
+
+        assert_eq!(summary.tear_down_passed().count(), 0);
+        assert_eq!(summary.tear_down_warning().count(), 0);
+        assert_eq!(summary.tear_down_failed().count(), 1);
+        assert_eq!(summary.tear_down_not_run().count(), 0);
     }
 
     #[test]
     fn can_create_summary_report_with_passed_components_at_nested_suite() {
-         // Arrange 
-         let mut root_suite_builder = root_suite_report_builder();
-         let mut suite_1_builder = suite_1_report_builder();
-         let mut suite_1_test_1_builder = suite_1_test_1_report_builder();
-         let mut suite_1_setup_1_builder = suite_1_setup_1_report_builder();
-         let mut suite_1_tear_down_1_builder = suite_1_tear_down_1_report_builder();
-         
-         root_suite_builder.passed_result();
-         suite_1_builder.passed_result();
-         suite_1_test_1_builder.passed_result();
-         suite_1_setup_1_builder.passed_result();
-         suite_1_tear_down_1_builder.passed_result();
+        // Arrange
+        let mut root_suite_builder = root_suite_report_builder();
+        let mut suite_1_builder = suite_1_report_builder();
+        let mut suite_1_test_1_builder = suite_1_test_1_report_builder();
+        let mut suite_1_setup_1_builder = suite_1_setup_1_report_builder();
+        let mut suite_1_tear_down_1_builder = suite_1_tear_down_1_report_builder();
 
-         // Act
-         let mut summary = RunSummary::new();
-         summary.push_report(root_suite_builder.build());
-         summary.push_report(suite_1_test_1_builder.build());
-         summary.push_report(suite_1_setup_1_builder.build());
-         summary.push_report(suite_1_tear_down_1_builder.build());
-         summary.push_report(suite_1_builder.build());
+        root_suite_builder.passed_result();
+        suite_1_builder.passed_result();
+        suite_1_test_1_builder.passed_result();
+        suite_1_setup_1_builder.passed_result();
+        suite_1_tear_down_1_builder.passed_result();
 
-         // Assert
-         assert_eq!(summary.run_result(), ComponentResult::Pass(PassReason::Accepted));
-         assert_eq!(summary.test_passed().total_count(), 1);
-         assert_eq!(summary.test_warning().total_count(), 0);
-         assert_eq!(summary.test_failed().total_count(), 0);
-         assert_eq!(summary.test_not_run().total_count(), 0);
+        // Act
+        let mut summary = RunSummary::new();
+        summary.push_report(root_suite_builder.build());
+        summary.push_report(suite_1_test_1_builder.build());
+        summary.push_report(suite_1_setup_1_builder.build());
+        summary.push_report(suite_1_tear_down_1_builder.build());
+        summary.push_report(suite_1_builder.build());
 
-         assert_eq!(summary.setup_passed().total_count(), 1);
-         assert_eq!(summary.setup_warning().total_count(), 0);
-         assert_eq!(summary.setup_failed().total_count(), 0);
-         assert_eq!(summary.setup_not_run().total_count(), 0);
+        // Assert
+        assert_eq!(
+            summary.run_result(),
+            ComponentResult::Pass(PassReason::Accepted)
+        );
+        assert_eq!(summary.test_passed().total_count(), 1);
+        assert_eq!(summary.test_warning().total_count(), 0);
+        assert_eq!(summary.test_failed().total_count(), 0);
+        assert_eq!(summary.test_not_run().total_count(), 0);
 
-         assert_eq!(summary.tear_down_passed().total_count(), 1);
-         assert_eq!(summary.tear_down_warning().total_count(), 0);
-         assert_eq!(summary.tear_down_failed().total_count(), 0);
-         assert_eq!(summary.tear_down_not_run().total_count(), 0);
+        assert_eq!(summary.setup_passed().total_count(), 1);
+        assert_eq!(summary.setup_warning().total_count(), 0);
+        assert_eq!(summary.setup_failed().total_count(), 0);
+        assert_eq!(summary.setup_not_run().total_count(), 0);
+
+        assert_eq!(summary.tear_down_passed().total_count(), 1);
+        assert_eq!(summary.tear_down_warning().total_count(), 0);
+        assert_eq!(summary.tear_down_failed().total_count(), 0);
+        assert_eq!(summary.tear_down_not_run().total_count(), 0);
     }
 
     #[test]
     fn can_create_summary_report_with_failed_components_at_nested_suite() {
-         // Arrange 
-         let mut root_suite_builder = root_suite_report_builder();
-         let mut suite_1_builder = suite_1_report_builder();
-         let mut suite_1_test_1_builder = suite_1_test_1_report_builder();
-         let mut suite_1_setup_1_builder = suite_1_setup_1_report_builder();
-         let mut suite_1_tear_down_1_builder = suite_1_tear_down_1_report_builder();
+        // Arrange
+        let mut root_suite_builder = root_suite_report_builder();
+        let mut suite_1_builder = suite_1_report_builder();
+        let mut suite_1_test_1_builder = suite_1_test_1_report_builder();
+        let mut suite_1_setup_1_builder = suite_1_setup_1_report_builder();
+        let mut suite_1_tear_down_1_builder = suite_1_tear_down_1_report_builder();
 
+        let mut suite_2_builder = suite_2_report_builder();
+        let mut suite_2_test_1_builder = suite_2_test_1_report_builder();
+        let mut suite_2_setup_1_builder = suite_2_setup_1_report_builder();
+        let mut suite_2_tear_down_1_builder = suite_2_tear_down_1_report_builder();
 
-         let mut suite_2_builder = suite_2_report_builder();
-         let mut suite_2_test_1_builder = suite_2_test_1_report_builder();
-         let mut suite_2_setup_1_builder = suite_2_setup_1_report_builder();
-         let mut suite_2_tear_down_1_builder = suite_2_tear_down_1_report_builder();
-         
-         root_suite_builder.rejected_result();
-         suite_1_builder.rejected_result();
-         suite_1_test_1_builder.rejected_result();
-         suite_1_setup_1_builder.rejected_result();
-         suite_1_tear_down_1_builder.rejected_result();
+        root_suite_builder.rejected_result();
+        suite_1_builder.rejected_result();
+        suite_1_test_1_builder.rejected_result();
+        suite_1_setup_1_builder.rejected_result();
+        suite_1_tear_down_1_builder.rejected_result();
 
+        suite_2_builder.rejected_result();
+        suite_2_test_1_builder.rejected_result();
+        suite_2_setup_1_builder.rejected_result();
+        suite_2_tear_down_1_builder.rejected_result();
 
-         suite_2_builder.rejected_result();
-         suite_2_test_1_builder.rejected_result();
-         suite_2_setup_1_builder.rejected_result();
-         suite_2_tear_down_1_builder.rejected_result();
+        // Act
+        let mut summary = RunSummary::new();
+        summary.push_report(root_suite_builder.build());
 
-         // Act
-         let mut summary = RunSummary::new();
-         summary.push_report(root_suite_builder.build());
+        summary.push_report(suite_1_test_1_builder.build());
+        summary.push_report(suite_1_setup_1_builder.build());
+        summary.push_report(suite_1_tear_down_1_builder.build());
+        summary.push_report(suite_1_builder.build());
 
-         summary.push_report(suite_1_test_1_builder.build());
-         summary.push_report(suite_1_setup_1_builder.build());
-         summary.push_report(suite_1_tear_down_1_builder.build());
-         summary.push_report(suite_1_builder.build());
+        summary.push_report(suite_2_test_1_builder.build());
+        summary.push_report(suite_2_setup_1_builder.build());
+        summary.push_report(suite_2_tear_down_1_builder.build());
+        summary.push_report(suite_2_builder.build());
 
-         summary.push_report(suite_2_test_1_builder.build());
-         summary.push_report(suite_2_setup_1_builder.build());
-         summary.push_report(suite_2_tear_down_1_builder.build());
-         summary.push_report(suite_2_builder.build());
+        // Assert
+        assert_eq!(
+            summary.run_result(),
+            ComponentResult::Fail(FailureReason::Rejected)
+        );
+        assert_eq!(summary.test_passed().total_count(), 0);
+        assert_eq!(summary.test_warning().total_count(), 0);
+        assert_eq!(summary.test_failed().total_count(), 2);
+        assert_eq!(summary.test_failed().due_to_rejection().total_count(), 2);
+        assert_eq!(summary.test_not_run().total_count(), 0);
 
-         // Assert
-         assert_eq!(summary.run_result(), ComponentResult::Fail(FailureReason::Rejected));
-         assert_eq!(summary.test_passed().total_count(), 0);
-         assert_eq!(summary.test_warning().total_count(), 0);
-         assert_eq!(summary.test_failed().total_count(), 2);
-         assert_eq!(summary.test_failed().due_to_rejection().total_count(), 2);
-         assert_eq!(summary.test_not_run().total_count(), 0);
+        assert_eq!(summary.setup_passed().total_count(), 0);
+        assert_eq!(summary.setup_warning().total_count(), 0);
+        assert_eq!(summary.setup_failed().total_count(), 2);
+        assert_eq!(summary.setup_failed().due_to_rejection().total_count(), 2);
+        assert_eq!(summary.setup_not_run().total_count(), 0);
 
-         assert_eq!(summary.setup_passed().total_count(), 0);
-         assert_eq!(summary.setup_warning().total_count(), 0);
-         assert_eq!(summary.setup_failed().total_count(), 2);
-         assert_eq!(summary.setup_failed().due_to_rejection().total_count(), 2);
-         assert_eq!(summary.setup_not_run().total_count(), 0);
-
-         assert_eq!(summary.tear_down_passed().total_count(), 0);
-         assert_eq!(summary.tear_down_warning().total_count(), 0);
-         assert_eq!(summary.tear_down_failed().total_count(), 2);
-         assert_eq!(summary.tear_down_failed().due_to_rejection().total_count(), 2);
-         assert_eq!(summary.tear_down_not_run().total_count(), 0);         
+        assert_eq!(summary.tear_down_passed().total_count(), 0);
+        assert_eq!(summary.tear_down_warning().total_count(), 0);
+        assert_eq!(summary.tear_down_failed().total_count(), 2);
+        assert_eq!(
+            summary.tear_down_failed().due_to_rejection().total_count(),
+            2
+        );
+        assert_eq!(summary.tear_down_not_run().total_count(), 0);
     }
 }

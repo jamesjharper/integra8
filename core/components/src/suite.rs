@@ -1,8 +1,8 @@
 use std::time::Duration;
 
 use crate::{
-    BookEnd, ComponentDescription, ComponentId, ComponentLocation,
-    ComponentType, ConcurrencyMode, Test, TestParameters,
+    BookEnd, ComponentDescription, ComponentId, ComponentLocation, ComponentType, ConcurrencyMode,
+    Test, TestParameters,
 };
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]

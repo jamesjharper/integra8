@@ -1,9 +1,11 @@
 use std::collections::hash_map::Values;
 use std::collections::HashMap;
 
-use crate::summary::ResultsCountSummary;
 use crate::report::ComponentRunReport;
-use crate::summary::{FailedResults, NotRunResults, PassedResults, WarningResults, CompleteResults};
+use crate::summary::ResultsCountSummary;
+use crate::summary::{
+    CompleteResults, FailedResults, NotRunResults, PassedResults, WarningResults,
+};
 use crate::ComponentResult;
 
 use integra8_components::{ComponentId, ComponentType};
@@ -13,19 +15,19 @@ use integra8_components::{ComponentId, ComponentType};
 #[derive(Clone, Debug)]
 pub struct ComponentResultSummary {
     pub reports: Vec<ComponentRunReport>,
-    pub counts: ResultsCountSummary 
+    pub counts: ResultsCountSummary,
 }
 
 impl ComponentResultSummary {
     pub fn new() -> Self {
         Self {
             reports: Vec::new(),
-            counts: ResultsCountSummary::new()
+            counts: ResultsCountSummary::new(),
         }
     }
 
     pub fn push_report(&mut self, report: ComponentRunReport) {
-        self.counts.increment( &report.result );
+        self.counts.increment(&report.result);
         self.reports.push(report);
     }
 
@@ -124,19 +126,22 @@ impl RunSummary {
             .unwrap_or(ComponentResult::undetermined())
     }
 
-
     pub fn all<'a>(&'a self) -> CompleteResults<'a> {
         CompleteResults::from_many(
             self.suite_summaries
                 .values()
                 .flat_map(|suite| {
                     vec![
-                        (suite.suite_report.reports.iter(), &suite.suite_report.counts),
+                        (
+                            suite.suite_report.reports.iter(),
+                            &suite.suite_report.counts,
+                        ),
                         (suite.setups.reports.iter(), &suite.setups.counts),
                         (suite.tests.reports.iter(), &suite.tests.counts),
-                        (suite.tear_downs.reports.iter(), &suite.tear_downs.counts)
+                        (suite.tear_downs.reports.iter(), &suite.tear_downs.counts),
                     ]
-                }).collect()
+                })
+                .collect(),
         )
     }
 
@@ -146,7 +151,7 @@ impl RunSummary {
         CompleteResults::from_many(
             self.suite_summaries
                 .values()
-                .map(|suite|  (suite.tests.reports.iter(), &suite.tests.counts))
+                .map(|suite| (suite.tests.reports.iter(), &suite.tests.counts))
                 .collect(),
         )
     }
@@ -193,7 +198,7 @@ impl RunSummary {
         CompleteResults::from_many(
             self.suite_summaries
                 .values()
-                .map(|suite|  (suite.setups.reports.iter(), &suite.setups.counts))
+                .map(|suite| (suite.setups.reports.iter(), &suite.setups.counts))
                 .collect(),
         )
     }
@@ -229,7 +234,12 @@ impl RunSummary {
         NotRunResults::from_many(
             self.suite_summaries
                 .values()
-                .map(|suite| (suite.setups.reports.iter(), &suite.setups.counts.did_not_run))
+                .map(|suite| {
+                    (
+                        suite.setups.reports.iter(),
+                        &suite.setups.counts.did_not_run,
+                    )
+                })
                 .collect(),
         )
     }
@@ -240,7 +250,7 @@ impl RunSummary {
         CompleteResults::from_many(
             self.suite_summaries
                 .values()
-                .map(|suite|  (suite.tear_downs.reports.iter(), &suite.tear_downs.counts))
+                .map(|suite| (suite.tear_downs.reports.iter(), &suite.tear_downs.counts))
                 .collect(),
         )
     }
@@ -249,7 +259,12 @@ impl RunSummary {
         PassedResults::from_many(
             self.suite_summaries
                 .values()
-                .map(|suite| (suite.tear_downs.reports.iter(), &suite.tear_downs.counts.passed))
+                .map(|suite| {
+                    (
+                        suite.tear_downs.reports.iter(),
+                        &suite.tear_downs.counts.passed,
+                    )
+                })
                 .collect(),
         )
     }
@@ -258,7 +273,12 @@ impl RunSummary {
         WarningResults::from_many(
             self.suite_summaries
                 .values()
-                .map(|suite| (suite.tear_downs.reports.iter(), &suite.tear_downs.counts.warning))
+                .map(|suite| {
+                    (
+                        suite.tear_downs.reports.iter(),
+                        &suite.tear_downs.counts.warning,
+                    )
+                })
                 .collect(),
         )
     }
@@ -267,7 +287,12 @@ impl RunSummary {
         FailedResults::from_many(
             self.suite_summaries
                 .values()
-                .map(|suite| (suite.tear_downs.reports.iter(), &suite.tear_downs.counts.failed))
+                .map(|suite| {
+                    (
+                        suite.tear_downs.reports.iter(),
+                        &suite.tear_downs.counts.failed,
+                    )
+                })
                 .collect(),
         )
     }

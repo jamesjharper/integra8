@@ -5,7 +5,6 @@ use integra8_components::{
 
 use integra8_scheduling::ScheduledComponent;
 
-
 use std::sync::Arc;
 
 pub enum ComponentFixture<TParameters> {
@@ -25,12 +24,12 @@ pub enum ComponentFixture<TParameters> {
 }
 
 impl<TParameters: TestParameters> ComponentFixture<TParameters> {
-
-    pub fn from_scheduled_component(scheduled_component: ScheduledComponent<TParameters>, parameters: Arc<TParameters>) -> Self {
-       match scheduled_component {
-            ScheduledComponent::Test(c) => {
-                Self::for_test(c, parameters)
-            },
+    pub fn from_scheduled_component(
+        scheduled_component: ScheduledComponent<TParameters>,
+        parameters: Arc<TParameters>,
+    ) -> Self {
+        match scheduled_component {
+            ScheduledComponent::Test(c) => Self::for_test(c, parameters),
             ScheduledComponent::Setup(c) | ScheduledComponent::TearDown(c) => {
                 Self::for_bookend(c, parameters)
             }
@@ -39,7 +38,6 @@ impl<TParameters: TestParameters> ComponentFixture<TParameters> {
             }
         }
     }
-
 
     pub fn for_test(test: Test<TParameters>, parameters: Arc<TParameters>) -> Self {
         Self::Test {
@@ -112,7 +110,6 @@ impl<TParameters: TestParameters> ComponentFixture<TParameters> {
             Self::Suite { attributes, .. } => AcceptanceCriteria::for_suite(&attributes),
         }
     }
-    
 
     pub fn description<'a>(&'a self) -> &'a ComponentDescription {
         match self {

@@ -92,7 +92,6 @@ impl ComponentStateToken {
         }
     }
 
-
     /// Finalizes the global published status for this component and propagates the status value to this components parent.
     ///
     /// Parents state is determined by the following rules:
@@ -112,7 +111,10 @@ impl ComponentStateToken {
     }
 
     pub fn tentative_pass(&self) {
-        self.set_result(ComponentState::Tentative(ComponentResult::passed()), std::time::Duration::new(0, 0))
+        self.set_result(
+            ComponentState::Tentative(ComponentResult::passed()),
+            std::time::Duration::new(0, 0),
+        )
     }
 
     fn set_result(&self, result: ComponentState, time_taken: Duration) {
@@ -142,7 +144,6 @@ impl ComponentStateToken {
         }
 
         if let Some(child_result) = child_model.state.result() {
-            
             if child_result.has_passed()
                 && !parent_model.state.is_failed()
                 && !parent_model.state.is_warn()

@@ -1,8 +1,8 @@
 use std::time::Duration;
 
 use integra8_components::{
-    ComponentDescription, ComponentId, ComponentLocation, ConcurrencyMode, Suite,
-    SuiteAttributes, TestParameters, ComponentPath
+    ComponentDescription, ComponentId, ComponentLocation, ComponentPath, ConcurrencyMode, Suite,
+    SuiteAttributes, TestParameters,
 };
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]

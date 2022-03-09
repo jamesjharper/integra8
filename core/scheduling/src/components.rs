@@ -3,8 +3,8 @@ use std::iter::Peekable;
 use crate::state_machine::{ParallelTaskNode, SerialTaskNode, TaskStateMachineNode};
 
 use integra8_components::{
-    BookEnd, ComponentDescription, ComponentType, ConcurrencyMode, Suite, SuiteAttributes, Test,
-    TestParameters, Component
+    BookEnd, Component, ComponentDescription, ComponentType, ConcurrencyMode, Suite,
+    SuiteAttributes, Test, TestParameters,
 };
 
 #[derive(Clone, Debug)]
@@ -16,7 +16,7 @@ pub enum ScheduledComponent<TParameters> {
 }
 
 impl<TParameters> ScheduledComponent<TParameters> {
-    pub fn from(component : Component<TParameters>) -> Self {
+    pub fn from(component: Component<TParameters>) -> Self {
         match component {
             Component::Suite(c) => ScheduledComponent::Suite(c.description, c.attributes),
             Component::Test(c) => ScheduledComponent::Test(c),

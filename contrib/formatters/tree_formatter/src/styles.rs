@@ -1,4 +1,4 @@
-use ansi_term::Colour::{Green, Purple, Red, Yellow, Cyan};
+use ansi_term::Colour::{Cyan, Green, Purple, Red, Yellow};
 use integra8_formatters::models::report::ComponentRunReport;
 use integra8_formatters::models::{ComponentResult, ComponentType};
 
@@ -67,7 +67,6 @@ impl Formatting {
             Self::None => text.into(),
         }
     }
-
 
     pub fn apply_progress_bar_running(&self, text: impl Into<String>) -> String {
         match self {
@@ -384,7 +383,6 @@ impl ProgressBarStyle {
         let template = format!("{}{}", in_progress, "[{bar}] {pos}/{len} {wide_msg} ");
         let progress_chars = "=> ".to_string();
         let finished = format.apply_progress_bar_finished("  Finished ");
-     
 
         Self {
             running,
@@ -392,7 +390,7 @@ impl ProgressBarStyle {
             in_progress,
             progress_chars,
             finished,
-            failed
+            failed,
         }
     }
 }
@@ -407,7 +405,7 @@ impl TreeStyle {
         let format = Formatting::new(ansi_mode);
         Self {
             branch: TreeBranchStyle::new(&format, encoding),
-            node: ComponentTypeStyle::new(&format, encoding, style)
+            node: ComponentTypeStyle::new(&format, encoding, style),
         }
     }
 }

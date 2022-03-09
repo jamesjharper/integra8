@@ -53,7 +53,14 @@ impl<TParameters: TestParameters> ComponentGroup<TParameters> {
         suite.tests = self
             .tests
             .into_iter()
-            .map(|x| x.into_component(id_gen.next(), &suite.description, &suite.attributes, parameters))
+            .map(|x| {
+                x.into_component(
+                    id_gen.next(),
+                    &suite.description,
+                    &suite.attributes,
+                    parameters,
+                )
+            })
             .collect();
 
         // 3: Nested Suites
@@ -73,7 +80,9 @@ impl<TParameters: TestParameters> ComponentGroup<TParameters> {
         suite.tear_downs = self
             .tear_downs
             .into_iter()
-            .map(|x| x.into_tear_down_component(id_gen.next(), &suite.description, &suite.attributes))
+            .map(|x| {
+                x.into_tear_down_component(id_gen.next(), &suite.description, &suite.attributes)
+            })
             .collect();
 
         suite
@@ -224,7 +233,7 @@ impl<TParameters> HierarchyNode<TParameters> {
         tests.sort_unstable_by(|a, b| a.desc.location.cmp(&b.desc.location));
         setups.sort_unstable_by(|a, b| a.desc.location.cmp(&b.desc.location));
         tear_downs.sort_unstable_by(|a, b| a.desc.location.cmp(&b.desc.location));
-    
+
         return ComponentGroup {
             suite,
             tests,

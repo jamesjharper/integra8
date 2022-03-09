@@ -58,10 +58,7 @@ impl ResultReasonCounter for ResultsCountSummary {
     type ReasonType = ComponentResult;
 
     fn total(&self) -> usize {
-        self.passed.total()
-         + self.warning.total()
-         + self.failed.total()
-         + self.did_not_run.total()
+        self.passed.total() + self.warning.total() + self.failed.total() + self.did_not_run.total()
     }
 
     fn by_reason(&self, reason: &ComponentResult) -> usize {

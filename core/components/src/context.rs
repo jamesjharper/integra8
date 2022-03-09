@@ -1,15 +1,18 @@
 use indexmap::IndexMap;
-use std::error::Error;
+use serde::{Deserialize, Serialize};
 use std::any::Any;
+use std::error::Error;
 use std::io::{BufRead, Cursor, Read, Seek, SeekFrom, Write};
 use std::mem;
 use std::path::PathBuf;
 use std::sync::Arc;
 use std::sync::RwLock;
 use std::time::Duration;
-use serde::{Serialize, Deserialize};
 
-use crate::{ComponentDescription, ConcurrencyMode, Component, ComponentPath, ComponentId, BookEndAttributes, TestAttributes, Delegate, ComponentType, ComponentLocation, Test, BookEnd };
+use crate::{
+    BookEnd, BookEndAttributes, Component, ComponentDescription, ComponentId, ComponentLocation,
+    ComponentPath, ComponentType, ConcurrencyMode, Delegate, Test, TestAttributes,
+};
 
 pub struct ExecutionContext<TParameters> {
     pub parameters: Arc<TParameters>,
@@ -25,7 +28,7 @@ pub enum ExecutionArtifact {
 }
 
 pub struct ExecutionArtifacts {
-    // Use index map to ensure items alway print in the same order 
+    // Use index map to ensure items alway print in the same order
     // when outputting results
     map: RwLock<IndexMap<String, ExecutionArtifact>>,
 }
@@ -41,7 +44,7 @@ impl ExecutionArtifacts {
         ExecutionArtifactCursor::new(self, name.into())
     }
 
-    pub fn include_panic(&self, name: impl Into<String>, payload: &(dyn Any + Send))  -> &Self {
+    pub fn include_panic(&self, name: impl Into<String>, payload: &(dyn Any + Send)) -> &Self {
         // Unfortunately, panic unwind only gives the payload portion of
         // the panic info. Also, if panic formatter is used we don't even
         // get a panic message. This is here to get what little info we have,
@@ -69,7 +72,11 @@ impl ExecutionArtifacts {
         self
     }
 
-    pub fn include_utf8_text_buffer(&self, name: impl Into<String>, buff: impl Into<Vec<u8>>) -> &Self {
+    pub fn include_utf8_text_buffer(
+        &self,
+        name: impl Into<String>,
+        buff: impl Into<Vec<u8>>,
+    ) -> &Self {
         self.include(name, ExecutionArtifact::TextBuffer(buff.into()));
         self
     }
@@ -96,7 +103,6 @@ impl ExecutionArtifacts {
         drain_map
     }
 }
-
 
 pub trait BufferSource {
     fn read_all(&mut self) -> std::io::Result<Vec<u8>>;
@@ -180,12 +186,11 @@ impl<'a> Seek for ExecutionArtifactCursor<'a> {
     }
 }
 
-
 #[derive(Clone)]
 pub enum ExecutionStrategy {
     GreenThread,
     ChildProcess,
-    CurrentThread
+    CurrentThread,
 }
 
 pub trait TestParameters {
@@ -201,7 +206,7 @@ pub trait TestParameters {
         }
 
         if self.use_child_processes() {
-            return ExecutionStrategy::ChildProcess;     
+            return ExecutionStrategy::ChildProcess;
         }
         ExecutionStrategy::GreenThread
     }
@@ -249,40 +254,34 @@ impl ChildProcessComponentMetaArgs {
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub enum ChildProcessComponentArgs {
     Test {
-        meta: ChildProcessComponentMetaArgs, 
-        attributes: TestAttributes
+        meta: ChildProcessComponentMetaArgs,
+        attributes: TestAttributes,
     },
     Setup {
-        meta: ChildProcessComponentMetaArgs, 
-        attributes: BookEndAttributes
+        meta: ChildProcessComponentMetaArgs,
+        attributes: BookEndAttributes,
     },
     TearDown {
-        meta: ChildProcessComponentMetaArgs, 
-        attributes: BookEndAttributes
+        meta: ChildProcessComponentMetaArgs,
+        attributes: BookEndAttributes,
     },
 }
 
 impl ChildProcessComponentArgs {
-    pub fn from_str(str_value: &str) -> Result<Self, Box<dyn Error>>  {
+    pub fn from_str(str_value: &str) -> Result<Self, Box<dyn Error>> {
         let val = serde_json::from_str(str_value)?;
         Ok(val)
     }
 
     pub fn meta<'a>(&'a self) -> &'a ChildProcessComponentMetaArgs {
         match self {
-            Self::Test { meta, .. } => {
-                meta
-            },
-            Self::Setup  { meta, .. } => {
-                meta
-            },
-            Self::TearDown  { meta, .. } => {
-                meta
-            },
+            Self::Test { meta, .. } => meta,
+            Self::Setup { meta, .. } => meta,
+            Self::TearDown { meta, .. } => meta,
         }
     }
 
-    pub fn to_string(&self) -> Result<String, Box<dyn Error>>  {
+    pub fn to_string(&self) -> Result<String, Box<dyn Error>> {
         let as_string = serde_json::to_string(&self)?;
         Ok(as_string)
     }
@@ -292,55 +291,48 @@ impl ChildProcessComponentArgs {
         name: Option<&'static str>,
         description: Option<&'static str>,
         location: ComponentLocation,
-        component_fn: Delegate<TParameters>
+        component_fn: Delegate<TParameters>,
     ) -> Component<TParameters> {
         match self {
-            Self::Test { meta, attributes } => {
-                Component::Test(Test {
-                    description: ComponentDescription::new(
-                        name,
-                        meta.id,
-                        meta.parent_id,
-                        location,
-                        meta.parent_location,
-                        description,
-                        ComponentType::Test,
-                    ),
-                    attributes: attributes,
-                    test_fn: component_fn
-                })
-            },
-            Self::Setup { meta, attributes } => {
-                Component::Setup(BookEnd {
-                    description: ComponentDescription::new(
-                        name,
-                        meta.id,
-                        meta.parent_id,
-                        location,
-                        meta.parent_location,
-                        description,
-                        ComponentType::Setup,
-                    ),
-                    attributes: attributes,
-                    bookend_fn: component_fn
-                })
-            },
-            Self::TearDown { meta, attributes } => {
-                Component::TearDown(BookEnd {
-                    description: ComponentDescription::new(
-                        name,
-                        meta.id,
-                        meta.parent_id,
-                        location,
-                        meta.parent_location,
-                        description,
-                        ComponentType::TearDown,
-                    ),
-                    attributes: attributes,
-                    bookend_fn: component_fn
-                })
-            },
+            Self::Test { meta, attributes } => Component::Test(Test {
+                description: ComponentDescription::new(
+                    name,
+                    meta.id,
+                    meta.parent_id,
+                    location,
+                    meta.parent_location,
+                    description,
+                    ComponentType::Test,
+                ),
+                attributes: attributes,
+                test_fn: component_fn,
+            }),
+            Self::Setup { meta, attributes } => Component::Setup(BookEnd {
+                description: ComponentDescription::new(
+                    name,
+                    meta.id,
+                    meta.parent_id,
+                    location,
+                    meta.parent_location,
+                    description,
+                    ComponentType::Setup,
+                ),
+                attributes: attributes,
+                bookend_fn: component_fn,
+            }),
+            Self::TearDown { meta, attributes } => Component::TearDown(BookEnd {
+                description: ComponentDescription::new(
+                    name,
+                    meta.id,
+                    meta.parent_id,
+                    location,
+                    meta.parent_location,
+                    description,
+                    ComponentType::TearDown,
+                ),
+                attributes: attributes,
+                bookend_fn: component_fn,
+            }),
         }
     }
 }
-

@@ -1,9 +1,9 @@
-use crate::components::{TestParameters, Component, ChildProcessComponentArgs};
+use crate::components::{ChildProcessComponentArgs, Component, TestParameters};
+use crate::core::channel::RunProgressChannelNotify;
 use crate::decorations::{ComponentDecoration, ComponentGroup};
 use crate::formatters::{FormatterParameters, OutputFormatter};
 use crate::runner::ResolveRunnerStrategy;
 use crate::scheduling::{IntoTaskStateMachine, ScheduledComponent, TaskStateMachineNode};
-use crate::core::channel::RunProgressChannelNotify;
 
 /// IOC code seem for internal test and customization extensions to the framework
 pub trait ResolveDecorationStrategy<Parameters: TestParameters> {
@@ -11,22 +11,19 @@ pub trait ResolveDecorationStrategy<Parameters: TestParameters> {
     where
         Self: Sized;
 
-    
     fn resolve_decorations(
         &mut self,
         parameters: &Parameters,
         auto_detected: Vec<ComponentDecoration<Parameters>>,
-    ) ->  Vec<ComponentDecoration<Parameters>> {
-
+    ) -> Vec<ComponentDecoration<Parameters>> {
         let decorations = self.resolve_additional_decorations(parameters, auto_detected);
 
         match parameters.child_process_target() {
-            Some(child_process_parameters) => {
-                self.filter_child_process(parameters, child_process_parameters, decorations).into_iter().collect()
-            },
-            None => {
-                decorations
-            }
+            Some(child_process_parameters) => self
+                .filter_child_process(parameters, child_process_parameters, decorations)
+                .into_iter()
+                .collect(),
+            None => decorations,
         }
     }
 
@@ -40,11 +37,8 @@ pub trait ResolveDecorationStrategy<Parameters: TestParameters> {
         // Child process is used to run a single component in a separate process
         decorations
             .into_iter()
-            .find(|c| {
-                &c.location().path == target_component_path
-            })
+            .find(|c| &c.location().path == target_component_path)
     }
-
 
     /// Returns list of decorated component to be compiled into the test schedule.
     /// This is intended for 3rd party custom component registration and filtering logic.
@@ -64,14 +58,12 @@ pub trait ResolveDecorationStrategy<Parameters: TestParameters> {
     }
 }
 
-
 /// IOC code seem for internal test and customization extensions to the framework
-pub trait ResolveComponentHierarchyStrategy<Parameters: TestParameters>  {
+pub trait ResolveComponentHierarchyStrategy<Parameters: TestParameters> {
     fn create(parameters: &Parameters) -> Self
     where
         Self: Sized;
 
-    
     fn resolve_component_hierarchy(
         &mut self,
         parameters: &Parameters,
@@ -87,16 +79,14 @@ pub trait ResolveComponentHierarchyStrategy<Parameters: TestParameters>  {
                     d.location().clone(),
                     d.into_delegate().unwrap(),
                 )
-            },
-            None => {
-                Component::Suite(ComponentGroup::into_root_component(decorations, parameters))
             }
+            None => Component::Suite(ComponentGroup::into_root_component(decorations, parameters)),
         }
     }
 }
 
 /// IOC code seem for internal test and customization extensions to the framework
-pub trait ResolveComponentScheduleStrategy<Parameters: TestParameters>  {
+pub trait ResolveComponentScheduleStrategy<Parameters: TestParameters> {
     fn create(parameters: &Parameters) -> Self
     where
         Self: Sized;
@@ -113,12 +103,12 @@ pub trait ResolveComponentScheduleStrategy<Parameters: TestParameters>  {
     fn resolve_schedule(
         &mut self,
         parameters: &Parameters,
-        root_component: Component<Parameters>
+        root_component: Component<Parameters>,
     ) -> TaskStateMachineNode<ScheduledComponent<Parameters>>;
 }
 
 /// IOC code seem for internal test and customization extensions to the framework
-pub trait ResolveFormatterStrategy<Parameters: TestParameters>  {
+pub trait ResolveFormatterStrategy<Parameters: TestParameters> {
     fn create(parameters: &Parameters) -> Self
     where
         Self: Sized;
@@ -132,12 +122,12 @@ pub trait ResolveFormatterStrategy<Parameters: TestParameters>  {
     fn resolve_formatter(&mut self, parameters: &Parameters) -> Box<dyn OutputFormatter>;
 }
 
-
-
 /// Inbuilt implementation for resolving components
 pub struct DefaultResolveDecorationStrategy;
 
-impl<Parameters: TestParameters>  ResolveDecorationStrategy<Parameters> for DefaultResolveDecorationStrategy {
+impl<Parameters: TestParameters> ResolveDecorationStrategy<Parameters>
+    for DefaultResolveDecorationStrategy
+{
     fn create(_parameters: &Parameters) -> Self
     where
         Self: Sized,
@@ -149,7 +139,9 @@ impl<Parameters: TestParameters>  ResolveDecorationStrategy<Parameters> for Defa
 /// Inbuilt implementation for resolving Component Hierarchy
 pub struct DefaultResolveComponentHierarchyStrategy;
 
-impl<Parameters: TestParameters>  ResolveComponentHierarchyStrategy<Parameters> for DefaultResolveComponentHierarchyStrategy {
+impl<Parameters: TestParameters> ResolveComponentHierarchyStrategy<Parameters>
+    for DefaultResolveComponentHierarchyStrategy
+{
     fn create(_parameters: &Parameters) -> Self
     where
         Self: Sized,
@@ -183,7 +175,7 @@ impl<Parameters: TestParameters> ResolveComponentScheduleStrategy<Parameters>
     fn resolve_schedule(
         &mut self,
         _parameters: &Parameters,
-        root_component: Component<Parameters>
+        root_component: Component<Parameters>,
     ) -> TaskStateMachineNode<ScheduledComponent<Parameters>> {
         root_component.into_task_state_machine()
     }
@@ -207,18 +199,15 @@ impl<Parameters: FormatterParameters + TestParameters> ResolveFormatterStrategy<
     }
 }
 
-
-
 /// IOC code seem for internal test and customization extensions to the framework
 pub trait TestApplicationLocator<Parameters> {
     fn resolve_decorations_strategy(
         parameters: &Parameters,
     ) -> Box<dyn ResolveDecorationStrategy<Parameters>>;
 
-
     fn resolve_component_hierarchy_strategy(
         parameters: &Parameters,
-    ) -> Box<dyn ResolveComponentHierarchyStrategy<Parameters>> ;
+    ) -> Box<dyn ResolveComponentHierarchyStrategy<Parameters>>;
 
     fn resolve_component_schedule_strategy(
         parameters: &Parameters,
@@ -294,7 +283,8 @@ impl<
 
     fn resolve_runner_strategy(
         parameters: &Parameters,
-    ) -> Box<dyn ResolveRunnerStrategy<Parameters, RunProgressChannelNotify> + Send + Sync + 'static> {
+    ) -> Box<dyn ResolveRunnerStrategy<Parameters, RunProgressChannelNotify> + Send + Sync + 'static>
+    {
         Box::new(ResolveRunner::create(parameters))
     }
 }

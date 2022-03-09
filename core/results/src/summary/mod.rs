@@ -13,8 +13,8 @@ mod results_iter;
 
 #[doc(inline)]
 pub use results_iter::{
-    FailedReasonResults, FailedResults, NotRunReasonResults, NotRunResults, PassReasonResults,
-    PassedResults, WarningResults, CompleteResults
+    CompleteResults, FailedReasonResults, FailedResults, NotRunReasonResults, NotRunResults,
+    PassReasonResults, PassedResults, WarningResults,
 };
 
 mod counts;
@@ -22,5 +22,5 @@ mod counts;
 #[doc(inline)]
 pub use counts::{
     ComponentTypeCountSummary, DidNotRunResultsCountSummary, FailResultsCountSummary,
-    PassResultsCountSummary, ResultsCountSummary, WarningResultsCountSummary
+    PassResultsCountSummary, ResultsCountSummary, WarningResultsCountSummary,
 };

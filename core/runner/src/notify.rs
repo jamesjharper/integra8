@@ -32,18 +32,17 @@ pub trait RunProgressNotify {
     ) -> Self::ComponentProgressNotify;
 }
 
-
 #[derive(Clone)]
 pub struct NullComponentProgressChannelNotify;
 
 impl ComponentProgressNotify for NullComponentProgressChannelNotify {
     fn notify_started(&self) -> Pin<Box<dyn Future<Output = ()> + Send + '_>> {
-        async fn do_nothing() {  }
+        async fn do_nothing() {}
         Box::pin(do_nothing())
     }
 
     fn notify_timed_out(&self) -> Pin<Box<dyn Future<Output = ()> + Send + '_>> {
-        async fn do_nothing() {  }
+        async fn do_nothing() {}
         Box::pin(do_nothing())
     }
 }

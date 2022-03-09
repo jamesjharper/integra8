@@ -6,7 +6,7 @@ use integra8_components::{AcceptanceCriteria, ComponentDescription, ExecutionArt
 use std::time::Duration;
 
 #[cfg(feature = "enable_serde")]
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 #[cfg_attr(feature = "enable_serde", derive(Serialize, Deserialize))]
 #[derive(Clone, PartialEq, Debug)]
@@ -76,9 +76,7 @@ impl ComponentReportBuilder {
     }
 
     pub fn with_artifacts(&mut self, artifacts: &ExecutionArtifacts) {
-        self.artifacts = Some(
-            ComponentRunArtifacts::from_execution_artifacts(artifacts)
-        );
+        self.artifacts = Some(ComponentRunArtifacts::from_execution_artifacts(artifacts));
     }
 
     pub fn build(self) -> ComponentRunReport {

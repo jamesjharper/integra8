@@ -14,8 +14,8 @@ mod executor_async {
     use super::*;
 
     pub mod child_process;
-    pub mod green_thread;
     pub mod current_thread;
+    pub mod green_thread;
 
     pub async fn execute<
         TParameters: TestParameters + Send + Sync + UnwindSafe + 'static,
@@ -25,23 +25,22 @@ mod executor_async {
         fixture: ComponentFixture<TParameters>,
         report_builder: ComponentReportBuilder,
     ) -> ComponentReportBuilder {
-
         match fixture.execution_strategy() {
             ExecutionStrategy::ChildProcess => {
                 executor_async::child_process::ChildProcessExecutor
                     .execute(progress_notify, fixture, report_builder)
                     .await
-            },
+            }
             ExecutionStrategy::CurrentThread => {
                 executor_async::current_thread::CurrentThreadExecutor
                     .execute(progress_notify, fixture, report_builder)
                     .await
-            },
+            }
             ExecutionStrategy::GreenThread => {
-                executor_async::green_thread::GreenThreadExecutor 
+                executor_async::green_thread::GreenThreadExecutor
                     .execute(progress_notify, fixture, report_builder)
                     .await
-            },
+            }
         }
     }
 }

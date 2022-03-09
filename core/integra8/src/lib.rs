@@ -1,7 +1,5 @@
-
-
-pub mod strategy;
 pub mod core;
+pub mod strategy;
 
 pub use integra8_impl::*;
 
@@ -60,8 +58,6 @@ macro_rules! run_tests {
     };
 }
 
-
-
 #[cfg(test)]
 #[derive(Clone, Debug, crate::structopt::StructOpt)]
 #[structopt()]
@@ -72,4 +68,5 @@ type Parameters = MockParameters;
 
 #[cfg(test)]
 #[linkme::distributed_slice]
-pub static REGISTERED_COMPONENTS: [fn() -> crate::decorations::ComponentDecoration<Parameters>] = [..];
+pub static REGISTERED_COMPONENTS: [fn() -> crate::decorations::ComponentDecoration<Parameters>] =
+    [..];

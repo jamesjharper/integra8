@@ -80,7 +80,12 @@ pub fn render_node_attributes<W: Write>(
 
     // Don't write location for suites
     if report.description.component_type() != &ComponentType::Suite {
-        render_attribute(output_formatter, style, "src", &report.description.location().hotlink_text())?;
+        render_attribute(
+            output_formatter,
+            style,
+            "src",
+            &report.description.location().hotlink_text(),
+        )?;
         has_attributes = true;
     }
 

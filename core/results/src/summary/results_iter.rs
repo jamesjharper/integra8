@@ -1,7 +1,7 @@
 use crate::summary::counts::ResultReasonCounter;
 use crate::summary::{
     DidNotRunResultsCountSummary, FailResultsCountSummary, PassResultsCountSummary,
-    WarningResultsCountSummary, ResultsCountSummary
+    ResultsCountSummary, WarningResultsCountSummary,
 };
 
 use crate::report::ComponentRunReport;
@@ -15,9 +15,7 @@ pub struct CompleteResults<'a> {
 }
 
 impl<'a> CompleteResults<'a> {
-    pub fn from_many(
-        many: Vec<(Iter<'a, ComponentRunReport>, &'a ResultsCountSummary)>,
-    ) -> Self {
+    pub fn from_many(many: Vec<(Iter<'a, ComponentRunReport>, &'a ResultsCountSummary)>) -> Self {
         Self {
             iter: ChainedResultsIter::from_many(many),
         }
@@ -67,7 +65,6 @@ impl<'a> Iterator for CompleteResults<'a> {
         self.iter.next()
     }
 }
-
 
 /// A struct for interrogating *pass* results.
 /// Implements `Iterator` and can be reduced to a filtered results set using its accompanying  `due_to...` methods
@@ -682,9 +679,7 @@ impl<'a, ResultsCountSummary: ResultReasonCounter> ChainedResultsIter<'a, Result
     pub fn total_count(&self) -> usize {
         self.iters
             .iter()
-            .fold(0, |acc, (_, counts)| {
-                counts.total() + acc
-            })
+            .fold(0, |acc, (_, counts)| counts.total() + acc)
     }
 
     pub fn total_count_due_to_reason(

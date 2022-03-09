@@ -2,7 +2,7 @@ pub mod none;
 
 pub mod models {
     pub use integra8_components::{
-        ComponentDescription, ComponentLocation, ComponentType, TestParameters, ComponentId
+        ComponentDescription, ComponentId, ComponentLocation, ComponentType, TestParameters,
     };
     pub use integra8_results::*;
 }

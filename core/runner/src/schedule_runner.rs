@@ -1,10 +1,11 @@
-
-
 use std::panic::UnwindSafe;
 use std::sync::Arc;
 
-use crate::{ComponentProgressNotify, ComponentFixture, ComponentStateToken, RunStateModel, RunProgressNotify, ComponentState};
 use crate::executor::execute;
+use crate::{
+    ComponentFixture, ComponentProgressNotify, ComponentState, ComponentStateToken,
+    RunProgressNotify, RunStateModel,
+};
 
 use integra8_components::TestParameters;
 use integra8_scheduling::iter::TaskStreamMap;
@@ -14,17 +15,14 @@ use integra8_scheduling::{ScheduledComponent, TaskScheduler};
 use integra8_results::report::{ComponentReportBuilder, ComponentRunReport};
 use integra8_results::summary::ComponentTypeCountSummary;
 
-
 pub struct ScheduleRunner<RunProgressNotify> {
     sender: RunProgressNotify,
     status: RunStateModel,
 }
 
-impl<
-        ProgressNotify: RunProgressNotify + Sync + Send + Clone + 'static,
-    > ScheduleRunner<ProgressNotify>
+impl<ProgressNotify: RunProgressNotify + Sync + Send + Clone + 'static>
+    ScheduleRunner<ProgressNotify>
 {
-
     pub fn new(sender: ProgressNotify) -> Self {
         Self {
             sender: sender,
@@ -37,9 +35,9 @@ impl<
     /// # Arguments
     ///
     /// * `parameters` - The parameter type as defined by the test author.
-    /// 
+    ///
     /// * `schedule` - A ordered tree of components to be executed in order
-    /// 
+    ///
     /// * `summary` - Count summary of all the components within the schedule
     ///
     pub async fn run<TParameters: TestParameters + Sync + Send + UnwindSafe + 'static>(
@@ -53,15 +51,14 @@ impl<
 
         let parameters = Arc::new(parameters);
 
-        let scheduled_component_runs = schedule
-            .map(|component| self.prepare_component_run(parameters.clone(), component));
+        let scheduled_component_runs =
+            schedule.map(|component| self.prepare_component_run(parameters.clone(), component));
 
         TaskScheduler::new(scheduled_component_runs, parameters.max_concurrency())
             .for_each_concurrent(|runner| async {
                 if let ComponentRunResult::Ready(report) = runner.run().await {
-
                     // Only publish reports as they are ready.
-                    // In the case of a suite, they run twice. 
+                    // In the case of a suite, they run twice.
                     // First time is to update child components to reflect their
                     // parents suites status
                     // Second is to complete the suite and publish its result
@@ -79,7 +76,6 @@ impl<
         component: ScheduledComponent<TParameters>,
     ) -> ComponentRunner<TParameters, <ProgressNotify as RunProgressNotify>::ComponentProgressNotify>
     {
-
         let fixture = ComponentFixture::from_scheduled_component(component, parameters);
 
         ComponentRunner {
@@ -131,13 +127,13 @@ impl<
                 ComponentRunResult::AlreadyPublished(report_builder.build())
             }
             ComponentRunResult::WaitingOnChildren => {
-                // A Suite will wait on children before its results can be 
+                // A Suite will wait on children before its results can be
                 // determined, if all the children are ignored or there are no
-                // children then the assume a pass results. So the suite is 
+                // children then the assume a pass results. So the suite is
                 // automatically given a tentative pass result
-                component_state.tentative_pass();              
+                component_state.tentative_pass();
                 ComponentRunResult::WaitingOnChildren
-            },
+            }
         }
     }
 
@@ -169,8 +165,6 @@ impl<
         }
 
         // execute to determine the components state
-        ComponentRunResult::Ready(
-            execute(self.progress_notify, self.fixture, self.report).await
-        )
+        ComponentRunResult::Ready(execute(self.progress_notify, self.fixture, self.report).await)
     }
 }
