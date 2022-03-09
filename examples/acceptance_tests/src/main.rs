@@ -551,7 +551,55 @@ mod execution_context {
             result => ComponentResult::Pass(PassReason::Accepted),
         );
 
-        // TODO: fix!
+        assert_component!(
+            report => r,
+            path => "generate_test_data::test_some_user_actions",
+            result => ComponentResult::Pass(PassReason::Accepted),
+            id => 1,
+            parent_id => 0,
+            component_type => ComponentType::Suite,
+        );
+
+
+        assert_component!(
+            report => r,
+            path => "generate_test_data::test_some_user_actions::setup",
+            result => ComponentResult::Pass(PassReason::Accepted),
+            id => 2,
+            parent_id => 1,
+            component_type => ComponentType::Setup,
+            stdout => "Creating user \"user_1\"\n"
+        );
+
+        assert_component!(
+            report => r,
+            path => "generate_test_data::test_some_user_actions::do_some_action",
+            result => ComponentResult::Pass(PassReason::Accepted),
+            id => 3,
+            parent_id => 1,
+            component_type => ComponentType::Test,
+            stdout => "User \"user_1\" performs some action on item \"item_3\"\n"
+        );
+
+        assert_component!(
+            report => r,
+            path => "generate_test_data::test_some_user_actions::do_some_something_else",
+            result => ComponentResult::Pass(PassReason::Accepted),
+            id => 4,
+            parent_id => 1,
+            component_type => ComponentType::Test,
+            stdout => "User \"user_1\" performs another action on item \"item_4\"\n"
+        );
+
+        assert_component!(
+            report => r,
+            path => "generate_test_data::test_some_user_actions::teardown",
+            result => ComponentResult::Pass(PassReason::Accepted),
+            id => 5,
+            parent_id => 1,
+            component_type => ComponentType::TearDown,
+            stdout => "Removing user \"user_1\"\n"
+        );
     }
 }
 
