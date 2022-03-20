@@ -6,6 +6,8 @@ Work remaining:
  [ ] Use tree formatter as default formatter when not explicitly set
  [ ] Publish to doc.rs
 
+Minimal/No breaking changes are expected moving forward.  
+
 Happy Integra8ing!
 
 ```rust

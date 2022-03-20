@@ -1,6 +1,6 @@
 [package]
 name = "integra8"
-version = "0.0.3-alpha"
+version = "0.0.4-alpha"
 edition = "2018"
 description = """
 Integra8 rust integration test framework Rust with a focus on productivity, extensibility, and speed.
@@ -10,7 +10,7 @@ repository = "https://github.com/jamesjharper/integra8"
 readme = "../../README.md"
 license = "MIT OR Apache-2.0"
 keywords = ["integra8", "test", "framework", "integration", "bdd"]
-documentation = "https://api.integra8.rs/v0.0.3-alpha/integra8/"
+documentation = "https://api.integra8.rs/v0.0.4-alpha/integra8/"
 categories = ["development-tools" ]
 
 [dependencies]
@@ -23,40 +23,40 @@ async-process = "1.2.0"
 futures = "0.3.17"
 
 [dependencies.integra8_impl]
-version = "0.0.3-alpha"
+version = "0.0.4-alpha"
 path = "../integra8_impl"
 
 [dependencies.integra8_decorations]
-version = "0.0.3-alpha"
+version = "0.0.4-alpha"
 path = "../decorations"
 
 [dependencies.integra8_decorations_impl]
-version = "0.0.3-alpha"
+version = "0.0.4-alpha"
 path = "../decorations_impl"
 
 [dependencies.integra8_components]
-version = "0.0.3-alpha"
+version = "0.0.4-alpha"
 path = "../components"
 
 [dependencies.integra8_scheduling]
-version = "0.0.3-alpha"
+version = "0.0.4-alpha"
 path = "../scheduling"
 
 [dependencies.integra8_results]
-version = "0.0.3-alpha"
+version = "0.0.4-alpha"
 path = "../results"
 features = ["enable_serde"]
 
 [dependencies.integra8_formatters]
-version = "0.0.3-alpha"
+version = "0.0.4-alpha"
 path = "../formatters"
 
 [dependencies.integra8_runner]
-version = "0.0.3-alpha"
+version = "0.0.4-alpha"
 path = "../runner"
 
 [dependencies.integra8_async_runtime]
-version = "0.0.3-alpha"
+version = "0.0.4-alpha"
 path = "../async_runtime"
 
 [features]
