@@ -63,3 +63,13 @@ where
 {
     async_std::task::spawn(future)
 }
+
+#[cfg(feature = "tokio-runtime")]
+pub fn sleep(duration: std::time::Duration) -> tokio::time::Sleep {
+    tokio::time::sleep(duration)
+}
+
+#[cfg(feature = "async-std-runtime")]
+pub async fn sleep(duration: std::time::Duration) {
+    async_std::task::sleep(duration).await
+}

@@ -11,7 +11,8 @@ main_test! {
     // TODO: this should be automatically detected as default
     console_output: integra8_tree_formatter::TreeFormatter,
     //console_output_ansi_mode: Auto,
-   // console_output_level: Verbose,
+    //console_output_level: Verbose,
+   // console_output_level: StopWatch,
     use_child_process: false,
     default_suite_concurrency: Parallel,
     default_test_concurrency: Parallel,
@@ -560,7 +561,6 @@ mod execution_context {
             component_type => ComponentType::Suite,
         );
 
-
         assert_component!(
             report => r,
             path => "generate_test_data::test_some_user_actions::setup",
@@ -1068,3 +1068,6 @@ mod pitfalls {
 }
 
 
+// TODO: Add tests for use_child_process, timeout, failure and warning
+
+// TODO: Add tests to assert component times add up correctly

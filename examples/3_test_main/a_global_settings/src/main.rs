@@ -1,5 +1,6 @@
 #[macro_use]
 pub extern crate integra8;
+use std::time::Duration;
 
 main_test! {
 
@@ -9,37 +10,37 @@ main_test! {
     // 1:       Forces all test to run Sequentially
     // {usize}: You choose your own destiny 
     //
-    // Default values = Auto
+    // Default value = Auto
     max_concurrency: 1, 
 
     // When enabled, all test run in their own process.
     // This is required for a clean log output,
-    // Default values = true
+    // Default value = true
     use_child_process: false,
 
     // Global default concurrency mode for suites
-    // Default values = Sequential
+    // Default value = Sequential
     default_suite_concurrency: "Parallel",
 
     // Global default concurrency mode for testes
-    // Default values = Sequential
+    // Default value = Sequential
     default_test_concurrency: "Parallel",
 
     // Global default time out for setups
-    // Default values = "30 seconds"
-    default_setup_time_limit: "20 seconds",
+    // Default value = "30 seconds"
+    default_setup_time_limit: "100 millis",
 
     // Global default time out for tear downs
-    // Default values = "30 seconds"
-    default_tear_down_time_limit: "20 seconds",
+    // Default value = "30 seconds"
+    default_tear_down_time_limit: "100 millis",
+
+    // Global default time out for tests
+    // Default value = "30 seconds"
+    default_test_time_limit: "100 millis",
 
     // Global default warning threshold for tests
-    // Default values = "30 seconds"
-    default_test_warning_time_limit: "30 seconds",
-
-    // default time out for tests
-    // Default values = "30 seconds"
-    default_test_time_limit: "30 seconds",
+    // Default value = "30 seconds"
+    default_test_warning_time_limit: "10 millis",
 
     // TODO: this should be automatically detected as default
     console_output: integra8_serde_formatter::SerdeFormatter,
@@ -57,13 +58,27 @@ main_test! {
 
 }
 
+
+#[suite]
+#[allow_fail]
+mod setup_should_time_out {
+    use super::*;
+
+    #[setup]
+    async fn setup_default_timeout() {
+        sleep!(Duration::from_millis(100))
+    }
+}
+
 #[integration_test]
 fn global_defaults() {
+
 }
 
 #[integration_test]
 #[sequential]
 #[warning_time_limit = "10 ms"]
-#[time_limit = "10 ms"]
+#[time_limit = "1000 ms"]
 fn override_global_defaults() {
+
 }

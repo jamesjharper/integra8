@@ -689,13 +689,10 @@ fn access_context(ctx : crate::ExecutionContext) {
 
     // The components order id.
     // this will always be a number which is unique to all other tests
-    // TODO: Double check that works correctly with child processes tests (Nope, its broken)!
     println!("id: {}", ctx.description.id().as_unique_number());
 
     // The components parents order id.
-    // this will always be a number which is unique to all other tests
-    // TODO: Double check that works correctly with child processes tests (Nope, its broken)!
-    println!("id: {}", ctx.description.parent_id().as_unique_number());
+    println!("parent_id: {}", ctx.description.parent_id().as_unique_number());
 
     // The name assigned via #[name = "..."]
     // If no name is assigned then the components path

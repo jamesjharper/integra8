@@ -1,5 +1,6 @@
 pub mod core;
 pub mod strategy;
+pub mod macros;
 
 pub use integra8_impl::*;
 
@@ -45,17 +46,6 @@ pub mod structopt {
 
 pub mod humantime {
     pub use humantime::parse_duration;
-}
-
-#[macro_export]
-macro_rules! run_tests {
-    ($parameters:expr) => {
-        $crate::core::run_test(
-            $parameters,
-            REGISTERED_COMPONENTS.into_iter().map(|f| (f)()).collect(),
-        )
-        .await
-    };
 }
 
 #[cfg(test)]
