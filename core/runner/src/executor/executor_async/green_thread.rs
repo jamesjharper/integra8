@@ -51,35 +51,15 @@ impl GreenThreadExecutor
 
         report_builder.time_taken(start_time.elapsed());
 
-        /*if let Err(_) = result {
-            progress_notify.notify_timed_out().await;
-        }
+        match result {
+            // Panic
 
-        match result {        
             #[cfg(feature = "tokio-runtime")]
             Ok(Ok(Err(panic))) => {
                 execution_artifacts_local.include_panic("panic", &panic);
                 report_builder.rejected_result();
             }
-            #[cfg(feature = "async-std-runtime")]
-            Ok(Err(panic))=> {
-                execution_artifacts_local.include_panic("panic", &panic);
-                report_builder.rejected_result();
-            }
-            Err(_) => {            
-                report_builder.rejected_result();
-            }
-            _ => {
-                report_builder.passed_result();
-            }
-        }*/
 
-        match result {
-            Ok(Ok(_)) => {
-                report_builder.passed_result();
-            }
-
-            // Panic
             Ok(Err(panic)) => {
                 execution_artifacts_local.include_panic("panic", &panic);
                 report_builder.rejected_result();
@@ -89,6 +69,10 @@ impl GreenThreadExecutor
             Err(_) => {     
                 progress_notify.notify_timed_out().await;      
                 report_builder.timed_out_result();
+            }
+
+            Ok(Ok(_)) => {
+                report_builder.passed_result();
             }
         }
 
