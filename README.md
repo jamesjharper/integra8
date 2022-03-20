@@ -1,11 +1,10 @@
 # Say Hello world to Integra8.
 *Draft publish!*
-This crate is *almost ready* for non-alpha release! 
-
-In its current state, everything *should* work, however, you may encounter the following:
-
-- Bad spelling / nonsense documentation / documentation mistakes 
-- Missing docs.rs
+This crate is *99.9% ready* for non-alpha release! 
+Work remaining:
+ [ ] Refactor all crates into single Uber package 
+ [ ] Use tree formatter as default formatter when not explicitly set
+ [ ] Publish to doc.rs
 
 Happy Integra8ing!
 
