@@ -22,6 +22,7 @@ pub struct ExecutionContext<TParameters> {
 
 pub enum ExecutionArtifact {
     Text(String),
+    Value(String, String),
     TextFile(PathBuf),
     TextBuffer(Vec<u8>),
     TextStream(Box<dyn BufferSource + Send + Sync>),
@@ -60,6 +61,11 @@ impl ExecutionArtifacts {
 
     pub fn include_text(&self, name: impl Into<String>, string: impl Into<String>) -> &Self {
         self.include(name, ExecutionArtifact::Text(string.into()));
+        self
+    }
+
+    pub fn include_value<T: std::fmt::Display>(&self, name: impl Into<String>, value: T) -> &Self {
+        self.include(name, ExecutionArtifact::Value(format!("{}", value), std::any::type_name::<T>().to_string()));
         self
     }
 

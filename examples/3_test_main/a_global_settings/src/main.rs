@@ -11,7 +11,7 @@ main_test! {
     // {usize}: You choose your own destiny 
     //
     // Default value = Auto
-    max_concurrency: 1, 
+    max_concurrency: 4, 
 
     // When enabled, all test run in their own process.
     // This is required for a clean log output,
@@ -28,21 +28,20 @@ main_test! {
 
     // Global default time out for setups
     // Default value = "30 seconds"
-    default_setup_time_limit: "100 millis",
+    default_setup_time_limit: "200 millis",
 
     // Global default time out for tear downs
     // Default value = "30 seconds"
-    default_tear_down_time_limit: "100 millis",
+    default_tear_down_time_limit: "200 millis",
 
     // Global default time out for tests
     // Default value = "30 seconds"
-    default_test_time_limit: "100 millis",
+    default_test_time_limit: "200 millis",
 
     // Global default warning threshold for tests
     // Default value = "30 seconds"
     default_test_warning_time_limit: "10 millis",
 
-    // TODO: this should be automatically detected as default
     console_output: integra8_serde_formatter::SerdeFormatter,
 
     // Console output parameters will be documented once 
@@ -65,20 +64,47 @@ mod setup_should_time_out {
     use super::*;
 
     #[setup]
-    async fn setup_default_timeout() {
-        sleep!(Duration::from_millis(100))
+    async fn setup_default_timeout(ctx : crate::ExecutionContext) {
+        // Each component should be running under the same process
+        ctx.artifacts.include_value("process_id", std::process::id());
+        sleep!(Duration::from_millis(210))
     }
 }
 
-#[integration_test]
-fn global_defaults() {
+#[suite]
+mod test_should_time_out_warning {
+    use super::*;
 
+    #[integration_test]
+    async fn test_warning_default_timeout(ctx : crate::ExecutionContext) {
+        // Each component should be running under the same process
+        ctx.artifacts.include_value("process_id", std::process::id());
+        sleep!(Duration::from_millis(20))
+    }
 }
 
-#[integration_test]
-#[sequential]
-#[warning_time_limit = "10 ms"]
-#[time_limit = "1000 ms"]
-fn override_global_defaults() {
+#[suite]
+#[allow_fail]
+mod test_should_time_out {
+    use super::*;
 
+    #[integration_test]
+    async fn test_default_timeout(ctx : crate::ExecutionContext) {
+        // Each component should be running under the same process
+        ctx.artifacts.include_value("process_id", std::process::id());
+        sleep!(Duration::from_millis(210))
+    }
+}
+
+#[suite]
+#[allow_fail]
+mod tear_down_should_time_out {
+    use super::*;
+
+    #[teardown]
+    async fn tear_down_default_timeout(ctx : crate::ExecutionContext) {
+        // Each component should be running under the same process
+        ctx.artifacts.include_value("process_id", std::process::id());
+        sleep!(Duration::from_millis(210))
+    }
 }

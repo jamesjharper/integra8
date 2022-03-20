@@ -18,6 +18,10 @@ pub enum OutputArtifact {
     TextFile(PathBuf),
     #[cfg_attr(feature = "enable_serde", serde(with = "as_utf_string"))]
     TextBuffer(Vec<u8>),
+    Value {
+        value: String, 
+        type_name: String
+    },
 }
 
 impl OutputArtifact {
@@ -43,6 +47,10 @@ impl OutputArtifact {
                 Ok(Cow::from(contents))
             }
             OutputArtifact::TextBuffer(ref out) => Ok(Cow::from(str::from_utf8(out)?)),
+
+            OutputArtifact::Value { ref value,  .. } => {
+                Ok(Cow::from(value))
+            }
         }
     }
 }
@@ -79,6 +87,9 @@ impl ComponentRunArtifacts {
                             }
                             ExecutionArtifact::TextStream(mut reader) => {
                                 OutputArtifact::TextBuffer(reader.read_all().unwrap())
+                            }
+                            ExecutionArtifact::Value(value, type_name) => {
+                                OutputArtifact::Value { value,  type_name }
                             }
                         },
                     )

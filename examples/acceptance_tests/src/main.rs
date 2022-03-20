@@ -918,7 +918,6 @@ mod suites {
             result => ComponentResult::Fail(FailureReason::ChildFailure),
         );
 
-
         assert_component!(
             report => r,
             path => "cascading_failure_behavior::suite_which_will_fail",
@@ -1027,10 +1026,102 @@ mod test_main {
 
     #[integration_test]
     async fn global_settings(ctx : crate::ExecutionContext) {
-        let _r = assert_test_result!(
+
+        // Act
+        let r = assert_test_result!(
             exe => "./global_settings", 
             ctx => ctx, 
-            result => ComponentResult::Pass(PassReason::Accepted),
+            result => ComponentResult::Warning(WarningReason::ChildWarning),
+        );
+
+        // Assert 
+        assert_root_suite!(
+            report => r,
+            path => "global_settings",
+            result => ComponentResult::Warning(WarningReason::ChildWarning),
+        );
+
+        assert_component!(
+            report => r,
+            path => "global_settings::setup_should_time_out",
+            result => ComponentResult::Warning(WarningReason::FailureAllowed),
+            id => 1,
+            parent_id => 0,
+            component_type => ComponentType::Suite,
+        );
+
+        // Should Override setup timeout
+        assert_component!(
+            report => r,
+            path => "global_settings::setup_should_time_out::setup_default_timeout",
+            result => ComponentResult::Fail(FailureReason::Overtime),
+            id => 2,
+            parent_id => 1,
+            component_type => ComponentType::Setup,
+        );
+
+        let expected_process_id = r[2].artifacts.map["process_id"].as_string().unwrap();
+
+        // Should Override test timeout warning
+        assert_component!(
+            report => r,
+            path => "global_settings::test_should_time_out_warning",
+            result => ComponentResult::Warning(WarningReason::ChildWarning),
+            id => 3,
+            parent_id => 0,
+            component_type => ComponentType::Suite,
+        );
+
+
+        assert_component!(
+            report => r,
+            path => "global_settings::test_should_time_out_warning::test_warning_default_timeout",
+            result => ComponentResult::Warning(WarningReason::OvertimeWarning),
+            id => 4,
+            parent_id => 3,
+            component_type => ComponentType::Test,
+            process_id => expected_process_id
+        );
+
+
+        // Should Override test timeout
+        assert_component!(
+            report => r,
+            path => "global_settings::test_should_time_out",
+            result => ComponentResult::Warning(WarningReason::FailureAllowed),
+            id => 5,
+            parent_id => 0,
+            component_type => ComponentType::Suite,
+        );
+
+        assert_component!(
+            report => r,
+            path => "global_settings::test_should_time_out::test_default_timeout",
+            result => ComponentResult::Fail(FailureReason::Overtime),
+            id => 6,
+            parent_id => 5,
+            component_type => ComponentType::Test,
+            process_id => expected_process_id
+        );
+
+        // Should Override tear down timeout
+        assert_component!(
+            report => r,
+            path => "global_settings::tear_down_should_time_out",
+            result => ComponentResult::Warning(WarningReason::FailureAllowed),
+            id => 7,
+            parent_id => 0,
+            component_type => ComponentType::Suite,
+        );
+
+        assert_component!(
+            report => r,
+            path => "global_settings::tear_down_should_time_out::tear_down_default_timeout",
+            result => ComponentResult::Fail(FailureReason::Overtime),
+            id => 8,
+            parent_id => 7,
+            component_type => ComponentType::TearDown,
+            process_id => expected_process_id
         );
     }
 }
