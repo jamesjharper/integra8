@@ -39,6 +39,6 @@ else
 fi
 
 echo " # Building ${RUNTIME_NAME} (${CONFIG}) ..."
-CARGO_TARGET_DIR=${CARGO_TARGET_DIR} cargo build $BUILD_FLAGS --features="${BUILD_FEATURES}"
+CARGO_TARGET_DIR=${CARGO_TARGET_DIR} cargo build $BUILD_FLAGS --no-default-features --features="${BUILD_FEATURES}"
 
 
