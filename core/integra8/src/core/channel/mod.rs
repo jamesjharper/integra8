@@ -7,11 +7,11 @@ pub use source::ResultsSource;
 pub mod notify;
 pub use notify::{ComponentProgressChannelNotify, RunProgressChannelNotify};
 
-use integra8_async_runtime::channel;
+use crate::async_runtime::channel;
 
-use integra8_components::ComponentDescription;
-use integra8_results::report::ComponentRunReport;
-use integra8_results::summary::ComponentTypeCountSummary;
+use crate::components::ComponentDescription;
+use crate::results::report::ComponentRunReport;
+use crate::results::summary::ComponentTypeCountSummary;
 
 #[derive(Debug)]
 pub enum TestEvent {

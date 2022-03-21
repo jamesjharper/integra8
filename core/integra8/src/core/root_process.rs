@@ -6,13 +6,13 @@ use crate::core::channel::notify::RunProgressChannelNotify;
 use crate::core::channel::{ResultsChannel, ResultsOutputWriterSink};
 use crate::core::TestApplicationLocator;
 
-use integra8_results::summary::ComponentTypeCountSummary;
-use integra8_results::ComponentResult;
+use crate::results::summary::ComponentTypeCountSummary;
+use crate::results::ComponentResult;
 
-use integra8_components::TestParameters;
+use crate::components::TestParameters;
 use integra8_decorations::ComponentDecoration;
 
-use integra8_scheduling::state_machine::{TaskStateMachineNode, TaskStream};
+use crate::scheduling::state_machine::{TaskStateMachineNode, TaskStream};
 
 pub async fn run<
     TParameters: TestParameters + Clone + Sync + Send + UnwindSafe + 'static + std::fmt::Debug,
@@ -56,7 +56,7 @@ pub async fn run<
     );
 
     // 7: Run Tests using schedule
-    let runner_task = integra8_async_runtime::spawn(async move {
+    let runner_task = crate::async_runtime::spawn(async move {
         let mut runner = Locator::resolve_runner_strategy(&parameters);
         runner.run_schedule(parameters, RunProgressChannelNotify::new(sender), schedule, component_summary)
             .await;

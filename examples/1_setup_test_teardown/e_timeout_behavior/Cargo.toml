@@ -4,6 +4,6 @@ version = "0.1.0"
 edition = "2018"
 
 [dependencies]
-integra8 = {path = "../../../core/integra8"}
+integra8 = {path = "../../../core/integra8", default-features = false, features=["core"] } 
 integra8_serde_formatter = {path = "../../../contrib/formatters/serde_formatter", features=["yaml"] }
 

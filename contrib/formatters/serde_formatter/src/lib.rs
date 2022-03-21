@@ -2,10 +2,10 @@ pub mod parameters;
 use std::error::Error;
 use crate::parameters::{AnsiMode, DetailLevel, Encoding, Style, SerdeFormatterParameters};
 
-use integra8_formatters::models::report::ComponentRunReport;
-use integra8_formatters::models::summary::RunSummary;
-use integra8_formatters::models::TestParameters;
-use integra8_formatters::{OutputFormatter, OutputFormatterFactory};
+use integra8::formatters::models::report::ComponentRunReport;
+use integra8::formatters::models::summary::RunSummary;
+use integra8::formatters::models::TestParameters;
+use integra8::formatters::{OutputFormatter, OutputFormatterFactory};
 
 
 pub struct SerdeFormatter {

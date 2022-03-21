@@ -1,6 +1,6 @@
 use ansi_term::Colour::{Cyan, Green, Purple, Red, Yellow};
-use integra8_formatters::models::report::ComponentRunReport;
-use integra8_formatters::models::{ComponentResult, ComponentType};
+use integra8::formatters::models::report::ComponentRunReport;
+use integra8::formatters::models::{ComponentResult, ComponentType};
 
 use crate::parameters::AnsiMode;
 use crate::parameters::Encoding;

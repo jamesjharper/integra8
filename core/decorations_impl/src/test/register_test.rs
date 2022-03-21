@@ -46,7 +46,7 @@ pub fn register_test(input_tokens: TokenStream) -> TokenStream {
                         desc: #integra8_path ::decorations::TestAttributesDecoration {
                            name: #name_expr,
                            description: #description_expr,
-                           location: #integra8_path ::components::src_loc!(),
+                           location: #integra8_path ::src_loc!(),
                            ignore: #ignore_expr,
                            allow_fail: #allow_fail_expr,
                            warning_time_limit: #warn_time_limit_expr,

@@ -14,10 +14,10 @@ use crate::progress::TestProgressFormatter;
 use crate::styles::{ProgressBarStyle, TreeStyle};
 use crate::tree::{ResultsNode, ResultsTree};
 
-use integra8_formatters::models::report::ComponentRunReport;
-use integra8_formatters::models::summary::{ComponentTypeCountSummary, RunSummary, SuiteSummary};
-use integra8_formatters::models::{ComponentDescription, ComponentResult, TestParameters};
-use integra8_formatters::{OutputFormatter, OutputFormatterFactory};
+use integra8::formatters::models::report::ComponentRunReport;
+use integra8::formatters::models::summary::{ComponentTypeCountSummary, RunSummary, SuiteSummary};
+use integra8::formatters::models::{ComponentDescription, ComponentResult, TestParameters};
+use integra8::formatters::{OutputFormatter, OutputFormatterFactory};
 
 pub struct TreeFormatter {
     writer: Stdout,

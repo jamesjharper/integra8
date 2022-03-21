@@ -127,7 +127,7 @@ pub async fn run_root_process<
     );
 
     // 7: Run Tests using schedule
-    let runner_task = integra8_async_runtime::spawn(async move {
+    let runner_task = crate::async_runtime::spawn(async move {
         let mut runner = Locator::resolve_runner_strategy(&parameters);
         runner
             .run_schedule(

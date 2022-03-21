@@ -1,10 +1,10 @@
 use crate::core::channel::TestEvent;
 
-use integra8_async_runtime::Sender;
-use integra8_results::report::ComponentRunReport;
-use integra8_results::summary::ComponentTypeCountSummary;
+use crate::async_runtime::Sender;
+use crate::results::report::ComponentRunReport;
+use crate::results::summary::ComponentTypeCountSummary;
 
-use integra8_components::ComponentDescription;
+use crate::components::ComponentDescription;
 
 #[derive(Clone)]
 pub struct ResultsSource {

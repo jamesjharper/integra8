@@ -46,7 +46,7 @@ pub fn register_suite(input_tokens: TokenStream) -> TokenStream {
                     #integra8_path ::decorations::SuiteAttributesDecoration {
                         name: #name_expr,
                         description: #description_expr,
-                        location: #integra8_path ::components::src_loc!(),
+                        location: #integra8_path ::src_loc!(),
                         ignore: #ignore_expr,
                         allow_suite_fail: #allow_fail_expr,
                         test_warning_time_limit: #test_warning_time_limit_expr,

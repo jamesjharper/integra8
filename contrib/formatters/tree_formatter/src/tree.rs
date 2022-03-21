@@ -1,7 +1,7 @@
 use std::io::Write;
 
-use integra8_formatters::models::report::ComponentRunReport;
-use integra8_formatters::models::ComponentResult;
+use integra8::formatters::models::report::ComponentRunReport;
+use integra8::formatters::models::ComponentResult;
 
 use crate::parameters::DetailLevel;
 use crate::styles::TreeStyle;

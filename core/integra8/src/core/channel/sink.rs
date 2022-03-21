@@ -1,12 +1,12 @@
 use crate::formatters::OutputFormatter;
 use crate::results::summary::RunSummary;
-use integra8_components::{ComponentDescription, ComponentType};
+use crate::components::{ComponentDescription, ComponentType};
 
 use crate::results::report::ComponentRunReport;
 use std::error::Error;
 
-use integra8_async_runtime::Receiver;
-use integra8_results::summary::ComponentTypeCountSummary;
+use crate::async_runtime::Receiver;
+use crate::results::summary::ComponentTypeCountSummary;
 
 use crate::core::channel::TestEvent;
 

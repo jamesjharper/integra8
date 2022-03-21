@@ -41,7 +41,7 @@ impl ExecFn {
                               7 | #[integration_test]
                                 | ^^^^^^^^^^^^^^^^^^^ incorrect number of function parameters
                                 |
-                                = note: expected fn pointer `fn(integra8::components::ExecutionContext<BaseParameters<EmptySettingsExtension, TreeFormatterParameters>>) -> Pin<_>`
+                                = note: expected fn pointer `fn(crate::components::ExecutionContext<BaseParameters<EmptySettingsExtension, TreeFormatterParameters>>) -> Pin<_>`
                                                 found fn item `fn() -> Pin<_> {test2::test_def::wrap_pin}`
                         */
                         parse_quote!(

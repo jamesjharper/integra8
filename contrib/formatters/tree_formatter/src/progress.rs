@@ -4,9 +4,9 @@ use std::io::Write;
 
 use crate::styles::ProgressBarStyle;
 
-use integra8_formatters::models::report::ComponentRunReport;
-use integra8_formatters::models::summary::{ComponentTypeCountSummary, RunSummary};
-use integra8_formatters::models::{ComponentDescription, ComponentId, ComponentType};
+use integra8::formatters::models::report::ComponentRunReport;
+use integra8::formatters::models::summary::{ComponentTypeCountSummary, RunSummary};
+use integra8::formatters::models::{ComponentDescription, ComponentId, ComponentType};
 
 pub struct TestProgressFormatter {
     progress: ProgressBar,

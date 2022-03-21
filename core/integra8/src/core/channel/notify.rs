@@ -6,8 +6,8 @@ use crate::runner::notify::{ComponentProgressNotify, RunProgressNotify};
 use std::future::Future;
 use std::pin::Pin;
 
-use integra8_results::report::ComponentRunReport;
-use integra8_results::summary::ComponentTypeCountSummary;
+use crate::results::report::ComponentRunReport;
+use crate::results::summary::ComponentTypeCountSummary;
 
 #[derive(Clone)]
 pub struct RunProgressChannelNotify {

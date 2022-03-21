@@ -19,6 +19,8 @@ atty = "0.2"
 indicatif = "0.17.0-rc.2"
 indexmap = "1.8.0"
 
-[dependencies.integra8_formatters]
+[dependencies.integra8]
 version = "0.0.4-alpha"
-path = "../../../core/formatters"
+path = "../../../core/integra8"
+features = ["formatters"]
+default-features = false

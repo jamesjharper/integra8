@@ -5,10 +5,10 @@ use crate::parameters::DetailLevel;
 use crate::styles::TreeStyle;
 use crate::writer::{Prefix, PrefixedTextWriter};
 
-use integra8_formatters::models::report::ComponentRunReport;
-use integra8_formatters::models::ComponentResult;
-use integra8_formatters::models::ComponentType;
-use integra8_formatters::models::{FailureReason, WarningReason};
+use integra8::formatters::models::report::ComponentRunReport;
+use integra8::formatters::models::ComponentResult;
+use integra8::formatters::models::ComponentType;
+use integra8::formatters::models::{FailureReason, WarningReason};
 
 pub fn render_component_heading<W: Write>(
     output_formatter: &mut PrefixedTextWriter<W>,

@@ -7,14 +7,7 @@ CORE_ROOT="./core"
 CONTRIB_ROOT="./contrib/"
 
 ALL_CRATE_ROOTS=(
-    "${CORE_ROOT}/async_runtime"
-    "${CORE_ROOT}/components"
     "${CORE_ROOT}/decorations_impl"
-    "${CORE_ROOT}/decorations"
-    "${CORE_ROOT}/results"
-    "${CORE_ROOT}/scheduling"
-    "${CORE_ROOT}/runner"
-    "${CORE_ROOT}/formatters"
     "${CONTRIB_ROOT}/formatters/tree_formatter"
     "${CORE_ROOT}/integra8_impl"
     "${CORE_ROOT}/integra8"
@@ -34,8 +27,8 @@ echo "Cleaning"
 ./scripts/build.sh release tokio
 ./scripts/build.sh release async-std
 
-./scripts/tests.sh release tokio
-./scripts/tests.sh release async-std
+./scripts/tests.sh release tokio 1_by_1
+./scripts/tests.sh release async-std 1_by_1
 
 ./scripts/acceptance_tests.sh release tokio
 ./scripts/acceptance_tests.sh release async-std

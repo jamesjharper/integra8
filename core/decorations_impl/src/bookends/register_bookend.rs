@@ -45,7 +45,7 @@ pub fn register_teardown(input_tokens: TokenStream) -> TokenStream {
                         desc: #integra8_path ::decorations::BookEndAttributesDecoration {
                             name: #name_expr,
                             description: #description_expr,
-                            location: #integra8_path ::components::src_loc!(),
+                            location: #integra8_path ::src_loc!(),
                             ignore: #ignore_expr,
                             time_limit: #time_limit_expr,
                             concurrency_mode: #concurrency_mode_expr,
@@ -100,7 +100,7 @@ pub fn register_setup(input_tokens: TokenStream) -> TokenStream {
                         desc: #integra8_path ::decorations::BookEndAttributesDecoration {
                             name: #name_expr,
                             description: #description_expr,
-                            location: #integra8_path ::components::src_loc!(),
+                            location: #integra8_path ::src_loc!(),
                             ignore: #ignore_expr,
                             time_limit: #time_limit_expr,
                             concurrency_mode: #concurrency_mode_expr,

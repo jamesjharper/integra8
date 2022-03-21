@@ -20,5 +20,4 @@ syn = "1.0"
 quote = "1.0"
 proc-macro-error = "1.0"
 proc-macro2 = "1.0.32"
-
 humantime = "2.1.0"

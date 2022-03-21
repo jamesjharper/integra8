@@ -1,14 +1,14 @@
 use std::io::prelude::Write;
 
-use integra8_formatters::OutputLocation;
-use integra8_formatters::{OutputFormatter, OutputFormatterFactory};
-use integra8_formatters::models::ComponentDescription;
+use integra8::formatters::OutputLocation;
+use integra8::formatters::{OutputFormatter, OutputFormatterFactory};
+use integra8::formatters::models::ComponentDescription;
 
-use integra8_formatters::models::summary::{RunSummary, SuiteSummary};
+use integra8::formatters::models::summary::{RunSummary, SuiteSummary};
 
-use integra8_formatters::models::report::ComponentRunReport;
+use integra8::formatters::models::report::ComponentRunReport;
 
-use integra8_formatters::models::{
+use integra8::formatters::models::{
     ComponentResult, ComponentTimeResult, DidNotRunReason, FailureReason, PassReason,
 };
 
