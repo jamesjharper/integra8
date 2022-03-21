@@ -444,7 +444,7 @@ mod basic_examples {
         assert_component!(
             report => r,
             path => "timeout_behavior::this_test_will_show_a_timeout_error",
-            result => ComponentResult::Fail(FailureReason::Rejected),
+            result => ComponentResult::Fail(FailureReason::Overtime),
             id => 2,
             parent_id => 0,
             component_type => ComponentType::Test,
