@@ -17,7 +17,7 @@ categories = ["development-tools" ]
 structopt = "0.3"
 ansi_term = "0.12.1"
 atty = "0.2"
-indicatif = "0.17.0-rc.2"
+indicatif = "0.17.0-rc.9"
 indexmap = "1.8.0"
 
 [dependencies.integra8]
