@@ -1137,7 +1137,7 @@ mod tests {
         let mut builder = test_1_report_builder();
 
         let artifacts = ExecutionArtifacts::new();
-        artifacts.include_utf8_text_buffer("sample", b"This is a sample artifact".as_slice());
+        artifacts.include_utf8_text_buffer("sample", b"This is a sample artifact".to_vec());
 
         // Act
         builder.rejected_result();

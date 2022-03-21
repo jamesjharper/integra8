@@ -20,8 +20,9 @@ impl TestProgressFormatter {
         progress.set_style(
             ProgressStyle::default_spinner()
                 .template(&style.template)
-                .with_key("len", |state| format!("{}", (state.len + 1) / 2))
-                .with_key("pos", |state| format!("{}", (state.pos + 1) / 2))
+                .unwrap()
+                .with_key("len", |state| format!("{}", (state.len() + 1) / 2))
+                .with_key("pos", |state| format!("{}", (state.pos() + 1) / 2))
                 .progress_chars(&style.progress_chars),
         );
 
