@@ -71,15 +71,23 @@ impl ChildProcessExecutor
         execution_artifacts.include_utf8_text_buffer("stderr", output.stderr);
         report_builder.with_artifacts(&execution_artifacts);
 
-        match output.status.code() {
-            Some(status) => {
-                report_builder.with_result(ComponentResult::from_status_code(status));
-            },
-            None => {
-                // On Unix, this will return None if the process was terminated by a signal.
-                report_builder.rejected_result()
+        if let Err(_) = result {
+            // On Unix `output.status.code()` will be none if 
+            // the process was terminated due to a timeout.
+            report_builder.timed_out_result();
+        } else {
+            match output.status.code() {
+                Some(status) => {
+                    report_builder.with_result(ComponentResult::from_status_code(status));
+                },
+                None => {
+                    // On Unix, this will return None if the process was terminated by a signal.
+                    report_builder.rejected_result();
+                }
             }
         }
+
+       
 
         report_builder
     }

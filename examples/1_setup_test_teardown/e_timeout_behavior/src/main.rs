@@ -11,6 +11,7 @@ main_test! {
 #[integration_test]
 #[warning_time_limit = "10 ms"]
 fn this_test_will_show_a_timeout_warning() {
+    println!("Waiting ...");
     std::thread::sleep(std::time::Duration::from_millis(100));
 }
 
@@ -20,6 +21,7 @@ fn this_test_will_show_a_timeout_warning() {
 #[integration_test]
 #[time_limit = "10 ms"]
 fn this_test_will_show_a_timeout_error() {
+    println!("Waiting ..."); 
     std::thread::sleep(std::time::Duration::from_millis(100));
 }
 

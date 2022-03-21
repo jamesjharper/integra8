@@ -439,6 +439,7 @@ mod basic_examples {
             id => 1,
             parent_id => 0,
             component_type => ComponentType::Test,
+            stdout => "Waiting ...\n"
         );
 
         assert_component!(
@@ -448,6 +449,7 @@ mod basic_examples {
             id => 2,
             parent_id => 0,
             component_type => ComponentType::Test,
+            stdout => "Waiting ...\n"
         );
     }
 
