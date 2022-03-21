@@ -21,6 +21,9 @@ if ! [ -z "$(git status --porcelain)" ]; then
   #exit 1
 fi
 
+echo "Updating cargo.lock"
+cargo update
+
 echo "Cleaning"
 #cargo clean
 
