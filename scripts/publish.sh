@@ -7,8 +7,9 @@ CORE_ROOT="./core"
 CONTRIB_ROOT="./contrib/"
 
 ALL_CRATE_ROOTS=(
-    "${CORE_ROOT}/decorations_impl"
+    "${CONTRIB_ROOT}/formatters/serde_formatter"
     "${CONTRIB_ROOT}/formatters/tree_formatter"
+    "${CORE_ROOT}/decorations_impl"  
     "${CORE_ROOT}/integra8_impl"
     "${CORE_ROOT}/integra8"
 )
@@ -25,7 +26,7 @@ echo "Updating cargo.lock"
 cargo update
 
 echo "Cleaning"
-#cargo clean
+cargo clean
 
 ./scripts/build.sh release tokio
 ./scripts/build.sh release async-std

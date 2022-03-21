@@ -19,9 +19,9 @@ fn this_test_will_show_a_timeout_warning() {
 // Decorate tests with `#[time_limit( )]` to indicate 
 // the max duration before a test is aborted.
 #[integration_test]
-#[time_limit = "10 ms"]
+#[time_limit = "1000 ms"]
 fn this_test_will_show_a_timeout_error() {
     println!("Waiting ..."); 
-    std::thread::sleep(std::time::Duration::from_millis(100));
+    std::thread::sleep(std::time::Duration::from_millis(2000));
 }
 

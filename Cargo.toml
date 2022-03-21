@@ -2,4 +2,5 @@
 members = [
   "core/integra8",
   "contrib/formatters/tree_formatter",
+  "contrib/formatters/serde_formatter",
 ]

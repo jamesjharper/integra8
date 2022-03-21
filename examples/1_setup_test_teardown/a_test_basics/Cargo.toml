@@ -13,4 +13,3 @@ integra8_serde_formatter = {path = "../../../contrib/formatters/serde_formatter"
 [features]
 async-std-runtime = ["async-std"]
 tokio-runtime = ["tokio"]
-
