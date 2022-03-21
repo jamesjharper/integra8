@@ -1,6 +1,6 @@
 [package]
 name = "integra8"
-version = "0.0.4-alpha"
+version = "0.0.5-rc1"
 edition = "2018"
 description = """
 Integra8 rust integration test framework Rust with a focus on productivity, extensibility, and speed.
@@ -10,7 +10,8 @@ repository = "https://github.com/jamesjharper/integra8"
 readme = "../../README.md"
 license = "MIT OR Apache-2.0"
 keywords = ["integra8", "test", "framework", "integration", "bdd"]
-documentation = "https://api.integra8.rs/v0.0.4-alpha/integra8/"
+# Work in progress
+#documentation = "https://api.integra8.rs/v0.0.5-rc1/integra8/"
 categories = ["development-tools" ]
 
 [dependencies]
@@ -31,11 +32,11 @@ serde_bytes = { version = "0.11.5", optional = true }
 serde_json = { version = "1.0", optional = true }
 
 [dependencies.integra8_impl]
-version = "0.0.4-alpha"
+version = "0.0.5-rc1"
 path = "../integra8_impl"
 
 [dependencies.integra8_decorations_impl]
-version = "0.0.4-alpha"
+version = "0.0.5-rc1"
 path = "../decorations_impl"
 
 [features]

@@ -1,6 +1,6 @@
 [package]
 name = "integra8_impl"
-version = "0.0.4-alpha"
+version = "0.0.5-rc1"
 edition = "2018"
 description = """
 Procedural macros for declaring an application entrypoint used by the Integra8 test framework.
@@ -9,7 +9,8 @@ repository = "https://github.com/jamesjharper/integra8"
 readme = "../../README.md"
 license = "MIT OR Apache-2.0"
 keywords = ["integra8", "test", "framework", "integration", "bdd"]
-documentation = "https://api.integra8.rs/v0.0.4-alpha/integra8/"
+# Work in progress
+#documentation = "https://api.integra8.rs/v0.0.5-rc1/integra8/"
 categories = ["development-tools" ]
 
 [lib]
@@ -21,8 +22,6 @@ quote = "1.0"
 proc-macro-error = "1.0"
 proc-macro2 = "1.0.32"
 
-
 [features]
-
 async-std-runtime = []
 tokio-runtime = []
