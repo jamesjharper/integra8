@@ -2,9 +2,9 @@
 *Draft publish!*
 This crate is *99.9% ready* for non-alpha release! 
 Work remaining:
- [ ] Refactor all crates into single Uber package 
- [ ] Use tree formatter as default formatter when not explicitly set
- [ ] Publish to doc.rs
+ - [ ] Refactor all crates into single Uber package 
+ - [ ] Use tree formatter as default formatter when not explicitly set
+ - [ ] Publish to doc.rs
 
 Minimal/No breaking changes are expected moving forward.  
 
