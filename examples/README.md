@@ -238,14 +238,14 @@ fn test_3() {
     println!("Order 2");
 }
 
-// 2: test_4 can only be executed after test 3 completes.
+// 3: test_4 can only be executed after test 3 completes.
 #[integration_test]
 #[sequential]
 fn test_4() { 
     println!("Order 3");
 }
 
-// 3: test_5 and test_6 can be executed at the same time
+// 4: test_5 and test_6 can be executed at the same time
 // but only after test_4 has completes
 #[integration_test]
 #[parallel]
@@ -816,10 +816,9 @@ This API is unstable, therefore Integra8 does not make use of it. To provide com
 Integra8 starts all `Tests`, `Setups` and `Tear downs` in their process.
 
 While this is acceptable for most uses cases, it does undermine the async runtime's ability to 
-schedule optimally and may impact any custom global state-managed added by a test author.
+schedule optimally and may impact any custom global state added by a test author.
 
-This behaviour can be disabled with the `use_child_process` setting or `--framework:use-child-process` command line parameter, 
-
+This behaviour can be disabled with the `use_child_process` setting or `--framework:use-child-process` command line parameter.
 This however will also disable log stdout capture, resulting in logs to console interleaving when running tests. 
 
 When disabling `use_child_process`, consider using *artefact writers* as described in the _Test Artifacts workaround_ segment bellow. 
@@ -830,7 +829,7 @@ When disabling `use_child_process`, consider using *artefact writers* as describ
 pub extern crate integra8;
 
 main_test! {
-    // When disabled, all test run in this process.
+    // When disabled, all test run in the same process.
     use_child_process: false,
 }
 
@@ -841,8 +840,8 @@ fn chaos_logging() {
 ```
 
 ### Test Artifacts workaround
-It can be useful to collect and collate artefacts from test runs, such as harvesting a program's state in between tests,
-settings, or system metrics. Integra8 can manage artefacts via the test context.
+It can be useful to collect and collate artifacts from test runs, such as harvesting a program's state in between tests,
+settings, or system metrics. Integra8 can manage artifacts via the test context.
 
 *This feature is still under development and currently will only work when `use_child_process` is disabled.*
 
@@ -875,7 +874,7 @@ fn still_work_in_progress(ctx : crate::ExecutionContext) {
     // write the contents of this log to test output
     ctx.artifacts.include_text_file("log", "./logs.text");
 
-    // Currently Integra8 does not manage these files life time.
+    // Currently Integra8 does not manage files life times.
     // If this file is deleted in a teardown, the content will not be shown.
     //
     // Use this at your own risk, this implementation will likely change in the future.
@@ -918,7 +917,7 @@ async fn reqwest() {
     #[cfg(feature = "tokio-runtime")]
     let response = reqwest::get("https://httpbin.org/ip").await.unwrap();
 
-    // reqwest does not support async-std, so using `blocking` this recommended 
+    // reqwest does not support async-std, using `blocking` is not recommended 
     #[cfg(feature = "async-std-runtime")]
     let response = reqwest::blocking::get("https://httpbin.org/ip").unwrap();
 
@@ -957,7 +956,7 @@ async fn fairly_bad_idea() {
 #[time_limit = "10s 10ms"]
 async fn also_a_fairly_bad_idea() {
     // Some more niche hardware tests can require this kind of assertion.
-    // For this, you might have to use `std::thread::sleep` or your own
+    // For this, you might have to use `std::thread::sleep` or build your own
     // assertion internal to the test.
     tokio::time::sleep(std::time::Duration::from_millis(1010)).await;
 }
